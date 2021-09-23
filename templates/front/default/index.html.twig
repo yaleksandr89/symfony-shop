@@ -1,0 +1,104 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}Homepage - RankedChoice{% endblock %}
+{% block page_keywords %}Jeans, Jackets{% endblock %}
+{% block page_description %}Main page of RankedChoice shop!{% endblock %}
+
+{% block body %}
+    <div class="container-fluid mt-2">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="banner banner-big">
+                    <a href="#">
+                        <img src="{{ asset('build/images/banner/collection/banner_1.jpg') }}" alt="banner">
+                    </a>
+
+                    <div class="banner-content">
+                        <h3 class="banner-subtitle">
+                            New Collection!
+                        </h3>
+                        <h2 class="banner-title">
+                            Jeans
+                        </h2>
+                        <a href="#" class="btn btn-link">
+                            Show me
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="banner banner-big">
+                    <a href="#">
+                        <img src="{{ asset('build/images/banner/collection/banner_2.jpg') }}" alt="banner">
+                    </a>
+
+                    <div class="banner-content">
+                        <h3 class="banner-subtitle">
+                            Discounts Over 50%
+                        </h3>
+                        <h2 class="banner-title">
+                            Jackets
+                        </h2>
+                        <a href="#" class="btn btn-link">
+                            Show me
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-1 justify-content-center align-items-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="banner banner-middle">
+                    <a href="#">
+                        <img src="{{ asset('build/images/banner/collection/banner_3.jpg') }}" alt="banner">
+                    </a>
+
+                    <div class="banner-content">
+                        <h3 class="banner-subtitle">
+                            Unique!
+                        </h3>
+                        <a href="#" class="btn btn-link">
+                            Hats
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="banner banner-middle">
+                    <a href="#">
+                        <img src="{{ asset('build/images/banner/collection/banner_4.jpg') }}" alt="banner">
+                    </a>
+
+                    <div class="banner-content">
+                        <h3 class="banner-subtitle">
+                            Fashionable!
+                        </h3>
+                        <a href="#" class="btn btn-link">
+                            Dresses
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="banner banner-middle">
+                    <a href="#">
+                        <img src="{{ asset('build/images/banner/collection/banner_5.jpg') }}" alt="banner">
+                    </a>
+
+                    <div class="banner-content">
+                        <h3 class="banner-subtitle text-white">
+                            Branded!
+                        </h3>
+                        <a href="#" class="btn btn-link">
+                            Sneakers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
