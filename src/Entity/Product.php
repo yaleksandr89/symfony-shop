@@ -23,7 +23,7 @@ class Product
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private ?string $title;
+    private string $title;
 
     /**
      * @ORM\Column(type="decimal", precision=6, scale=2)
