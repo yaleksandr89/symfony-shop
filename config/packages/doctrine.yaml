@@ -12,8 +12,8 @@ doctrine:
     mappings:
       App:
         is_bundle: false
-        # type: annotation #Default value
-        type: attribute
+        type: annotation
+        # type: attribute #not work command make:entity ...
         dir: '%kernel.project_dir%/src/Entity'
         prefix: 'App\Entity'
         alias: App

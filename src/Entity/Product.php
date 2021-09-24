@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,41 +13,54 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Product
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
     private int $id;
 
-    #[ORM\Column(
-        type: 'string',
-        length: 255
-    )]
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
     private ?string $title;
 
-    #[ORM\Column(
-        type: 'decimal',
-        precision: 6,
-        scale: 2
-    )]
+    /**
+     * @ORM\Column(type="decimal", precision=6, scale=2)
+     */
     private ?string $price;
 
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Column(type="integer")
+     */
     private ?int $quantity;
 
-    #[ORM\Column(type: 'datetime')]
-    private ?DateTimeInterface $createAt;
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private DateTimeImmutable $createAt;
 
-    #[ORM\Column(
-        type: 'text',
-        nullable: true
-    )]
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
     private ?string $description;
 
-    #[ORM\Column(type: 'boolean')]
+    /**
+     * @ORM\Column(type="boolean")
+     */
     private ?bool $isPublished;
 
-    #[ORM\Column(type: 'boolean')]
+    /**
+     * @ORM\Column(type="boolean")
+     */
     private ?bool $isDeleted;
+
+    public function __construct()
+    {
+        $this->createAt = new DateTimeImmutable();
+        $this->isDeleted = false;
+        $this->isPublished = false;
+    }
 
     /**
      * @return int|null
@@ -112,18 +125,18 @@ class Product
     }
 
     /**
-     * @return DateTimeInterface|null
+     * @return DateTimeImmutable|null
      */
-    public function getCreateAt(): ?DateTimeInterface
+    public function getCreateAt(): ?DateTimeImmutable
     {
         return $this->createAt;
     }
 
     /**
-     * @param DateTimeInterface $createAt
+     * @param DateTimeImmutable $createAt
      * @return $this
      */
-    public function setCreateAt(DateTimeInterface $createAt): self
+    public function setCreateAt(DateTimeImmutable $createAt): self
     {
         $this->createAt = $createAt;
         return $this;
