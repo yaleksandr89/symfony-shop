@@ -1,21 +1,51 @@
-<!DOCTYPE html>
+{% extends 'front/base.html.twig' %}
 
-<title>Register</title>
+{% block title %}Sign Up - RankedChoice{% endblock %}
 
 {% block body %}
-    {% for flashError in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
-    {% endfor %}
+    <div class="page-content pt-4 pb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="page-details page-login mt-4">
+                        <h1 class="h3 mb-3 text-center font-weight-normal title-gradient-1">
+                            Registration Form
+                        </h1>
+                        {{ form_start(registrationForm) }}
 
-    <h1>Register</h1>
+                        <div class="form-group">
+                            {{ form_label(registrationForm.email) }}
+                            {{ form_widget(registrationForm.email) }}
+                            {{ form_errors(registrationForm.email) }}
+                        </div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+                        <div class="form-group">
+                            {{ form_label(registrationForm.plainPassword) }}
+                            {{ form_widget(registrationForm.plainPassword) }}
+                            {{ form_errors(registrationForm.plainPassword) }}
+                        </div>
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                        <div class="form-footer">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <button type="submit" class="btn btn btn-success">
+                                        SIGN UP
+                                    </button>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="custom-control custom-checkbox">
+                                        {{ form_widget(registrationForm.agreeTerms) }}
+                                        {{ form_label(registrationForm.agreeTerms) }}
+                                        {{ form_errors(registrationForm.agreeTerms) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{ form_end(registrationForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
