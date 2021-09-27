@@ -18,6 +18,20 @@ security:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
+    admin_zone:
+      pattern: ^/admin
+      #anonymous: true
+      lazy: true
+      provider: app_user_provider
+      guard:
+        authenticators:
+          - App\Security\AdminZone\LoginFormAuthenticator
+      remember_me:
+        secret: '%kernel.secret%'
+        lifetime: 684800 # 2 week
+        path: /admin/
+      logout:
+        path: admin_security_logout
     main:
       lazy: true
       provider: app_user_provider
