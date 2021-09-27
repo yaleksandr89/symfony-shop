@@ -3,7 +3,7 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    <a href="#" class="logotype">
+    <a href="{{ path('main_homepage') }}" class="logotype">
         <img src="{{ asset('build/images/icons/logo_366x79.svg') }}" alt="RankedChoice Logotype">
     </a>
     <nav class="main-nav">
@@ -35,9 +35,15 @@
             </li>
 
             <li class="menu-item font-weight-bold">
-                <a href="{{ path('main_login') }}">
-                    <div>Login</div>
-                </a>
+                {% if app.user is not null and app.user.verified %}
+                    <a href="{{ path('main_profile_index') }}">
+                        <div>Profile</div>
+                    </a>
+                {% else %}
+                    <a href="{{ path('main_login') }}">
+                        <div>Login</div>
+                    </a>
+                {% endif %}
             </li>
             <li class="menu-item font-weight-bold">
                 <a href="#">
