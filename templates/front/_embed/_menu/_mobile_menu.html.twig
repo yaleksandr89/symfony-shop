@@ -30,9 +30,15 @@
                 </a>
             </li>
             <li class="menu-item font-weight-bold">
-                <a href="#">
-                    <div>Login</div>
-                </a>
+                {% if app.user is not null and app.user.verified %}
+                    <a href="{{ path('main_profile_index') }}">
+                        <div>Profile</div>
+                    </a>
+                {% else %}
+                    <a href="{{ path('main_login') }}">
+                        <div>Login</div>
+                    </a>
+                {% endif %}
             </li>
             <li class="menu-item font-weight-bold">
                 <a href="#">
