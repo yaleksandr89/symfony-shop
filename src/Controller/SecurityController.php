@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use LogicException;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -33,10 +35,11 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/logout", name="main_logout")
-     * @return void
+     * @return RedirectResponse
      */
-    public function logout(): void
+    public function logout(): RedirectResponse
     {
-        throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        return $this->redirectToRoute('main_profile_index');
+        //throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

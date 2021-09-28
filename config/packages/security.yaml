@@ -30,6 +30,7 @@ security:
         path: /admin/
       logout:
         path: admin_security_logout
+        target: admin_security_login
     main:
       lazy: true
       provider: app_user_provider
