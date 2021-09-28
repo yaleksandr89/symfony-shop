@@ -28,10 +28,6 @@ class SecurityController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-//        if ($user && !in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-//            //return $this->redirectToRoute('admin_security_logout');
-//        }
-
         return $this->render('admin/security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
