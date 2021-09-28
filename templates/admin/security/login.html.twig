@@ -17,7 +17,7 @@
                                     <h1 class="h4 text-gray-900 mb-4">Auth Form</h1>
                                 </div>
                                 <form method="post" class="user">
-
+{{ dump() }}
                                     {% if error %}
                                         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                                     {% endif %}

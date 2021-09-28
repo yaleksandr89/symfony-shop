@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\StaticStorage\UserStaticStorage;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -43,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="boolean")
      */
-    private bool $isVerified = false;
+    private bool $isVerified;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -61,7 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $address;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="float", nullable=true)
      */
     private ?int $zipCode;
 
@@ -69,6 +70,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="boolean")
      */
     private ?bool $isDeleted;
+
+    public function __construct()
+    {
+        $this->isVerified = false;
+        $this->isDeleted = false;
+    }
 
     /**
      * @return int|null
@@ -136,6 +143,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->roles = $roles;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasAccessToAdminSection(): bool
+    {
+        $hasAccess = false;
+
+        foreach ($this->getRoles() as $role) {
+            if ($hasAccess) {
+                continue;
+            }
+
+            $hasAccess = in_array($role, UserStaticStorage::getUserRoleHasAccessToAdminSection(), true);
+        }
+
+        return $hasAccess;
     }
 
     /**

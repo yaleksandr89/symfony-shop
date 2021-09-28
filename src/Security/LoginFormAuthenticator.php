@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Exception;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
@@ -20,23 +20,35 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
+class LoginFormAuthenticator extends AbstractAuthenticator
 {
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'main_login';
 
     /**
-     * @var UrlGeneratorInterface
+     * @var UserRepository
      */
-    private UrlGeneratorInterface $urlGenerator;
+    private $userRepository;
 
     /**
-     * @param UrlGeneratorInterface $urlGenerator
+     * @var UrlGeneratorInterface
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    private $urlGenerator;
+
+    public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
     {
+        $this->userRepository = $userRepository;
         $this->urlGenerator = $urlGenerator;
+    }
+
+    /**
+     * @param Request $request
+     * @return bool|null
+     */
+    public function supports(Request $request): ?bool
+    {
+        return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
     /**
@@ -45,15 +57,18 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
      */
     public function authenticate(Request $request): PassportInterface
     {
-        $email = $request->request->get('email', '');
+        $email = $request->request->get('email');
+        $plaintextPassword = $request->request->get('password');
+
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
         return new Passport(
-            new UserBadge($email),
-            new PasswordCredentials($request->request->get('password', '')),
+            new UserBadge($email, function ($userIdentifier) {
+                return $this->userRepository->findOneBy(['email' => $userIdentifier]);
+            }),
+            new PasswordCredentials($plaintextPassword),
             [
-                new CsrfTokenBadge('authenticate', $request->get('_csrf_token')),
-                new RememberMeBadge(),
+                new RememberMeBadge()
             ]
         );
     }
@@ -63,7 +78,6 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
      * @param TokenInterface $token
      * @param string $firewallName
      * @return Response|null
-     * @throws Exception
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
@@ -76,10 +90,11 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     /**
      * @param Request $request
-     * @return string
+     * @param AuthenticationException $exception
+     * @return Response|null
      */
-    protected function getLoginUrl(Request $request): string
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+        return null;
     }
 }

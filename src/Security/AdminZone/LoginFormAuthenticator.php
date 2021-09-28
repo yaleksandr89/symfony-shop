@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security\AdminZone;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,37 +28,24 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    // >>> Autowiring
-    /**
-     * @var Doctrine
-     */
-    private Doctrine $doctrine;
-
-    /**
-     * @required
-     * @param Doctrine $doctrine
-     * @return $this
-     */
-    public function setDoctrine(Doctrine $doctrine): self
-    {
-        $this->doctrine = $doctrine;
-        return $this;
-    }
-
-    // Autowiring <<<
-
     public const LOGIN_ROUTE = 'admin_security_login';
 
     /**
      * @var UrlGeneratorInterface
      */
     private UrlGeneratorInterface $urlGenerator;
+    /**
+     * @var UserRepository
+     */
+    private UserRepository $userRepository;
 
     /**
+     * @param UserRepository $userRepository
      * @param UrlGeneratorInterface $urlGenerator
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
     {
+        $this->userRepository = $userRepository;
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -67,17 +55,15 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
      */
     public function authenticate(Request $request): PassportInterface
     {
-        $email = $request->request->get('email', '');
-        $em = $this->doctrine->getRepository(User::class);
+        $email = $request->request->get('email');
+        $plaintextPassword = $request->request->get('password');
 
         /** @var User $user */
-        $user = $em->findOneBy([
-            'email' => $email
-        ]);
+        $user = $this->userRepository->findOneBy(['email' => $email]);
 
-        if ($user && !in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        if (!$user->hasAccessToAdminSection()) {
             return new Passport(
-                new UserBadge($email),
+                new UserBadge(''),
                 new PasswordCredentials(''),
             );
         }
@@ -86,7 +72,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
         return new Passport(
             new UserBadge($email),
-            new PasswordCredentials($request->request->get('password', '')),
+            new PasswordCredentials($plaintextPassword),
             [
                 new CsrfTokenBadge('authenticate', $request->get('_csrf_token')),
                 new RememberMeBadge(),
