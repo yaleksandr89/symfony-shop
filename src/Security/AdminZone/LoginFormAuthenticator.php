@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\AdminZone;
 
 use App\Entity\User;
@@ -29,12 +31,12 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     /**
      * @var UserRepository
      */
-    private $userRepository;
+    private UserRepository $userRepository;
 
     /**
      * @var UrlGeneratorInterface
      */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
     {
@@ -48,8 +50,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): ?bool
     {
-        return self::LOGIN_ROUTE === $request->attributes->get('_route')
-            && $request->isMethod('POST');
+        return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
     /**
@@ -61,25 +62,22 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $email = $request->request->get('email');
         $plaintextPassword = $request->request->get('password');
 
+        $request->getSession()->set(Security::LAST_USERNAME, $email);
+
         /** @var User $user */
         $user = $this->userRepository->findOneBy(['email' => $email]);
 
-        if ($user->hasAccessToAdminSection()) {
-            $request->getSession()->set(Security::LAST_USERNAME, $email);
-            $userBadge = new UserBadge($email);
-            $passwordCredentials = new PasswordCredentials($plaintextPassword);
-            $badges = [
-                new CsrfTokenBadge('authenticate', $request->get('_csrf_token')),
-                new RememberMeBadge(),
-            ];
-        } else {
-            $request->getSession()->set(Security::AUTHENTICATION_ERROR, $email);
-            $userBadge = new UserBadge('');
-            $passwordCredentials = new PasswordCredentials('');
-            $badges = [];
+        if ($user && !$user->hasAccessToAdminSection()) {
+            $email = '';
         }
 
-        return new Passport($userBadge,$passwordCredentials,$badges);
+        return new Passport(
+            new UserBadge($email),
+            new PasswordCredentials($plaintextPassword),
+            [
+                new RememberMeBadge()
+            ]
+        );
     }
 
     /**
@@ -108,6 +106,6 @@ class LoginFormAuthenticator extends AbstractAuthenticator
             $request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('admin_security_login'));
+        return null;
     }
 }
