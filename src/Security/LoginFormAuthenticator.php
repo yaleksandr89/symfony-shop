@@ -29,12 +29,12 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     /**
      * @var UserRepository
      */
-    private $userRepository;
+    private UserRepository $userRepository;
 
     /**
      * @var UrlGeneratorInterface
      */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
     {
@@ -63,9 +63,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
         return new Passport(
-            new UserBadge($email, function ($userIdentifier) {
-                return $this->userRepository->findOneBy(['email' => $userIdentifier]);
-            }),
+            new UserBadge($email),
             new PasswordCredentials($plaintextPassword),
             [
                 new RememberMeBadge()
@@ -95,6 +93,10 @@ class LoginFormAuthenticator extends AbstractAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
+        if ($request->hasSession()) {
+            $request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
+        }
+
         return null;
     }
 }
