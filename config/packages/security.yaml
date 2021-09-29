@@ -52,5 +52,15 @@ security:
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
   access_control:
-  - { path: ^/profile, roles: ROLE_USER }
-  # - { path: ^/profile, roles: ROLE_USER }
+    # >>> All
+    - { path: ^/admin/login }
+    - { path: ^/admin/logout }
+    # All <<<
+
+    # >>> Front Zone
+    - { path: ^/profile, roles: ROLE_USER }
+    # Front Zone <<<
+
+    # >>> Admin Zone
+    - { path: ^/admin, roles: ROLE_ADMIN }
+    # Admin Zone <<<
