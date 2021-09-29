@@ -20,9 +20,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
-/**
- * @AsCommand(name="app:add-user", description="Create user")
- */
 class AddUserCommand extends Command
 {
     // >> Autowiring
