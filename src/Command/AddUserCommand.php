@@ -135,9 +135,9 @@ class AddUserCommand extends Command
 
         $event = $stopWatch->stop('add-user-command');
         $stopWatchMessage = sprintf(
-            'New user\'s id: %s / Elapsed time: %.2f ms / Consumed memory: %.2f MB',
+            'New user\'s id: %s / Elapsed time: %.2f s / Consumed memory: %.2f MB',
             $user->getId(),
-            $event->getDuration(),
+            number_format($event->getDuration() / 1000, 2),
             number_format($event->getMemory() / 1048576, 2)
         );
         $io->comment($stopWatchMessage);
