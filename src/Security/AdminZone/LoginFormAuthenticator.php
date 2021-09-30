@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Security;
+namespace App\Security\AdminZone;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
@@ -24,7 +26,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'main_login';
+    public const LOGIN_ROUTE = 'admin_security_login';
 
     /**
      * @var UserRepository
@@ -62,6 +64,13 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
+        /** @var User $user */
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if ($user && !$user->hasAccessToAdminSection()) {
+            $email = '';
+        }
+
         return new Passport(
             new UserBadge($email),
             new PasswordCredentials($plaintextPassword),
@@ -83,7 +92,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));
+        return new RedirectResponse($this->urlGenerator->generate('admin_dashboard_show'));
     }
 
     /**

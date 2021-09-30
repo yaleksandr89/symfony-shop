@@ -1,0 +1,61 @@
+{% extends 'admin/layout/layout_empty_page.html.twig' %}
+
+{% block title %}Log In - RankedChoice{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+
+        <div class="col-xl-5 col-lg-6 col-md-9">
+
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-6">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="p-10">
+                                <div class="text-center">
+                                    <h1 class="h4 text-gray-900 mb-4">Auth Form</h1>
+                                </div>
+                                <form method="post" class="user">
+
+                                    {% if error %}
+                                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                                    {% endif %}
+
+                                    <div class="form-group">
+                                        <input type="email" class="form-control form-control-user" id="inputEmail"
+                                               aria-describedby="emailHelp"
+                                               name="email" value="{{ last_username }}"
+                                               placeholder="Enter Email Address..."
+                                        >
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control form-control-user" id="inputPassword"
+                                               name="password"
+                                               placeholder="Password"
+                                        >
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox small">
+                                            <input type="checkbox" class="custom-control-input" id="rememberMe" name="_remember_me">
+                                            <label class="custom-control-label" for="rememberMe">Remember Me</label>
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                                    <button type="submit" class="btn btn-primary btn-user btn-block">
+                                        Login
+                                    </button>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

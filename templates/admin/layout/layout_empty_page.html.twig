@@ -1,0 +1,12 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block layout_body %}
+    <body class="bg-gradient-empty-page">
+
+        <div class="container">
+            {% block body %}{% endblock %}
+        </div>
+
+        {% block javascripts %}{% endblock %}
+    </body>
+{% endblock %}

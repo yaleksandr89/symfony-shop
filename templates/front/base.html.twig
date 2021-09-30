@@ -8,7 +8,7 @@
     <meta name="keywords" content="{% block page_keywords %}clothes, jackets, jeans{% endblock %}">
     <meta name="description" content="{% block page_description %}clothes, jackets, jeans{% endblock %}">
     <link rel="icon" type="image/x-icon" href="{{ asset('build/images/icons/favicon.ico') }}"/>
-    <link rel="stylesheet" href="{{ asset('build/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/css/styles.css') }}">
     {% block stylesheets %}{% endblock %}
 </head>
 
@@ -17,7 +17,7 @@
     {% include 'front/_embed/_header.html.twig' %}
 
     <main class="main">
-        {% include 'front/_embed/_flash_message.html.twig' %}
+        {% include 'front/_embed/_utils/_flash_message.html.twig' %}
         {% block body %}{% endblock %}
     </main>
 

@@ -1,0 +1,43 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}
+    Admin Panel - {% block title_detailed %} | RankedChoice{% endblock %}
+{% endblock %}
+
+{% block layout_body %}
+    <body id="page-top">
+    <div id="wrapper">
+
+        {{ include('admin/_embed/_main/_sidebar.html.twig') }}
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+
+                {{ include('admin/_embed/_main/_topbar.html.twig') }}
+
+                <div class="container-fluid">
+                    {% include 'admin/_embed/_utils/_flash_message.html.twig' %}
+
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
+
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; RankedChoice</span>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+
+    </div>
+
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    {% block javascripts %}{% endblock %}
+    </body>
+{% endblock %}
