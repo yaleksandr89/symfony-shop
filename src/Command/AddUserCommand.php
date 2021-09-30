@@ -117,10 +117,10 @@ class AddUserCommand extends Command
 
         $email = $this->checkingEmail($email, $io);
         $password = $this->checkingPassword($password, $io);
-        $isAdmin = $this->checkingAdmin($isAdmin, $io);
+        $isAdmin = $this->checkingIsAdmin($isAdmin, $io);
 
         try {
-            $user = $this->createUser($email, $password, $isAdmin, $input, $output);
+            $user = $this->createUser($email, $password, $isAdmin);
         } catch (RuntimeException $exception) {
             $io->error($exception->getMessage());
             return Command::FAILURE;
@@ -145,27 +145,12 @@ class AddUserCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function createUser(string $email, string $password, bool $isAdmin, InputInterface $input, OutputInterface $output): User
+    private function createUser(string $email, string $password, bool $isAdmin): User
     {
-        $io = new SymfonyStyle($input, $output);
-        $checkingUser = $this->userRepository->findOneBy(['email' => $email]);
-        $isExistingUser = true;
+        $existingUser = $this->userRepository->findOneBy(['email' => $email]);
 
-        if ($checkingUser) {
-            while ($isExistingUser) {
-                $io->title('User already exist!');
-                $question = new Question('Repeat input? (yes or no)', 'no');
-                $answerToQuestion = $io->askQuestion($question);
-
-                if ($answerToQuestion === 'no') {
-                    throw new RuntimeException('User already exist');
-                } else {
-                    $this->execute($input, $output);
-                    $isExistingUser = false;
-                }
-            }
-
-            return $checkingUser;
+        if ($existingUser) {
+            throw new RuntimeException('User already exist');
         }
 
         $user = new User();
@@ -234,7 +219,7 @@ class AddUserCommand extends Command
      * @param SymfonyStyle $io
      * @return bool|null
      */
-    private function checkingAdmin(string $isAdmin, SymfonyStyle $io): ?bool
+    private function checkingIsAdmin(string $isAdmin, SymfonyStyle $io): ?bool
     {
         if (!$isAdmin) {
             $isIsAdmin = false;
@@ -253,4 +238,5 @@ class AddUserCommand extends Command
         }
         return null;
     }
+
 }
