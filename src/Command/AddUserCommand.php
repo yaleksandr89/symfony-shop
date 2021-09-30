@@ -41,16 +41,16 @@ class AddUserCommand extends Command
     /**
      * @var UserPasswordHasherInterface
      */
-    private UserPasswordHasherInterface $encoder;
+    private UserPasswordHasherInterface $hasher;
 
     /**
      * @required
-     * @param UserPasswordHasherInterface $encoder
+     * @param UserPasswordHasherInterface $hasher
      * @return AddUserCommand
      */
-    public function setEncoder(UserPasswordHasherInterface $encoder): AddUserCommand
+    public function setEncoder(UserPasswordHasherInterface $hasher): AddUserCommand
     {
-        $this->encoder = $encoder;
+        $this->hasher = $hasher;
         return $this;
     }
 
@@ -90,7 +90,7 @@ class AddUserCommand extends Command
             ->setDescription(self::$defaultDescription)
             ->addOption('email', 'email', InputArgument::REQUIRED, 'Enter email')
             ->addOption('password', 'password', InputArgument::REQUIRED, 'Enter password')
-            ->addOption('isAdmin', '', InputArgument::OPTIONAL, 'If set the user is created as an administrator', 0);
+            ->addOption('isAdmin', '', InputArgument::OPTIONAL, 'If set the user is created as an administrator', '0');
     }
 
     /**
@@ -115,24 +115,12 @@ class AddUserCommand extends Command
         $io->title('Add User Command Wizard');
         $io->text(['Please, enter some information:']);
 
-//        $email = $this->checkingEmail($email, $io);
-//        $password = $this->checkingPassword($password, $io);
-//        $isAdmin = $this->checkingAdmin($isAdmin, $io);
-
-        if (!$email) {
-            $email = $io->ask('Email');
-        }
-
-        if (!$password) {
-            $password = $io->askHidden('Password (your type will be hidden)');
-        }
-        if (!$isAdmin) {
-            $isAdminQuestion = new Question('Is admin? (1 or 0)', 0);
-            $isAdmin = $io->askQuestion($isAdminQuestion);
-        }
+        $email = $this->checkingEmail($email, $io);
+        $password = $this->checkingPassword($password, $io);
+        $isAdmin = $this->checkingAdmin($isAdmin, $io);
 
         try {
-            $user = $this->createUser($email, $password, (bool)$isAdmin);
+            $user = $this->createUser($email, $password, $isAdmin, $input, $output);
         } catch (RuntimeException $exception) {
             $io->error($exception->getMessage());
             return Command::FAILURE;
@@ -143,7 +131,6 @@ class AddUserCommand extends Command
             $isAdmin ? 'Administrator' : 'User',
             $email
         );
-
         $io->success($successMessage);
 
         $event = $stopWatch->stop('add-user-command');
@@ -158,20 +145,35 @@ class AddUserCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function createUser(string $email, string $password, bool $isAdmin): User
+    private function createUser(string $email, string $password, bool $isAdmin, InputInterface $input, OutputInterface $output): User
     {
-        $existingUser = $this->userRepository->findOneBy(['email' => $email]);
+        $io = new SymfonyStyle($input, $output);
+        $checkingUser = $this->userRepository->findOneBy(['email' => $email]);
+        $isExistingUser = true;
 
-        if ($existingUser) {
-            throw new RuntimeException('User already exist');
+        if ($checkingUser) {
+            while ($isExistingUser) {
+                $io->title('User already exist!');
+                $question = new Question('Repeat input? (yes or no)', 'no');
+                $answerToQuestion = $io->askQuestion($question);
+
+                if ($answerToQuestion === 'no') {
+                    throw new RuntimeException('User already exist');
+                } else {
+                    $this->execute($input, $output);
+                    $isExistingUser = false;
+                }
+            }
+
+            return $checkingUser;
         }
 
         $user = new User();
         $user->setEmail($email);
         $user->setRoles([$isAdmin ? 'ROLE_ADMIN' : 'ROLE_USER']);
 
-        $encodedPassword = $this->encoder->hashPassword($user, $password);
-        $user->setPassword($encodedPassword);
+        $hashPassword = $this->hasher->hashPassword($user, $password);
+        $user->setPassword($hashPassword);
 
         $user->setIsVerified(true);
 
@@ -181,43 +183,74 @@ class AddUserCommand extends Command
         return $user;
     }
 
-//    /**
-//     * @param bool $email
-//     * @param SymfonyStyle $io
-//     * @return string|null
-//     */
-//    private function checkingEmail(bool $email, SymfonyStyle $io): ?string
-//    {
-//        if (!$email) {
-//            return $io->ask('Email');
-//        }
-//        return null;
-//    }
-//
-//    /**
-//     * @param bool $password
-//     * @param SymfonyStyle $io
-//     * @return string|null
-//     */
-//    private function checkingPassword(bool $password, SymfonyStyle $io): ?string
-//    {
-//        if (!$password) {
-//            return $io->askHidden('Password (your type will be hidden)');
-//        }
-//        return null;
-//    }
-//
-//    /**
-//     * @param int $isAdmin
-//     * @param SymfonyStyle $io
-//     * @return int|null
-//     */
-//    private function checkingAdmin(int $isAdmin, SymfonyStyle $io): ?int
-//    {
-//        if (!$isAdmin) {
-//            $isAdminQuestion = new Question('Is admin? (1 or 0)', 0);
-//            return $io->askQuestion($isAdminQuestion);
-//        }
-//        return null;
-//    }
+    /**
+     * @param bool $email
+     * @param SymfonyStyle $io
+     * @return string|null
+     */
+    private function checkingEmail(bool $email, SymfonyStyle $io): ?string
+    {
+        if (!$email) {
+            $isEmail = false;
+
+            while (!$isEmail) {
+                $email = $io->ask('Email');
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $isEmail = true;
+                } else {
+                    $io->error('Incorrect email format, repeat the input');
+                }
+            }
+            return $email;
+        }
+        return null;
+    }
+
+    /**
+     * @param bool $password
+     * @param SymfonyStyle $io
+     * @return string|null
+     */
+    private function checkingPassword(bool $password, SymfonyStyle $io): ?string
+    {
+        if (!$password) {
+            $isPassword = false;
+
+            while (!$isPassword) {
+                $password = $io->askHidden('Password (your type will be hidden)');
+                if (mb_strlen($password) >= 6) {
+                    $isPassword = true;
+                } else {
+                    $io->error('The password can\'t be less than 6 characters');
+                }
+            }
+            return $password;
+        }
+        return null;
+    }
+
+    /**
+     * @param string $isAdmin
+     * @param SymfonyStyle $io
+     * @return bool|null
+     */
+    private function checkingAdmin(string $isAdmin, SymfonyStyle $io): ?bool
+    {
+        if (!$isAdmin) {
+            $isIsAdmin = false;
+
+            while (!$isIsAdmin) {
+                $isAdminQuestion = new Question('Is admin? (1 or 0)', '0');
+                $isAdmin = $io->askQuestion($isAdminQuestion);
+
+                if ($isAdmin === '1' || $isAdmin === '0') {
+                    $isIsAdmin = true;
+                } else {
+                    $io->error('Please, enter 0 / 1 or leave empty (default = 0)');
+                }
+            }
+            return (bool)$isAdmin;
+        }
+        return null;
+    }
 }
