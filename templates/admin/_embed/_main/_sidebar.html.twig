@@ -23,6 +23,19 @@
     <div class="sidebar-heading">
         Products
     </div>
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
+           aria-expanded="true" aria-controls="collapseProducts">
+            <i class="fas fa-fw fa-cubes"></i>
+            <span>Products</span>
+        </a>
+        <div id="collapseProducts" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div class="py-2 collapse-inner">
+                <a class="collapse-item" href="{{ path('admin_product_list') }}">All list</a>
+                <a class="collapse-item" href="{{ path('admin_product_add') }}">Add new</a>
+            </div>
+        </div>
+    </li>
 
     <hr class="sidebar-divider">
 

@@ -1,0 +1,54 @@
+{% extends 'admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}All Products{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include 'admin/_embed/_card/_header_action.html.twig' with
+                {
+                    'sectionTitle': 'Products',
+                    'actionUrl': path('admin_product_add')
+                }
+            %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="main_table">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Category</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Cover</th>
+                        <th>Is published</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            {# <td>{% if product.category %}{{ product.category.title }}{% endif %}</td> #}
+                            <td>...</td>
+                            <td>{{ product.title }}</td>
+                            <td>{{ product.price }}</td>
+                            <td>{{ product.quantity }}</td>
+                            <td>
+
+                            </td>
+                            <td>
+                                <i class="fas fa-check fa-sm" style="color: {% if product.isPublished %}green{% else %}lightgray{% endif %};"></i></td>
+                            <td>
+                                <a href="#" class="btn btn-outline-info">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
