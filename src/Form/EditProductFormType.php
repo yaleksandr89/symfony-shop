@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Entity\Product;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -61,6 +62,14 @@ class EditProductFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'style' => 'overflow: hidden',
+                ],
+            ])
+            ->add('newImage', FileType::class, [
+                'label' => 'Choose new image',
+                'required' => false,
+                'mapped' => false,
+                'attr' => [
+                    'class' => 'form-control-file'
                 ],
             ])
             ->add('isPublished', CheckboxType::class, [
