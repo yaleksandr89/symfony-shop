@@ -39,11 +39,15 @@ final class FileSaver
     }
 
     /**
-     * @param UploadedFile $uploadedFile
+     * @param UploadedFile|null $uploadedFile
      * @return string|null
      */
-    public function saveUploadedFileIntoTemp(UploadedFile $uploadedFile): ?string
+    public function saveUploadedFileIntoTemp(?UploadedFile $uploadedFile): ?string
     {
+        if (!$uploadedFile) {
+            return null;
+        }
+
         $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $saveFileName = $this->slugger->slug($originalFileName);
         $filename = sprintf('%s-%s.%s', $saveFileName, str_replace('.', '', uniqid('', true)), $uploadedFile->guessExtension());

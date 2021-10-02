@@ -30,8 +30,7 @@ final class ProductManager
         EntityManagerInterface $em,
         string $productImagesDir,
         ProductImageManager $productImagesManager
-    )
-    {
+    ) {
         $this->em = $em;
         $this->productImagesDir = $productImagesDir;
         $this->productImagesManager = $productImagesManager;
@@ -62,9 +61,15 @@ final class ProductManager
         $this->em->flush();
     }
 
-    public function remove()
+    /**
+     * @param Product $product
+     * @return void
+     */
+    public function remove(Product $product): void
     {
-        // ...
+        $this->persist($product);
+        $product->setIsDeleted(true);
+        $this->flush();
     }
 
     /**

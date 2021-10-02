@@ -9,7 +9,6 @@ use App\Entity\ProductImage;
 use App\Utils\File\ImageResizer;
 use App\Utils\FileSystem\FilesystemWorker;
 use Doctrine\ORM\EntityManagerInterface;
-use FilesystemIterator;
 
 final class ProductImageManager
 {

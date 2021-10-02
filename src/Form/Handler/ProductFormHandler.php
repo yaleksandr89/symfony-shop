@@ -8,7 +8,6 @@ use App\Entity\Product;
 use App\Utils\File\FileSaver;
 use App\Utils\FileSystem\FilesystemWorker;
 use App\Utils\Manager\ProductManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 
 class ProductFormHandler
@@ -37,8 +36,7 @@ class ProductFormHandler
         ProductManager $productManager,
         FileSaver $fileSaver,
         FilesystemWorker $filesystemWorker
-    )
-    {
+    ) {
         $this->fileSaver = $fileSaver;
         $this->productManager = $productManager;
         $this->filesystemWorker = $filesystemWorker;
@@ -66,8 +64,10 @@ class ProductFormHandler
 
         $this->productManager->flush();
 
-        $this->filesystemWorker->remove($uploadsTempDir . '/'. $uploadsFilename);
-        $this->filesystemWorker->removeFolderIfEmpty($uploadsTempDir);
+        if ($tempImageFilename) {
+            $this->filesystemWorker->remove($uploadsTempDir . '/' . $uploadsFilename);
+            $this->filesystemWorker->removeFolderIfEmpty($uploadsTempDir);
+        }
 
         return $product;
     }

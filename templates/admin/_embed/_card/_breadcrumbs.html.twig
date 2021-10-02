@@ -1,0 +1,16 @@
+<div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <a href="{{ actionUrl }}" class="font-weight-bold text-primary">{{ sectionTitle }}</a>
+        <div class="ml-2 mr-2">/</div>
+        <h6 class="m-0 font-weight-bold text-primary">
+            {% if entity.id %}
+                {{ entity.title }}
+            {% else %}
+                Add new
+            {% endif %}
+        </h6>
+    </div>
+    <a href="{{ addActionUrl }}" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Add new
+    </a>
+</div>
