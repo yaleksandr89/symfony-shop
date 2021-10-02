@@ -22,6 +22,8 @@ security:
       pattern: ^/admin
       lazy: true
       provider: app_user_provider
+      access_denied_handler: App\Security\Handler\AccessAdminZoneDeniedHandler
+      entry_point: App\Security\EntryPoint\AuthenticationAdminZoneEntryPoint
       custom_authenticators:
         - App\Security\AdminZone\LoginFormAuthenticator
       remember_me:
@@ -34,6 +36,8 @@ security:
     main:
       lazy: true
       provider: app_user_provider
+      access_denied_handler: App\Security\Handler\AccessMainDeniedHandler
+      entry_point: App\Security\EntryPoint\AuthenticationMainEntryPoint
       custom_authenticator: App\Security\LoginFormAuthenticator
       remember_me:
         secret: '%kernel.secret%'
