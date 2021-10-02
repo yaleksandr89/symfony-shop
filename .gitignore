@@ -1,3 +1,7 @@
+###> Custom Rules ###
+uploads/
+### Custom Rules <###
+
 ###> symfony/framework-bundle ###
 /.env
 /.env.test

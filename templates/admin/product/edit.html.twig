@@ -1,0 +1,156 @@
+{% extends 'admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}Edit Product{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
+                'sectionTitle': 'Products',
+                'entity': product,
+                'actionUrl': path('admin_product_list'),
+                'addActionUrl': path('admin_product_add'),
+            } %}
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.title) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.title) }}
+                    <div class="form-error">
+                        {{ form_errors(form.title) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Slug
+                </div>
+                <div class="col-md-11">
+                    {{ product.slug }}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.price) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.price) }}
+                    <div class="form-error">
+                        {{ form_errors(form.price) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.quantity) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.quantity) }}
+                    <div class="form-error">
+                        {{ form_errors(form.quantity) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.description) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.description) }}
+                    <div class="form-error">
+                        {{ form_errors(form.description) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.newImage) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.newImage) }}
+                    <div class="form-error">
+                        {{ form_errors(form.newImage) }}
+                    </div>
+                </div>
+            </div>
+
+            {% if images|length %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <span class="text-gray-600">Current images:</span>
+                    </div>
+                </div>
+
+                {% for image in images %}
+                    <div class="row mt-2">
+                        <div class="col-md-5">
+                            <img src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.filenameMiddle) }}" alt="{{ image.filenameMiddle }}">
+                        </div>
+                        <div class="col-md-7">
+                            <a href="{{ path('admin_product_image_delete', {'id': image.id}) }}" class="btn btn-outline-info">
+                                DELETE
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isPublished) }}
+                    {{ form_label(form.isPublished) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isPublished) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isDeleted) }}
+                    {{ form_label(form.isDeleted) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isDeleted) }}
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+
+            {% include 'admin/_embed/_card/_form_buttons.html.twig' with {
+                'entity':product,
+                'catalogUrl':path('admin_product_list'),
+                'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+            } %}
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+    {% if product %}
+        {% if product.id != null %}
+            {% set actionUrl = path('admin_product_delete', {'id': product.id}) %}
+        {% else %}
+            {% set actionUrl = null %}
+        {% endif %}
+        {% include 'admin/_embed/_utils/_modal.html.twig' with {
+            'modalId': 'approveDeleteModal',
+            'modalTitle': 'Are you sure?',
+            'modalText': 'Product will be deleted.',
+            'modalBtnText': 'Delete row',
+            'actionUrl': actionUrl,
+        } %}
+    {% endif %}
+{% endblock %}
