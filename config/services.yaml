@@ -6,6 +6,8 @@
 parameters:
   uploads_dir: '%kernel.project_dir%/public/uploads'
   uploads_temp_dir: '%uploads_dir%/temp'
+  uploads_images_dir: '%uploads_dir%/images'
+  product_images_dir: '%uploads_images_dir%/products'
 services:
   # default configuration for services in *this* file
   _defaults:
@@ -13,6 +15,7 @@ services:
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
     bind:
       string $uploadsTempDir: '%uploads_temp_dir%'
+      string $productImagesDir: '%product_images_dir%'
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name

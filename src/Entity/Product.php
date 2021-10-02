@@ -59,7 +59,7 @@ class Product
     private ?bool $isDeleted;
 
     /**
-     * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", cascade={"persist"}, orphanRemoval=true)
      */
     private PersistentCollection|ArrayCollection $productImages;
 
