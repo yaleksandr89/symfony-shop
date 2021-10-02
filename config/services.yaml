@@ -27,5 +27,10 @@ services:
       - '../src/Kernel.php'
       - '../src/Tests/'
 
+  doctrineMigrationDiffListener:
+    class: App\Utils\Event\Subscriber\MigrationEventSubscriber
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

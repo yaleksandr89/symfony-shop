@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
@@ -21,7 +22,7 @@ class Product
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -63,11 +64,17 @@ class Product
      */
     private PersistentCollection|ArrayCollection $productImages;
 
+    /**
+     * @Gedmo\Slug(fields={"title"})
+     * @ORM\Column(type="string", length=128, unique=true, nullable=true)
+     */
+    private ?string $slug = null;
+
     public function __construct()
     {
-        $this->createAt = new DateTimeImmutable();
         $this->isDeleted = false;
         $this->isPublished = false;
+        $this->createAt = new DateTimeImmutable();
         $this->productImages = new ArrayCollection();
     }
 
@@ -237,6 +244,25 @@ class Product
         if ($this->productImages->removeElement($productImage) && $productImage->getProduct() === $this) {
             $productImage->setProduct(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string|null $slug
+     * @return $this
+     */
+    public function setSlug(?string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }
