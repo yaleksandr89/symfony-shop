@@ -18,6 +18,8 @@
                                 </div>
                                 <form method="post" class="user">
 
+                                    {% include 'admin/_embed/_utils/_flash_message.html.twig' %}
+
                                     {% if error %}
                                         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                                     {% endif %}
