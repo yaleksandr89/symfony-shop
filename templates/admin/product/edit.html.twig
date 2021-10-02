@@ -140,17 +140,12 @@
         </div>
     </div>
     {% if product %}
-        {% if product.id != null %}
-            {% set actionUrl = path('admin_product_delete', {'id': product.id}) %}
-        {% else %}
-            {% set actionUrl = null %}
-        {% endif %}
         {% include 'admin/_embed/_utils/_modal.html.twig' with {
             'modalId': 'approveDeleteModal',
             'modalTitle': 'Are you sure?',
             'modalText': 'Product will be deleted.',
             'modalBtnText': 'Delete row',
-            'actionUrl': actionUrl,
+            'actionUrl': path('admin_product_delete', {'id': product.id}),
         } %}
     {% endif %}
 {% endblock %}

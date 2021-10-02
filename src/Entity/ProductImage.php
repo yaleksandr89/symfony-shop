@@ -17,13 +17,13 @@ class ProductImage
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="productImages")
      * @ORM\JoinColumn(nullable=false)
      */
-    private ?Product $product;
+    private $product;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -33,12 +33,12 @@ class ProductImage
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private ?string $filenameMiddle;
+    private $filenameMiddle;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private ?string $filenameSmall;
+    private $filenameSmall;
 
     /**
      * @return int|null

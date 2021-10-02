@@ -9,7 +9,6 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -22,7 +21,7 @@ class Product
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private ?int $id = null;
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -32,43 +31,43 @@ class Product
     /**
      * @ORM\Column(type="decimal", precision=6, scale=2)
      */
-    private ?string $price;
+    private $price;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private ?int $quantity;
+    private $quantity;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private DateTimeImmutable $createAt;
+    private $createAt;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private ?string $description;
+    private $description;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private ?bool $isPublished;
+    private $isPublished;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private ?bool $isDeleted;
+    private $isDeleted;
 
     /**
      * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", cascade={"persist"}, orphanRemoval=true)
      */
-    private PersistentCollection|ArrayCollection $productImages;
+    private $productImages;
 
     /**
      * @Gedmo\Slug(fields={"title"})
      * @ORM\Column(type="string", length=128, unique=true, nullable=true)
      */
-    private ?string $slug = null;
+    private $slug;
 
     public function __construct()
     {

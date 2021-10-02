@@ -9,13 +9,8 @@ use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 
-final class ProductManager
+final class ProductManager extends AbstractBaseManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $em;
-
     /**
      * @var string
      */
@@ -31,7 +26,8 @@ final class ProductManager
         string $productImagesDir,
         ProductImageManager $productImagesManager
     ) {
-        $this->em = $em;
+        parent::__construct($em);
+
         $this->productImagesDir = $productImagesDir;
         $this->productImagesManager = $productImagesManager;
     }
@@ -39,51 +35,29 @@ final class ProductManager
     /**
      * @return ObjectRepository
      */
-    public function getProductRepository(): ObjectRepository
+    public function getRepository(): ObjectRepository
     {
         return $this->em->getRepository(Product::class);
     }
 
     /**
-     * @param Product|null $product
-     * @return void
+     * @param object $entity
+     * @return void;
      */
-    public function persist(?Product $product): void
+    public function remove(object $entity): void
     {
-        $this->em->persist($product);
-    }
-
-    /**
-     * @return void
-     */
-    public function flush(): void
-    {
-        $this->em->flush();
-    }
-
-    /**
-     * @param Product $product
-     * @return void
-     */
-    public function remove(Product $product): void
-    {
-        $this->persist($product);
-        $product->setIsDeleted(true);
+        $this->persist($entity);
+        $entity->setIsDeleted(true);
         $this->flush();
     }
 
     /**
-     * @param Product|null $product
+     * @param Product $product
      * @return string
      */
-    public function getProductImagesDir(?Product $product): string
+    public function getProductImagesDir(Product $product): string
     {
-        if ($product) {
-            $productId = $product->getId();
-        } else {
-            $productId = 'ID_product_not_fount';
-        }
-        return sprintf('%s/%s', $this->productImagesDir, $productId);
+        return sprintf('%s/%s', $this->productImagesDir, $product->getId());
     }
 
 
