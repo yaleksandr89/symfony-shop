@@ -9,8 +9,7 @@
                 {
                     'sectionTitle': 'Products',
                     'actionUrl': path('admin_product_add')
-                }
-            %}
+                } %}
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -37,7 +36,15 @@
                             <td>{{ product.price }}</td>
                             <td>{{ product.quantity }}</td>
                             <td>
-
+                                {% set images = product.getProductImages().getValues() %}
+                                {% if images|length %}
+                                    {% set image = images[0] %}
+                                    <img
+                                            src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.filenameMiddle) }}"
+                                            style="width: 250px"
+                                            alt="{{ image.filenameMiddle }}"
+                                    >
+                                {% endif %}
                             </td>
                             <td>
                                 <i class="fas fa-check fa-sm" style="color: {% if product.isPublished %}green{% else %}lightgray{% endif %};"></i></td>

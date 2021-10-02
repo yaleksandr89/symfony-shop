@@ -46,8 +46,7 @@ final class FileSaver
     {
         $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $saveFileName = $this->slugger->slug($originalFileName);
-        $filename = sprintf('%s-%s.%s', $saveFileName, uniqid('', true), $uploadedFile->guessExtension());
-
+        $filename = sprintf('%s-%s.%s', $saveFileName, str_replace('.', '', uniqid('', true)), $uploadedFile->guessExtension());
         $this->filesystemWorker->createFolderIfNotExist($this->uploadsTempDir);
 
         try {
@@ -55,6 +54,15 @@ final class FileSaver
         } catch (FileException $exception) {
             return null;
         }
+
         return $filename;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUploadsTempDir(): string
+    {
+        return $this->uploadsTempDir;
     }
 }

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Utils\Manager;
 
+use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Utils\File\ImageResizer;
 use App\Utils\FileSystem\FilesystemWorker;
 use Doctrine\ORM\EntityManagerInterface;
+use FilesystemIterator;
 
 final class ProductImageManager
 {
@@ -62,8 +64,7 @@ final class ProductImageManager
 
         $this->filesystemWorker->createFolderIfNotExist($productDir);
 
-        $filenameId = uniqid('', true);
-        $filenameId = str_replace('.', '-', $filenameId);
+        $filenameId = str_replace('.', '', uniqid('', true));
 
         $imageSmallParams = [
             'width' => 60,
@@ -95,5 +96,30 @@ final class ProductImageManager
         $productImage->setFilenameBig($imageBig);
 
         return $productImage;
+    }
+
+    /**
+     * @param ProductImage $productImage
+     * @param string $productImageDir
+     * @return void;
+     */
+    public function removeImageFromProduct(ProductImage $productImage, string $productImageDir): void
+    {
+        $smallFilePath = $productImageDir . '/' . $productImage->getFilenameSmall();
+        $this->filesystemWorker->remove($smallFilePath);
+
+        $middleFilePath = $productImageDir . '/' . $productImage->getFilenameMiddle();
+        $this->filesystemWorker->remove($middleFilePath);
+
+        $bigFilePath = $productImageDir . '/' . $productImage->getFilenameBig();
+        $this->filesystemWorker->remove($bigFilePath);
+
+        $this->filesystemWorker->removeFolderIfEmpty($productImageDir);
+
+        /** @var Product $product */
+        $product = $productImage->getProduct();
+        $product->removeProductImage($productImage);
+
+        $this->em->flush();
     }
 }
