@@ -76,7 +76,6 @@ class UpdateSlugProduct extends Command
         $all = (bool)$input->getOption('all');
 
         $io->title('Update slug product');
-        $io->text(['Without option, update slug=null']);
 
         try {
             $updateCountProduct = $this->updateSlugProduct($all);

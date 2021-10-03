@@ -44,11 +44,13 @@ class ProductFormHandler
 
     /**
      * @param FormInterface $form
-     * @param Product|null $product
+     * @param Product $product
      * @return Product
      */
-    public function processEditForm(FormInterface $form, ?Product $product): Product
+    public function processEditForm(FormInterface $form, Product $product): Product
     {
+        $this->productManager->persist($product);
+
         $newImageFile = $form->get('newImage')->getData();
 
         $uploadsTempDir = $this->fileSaver->getUploadsTempDir();
@@ -60,7 +62,6 @@ class ProductFormHandler
 
         $this->productManager->updateProductImages($product, $tempImageFilename);
 
-        $this->productManager->persist($product);
         $this->productManager->flush();
 
         if ($tempImageFilename) {
