@@ -9,8 +9,9 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Uid\UuidV4;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
@@ -22,56 +23,62 @@ class Product
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private ?int $id = null;
+    private $id;
+
+    /**
+     * @ORM\Column(type="uuid")
+     */
+    private $uuid;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $title;
+    private $title;
 
     /**
-     * @ORM\Column(type="decimal", precision=6, scale=2)
+     * @ORM\Column(type="decimal", precision=15, scale=2)
      */
-    private ?string $price;
+    private $price;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private ?int $quantity;
+    private $quantity;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private DateTimeImmutable $createAt;
+    private $createAt;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private ?string $description;
+    private $description;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private ?bool $isPublished;
+    private $isPublished;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private ?bool $isDeleted;
+    private $isDeleted;
 
     /**
      * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", cascade={"persist"}, orphanRemoval=true)
      */
-    private PersistentCollection|ArrayCollection $productImages;
+    private $productImages;
 
     /**
      * @Gedmo\Slug(fields={"title"})
      * @ORM\Column(type="string", length=128, unique=true, nullable=true)
      */
-    private ?string $slug = null;
+    private $slug;
 
     public function __construct()
     {
+        $this->uuid = Uuid::v4();
         $this->isDeleted = false;
         $this->isPublished = false;
         $this->createAt = new DateTimeImmutable();
@@ -84,6 +91,14 @@ class Product
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return UuidV4
+     */
+    public function getUuid(): UuidV4
+    {
+        return $this->uuid;
     }
 
     /**

@@ -46,9 +46,11 @@ final class FilesystemWorker
      */
     public function removeFolderIfEmpty(string $pathToDir): void
     {
-        $iterator = new FilesystemIterator($pathToDir);
-        if (!$iterator->valid()) {
-            $this->filesystem->remove($pathToDir);
+        if (is_dir($pathToDir)) {
+            $iterator = new FilesystemIterator($pathToDir);
+            if (!$iterator->valid()) {
+                $this->filesystem->remove($pathToDir);
+            }
         }
     }
 }

@@ -5,7 +5,7 @@
         </a>
         {{ submitBtn|raw }}
     </div>
-    {% if entity.id %}
+    {% if entity and entity.id %}
         <a class="btn btn-white" data-toggle="modal" data-target="#approveDeleteModal">
             <i class="fas fa-times fa-sm"></i> Delete row
         </a>

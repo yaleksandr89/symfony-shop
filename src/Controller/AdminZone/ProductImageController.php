@@ -33,7 +33,10 @@ class ProductImageController extends AbstractController
         /** @var Product $product */
         $product = $productImage->getProduct();
         $productImageDir = $productManager->getProductImagesDir($product);
+        $imgId = $productImage->getId();
+
         $productImageManager->removeImageFromProduct($productImage, $productImageDir);
+        $this->addFlash('warning', "The image (ID: $imgId) was successfully deleted!");
 
         return $this->redirectToRoute('admin_product_edit', [
             'id' => $product->getId(),

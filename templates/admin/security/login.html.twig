@@ -19,10 +19,7 @@
                                 <form method="post" class="user">
 
                                     {% include 'admin/_embed/_utils/_flash_message.html.twig' %}
-
-                                    {% if error %}
-                                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                                    {% endif %}
+                                    {% include 'admin/_embed/_utils/_error_authenticator.html.twig' %}
 
                                     <div class="form-group">
                                         <input type="email" class="form-control form-control-user" id="inputEmail"

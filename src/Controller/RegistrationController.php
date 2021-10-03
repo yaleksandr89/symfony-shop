@@ -40,7 +40,7 @@ class RegistrationController extends AbstractController
      * @return Response
      * @throws TransportExceptionInterface
      */
-    public function register(Request $request, UserPasswordHasherInterface $passwordEncoder): Response
+    public function registration(Request $request, UserPasswordHasherInterface $passwordEncoder): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('main_profile_index');
@@ -57,10 +57,6 @@ class RegistrationController extends AbstractController
                     $user,
                     $form->get('plainPassword')->getData()
                 )
-//                $passwordEncoder->encodePassword(
-//                    $user,
-//                    $form->get('plainPassword')->getData()
-//                )
             );
 
             $entityManager = $this->getDoctrine()->getManager();
@@ -75,14 +71,15 @@ class RegistrationController extends AbstractController
                     ->from(new Address('no-reply@alexanderyurchenko.ru', 'No Reply'))
                     ->to($user->getEmail())
                     ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
+                    ->htmlTemplate('front/email/security/confirmation_email.html.twig')
             );
             // do anything else you need here, like send an email
+            $this->addFlash('success', 'An email has been sent. Please check your inbox to complete registration.');
 
             return $this->redirectToRoute('main_homepage');
         }
 
-        return $this->render('registration/register.html.twig', [
+        return $this->render('front/security/registration.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
     }

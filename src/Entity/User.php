@@ -23,53 +23,53 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private ?string $email;
+    private $email;
 
     /**
      * @ORM\Column(type="json")
      */
-    private array $roles = [];
+    private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
-    private string $password;
+    private $password;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private bool $isVerified;
+    private $isVerified;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $fullName;
+    private $fullName;
 
     /**
      * @ORM\Column(type="string", length=30, nullable=true)
      */
-    private ?string $phone;
+    private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $address;
+    private $address;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private ?int $zipCode;
+    private $zipCode;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private ?bool $isDeleted;
+    private $isDeleted;
 
     public function __construct()
     {

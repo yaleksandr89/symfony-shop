@@ -10,9 +10,7 @@
             <div class="modal-body">{{ modalText }}</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                {% if actionUrl != null %}
-                    <a class="btn btn-primary" href="{{ actionUrl }}">{{ modalBtnText }}</a>
-                {% endif %}
+                <a class="btn btn-primary" href="{{ actionUrl }}">{{ modalBtnText }}</a>
             </div>
         </div>
     </div>

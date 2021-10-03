@@ -9,14 +9,10 @@ use App\Entity\ProductImage;
 use App\Utils\File\ImageResizer;
 use App\Utils\FileSystem\FilesystemWorker;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectRepository;
 
-final class ProductImageManager
+final class ProductImageManager extends AbstractBaseManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private EntityManagerInterface $em;
-
     /**
      * @var FilesystemWorker
      */
@@ -44,10 +40,19 @@ final class ProductImageManager
         string $uploadsTempDir,
         ImageResizer $imageResizer
     ) {
-        $this->em = $em;
+        parent::__construct($em);
+
         $this->filesystemWorker = $filesystemWorker;
         $this->uploadsTempDir = $uploadsTempDir;
         $this->imageResizer = $imageResizer;
+    }
+
+    /**
+     * @return ObjectRepository
+     */
+    public function getRepository(): ObjectRepository
+    {
+        return $this->em->getRepository(ProductImage::class);
     }
 
     /**

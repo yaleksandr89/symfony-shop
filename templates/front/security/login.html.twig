@@ -13,6 +13,9 @@
                         </h1>
                         <form method="post" id="form">
 
+                            {% include 'front/_embed/_utils/_flash_message.html.twig' %}
+                            {% include 'front/_embed/_utils/_error_authenticator.html.twig' %}
+
                             <div class="form-group">
                                 <label for="inputEmail">Username or email address *</label>
                                 <input type="email" value="{{ last_username }}" class="form-control" id="inputEmail" name="email" required autofocus>
