@@ -3,7 +3,7 @@
         <a href="{{ actionUrl }}" class="font-weight-bold text-primary">{{ sectionTitle }}</a>
         <div class="ml-2 mr-2">/</div>
         <h6 class="m-0 font-weight-bold text-primary">
-            {% if entity.id %}
+            {% if entity and entity.id %}
                 {{ entity.title }}
             {% else %}
                 Add new

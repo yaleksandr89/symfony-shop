@@ -25,10 +25,10 @@ abstract class AbstractBaseManager
     abstract public function getRepository(): ObjectRepository;
 
     /**
-     * @param string $id
+     * @param int $id
      * @return object|null
      */
-    public function find(string $id): ?object
+    public function find(int $id): ?object
     {
         return $this->getRepository()->find($id);
     }

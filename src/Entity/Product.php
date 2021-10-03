@@ -33,7 +33,7 @@ class Product
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $title;
+    private $title;
 
     /**
      * @ORM\Column(type="decimal", precision=15, scale=2)

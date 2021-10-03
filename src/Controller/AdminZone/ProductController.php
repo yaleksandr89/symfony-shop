@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\AdminZone;
 
 use App\Entity\Product;
+use App\Form\DTO\EditProductModel;
 use App\Form\EditProductFormType;
 use App\Form\Handler\ProductFormHandler;
 use App\Repository\ProductRepository;
@@ -60,19 +61,17 @@ class ProductController extends AbstractController
      */
     public function edit(Request $request, ProductFormHandler $productFormHandler, Product $product = null): Response
     {
-        if (!$product) {
-            $product = new Product();
-        }
+        $editProductModel = EditProductModel::makeFromProduct($product);
 
-        $form = $this->createForm(EditProductFormType::class, $product);
+        $form = $this->createForm(EditProductFormType::class, $editProductModel);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $product = $productFormHandler->processEditForm($form, $product);
+            $product = $productFormHandler->processEditForm($form, $editProductModel);
             return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
         }
 
-        $images = $product->getProductImages()
+        $images = $product
             ? $product->getProductImages()->getValues()
             : [];
 

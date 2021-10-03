@@ -31,7 +31,9 @@
                     Slug
                 </div>
                 <div class="col-md-11">
-                    {{ product.slug }}
+                    {% if product %}
+                        {{ product.slug }}
+                    {% endif %}
                 </div>
             </div>
 
@@ -139,18 +141,13 @@
             {{ form_end(form) }}
         </div>
     </div>
-    {% if product %}
-        {% if product.id != null %}
-            {% set actionUrl = path('admin_product_delete', {'id': product.id}) %}
-        {% else %}
-            {% set actionUrl = null %}
-        {% endif %}
+    {% if product and product.id %}
         {% include 'admin/_embed/_utils/_modal.html.twig' with {
             'modalId': 'approveDeleteModal',
             'modalTitle': 'Are you sure?',
             'modalText': 'Product will be deleted.',
             'modalBtnText': 'Delete row',
-            'actionUrl': actionUrl,
+            'actionUrl': path('admin_product_delete', {'id': product.id}),
         } %}
     {% endif %}
 {% endblock %}
