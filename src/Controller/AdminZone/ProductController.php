@@ -40,6 +40,8 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/list", name="list")
+     * @param ProductRepository $productRepository
+     * @return Response
      */
     public function list(ProductRepository $productRepository): Response
     {

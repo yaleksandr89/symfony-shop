@@ -32,7 +32,7 @@ class EditProductModel
      * @Assert\File(
      *     maxSize = "10M",
      *     mimeTypes = {"image/jpeg","image/png"},
-     *     mimeTypesMessage = "Please upload a valid image (jpg or png)"
+     *     mimeTypesMessage = "Please upload a valid image (*.jpg or *.png)"
      * )
      * @var UploadedFile|null
      */

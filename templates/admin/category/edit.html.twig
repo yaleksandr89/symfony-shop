@@ -1,0 +1,63 @@
+{% extends 'admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}Edit Category{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
+                'sectionTitle': 'Categories',
+                'entity': category,
+                'actionUrl': path('admin_category_list'),
+                'addActionUrl': path('admin_category_add'),
+            } %}
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.title) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.title) }}
+                    <div class="form-error">
+                        {{ form_errors(form.title) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Slug
+                </div>
+                <div class="col-md-11">
+                    {% if category %}
+                        {{ category.slug }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr/>
+
+            {% include 'admin/_embed/_card/_form_buttons.html.twig' with {
+                'entity':category,
+                'catalogUrl':path('admin_category_list'),
+                'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+            } %}
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {% if category and category.id %}
+        {% include 'admin/_embed/_utils/_modal.html.twig' with {
+            'modalId': 'approveDeleteModal',
+            'modalTitle': 'Are you sure?',
+            'modalText': 'Category will be deleted.',
+            'modalBtnText': 'Delete row',
+            'actionUrl': path('admin_category_delete', {'id': category.id}),
+        } %}
+    {% endif %}
+
+{% endblock %}
