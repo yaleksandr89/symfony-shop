@@ -101,4 +101,8 @@
             </div>
         </div>
     </div>
+
+    {{ render(controller('App\\Controller\\Front\\EmbedController::showSimilarProducts', {
+        'productCount': 4
+    })) }}
 {% endblock %}

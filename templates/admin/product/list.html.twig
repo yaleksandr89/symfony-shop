@@ -30,8 +30,11 @@
                     {% for product in products %}
                         <tr>
                             <td>{{ product.id }}</td>
-                            {# <td>{% if product.category %}{{ product.category.title }}{% endif %}</td> #}
-                            <td>...</td>
+                            <td>
+                                {% if product.category %}
+                                    {{ product.category.title }}
+                                {% endif %}
+                            </td>
                             <td>{{ product.title }}</td>
                             <td>{{ product.price|format_currency('USD') }}</td>
                             <td>{{ product.quantity }}</td>

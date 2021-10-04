@@ -1,0 +1,61 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ category.title }} - RankedChoice{% endblock %}
+{% block page_keywords %}Jeans, Ranked Choice Homepage, Jackets{% endblock %}
+{% block page_description %}Category page of RankedChoice shop!{% endblock %}
+
+{% block body %}
+    <div class="text-center">
+        <div class="container mt-3 mb-2">
+            <div class="row">
+                <div class="col-lg-12 mb-2">
+                    <div class="page-title2">
+                        <a class="page-title title-gradient-1">{{ category.title }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="product-list mb-3">
+                        <div class="row justify-content-center">
+                            {% for product in products %}
+                                {% set images = product.getProductImages().getValues() %}
+                                {% if images|length %}
+                                    {% set cover = images[0] %}
+                                    <div class="col-6 col-md-4 col-lg-4 col-xl-3">
+                                        <div class="product-item">
+                                            <figure class="product-media">
+                                                <span class="product-sale-status sale-status-new">New</span>
+                                                <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}">
+                                                    <img
+                                                            src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
+                                                            alt="{{ product.title }}"
+                                                            class="product-image">
+                                                </a>
+                                                <div class="product-actions">
+                                                    <a href="#" class="btn-add-to-cart">
+                                                        add to cart
+                                                    </a>
+                                                </div>
+                                            </figure>
+                                            <div class="product-card-content">
+                                                <h3 class="product-title">
+                                                    <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}">{{ product.title }}</a>
+                                                </h3>
+                                                <div class="product-price justify-content-center">
+                                                    ${{ product.price }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

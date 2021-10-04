@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\AdminZone;
+namespace App\Controller\Admin;
 
 use App\Entity\Product;
 use App\Entity\ProductImage;

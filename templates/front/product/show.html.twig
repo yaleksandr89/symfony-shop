@@ -1,0 +1,76 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ product.title }} - RankedChoice{% endblock %}
+{% block page_keywords %}Jeans, Ranked Choice Homepage, Jackets{% endblock %}
+{% block page_description %}Product page of RankedChoice shop!{% endblock %}
+
+{% block body %}
+
+    <div class="page-content mt-3">
+        <div class="container">
+            <div class="product-full mb-2">
+                <div class="row">
+                    <div class="col-md-6">
+                        <figure class="product-media">
+                            {% for image in product.getProductImages().getValues() %}
+                                <img
+                                        src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.getFilenameBig()) }}" alt="{{ product.title }}"
+                                        class="product-image">
+                            {% endfor %}
+                        </figure>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="product-full-content">
+                            <h1 class="product-title title-gradient-1">{{ product.title }}</h1>
+
+                            <div class="product-price">
+                                ${{ product.price }}
+                            </div>
+
+                            <div class="product-content">
+                                <p>{{ product.description }}</p>
+                            </div>
+
+                            <div class="product-full-filters">
+                                <div class="form-group ml-4">
+                                    <label for="product_full_filter_quantity">Qty:</label>
+                                    <input
+                                            type="number"
+                                            id="product_full_filter_quantity"
+                                            class="form-control"
+                                            value="{{ product.quantity }}"
+                                            min="1"
+                                            max="10"
+                                            step="1"
+                                            data-decimals="0"
+                                            required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="product-full-action">
+                                <a href="#" class="btn btn-link btn-dark">
+                                    <i class="fas fa-cart-plus"></i>
+                                    <span>add to cart</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    {{ render(controller('App\\Controller\\Front\\EmbedController::showSimilarProducts', {
+                        'productCount': 4,
+                        'categoryId': product.category.id
+                    })) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

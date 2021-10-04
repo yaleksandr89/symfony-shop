@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\DTO;
 
+use App\Entity\Category;
 use App\Entity\Product;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -50,6 +51,12 @@ class EditProductModel
     public $description;
 
     /**
+     * @Assert\NotBlank(message="Please select a category")
+     * @var Category
+     */
+    public $category;
+
+    /**
      * @var bool
      */
     public $isPublished;
@@ -76,6 +83,7 @@ class EditProductModel
         $model->price = $product->getPrice();
         $model->quantity = $product->getQuantity();
         $model->description = $product->getDescription();
+        $model->category = $product->getCategory();
         $model->isPublished = $product->getIsPublished();
         $model->isDeleted = $product->getIsDeleted();
 
