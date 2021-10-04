@@ -48,7 +48,7 @@ class Product
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private $createAt;
+    private $createdAt;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -81,13 +81,19 @@ class Product
      */
     private $category;
 
+    /**
+     * @ORM\OneToMany(targetEntity=CartProduct::class, mappedBy="product", orphanRemoval=true)
+     */
+    private $cartProducts;
+
     public function __construct()
     {
         $this->uuid = Uuid::v4();
         $this->isDeleted = false;
         $this->isPublished = false;
-        $this->createAt = new DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->productImages = new ArrayCollection();
+        $this->cartProducts = new ArrayCollection();
     }
 
     /**
@@ -163,18 +169,18 @@ class Product
     /**
      * @return DateTimeImmutable|null
      */
-    public function getCreateAt(): ?DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
-        return $this->createAt;
+        return $this->createdAt;
     }
 
     /**
-     * @param DateTimeImmutable $createAt
+     * @param DateTimeImmutable $createdAt
      * @return $this
      */
-    public function setCreateAt(DateTimeImmutable $createAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
-        $this->createAt = $createAt;
+        $this->createdAt = $createdAt;
         return $this;
     }
 
@@ -295,6 +301,44 @@ class Product
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getCartProducts(): Collection
+    {
+        return $this->cartProducts;
+    }
+
+    /**
+     * @param CartProduct $cartProduct
+     * @return $this
+     */
+    public function addCartProduct(CartProduct $cartProduct): self
+    {
+        if (!$this->cartProducts->contains($cartProduct)) {
+            $this->cartProducts[] = $cartProduct;
+            $cartProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param CartProduct $cartProduct
+     * @return $this
+     */
+    public function removeCartProduct(CartProduct $cartProduct): self
+    {
+        if ($this->cartProducts->removeElement($cartProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($cartProduct->getProduct() === $this) {
+                $cartProduct->setProduct(null);
+            }
+        }
 
         return $this;
     }

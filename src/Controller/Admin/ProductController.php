@@ -100,7 +100,7 @@ class ProductController extends AbstractController
         $id = $product->getId();
         $title = $product->getTitle();
 
-        $productManager->remove($product);
+        $productManager->softRemove($product);
         $this->addFlash('warning', "[Soft delete] The product (title: $title / ID: $id) was successfully deleted!");
 
         return $this->redirectToRoute('admin_product_list');

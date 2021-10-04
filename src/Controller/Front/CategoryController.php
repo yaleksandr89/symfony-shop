@@ -24,8 +24,17 @@ class CategoryController extends AbstractController
             throw new NotFoundHttpException();
         }
 
+        if ($category->getIsDeleted() === true) {
+            $this->addFlash('warning', "The category {$category->getTitle()} not found!");
+            return $this->redirectToRoute('main_homepage');
+        }
+
         /** @var Product $products */
-        $products = $category->getProducts()->getValues();
+        $products = $category->getProducts()->filter(function ($element) {
+            /** @var Product $product */
+            $product = $element;
+            return $product->getIsPublished() === true && $product->getIsDeleted() === false;
+        });
 
         return $this->render('front/category/show.html.twig', [
             'category' => $category,
