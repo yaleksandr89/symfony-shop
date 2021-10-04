@@ -102,6 +102,8 @@ class ProductFormHandler
             ? (string)$editProductModel->description
             : $editProductModel->description;
 
+        $category = $editProductModel->category;
+
         $isPublished = (!is_bool($editProductModel->isPublished))
             ? (bool)$editProductModel->isPublished
             : $editProductModel->isPublished;
@@ -114,6 +116,7 @@ class ProductFormHandler
         $product->setPrice($price);
         $product->setQuantity($quantity);
         $product->setDescription($description);
+        $product->setCategory($category);
         $product->setIsPublished($isPublished);
         $product->setIsDeleted($isDeleted);
 

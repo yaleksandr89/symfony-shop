@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Form;
+namespace App\Form\Admin;
 
 use App\Form\DTO\EditCategoryModel;
 use Symfony\Component\Form\AbstractType;

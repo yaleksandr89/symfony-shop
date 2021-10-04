@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Form;
+namespace App\Form\Admin;
 
+use App\Entity\Category;
 use App\Form\DTO\EditProductModel;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -79,6 +81,16 @@ class EditProductFormType extends AbstractType
                 ],
                 'label_attr' => [
                     'class' => 'form-check-label',
+                ],
+            ])
+            ->add('category', EntityType::class, [
+                'label' => 'Category',
+                'required' => true,
+                'class' => Category::class,
+                'choice_label' => 'title',
+                'placeholder' => 'Please select a category',
+                'attr' => [
+                    'class' => 'form-control',
                 ],
             ])
             ->add('isDeleted', CheckboxType::class, [

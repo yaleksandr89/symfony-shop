@@ -18,14 +18,14 @@ security:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
-    admin_zone:
+    admin:
       pattern: ^/admin
       lazy: true
       provider: app_user_provider
-      access_denied_handler: App\Security\Handler\AccessAdminZoneDeniedHandler
-      entry_point: App\Security\EntryPoint\AuthenticationAdminZoneEntryPoint
+      access_denied_handler: App\Security\Handler\AccessAdminDeniedHandler
+      entry_point: App\Security\EntryPoint\AuthenticationAdminEntryPoint
       custom_authenticators:
-        - App\Security\AdminZone\LoginFormAuthenticator
+        - App\Security\Authenticator\Admin\LoginFormAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 684800 # 2 week
@@ -33,12 +33,12 @@ security:
       logout:
         path: admin_security_logout
         target: admin_security_login
-    main:
+    front:
       lazy: true
       provider: app_user_provider
       access_denied_handler: App\Security\Handler\AccessMainDeniedHandler
       entry_point: App\Security\EntryPoint\AuthenticationMainEntryPoint
-      custom_authenticator: App\Security\LoginFormAuthenticator
+      custom_authenticator: App\Security\Authenticator\Front\LoginFormAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 604800 # 1 week

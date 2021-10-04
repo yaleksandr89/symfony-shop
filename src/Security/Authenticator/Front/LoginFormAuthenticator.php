@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Security\AdminZone;
+namespace App\Security\Authenticator\Front;
 
-use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +24,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'admin_security_login';
+    public const LOGIN_ROUTE = 'main_login';
 
     /**
      * @var UserRepository
@@ -63,13 +62,6 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
-        /** @var User $user */
-        $user = $this->userRepository->findOneBy(['email' => $email]);
-
-        if ($user && !$user->hasAccessToAdminSection()) {
-            $email = '';
-        }
-
         return new Passport(
             new UserBadge($email),
             new PasswordCredentials($plaintextPassword),
@@ -91,7 +83,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('admin_dashboard_show'));
+        return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));
     }
 
     /**
