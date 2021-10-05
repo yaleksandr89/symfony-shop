@@ -23,9 +23,14 @@ class ProductController extends AbstractController
             throw new NotFoundHttpException();
         }
 
+        if ($product->getIsDeleted() === true) {
+            $this->addFlash('warning', "The product {$product->getTitle()} not found!");
+            return $this->redirectToRoute('main_homepage');
+        }
 
         return $this->render('front/product/show.html.twig', [
             'product' => $product,
         ]);
     }
+
 }

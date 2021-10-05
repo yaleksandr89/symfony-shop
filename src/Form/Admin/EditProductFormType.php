@@ -6,6 +6,7 @@ namespace App\Form\Admin;
 
 use App\Entity\Category;
 use App\Form\DTO\EditProductModel;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -87,6 +88,11 @@ class EditProductFormType extends AbstractType
                 'label' => 'Category',
                 'required' => true,
                 'class' => Category::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er
+                        ->createQueryBuilder('c')
+                        ->where('c.isDeleted != true');
+                },
                 'choice_label' => 'title',
                 'placeholder' => 'Please select a category',
                 'attr' => [

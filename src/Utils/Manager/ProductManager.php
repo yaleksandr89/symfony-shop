@@ -44,10 +44,14 @@ final class ProductManager extends AbstractBaseManager
      * @param object $entity
      * @return void;
      */
-    public function remove(object $entity): void
+    public function softRemove(object $entity): void
     {
-        $this->persist($entity);
-        $entity->setIsDeleted(true);
+        /** @var Product $product */
+        $product = $entity;
+
+        $this->persist($product);
+        $product->setIsDeleted(true);
+        $product->setIsPublished(false);
         $this->flush();
     }
 
