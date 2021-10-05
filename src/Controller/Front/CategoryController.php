@@ -31,7 +31,7 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('main_homepage');
         }
 
-        $products = $productRepository->findActiveProduct($category->getId());
+        $products = $productRepository->findByCategoryAndCount($category->getId());
 
         return $this->render('front/category/show.html.twig', [
             'category' => $category,

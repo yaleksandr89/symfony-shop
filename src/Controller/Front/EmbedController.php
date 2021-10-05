@@ -12,7 +12,7 @@ class EmbedController extends AbstractController
 {
     public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, int $categoryId = null): Response
     {
-        $products = $productRepository->findActiveProduct($categoryId, $productCount);
+        $products = $productRepository->findByCategoryAndCount($categoryId, $productCount);
 
         return $this->render('front/_embed/_similar_products.html.twig', [
             'products' => $products,

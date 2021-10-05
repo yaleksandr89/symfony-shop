@@ -30,12 +30,13 @@
                                                 <span class="product-sale-status sale-status-new">New</span>
                                                 <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}">
                                                     <img
-                                                            src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
-                                                            alt="{{ product.title }}"
-                                                            class="product-image">
+                                                        src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
+                                                        alt="{{ product.title }}"
+                                                        class="product-image"
+                                                    >
                                                 </a>
                                                 <div class="product-actions">
-                                                    <a href="#" class="btn-add-to-cart">
+                                                    <a href="#" class="btn-add-to-cart" data-id="{{ product.uuid }}" data-add-cart>
                                                         add to cart
                                                     </a>
                                                 </div>
@@ -63,3 +64,24 @@
         </div>
     </div>
 {% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        const urlSaveProductToCart = '{{ path('main_api_cart_save') }}';
+        const el = document.querySelectorAll('[data-add-cart]');
+
+        el.forEach(function (item) {
+            item.addEventListener('click', function (event){
+               event.preventDefault();
+               let uuid = this.getAttribute('data-id');
+               const formData = new FormData();
+                formData.append('productId', uuid);
+
+               axios.post(urlSaveProductToCart, formData);
+            });
+        })
+    </script>
+{% endblock %}
+

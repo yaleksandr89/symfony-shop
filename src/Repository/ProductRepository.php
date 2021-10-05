@@ -6,6 +6,9 @@ namespace App\Repository;
 
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,31 +24,79 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    public function findActiveProduct(): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder('p')
+            ->andWhere('p.isDeleted = false')
+            ->andWhere('p.isPublished = true')
+            ->orderBy('p.id', 'DESC');
+    }
+
     /**
      * @param int|null $productCount
      * @param int|null $categoryId
      * @return array
      */
-    public function findActiveProduct(?int $categoryId, int $productCount = null): array
+    public function findByCategoryAndCount(?int $categoryId, int $productCount = null): array
     {
-        $query = $this
-            ->createQueryBuilder('p')
-            ->andWhere('p.isDeleted = false')
-            ->andWhere('p.isPublished = true');
+        $queryBuilder = $this->findActiveProduct();
 
         if ($categoryId) {
-            $query
+            $queryBuilder
                 ->andWhere('p.category = :idCategory')
                 ->setParameter('idCategory', $categoryId);
         }
 
         if ($productCount) {
-            $query->setMaxResults($productCount);
+            $queryBuilder->setMaxResults($productCount);
         }
 
-        return $query
-            ->orderBy('p.id', 'DESC')
+        return $this->getResult($queryBuilder);
+    }
+
+    /**
+     * @param string $productId
+     * @return Product|null
+     */
+    public function findById(string $productId): ?Product
+    {
+        $queryBuilder = $this->findActiveProduct();
+
+        $queryBuilder
+            ->andWhere('p.uuid=:uuid')
+            ->setParameter('uuid', $productId);
+
+        try {
+            $queryBuilder = $this->getSingleResult($queryBuilder);
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return null;
+        }
+
+        return $queryBuilder;
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @return array
+     */
+    private function getResult(QueryBuilder $queryBuilder): array
+    {
+        return $queryBuilder
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @return Product
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    private function getSingleResult(QueryBuilder $queryBuilder): Product
+    {
+        return $queryBuilder
+            ->getQuery()
+            ->getSingleResult();
     }
 }
