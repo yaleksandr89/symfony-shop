@@ -6,6 +6,7 @@ namespace App\Controller\Front;
 
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -15,10 +16,11 @@ class CategoryController extends AbstractController
 {
     /**
      * @Route("/category/{slug}", name="main_category_show")
+     * @param ProductRepository $productRepository
      * @param Category|null $category
      * @return Response
      */
-    public function show(Category $category = null): Response
+    public function show(ProductRepository $productRepository, Category $category = null): Response
     {
         if (!$category) {
             throw new NotFoundHttpException();
@@ -29,12 +31,7 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('main_homepage');
         }
 
-        /** @var Product $products */
-        $products = $category->getProducts()->filter(function ($element) {
-            /** @var Product $product */
-            $product = $element;
-            return $product->getIsPublished() === true && $product->getIsDeleted() === false;
-        });
+        $products = $productRepository->findActiveProduct($category->getId());
 
         return $this->render('front/category/show.html.twig', [
             'category' => $category,

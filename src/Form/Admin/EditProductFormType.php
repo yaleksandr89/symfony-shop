@@ -89,7 +89,8 @@ class EditProductFormType extends AbstractType
                 'required' => true,
                 'class' => Category::class,
                 'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('c')
+                    return $er
+                        ->createQueryBuilder('c')
                         ->where('c.isDeleted != true');
                 },
                 'choice_label' => 'title',

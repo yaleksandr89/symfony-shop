@@ -22,11 +22,11 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $productCount
+     * @param int|null $productCount
      * @param int|null $categoryId
      * @return array
      */
-    public function findActiveProduct(int $productCount, ?int $categoryId): array
+    public function findActiveProduct(?int $categoryId, int $productCount = null): array
     {
         $query = $this
             ->createQueryBuilder('p')
@@ -34,27 +34,18 @@ class ProductRepository extends ServiceEntityRepository
             ->andWhere('p.isPublished = true');
 
         if ($categoryId) {
-            $query = $query
+            $query
                 ->andWhere('p.category = :idCategory')
                 ->setParameter('idCategory', $categoryId);
         }
 
+        if ($productCount) {
+            $query->setMaxResults($productCount);
+        }
+
         return $query
             ->orderBy('p.id', 'DESC')
-            ->setMaxResults($productCount)
             ->getQuery()
             ->getResult();
     }
-
-    /*
-    public function findOneBySomeField($value): ?Product
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
