@@ -1,0 +1,51 @@
+{% extends 'admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}All orders{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include 'admin/_embed/_card/_header_action.html.twig' with
+                {
+                    'sectionTitle': 'Orders',
+                    'actionUrl': path('admin_order_add')
+                } %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="main_table">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Full name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Created at</th>
+                        <th>Count of products</th>
+                        <th>Total price</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.owner.fullname }}</td>
+                            <td>{{ order.owner.email }}</td>
+                            <td>{{ order.owner.phone|default('Phone is\'t specified') }}</td>
+                            <td>{{ order.createdAt|format_datetime('full', 'medium') }}</td>
+                            <td>{{ order.getOrderProducts.getValues|length }}</td>
+                            <td>{{ order.totalPrice|format_currency('USD') }}</td>
+                            <td>{{ orderStatusChoice[order.status] }}</td>
+                            <td>
+                                <a href="{{ path('admin_order_edit', {'id': order.id}) }}" class="btn btn-outline-info">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
