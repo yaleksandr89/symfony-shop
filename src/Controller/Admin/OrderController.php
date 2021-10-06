@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Order;
 use App\Entity\StaticStorage\OrderStaticStorage;
+use App\Form\Admin\EditOrderFormType;
 use App\Repository\OrderRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,24 +47,26 @@ class OrderController extends AbstractController
      */
     public function edit(Request $request, Order $order = null): Response
     {
-        /*$editCategoryModel = EditCategoryModel::makeFromCategory($category);
+        if (!$order) {
+            $order = new Order();
+        }
 
-        $form = $this->createForm(EditCategoryFormType::class, $editCategoryModel);
+        $form = $this->createForm(EditOrderFormType::class, $order);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
             $this->addFlash('success', 'Your changes were saved!');
-            return $this->redirectToRoute('admin_category_list', ['id' => $category->getId()]);
+            return $this->redirectToRoute('admin_order_edit', ['id' => $order->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
             $this->addFlash('warning', 'Something went wrong. Please check!');
-        }*/
+        }
 
         return $this->render('admin/order/edit.html.twig', [
-            'category' => '$category',
-            'form' => '$form->createView()',
+            'order' => $order,
+            'form' => $form->createView(),
         ]);
     }
 

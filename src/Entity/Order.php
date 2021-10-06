@@ -150,7 +150,7 @@ class Order
     /**
      * @return DateTimeImmutable|null
      */
-    public function getUpdateAt(): ?DateTimeImmutable
+    public function getUpdatedAt(): ?DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -159,7 +159,7 @@ class Order
      * @param DateTimeImmutable|null $updatedAt
      * @return $this
      */
-    public function setUpdateAt(?DateTimeImmutable $updatedAt): self
+    public function setUpdatedAt(?DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
         return $this;
