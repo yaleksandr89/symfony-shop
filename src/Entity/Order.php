@@ -61,6 +61,7 @@ class Order
 
     public function __construct()
     {
+        $this->isDeleted = false;
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();
         $this->orderProducts = new ArrayCollection();
