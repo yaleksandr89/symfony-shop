@@ -9,8 +9,8 @@ use App\Entity\CartProduct;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
+use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
-use DateTimeImmutable;
 use Doctrine\Persistence\ObjectRepository;
 
 final class OrderManager extends AbstractBaseManager
@@ -44,8 +44,9 @@ final class OrderManager extends AbstractBaseManager
     /**
      * @param string $sessionId
      * @param User $user
+     * @return void
      */
-    public function createOrderFromCartBySessionId(string $sessionId, User $user)
+    public function createOrderFromCartBySessionId(string $sessionId, User $user): void
     {
         $cart = $this->cartManager
             ->getRepository()
@@ -56,12 +57,17 @@ final class OrderManager extends AbstractBaseManager
         }
     }
 
-    public function createOrderFromCart(Cart $cart, User $user)
+    /**
+     * @param Cart $cart
+     * @param User $user
+     * @return void
+     */
+    public function createOrderFromCart(Cart $cart, User $user): void
     {
         $orderTotalPrice = 0;
         $order = new Order();
         $order->setOwner($user);
-        $order->setStatus(0);
+        $order->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
 
         /** @var CartProduct $cartProduct */
         foreach ($cart->getCartProducts()->getValues() as $cartProduct) {
@@ -82,10 +88,11 @@ final class OrderManager extends AbstractBaseManager
         }
 
         $order->setTotalPrice($orderTotalPrice);
-        $order->setUpdateAt(new DateTimeImmutable());
 
         $this->persist($order);
-        dd($order);
+        $this->flush();
+
+        $this->cartManager->remove($cart);
     }
 
     /**
