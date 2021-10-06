@@ -86,6 +86,11 @@ class Product
      */
     private $cartProducts;
 
+    /**
+     * @ORM\OneToMany(targetEntity=OrderProduct::class, mappedBy="product")
+     */
+    private $orderProducts;
+
     public function __construct()
     {
         $this->uuid = Uuid::v4();
@@ -94,6 +99,7 @@ class Product
         $this->createdAt = new DateTimeImmutable();
         $this->productImages = new ArrayCollection();
         $this->cartProducts = new ArrayCollection();
+        $this->orderProducts = new ArrayCollection();
     }
 
     /**
@@ -337,6 +343,44 @@ class Product
             // set the owning side to null (unless already changed)
             if ($cartProduct->getProduct() === $this) {
                 $cartProduct->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getOrderProducts(): Collection
+    {
+        return $this->orderProducts;
+    }
+
+    /**
+     * @param OrderProduct $orderProduct
+     * @return $this
+     */
+    public function addOrderProduct(OrderProduct $orderProduct): self
+    {
+        if (!$this->orderProducts->contains($orderProduct)) {
+            $this->orderProducts[] = $orderProduct;
+            $orderProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param OrderProduct $orderProduct
+     * @return $this
+     */
+    public function removeOrderProduct(OrderProduct $orderProduct): self
+    {
+        if ($this->orderProducts->removeElement($orderProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($orderProduct->getProduct() === $this) {
+                $orderProduct->setProduct(null);
             }
         }
 

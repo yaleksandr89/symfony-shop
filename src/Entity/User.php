@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use App\Entity\StaticStorage\UserStaticStorage;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -71,10 +73,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $isDeleted;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="owner")
+     */
+    private $orders;
+
     public function __construct()
     {
         $this->isVerified = false;
         $this->isDeleted = false;
+        $this->orders = new ArrayCollection();
     }
 
     /**
@@ -203,11 +211,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
+    /**
+     * @return bool
+     */
     public function isVerified(): bool
     {
         return $this->isVerified;
     }
 
+    /**
+     * @param bool $isVerified
+     * @return $this
+     */
     public function setIsVerified(bool $isVerified): self
     {
         $this->isVerified = $isVerified;
@@ -215,42 +230,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getFullName(): ?string
     {
         return $this->fullName;
     }
 
+    /**
+     * @param string|null $fullName
+     * @return $this
+     */
     public function setFullName(?string $fullName): self
     {
         $this->fullName = $fullName;
-
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getPhone(): ?string
     {
         return $this->phone;
     }
 
+    /**
+     * @param string|null $phone
+     * @return $this
+     */
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
-
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getAddress(): ?string
     {
         return $this->address;
     }
 
+    /**
+     * @param string|null $address
+     * @return $this
+     */
     public function setAddress(?string $address): self
     {
         $this->address = $address;
-
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
     public function getZipCode(): ?int
     {
         return (!is_int($this->zipCode))
@@ -258,21 +294,68 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             : $this->zipCode;
     }
 
+    /**
+     * @param int|null $zipCode
+     * @return $this
+     */
     public function setZipCode(?int $zipCode): self
     {
         $this->zipCode = $zipCode;
-
         return $this;
     }
 
+    /**
+     * @return bool|null
+     */
     public function getIsDeleted(): ?bool
     {
         return $this->isDeleted;
     }
 
+    /**
+     * @param bool|null $isDeleted
+     * @return $this
+     */
     public function setIsDeleted(?bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    /**
+     * @param Order $order
+     * @return $this
+     */
+    public function addOrder(Order $order): self
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Order $order
+     * @return $this
+     */
+    public function removeOrder(Order $order): self
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getOwner() === $this) {
+                $order->setOwner(null);
+            }
+        }
 
         return $this;
     }
