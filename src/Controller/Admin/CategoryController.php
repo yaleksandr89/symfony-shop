@@ -68,7 +68,7 @@ class CategoryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
             $this->addFlash('success', 'Your changes were saved!');
-            return $this->redirectToRoute('admin_category_list', ['id' => $category->getId()]);
+            return $this->redirectToRoute('admin_category_edit', ['id' => $category->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()){

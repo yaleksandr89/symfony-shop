@@ -3,6 +3,7 @@
 namespace App\Controller\Front;
 
 use App\Repository\CartRepository;
+use App\Utils\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,11 +19,42 @@ class CartController extends AbstractController
      */
     public function show(Request $request, CartRepository $cartRepository): Response
     {
-        $phpSessionId = $request->cookies->get('PHPSESSID');
+        $phpSessionId = $this->getPhpSessionId($request);
         $cart = $cartRepository->findOneBy(['sessionId' => $phpSessionId]);
 
         return $this->render('front/cart/show.html.twig', [
             'cart' => $cart,
         ]);
+    }
+
+    /**
+     * @Route("/cart/create", name="main_cart_create")
+     * @param Request $request
+     * @param OrderManager $orderManager
+     * @return Response
+     */
+    public function create(Request $request, OrderManager $orderManager): Response
+    {
+        $phpSessionId = $this->getPhpSessionId($request);
+        $user = $this->getUser();
+
+        if (!$user) {
+            $this->addFlash('warning', 'Please log in to the site!');
+            return $this->redirectToRoute('main_homepage');
+        }
+
+        $orderManager->createOrderFromCartBySessionId($phpSessionId, $user);
+
+        $this->addFlash('success', 'The order successfully created');
+        return $this->redirectToRoute('main_cart_show');
+    }
+
+    /**
+     * @param Request $request
+     * @return string|null
+     */
+    private function getPhpSessionId(Request $request): ?string
+    {
+        return $request->cookies->get('PHPSESSID');
     }
 }

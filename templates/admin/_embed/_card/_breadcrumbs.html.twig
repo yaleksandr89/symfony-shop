@@ -4,7 +4,7 @@
         <div class="ml-2 mr-2">/</div>
         <h6 class="m-0 font-weight-bold text-primary">
             {% if entity and entity.id %}
-                {{ entity.title }}
+                {{ entity.title|default('Edit') }}
             {% else %}
                 Add new
             {% endif %}

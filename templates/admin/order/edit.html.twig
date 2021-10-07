@@ -1,0 +1,125 @@
+{% extends 'admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}Edit order{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
+                'sectionTitle': 'Orders',
+                'entity': order,
+                'actionUrl': path('admin_order_list'),
+                'addActionUrl': path('admin_order_add'),
+            } %}
+        </div>
+
+        <div class="card-body">
+            {{ form_start(form) }}
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Id:
+                </div>
+                <div class="col-md-11">
+                    {{ order.id }}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Created at:
+                </div>
+                <div class="col-md-11">
+                    {{ order.createdAt|format_datetime('full', 'medium') }}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Updated at:
+                </div>
+                <div class="col-md-11">
+                    {{ order.updatedAt|format_datetime('full', 'medium') }}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.owner) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.owner) }}
+                    <div class="form-error">
+                        {{ form_errors(form.owner) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.status) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.status) }}
+                    <div class="form-error">
+                        {{ form_errors(form.status) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isDeleted) }}
+                    {{ form_label(form.isDeleted) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isDeleted) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Products:
+                </div>
+                <div class="col-md-11">
+                    {% for orderProduct in order.orderProducts %}
+                        <div>
+                            {% set product = orderProduct.product %}
+                            # {{ product.id }} - {{ product.title }} - Q: {{ orderProduct.quantity }} - {{ orderProduct.pricePerOne|format_currency('USD') }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Total price:
+                </div>
+                <div class="col-md-11">
+                    {{ order.totalPrice|format_currency('USD') }}
+                </div>
+            </div>
+
+            <hr/>
+            {% include 'admin/_embed/_card/_form_buttons.html.twig' with {
+                'entity':order,
+                'catalogUrl':path('admin_order_list'),
+                'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+            } %}
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {% if order and order.id %}
+        {% include 'admin/_embed/_utils/_modal.html.twig' with {
+            'modalId': 'approveDeleteModal',
+            'modalTitle': 'Are you sure?',
+            'modalText': 'Order will be deleted.',
+            'modalBtnText': 'Delete row',
+            'actionUrl': path('admin_order_delete', {'id': order.id}),
+        } %}
+    {% endif %}
+
+{% endblock %}

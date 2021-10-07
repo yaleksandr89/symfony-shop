@@ -69,7 +69,9 @@
                                         <div class="mt-2 mb-2">
                                             Total: <strong>{{ cartPriceTotal|format_currency('USD') }}</strong>
                                         </div>
-                                        <a href="#" class="btn btn-success mb-3">MAKE ORDER</a>
+                                        <a href="{{ path('main_cart_create') }}" class="btn btn-success mb-3">
+                                            MAKE ORDER
+                                        </a>
                                     {% else %}
                                         <div class="alert alert-info">
                                             Your cart is empty
