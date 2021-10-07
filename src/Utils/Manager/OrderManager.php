@@ -64,35 +64,61 @@ final class OrderManager extends AbstractBaseManager
      */
     public function createOrderFromCart(Cart $cart, User $user): void
     {
-        $orderTotalPrice = 0;
         $order = new Order();
         $order->setOwner($user);
         $order->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
 
-        /** @var CartProduct $cartProduct */
-        foreach ($cart->getCartProducts()->getValues() as $cartProduct) {
-            /** @var Product $product */
-            $product = $cartProduct->getProduct();
-
-            $orderProduct = new OrderProduct();
-            $orderProduct->setAppOrder($order);
-            $orderProduct->setQuantity($cartProduct->getQuantity());
-            $orderProduct->setPricePerOne($product->getPrice());
-            $orderProduct->setProduct($product);
-
-            $orderTotalPrice += $orderProduct->getQuantity() * $orderProduct->getPricePerOne();
-
-            $order->addOrderProduct($orderProduct);
-
-            $this->persist($orderProduct);
-        }
-
-        $order->setTotalPrice($orderTotalPrice);
+        $this->addOrdersFromCart($order, $cart->getId());
+        $this->calculationOrderTotalPrice($order);
 
         $this->persist($order);
         $this->flush();
 
         $this->cartManager->remove($cart);
+    }
+
+    /**
+     * @param Order $order
+     * @param int $cartId
+     * @return void
+     */
+    private function addOrdersFromCart(Order $order, int $cartId): void
+    {
+        /** @var Cart $cart */
+        $cart = $this->cartManager->find($cartId);
+
+        if ($cart) {
+            /** @var CartProduct $cartProduct */
+            foreach ($cart->getCartProducts()->getValues() as $cartProduct) {
+                /** @var Product $product */
+                $product = $cartProduct->getProduct();
+
+                $orderProduct = new OrderProduct();
+                $orderProduct->setAppOrder($order);
+                $orderProduct->setQuantity($cartProduct->getQuantity());
+                $orderProduct->setPricePerOne($product->getPrice());
+                $orderProduct->setProduct($product);
+
+                $order->addOrderProduct($orderProduct);
+                $this->persist($orderProduct);
+            }
+        }
+    }
+
+    /**
+     * @param Order $order
+     * @return void
+     */
+    private function calculationOrderTotalPrice(Order $order): void
+    {
+        $orderTotalPrice = 0;
+
+        /** @var OrderProduct $orderProduct */
+        foreach ($order->getOrderProducts()->getValues() as $orderProduct) {
+            $orderTotalPrice += $orderProduct->getQuantity() * $orderProduct->getPricePerOne();
+        }
+
+        $order->setTotalPrice($orderTotalPrice);
     }
 
     /**

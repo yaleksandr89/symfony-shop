@@ -77,6 +77,29 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Products:
+                </div>
+                <div class="col-md-11">
+                    {% for orderProduct in order.orderProducts %}
+                        <div>
+                            {% set product = orderProduct.product %}
+                            # {{ product.id }} - {{ product.title }} - Q: {{ orderProduct.quantity }} - {{ orderProduct.pricePerOne|format_currency('USD') }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Total price:
+                </div>
+                <div class="col-md-11">
+                    {{ order.totalPrice|format_currency('USD') }}
+                </div>
+            </div>
+
             <hr/>
             {% include 'admin/_embed/_card/_form_buttons.html.twig' with {
                 'entity':order,

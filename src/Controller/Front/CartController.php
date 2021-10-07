@@ -37,8 +37,15 @@ class CartController extends AbstractController
     {
         $phpSessionId = $this->getPhpSessionId($request);
         $user = $this->getUser();
+
+        if (!$user) {
+            $this->addFlash('warning', 'Please log in to the site!');
+            return $this->redirectToRoute('main_homepage');
+        }
+
         $orderManager->createOrderFromCartBySessionId($phpSessionId, $user);
 
+        $this->addFlash('success', 'The order successfully created');
         return $this->redirectToRoute('main_cart_show');
     }
 

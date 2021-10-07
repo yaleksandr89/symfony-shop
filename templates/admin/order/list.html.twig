@@ -31,7 +31,7 @@
                     {% for order in orders %}
                         <tr>
                             <td>{{ order.id }}</td>
-                            <td>{{ order.owner.fullname }}</td>
+                            <td>{{ order.owner.fullname|default('Fullanme is\'t specified') }}</td>
                             <td>{{ order.owner.email }}</td>
                             <td>{{ order.owner.phone|default('Phone is\'t specified') }}</td>
                             <td>{{ order.createdAt|format_datetime('full', 'medium') }}</td>

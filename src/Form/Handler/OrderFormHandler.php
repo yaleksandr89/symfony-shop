@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Form\Handler;
 
 use App\Entity\Order;
+use App\Form\DTO\EditOrderModel;
 use App\Utils\Manager\OrderManager;
+use DateTimeImmutable;
 
 class OrderFormHandler
 {
@@ -20,33 +22,44 @@ class OrderFormHandler
     }
 
     /**
-     * @param Order $order
+     * @param EditOrderModel $editOrderModel
      * @return Order
      */
-    public function processEditForm(Order $order): Order
+    public function processEditForm(EditOrderModel $editOrderModel): Order
     {
-        dd($order);
+        $order = new Order();
 
-        $this->orderManager->persist($category);
-        //$category = $this->fillingCategoryData($category, $editCategoryModel);
+        if ($editOrderModel->id) {
+            $order = $this->orderManager->find($editOrderModel->id);
+        }
+
+        $this->orderManager->persist($order);
+        $order = $this->fillingCategoryData($order, $editOrderModel);
         $this->orderManager->flush();
 
         return $order;
     }
 
     /**
-     * @param Category $category
-     * @param EditCategoryModel $editCategoryModel
-     * @return Category
+     * @param Order $order
+     * @param EditOrderModel $editCategoryModel
+     * @return Order
      */
-    private function fillingCategoryData(Category $category, EditCategoryModel $editCategoryModel): Category
+    private function fillingCategoryData(Order $order, EditOrderModel $editCategoryModel): Order
     {
-        $title = (!is_string($editCategoryModel->title))
-            ? (string)$editCategoryModel->title
-            : $editCategoryModel->title;
+        $status = (!is_string($editCategoryModel->status))
+            ? (int)$editCategoryModel->status
+            : $editCategoryModel->status;
 
-        $category->setTitle($title);
+        $isDeleted = (!is_bool($editCategoryModel->isDeleted))
+            ? (bool)$editCategoryModel->isDeleted
+            : $editCategoryModel->isDeleted;
 
-        return $category;
+        $order->setStatus($status);
+        $order->setOwner($editCategoryModel->owner);
+        $order->setIsDeleted($isDeleted);
+        $order->setUpdatedAt(new DateTimeImmutable());
+
+        return $order;
     }
 }
