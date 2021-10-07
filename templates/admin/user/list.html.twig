@@ -1,0 +1,64 @@
+{% extends 'admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}All users{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include 'admin/_embed/_card/_header_action.html.twig' with
+                {
+                    'sectionTitle': 'Users',
+                    'actionUrl': path('admin_user_add')
+                } %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="main_table">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Profile info</th>
+                        <th>Is verified email</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if 'ROLE_ADMIN' in user.roles %}
+                                    <strong>Admin</strong>
+                                {% else %}
+                                    User
+                                {% endif %}
+                                <br>
+                               <code><small>{{ user.roles|join(', ', ' and ') }}</small></code>
+                            </td>
+                            <td>
+                                <code>Full name</code>: {{ user.fullName }}<br>
+                                <code>Phone</code>: {{ user.phone }}<br>
+                                <code>Address</code>: {{ user.address }}<br>
+                                <code>Zip code</code>: {{ user.zipcode }}<br>
+                            </td>
+                            <td>
+                                {% if user.isVerified %}
+                                    <div class="alert alert-success">Verified</div>
+                                {% else %}
+                                    <div class="alert alert-warning">Not Verified</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('admin_user_delete', {'id': user.id}) }}" class="btn btn-outline-info">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
