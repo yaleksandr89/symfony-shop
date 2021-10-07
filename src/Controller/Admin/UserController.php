@@ -6,7 +6,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\Category;
 use App\Entity\User;
-use App\Form\Handler\CategoryFormHandler;
+use App\Form\Admin\EditUserFormType;
+use App\Form\DTO\EditUserModel;
 use App\Repository\UserRepository;
 use App\Utils\Manager\CategoryManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,30 +55,30 @@ class UserController extends AbstractController
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
      * @param Request $request
-     * @param CategoryFormHandler $categoryFormHandler
-     * @param Category|null $category
+     * @param User|null $user
      * @return Response
      */
-    public function edit(Request $request, CategoryFormHandler $categoryFormHandler, Category $category = null): Response
+    public function edit(Request $request, User $user = null): Response
     {
-        /*    $editCategoryModel = EditCategoryModel::makeFromCategory($category);
+        $editUserModel = EditUserModel::makeFromUser($user);
 
-            $form = $this->createForm(EditCategoryFormType::class, $editCategoryModel);
-            $form->handleRequest($request);
+        $form = $this->createForm(EditUserFormType::class, $editUserModel);
+        $form->handleRequest($request);
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                $category = $categoryFormHandler->processEditForm($editCategoryModel);
-                $this->addFlash('success', 'Your changes were saved!');
-                return $this->redirectToRoute('admin_category_edit', ['id' => $category->getId()]);
-            }
+        if ($form->isSubmitted() && $form->isValid()) {
+            dd($user, $editUserModel);
+            $category = $categoryFormHandler->processEditForm($editUserModel);
+            $this->addFlash('success', 'Your changes were saved!');
+            return $this->redirectToRoute('admin_user_edit', ['id' => $category->getId()]);
+        }
 
-            if ($form->isSubmitted() && !$form->isValid()){
-                $this->addFlash('warning', 'Something went wrong. Please check!');
-            }
-    */
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Something went wrong. Please check!');
+        }
+
         return $this->render('admin/user/edit.html.twig', [
-            'category' => '$category',
-            'form' => '$form->createView()',
+            'user' => $user,
+            'form' => $form->createView(),
         ]);
     }
 

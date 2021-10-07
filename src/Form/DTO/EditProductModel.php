@@ -70,7 +70,7 @@ class EditProductModel
      * @param Product|null $product
      * @return static
      */
-    public static function makeFromProduct(?Product $product): self
+    public static function makeFromProduct(?Product $product): static
     {
         $model = new self();
 

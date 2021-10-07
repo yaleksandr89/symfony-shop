@@ -36,7 +36,7 @@ class EditOrderModel
      * @param Order|null $order
      * @return static
      */
-    public static function makeFromOrder(?Order $order): self
+    public static function makeFromOrder(?Order $order): static
     {
         $model = new self();
 
