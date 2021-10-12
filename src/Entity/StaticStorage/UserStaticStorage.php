@@ -23,7 +23,7 @@ final class UserStaticStorage
     }
 
     /**
-     * @return string[]
+     * @return array
      */
     public static function getUserRoleHasAccessToAdminSection(): array
     {

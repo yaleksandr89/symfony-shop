@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Category;
+use App\Entity\StaticStorage\UserStaticStorage;
 use App\Entity\User;
 use App\Form\Admin\EditUserFormType;
 use App\Form\DTO\EditUserModel;
@@ -13,6 +14,7 @@ use App\Repository\UserRepository;
 use App\Utils\Manager\CategoryManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -45,8 +47,13 @@ class UserController extends AbstractController
      */
     public function list(): Response
     {
+//        if (!$this->isGranted(UserStaticStorage::USER_ROLE_SUPER_ADMIN)) {
+//            $this->addFlash('warning', 'Permission denied!');
+//            return $this->redirectToRoute('admin_dashboard_show');
+//        }
+
         /** @var User $users */
-        $users = $this->userRepository->findBy(['isDeleted' => false, 'isVerified' => true], ['id' => 'DESC']);
+        $users = $this->userRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
 
         return $this->render('admin/user/list.html.twig', [
             'users' => $users
@@ -61,27 +68,30 @@ class UserController extends AbstractController
      * @param User|null $user
      * @return Response
      */
-    public function edit(Request $request,UserFormHandler $userFormHandler, User $user = null): Response
+    public function edit(Request $request, UserFormHandler $userFormHandler, User $user = null): Response
     {
+//        if (!$this->isGranted(UserStaticStorage::USER_ROLE_SUPER_ADMIN)) {
+//            $this->addFlash('warning', 'Permission denied!');
+//            return $this->redirectToRoute('admin_dashboard_show');
+//        }
+
         $editUserModel = EditUserModel::makeFromUser($user);
 
         $form = $this->createForm(EditUserFormType::class, $editUserModel);
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-
-            if ($this->userRepository->findOneBy(['email' => $editUserModel->email])){
+            if ($this->userRepository->findOneBy(['email' => $editUserModel->email])) {
                 $form
                     ->get('email')
                     ->addError(new FormError('This email is already registered'));
             }
 
-            if ($form->isValid()){
+            if ($form->isValid()) {
                 $user = $userFormHandler->processEditForm($editUserModel);
                 $this->addFlash('success', 'Your changes were saved!');
                 return $this->redirectToRoute('admin_user_edit', ['id' => $user->getId()]);
             }
-
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {

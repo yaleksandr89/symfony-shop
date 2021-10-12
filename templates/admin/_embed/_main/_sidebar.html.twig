@@ -65,25 +65,27 @@
     <hr class="sidebar-divider">
     {# Products block <<<<<<<#}
 
-    {# >>>>>> General block #}
-    <div class="sidebar-heading">
-        General
-    </div>
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
-           aria-expanded="true" aria-controls="collapseUsers">
-            <i class="fas fa-fw fa-user"></i>
-            <span>Users</span>
-        </a>
-        <div id="collapseUsers" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-            <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_user_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_user_add') }}">Add new</a>
-            </div>
+    {% if is_granted('ROLE_SUPER_ADMIN') %}
+        {# >>>>>> General block #}
+        <div class="sidebar-heading">
+            General
         </div>
-    </li>
-    <hr class="sidebar-divider d-none d-md-block">
-    {# General block <<<<<<<#}
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+               aria-expanded="true" aria-controls="collapseUsers">
+                <i class="fas fa-fw fa-user"></i>
+                <span>Users</span>
+            </a>
+            <div id="collapseUsers" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div class="py-2 collapse-inner">
+                    <a class="collapse-item" href="{{ path('admin_user_list') }}">All list</a>
+                    <a class="collapse-item" href="{{ path('admin_user_add') }}">Add new</a>
+                </div>
+            </div>
+        </li>
+        <hr class="sidebar-divider d-none d-md-block">
+        {# General block <<<<<<<#}
+    {% endif %}
 
     <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
