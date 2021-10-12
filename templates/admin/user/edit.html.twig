@@ -19,7 +19,15 @@
                     Email
                 </div>
                 <div class="col-md-11">
-                    {{ user.email }}
+                    {% if user and user.id %}
+                        {{ user.email }}
+                        {% do form.email.setRendered %}
+                    {% else %}
+                        {{ form_widget(form.email) }}
+                        <div class="form-error">
+                            {{ form_errors(form.email) }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ namespace App\Form\Handler;
 
 use App\Entity\User;
 use App\Form\DTO\EditUserModel;
+use App\Repository\UserRepository;
 use App\Utils\Manager\UserManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -21,10 +22,13 @@ class UserFormHandler
      */
     private UserPasswordHasherInterface $hasher;
 
-    public function __construct(UserManager $userManager, UserPasswordHasherInterface $hasher)
+    private UserRepository $userRepository;
+
+    public function __construct(UserManager $userManager, UserPasswordHasherInterface $hasher, UserRepository $userRepository)
     {
         $this->userManager = $userManager;
         $this->hasher = $hasher;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -81,9 +85,15 @@ class UserFormHandler
             ? (bool)$editUserModel->isDeleted
             : $editUserModel->isDeleted;
 
+        $email = $editUserModel->email;
+
         if ($plainPassword) {
             $encodedPassword = $this->hasher->hashPassword($user, $plainPassword);
             $user->setPassword($encodedPassword);
+        }
+
+        if ($editUserModel->email) {
+            $user->setEmail($email);
         }
 
         $user->setRoles($roles);

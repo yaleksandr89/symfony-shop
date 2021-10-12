@@ -12,6 +12,7 @@ use App\Form\Handler\UserFormHandler;
 use App\Repository\UserRepository;
 use App\Utils\Manager\CategoryManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -56,6 +57,7 @@ class UserController extends AbstractController
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
      * @param Request $request
+     * @param UserFormHandler $userFormHandler
      * @param User|null $user
      * @return Response
      */
@@ -66,10 +68,20 @@ class UserController extends AbstractController
         $form = $this->createForm(EditUserFormType::class, $editUserModel);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user = $userFormHandler->processEditForm($editUserModel);
-            $this->addFlash('success', 'Your changes were saved!');
-            return $this->redirectToRoute('admin_user_edit', ['id' => $user->getId()]);
+        if ($form->isSubmitted()) {
+
+            if ($this->userRepository->findOneBy(['email' => $editUserModel->email])){
+                $form
+                    ->get('email')
+                    ->addError(new FormError('This email is already registered'));
+            }
+
+            if ($form->isValid()){
+                $user = $userFormHandler->processEditForm($editUserModel);
+                $this->addFlash('success', 'Your changes were saved!');
+                return $this->redirectToRoute('admin_user_edit', ['id' => $user->getId()]);
+            }
+
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
