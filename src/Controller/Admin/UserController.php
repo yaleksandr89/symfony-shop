@@ -12,6 +12,7 @@ use App\Form\DTO\EditUserModel;
 use App\Form\Handler\UserFormHandler;
 use App\Repository\UserRepository;
 use App\Utils\Manager\CategoryManager;
+use App\Utils\Manager\UserManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -106,19 +107,19 @@ class UserController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     * @param Category $category
-     * @param CategoryManager $categoryManager
+     * @param User $user
+     * @param UserManager $userManager
      * @return Response
      */
-    public function delete(Category $category, CategoryManager $categoryManager): Response
+    public function delete(User $user, UserManager $userManager): Response
     {
-        /*
-        $id = $category->getId();
-        $title = $category->getTitle();
 
-        $categoryManager->remove($category);
-        $this->addFlash('warning', "[Soft delete] The category (title: $title / ID: $id) was successfully deleted!");
-*/
+        $id = $user->getId();
+        $fullName = $user->getFullName();
+
+        $userManager->remove($user);
+        $this->addFlash('warning', "[Soft delete] The user (Full name: $fullName / ID: $id) was successfully deleted!");
+
         return $this->redirectToRoute('admin_user_list');
     }
 }
