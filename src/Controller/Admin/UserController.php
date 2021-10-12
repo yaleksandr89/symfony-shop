@@ -8,6 +8,7 @@ use App\Entity\Category;
 use App\Entity\User;
 use App\Form\Admin\EditUserFormType;
 use App\Form\DTO\EditUserModel;
+use App\Form\Handler\UserFormHandler;
 use App\Repository\UserRepository;
 use App\Utils\Manager\CategoryManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,7 +59,7 @@ class UserController extends AbstractController
      * @param User|null $user
      * @return Response
      */
-    public function edit(Request $request, User $user = null): Response
+    public function edit(Request $request,UserFormHandler $userFormHandler, User $user = null): Response
     {
         $editUserModel = EditUserModel::makeFromUser($user);
 
@@ -66,10 +67,9 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dd($user, $editUserModel);
-            $category = $categoryFormHandler->processEditForm($editUserModel);
+            $user = $userFormHandler->processEditForm($editUserModel);
             $this->addFlash('success', 'Your changes were saved!');
-            return $this->redirectToRoute('admin_user_edit', ['id' => $category->getId()]);
+            return $this->redirectToRoute('admin_user_edit', ['id' => $user->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
