@@ -90,6 +90,7 @@ class EditUserFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EditUserModel::class,
+            'user_repository' =>null,
         ]);
     }
 }
