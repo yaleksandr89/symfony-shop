@@ -5,8 +5,14 @@ declare(strict_types=1);
 namespace App\Form\DTO;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+/**
+ * @Assert\Callback(callback="validate")
+ */
 class EditUserModel
 {
     /**
@@ -83,5 +89,32 @@ class EditUserModel
         $model->email = $user->getEmail();
 
         return $model;
+    }
+
+    /**
+     * @param ExecutionContextInterface $context
+     * @return void
+     */
+    public function validate(ExecutionContextInterface $context): void
+    {
+        /** @var Form $form */
+        $form = $context->getRoot();
+
+        /** @var UserRepository $userRepository */
+        $userRepository = $form->getConfig()->getOption('user_repository');
+
+        // Валидация email
+        if ($userRepository->findOneBy(['email' => $this->email])) {
+            $context->buildViolation('This email is already registered')
+                ->atPath('email')
+                ->addViolation();
+        }
+
+        // Валидация пароля
+        if (!$this->plainPassword) {
+            $context->buildViolation('The password can\'t be empty')
+                ->atPath('plainPassword')
+                ->addViolation();
+        }
     }
 }
