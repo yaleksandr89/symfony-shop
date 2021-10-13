@@ -4,13 +4,27 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *       "get"={
+ *          "normalization_context"={"groups"="category:list"}
+ *       },
+ *     },
+ *     itemOperations={
+ *        "get"={
+ *           "normalization_context"={"groups"="category:item"}
+ *       },
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=CategoryRepository::class)
  */
 class Category
@@ -19,11 +33,15 @@ class Category
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     *
+     * @Groups({"category:list", "category:item", "product:list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     *
+     * @Groups({"category:list", "category:item", "product:list"})
      */
     private $title;
 
