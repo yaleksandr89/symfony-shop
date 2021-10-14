@@ -1,0 +1,28 @@
+.spinner-dual-ring {
+    position: absolute;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    padding-left: 50%;
+    padding-top: 50px;
+    transform: translateY(-50%);
+}
+.spinner-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    border-color: #ff59bd transparent #ff59bd transparent;
+    animation: spinner-dual-ring 1.2s linear infinite;
+}
+@keyframes spinner-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

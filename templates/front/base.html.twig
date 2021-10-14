@@ -8,7 +8,7 @@
     <meta name="keywords" content="{% block page_keywords %}clothes, jackets, jeans{% endblock %}">
     <meta name="description" content="{% block page_description %}clothes, jackets, jeans{% endblock %}">
     <link rel="icon" type="image/x-icon" href="{{ asset('build/images/icons/favicon.ico') }}"/>
-    <link rel="stylesheet" href="{{ asset('build/css/styles.css') }}">
+    {{ encore_entry_link_tags('section-front') }}
     {% block stylesheets %}{% endblock %}
 </head>
 
@@ -24,6 +24,7 @@
     {% include 'front/_embed/_footer.html.twig' %}
 </div>
 
+{{ encore_entry_script_tags('section-front') }}
 {% block javascripts %}{% endblock %}
 </body>
 </html>

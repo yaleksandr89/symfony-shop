@@ -1,0 +1,11 @@
+.alert {
+    font-weight: 300;
+    letter-spacing: -.01em;
+    border-radius: 0;
+    font-size: 1.4rem;
+    line-height: 1.43;
+    margin: 0;
+    padding: 1rem 1.5rem;
+    border: none;
+}
+

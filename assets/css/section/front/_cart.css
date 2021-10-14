@@ -1,0 +1,40 @@
+.table-cart .product-title {
+    font-size: 1.4rem;
+    text-decoration: none;
+}
+
+.table-cart .product-title a {
+    color: #212529;
+}
+
+.table-cart .total-col {
+    width: 80px;
+    color: #dc143c;
+    font-size: 1.6rem;
+}
+
+.table-cart .price-col {
+    width: 120px;
+}
+
+.table-cart .quantity-col {
+    width: 135px;
+}
+
+.table-cart .quantity-col .form-control {
+    height: 40px;
+    text-align: center;
+}
+
+.table-cart .product-col figure {
+    #margin: 15px 40px;
+}
+
+.table-cart figure img {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.table-cart td, .table-cart th {
+    vertical-align: middle;
+}

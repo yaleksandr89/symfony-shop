@@ -1,0 +1,83 @@
+.bg-gradient-primary {
+    background-color: #2a3042;
+    background-image: linear-gradient(180deg, #2e3343 10%,#2a3042 100%)
+}
+.menu-item2 {
+    color: rgba(255,255,255,.8) !important;
+}
+.menu-item2:hover {
+    color: #2a3042 !important;
+}
+.bg-gradient-empty-page {
+    background: #E8CBC0;
+    background: -webkit-linear-gradient(to right, #636FA4, #E8CBC0);
+    background: linear-gradient(to right, #636FA4, #E8CBC0);
+}
+.sidebar-dark .sidebar-heading {
+    color: white;
+}
+.sidebar-dark .nav-item .nav-link {
+    color: white;
+}
+.nav-link:hover {
+    background: rgba(255,255,255,.2);
+}
+.collapse-header {
+    color: white !important;
+}
+.collapse-item {
+    color: white !important;
+}
+.collapse-item:hover {
+    color: #2a3042 !important;
+}
+form .form-control {
+    font-size: 1rem;
+    padding: 1.5rem .8rem;
+}/*
+form button[type=submit] {
+    font-size: .8rem;
+    padding: 1.5rem 1rem;
+}
+form button[type=submit] {
+    padding: .75rem 1rem;
+}*/
+select {
+    padding: .8rem !important;
+    height: 50px !important;
+}
+label {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-right: 1rem;
+}
+label.required:after {
+    content: "*";
+}
+option[selected] {
+    color: grey !important;
+}
+.btn-return {
+    border: 1px solid lightgray;
+    font-size: 1rem;
+    border-radius: 10rem;
+    padding: .60rem .85rem;
+    color: lightgray;
+}
+.btn-return:hover {
+    border: 1px solid grey;
+    color: grey;
+}
+.table-additional-selection {
+    border: 1px solid lightgray;
+    padding: 10px;
+}
+.table-additional-selection .btn {
+    padding: 12px;
+}
+img {
+    width: 100%;
+}
+select.form-control[multiple], select.form-control[size] {
+    min-height: 6rem;
+}

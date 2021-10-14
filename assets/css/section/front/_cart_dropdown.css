@@ -1,0 +1,132 @@
+.cart-dropdown {
+    display: flex;
+    align-self: stretch;
+    padding-left: 2.5rem;
+}
+
+.cart-dropdown a {
+    color: #333;
+    text-transform: uppercase;
+}
+
+.cart-dropdown a:hover {
+    color: #f13c76;
+}
+
+.cart-dropdown .cart-dropdown-btn-toggle {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.cart-dropdown-btn-toggle .count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-weight: 400;
+    font-size: .8rem;
+    margin-left: .2rem;
+    margin-top: .1rem;
+    color: white;
+    background-color: #E20048;
+}
+
+.cart-dropdown:hover .cart-dropdown-window {
+    visibility: visible;
+    opacity: 1;
+}
+
+.cart-dropdown-window {
+    display: block;
+    right: 0;
+    left: auto;
+    width: 300px;
+    z-index: 100;
+    font-size: 1.3rem;
+    margin: 1px 0 0;
+    border-radius: 0;
+    border: 20px white solid;
+    box-shadow: 5px 10px 16px rgba(51, 51, 51, 0.05), -5px 10px 16px rgba(51, 51, 51, 0.05);
+    background-color: #fff;
+    visibility: hidden;
+    opacity: 0;
+    transition: all .25s;
+}
+
+.cart-dropdown-window .btn-remove {
+    position: absolute;
+    top: 50%;
+    right: -.55rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    color: #cccccc;
+    text-align: center;
+    margin-top: -1.2rem;
+}
+
+.cart-dropdown-window .btn-remove:hover {
+    text-decoration: none;
+}
+
+.cart-dropdown-window .product {
+    position: relative;
+    display: flex;
+    padding: 1.6rem 2.4rem 1.6rem 0;
+    box-shadow: none;
+    border-bottom: 1px solid #ebebeb;
+}
+
+.cart-dropdown-window .product-image-container {
+    margin-left: auto;
+}
+
+.cart-dropdown-window .product-title {
+    font-weight: 400;
+    line-height: 1.3;
+    color: #666;
+    margin-bottom: .4rem;
+    font-size: 1.2rem;
+}
+
+.cart-dropdown-window .product-title a {
+    color: inherit;
+}
+
+.cart-dropdown-window .product-title a:hover {
+    color: #f13c76;
+    text-decoration: none;
+}
+
+.cart-dropdown-window .product-info {
+    font-weight: 400;
+    font-size: 1rem;
+    color: #999999;
+}
+
+.cart-dropdown-window .total {
+    padding: 1rem 0;
+    display: flex;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #666666;
+    margin-bottom: 1.1rem;
+}
+
+.cart-dropdown-window .total .total-price {
+    margin-left: auto;
+}
+
+.cart-dropdown-window .actions {
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+}
+
+@media screen and (max-width: 575px) {
+    .cart-dropdown {
+        padding-left: 1.4rem;
+    }
+}
