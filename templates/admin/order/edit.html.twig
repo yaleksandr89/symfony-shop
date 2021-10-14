@@ -132,5 +132,22 @@
 {% endblock %}
 
 {% block javascripts %}
+    <script>
+        window.staticStore = {};
+        window.staticStore.orderId = {{ order.id|default('') }};
+        window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
+        window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
+    </script>
+    {# 1 вариант #}
+    {# <script> #}
+    {# const ORDER_PRODUCTS = {{ orderProducts|json_encode|raw }}; #}
+    {# </script> #}
+
+    {# 2 вариант #}
+    {# <script id="pageData" type="application/json"> #}
+    {# { #}
+    {# "orderProducts": {{ orderProducts|json_encode|raw }} #}
+    {# } #}
+    {# </script> #}
     {{ encore_entry_script_tags('appAdminOrder') }}
 {% endblock %}
