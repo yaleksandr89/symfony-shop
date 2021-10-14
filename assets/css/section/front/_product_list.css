@@ -1,0 +1,114 @@
+.product-item {
+    position: relative;
+    margin-bottom: 1rem;
+    border: 20px solid #fff;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.product-item:hover {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.product-item .product-media {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card-content {
+    position: relative;
+    padding: 1.6rem 2rem;
+    transition: all .35s ease;
+    background-color: #fff;
+}
+
+.product-card-content {
+    padding: 1.6rem 2rem 0 1.6rem
+}
+
+.product-card-content .product-title > a {
+    position: relative;
+    z-index: 0;
+}
+
+.product-card-content .product-title {
+    font-weight: 400;
+    font-size: 1.3rem;
+    line-height: 1.25;
+    letter-spacing: -.01em;
+    color: #333333;
+    margin-bottom: .2rem;
+}
+
+.product-card-content .product-title:hover a {
+    text-decoration: none;
+}
+
+.product-card-content .product-price {
+    display: flex;
+    align-items: center;
+    flex-flow: wrap;
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1.25;
+    color: #3e3e3e;
+}
+
+.product-item .product-media .product-actions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.95);
+    z-index: 10;
+    transition: all .35s ease;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100%);
+}
+
+.product-item .product-media {
+    margin-bottom: 0 !important;
+}
+
+.product-item:hover .product-media .product-actions,
+.product-item:focus .product-media .product-actions {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.products-count {
+    margin-right: 5rem;
+    font-size: 1.4rem;
+}
+
+.products-sort {
+    margin-left: 5rem;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.products-sort select {
+    margin-bottom: 0 !important;
+}
+
+.btn-add-to-cart {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all .50s ease;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+    flex-grow: 1;
+    color: #666666 !important;
+}
+
+.btn-add-to-cart:hover, .btn-add-to-cart:focus {
+    outline: none !important;
+    color: #f13c76 !important;
+}

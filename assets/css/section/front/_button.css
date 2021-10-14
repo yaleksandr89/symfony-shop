@@ -1,0 +1,50 @@
+.btn {
+    cursor: pointer;
+}
+
+.btn-link, .btn-success, .btn-cancel {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    padding: 10px !important;
+    border: none;
+    color: white;
+}
+
+.btn-link:hover, .btn-success:hover {
+    color: white !important;
+    text-decoration: none;
+}
+
+.btn-link {
+    border-bottom: 4px solid #ff59bd !important;
+    background-color: transparent;
+}
+
+.btn-link:hover {
+    background: linear-gradient(to right, #da2893 2%,#93002F 82%);
+}
+
+.btn-success {
+    border-bottom: 4px solid #799647 !important;
+    background-color: #a6c76c;
+}
+
+.btn-success:hover {
+    background: linear-gradient(to right, #a6c76c 2%, #799647 82%);
+}
+
+.btn-cancel {
+    border-bottom: 4px solid #909090 !important;
+    background-color: #f7f7f7;
+}
+
+.btn-cancel:hover {
+    color: #333 !important;
+    text-decoration: none;
+    background: linear-gradient(to right, #f7f7f7 2%, #dedede 82%);
+}
+
+.btn-dark {
+    color: #333;
+}
+
