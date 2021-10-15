@@ -20,8 +20,10 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.4",
+        "axios": "^0.21.1",
         "bootstrap": "^4.3.1",
         "chart.js": "^2.9.4",
+        "http-status-codes": "^2.1.4",
         "jquery": "^3.5.1",
         "jquery.easing": "^1.4.1",
         "popper.js": "^1.16.1",

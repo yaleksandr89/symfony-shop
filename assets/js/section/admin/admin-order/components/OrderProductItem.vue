@@ -10,10 +10,10 @@
       {{ categoryTitle }}
     </div>
     <div class="col-md-2">
-      {{ orderProduct.quantity }}
+      {{ quantity }}
     </div>
     <div class="col-md-2">
-      ${{ orderProduct.pricePerOne }}
+      {{ pricePerOne }}
     </div>
     <div class="col-md-2">
       <button class="btn btn-sm btn-outline-info" @click="viewDetails">
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import {mapActions, mapState} from 'vuex';
 import {getUrlViewProduct} from "../../../../utils/url-generator";
 
 export default {
@@ -54,8 +54,15 @@ export default {
     categoryTitle() {
       return this.orderProduct.product.category.title;
     },
+    quantity() {
+      return this.orderProduct.quantity;
+    },
+    pricePerOne() {
+      return '$' + this.orderProduct.pricePerOne;
+    },
   },
   methods: {
+    ...mapActions('products', ['removeOrderProduct']),
     viewDetails(event) {
       event.preventDefault();
       const url = getUrlViewProduct(
@@ -63,6 +70,10 @@ export default {
           this.orderProduct.product.id
       );
       window.open(url, '_blank').focus();
+    },
+    remove(event) {
+      event.preventDefault();
+      this.removeOrderProduct(this.orderProduct.id);
     }
   },
 }

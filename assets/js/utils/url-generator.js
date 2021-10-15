@@ -8,3 +8,7 @@ export function getUrlViewProduct(viewUrl, productId) {
         productId
     );
 }
+
+export function concatUrlByParams(...params) {
+    return params.join('/');
+}

@@ -86,9 +86,7 @@
                     Products:
                 </div>
                 <div class="col-md-11">
-                    <div id="app">
-
-                    </div>
+                    <div id="app"></div>
                     {# {% for orderProduct in order.orderProducts %} #}
                     {# <div> #}
                     {# {% set product = orderProduct.product %} #}
@@ -137,6 +135,7 @@
         window.staticStore.orderId = {{ order.id|default('') }};
         window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
         window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
+        window.staticStore.urlApiProductOrder = '{{ path('api_order_products_get_collection') }}';
     </script>
     {# 1 вариант #}
     {# <script> #}
