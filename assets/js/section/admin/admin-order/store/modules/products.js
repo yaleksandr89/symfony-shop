@@ -38,17 +38,30 @@ const actions = {
         );
 
         const result = await axios.get(url, apiConfig);
-
         if (result.data && StatusCodes.OK === result.status) {
             commit("getCategoryProducts", result.data["hydra:member"]);
         }
     },
     async getCategories({commit, state}) {
         const url = state.staticStore.url.apiCategory;
-        const result = await axios.get(url, apiConfig);
 
+        const result = await axios.get(url, apiConfig);
         if (result.data && StatusCodes.OK === result.status) {
             commit("getCategories", result.data["hydra:member"]);
+        }
+    },
+    async addNewProductOrder({state, dispatch}) {
+        const url = state.staticStore.url.apiProduct;
+        const data = {
+            pricePerOne: state.newOrderProduct.pricePerOne,
+            quantity: parseInt(state.newOrderProduct.quantity),
+            product: "/api/products/" + state.newOrderProduct.productId,
+            appOrder: "/api/orders/" + state.staticStore.orderId,
+        };
+
+        const result = await axios.post(url, data, apiConfig);
+        if (result.data && StatusCodes.CREATED === result.status) {
+            console.log('ADDED!!!')
         }
     },
     async removeOrderProduct({state, dispatch}, orderProductId) {

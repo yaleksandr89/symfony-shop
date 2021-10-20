@@ -16,10 +16,10 @@
       {{ pricePerOne }}
     </div>
     <div class="col-md-2">
-      <button class="btn btn-sm btn-outline-info" @click="viewDetails">
+      <button class="btn btn-sm btn-outline-info" @click.prevent="viewDetails">
         Details
       </button>
-      <button class="btn btn-sm btn-outline-danger" @click="remove">
+      <button class="btn btn-sm btn-outline-danger" @click.prevent="remove">
         Remove
       </button>
     </div>
@@ -45,7 +45,7 @@ export default {
     },
   },
   computed: {
-    ...mapState('products', ['staticStore']),
+    ...mapState("products", ["staticStore"]),
     rowNumber() {
       return this.index + 1;
     },
@@ -65,7 +65,6 @@ export default {
   methods: {
     ...mapActions('products', ['removeOrderProduct']),
     viewDetails(event) {
-      event.preventDefault();
       const url = getUrlViewProduct(
           this.staticStore.url.viewProduct,
           this.orderProduct.product.id
@@ -73,7 +72,6 @@ export default {
       window.open(url, '_blank').focus();
     },
     remove(event) {
-      event.preventDefault();
       this.removeOrderProduct(this.orderProduct.id);
     }
   },
