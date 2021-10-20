@@ -81,6 +81,8 @@ class OrderController extends AbstractController
                 'product' => [
                     'id' => $product->getId(),
                     'title' => $product->getTitle(),
+                    'price' => $product->getPrice(),
+                    'quantity' => $product->getQuantity(),
                     'category' => [
                         'id' => $category->getId(),
                         'title' => $category->getTitle(),

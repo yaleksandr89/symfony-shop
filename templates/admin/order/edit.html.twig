@@ -87,12 +87,6 @@
                 </div>
                 <div class="col-md-11">
                     <div id="app"></div>
-                    {# {% for orderProduct in order.orderProducts %} #}
-                    {# <div> #}
-                    {# {% set product = orderProduct.product %} #}
-                    {# # {{ product.id }} - {{ product.title }} - Q: {{ orderProduct.quantity }} - {{ orderProduct.pricePerOne|format_currency('USD') }} #}
-                    {# </div> #}
-                    {# {% endfor %} #}
                 </div>
             </div>
 
@@ -136,6 +130,8 @@
         window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
         window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
         window.staticStore.urlApiProductOrder = '{{ path('api_order_products_get_collection') }}';
+        window.staticStore.urlApiCategory = '{{ path('api_categories_get_collection') }}';
+        window.staticStore.urlApiProduct = '{{ path('api_products_get_collection') }}';
     </script>
     {# 1 вариант #}
     {# <script> #}

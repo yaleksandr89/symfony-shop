@@ -3,13 +3,13 @@
     <div class="col-md-1 text-center">
       {{ rowNumber }}
     </div>
-    <div class="col-md-2">
+    <div class="col-md-4">
       {{ productTitle }}
     </div>
     <div class="col-md-2">
       {{ categoryTitle }}
     </div>
-    <div class="col-md-2">
+    <div class="col-md-1">
       {{ quantity }}
     </div>
     <div class="col-md-2">
@@ -29,6 +29,7 @@
 <script>
 import {mapActions, mapState} from 'vuex';
 import {getUrlViewProduct} from "../../../../utils/url-generator";
+import {getProductInformativeTitle} from "../../../../utils/title-formatter";
 
 export default {
   name: "OrderProductItem",
@@ -49,7 +50,7 @@ export default {
       return this.index + 1;
     },
     productTitle() {
-      return this.orderProduct.product.title;
+      return getProductInformativeTitle(this.orderProduct.product);
     },
     categoryTitle() {
       return this.orderProduct.product.category.title;
