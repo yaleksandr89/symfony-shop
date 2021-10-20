@@ -50,8 +50,8 @@ const actions = {
             commit("getCategories", result.data["hydra:member"]);
         }
     },
-    async addNewProductOrder({state, dispatch}) {
-        const url = state.staticStore.url.apiProduct;
+    async addNewOrderProduct({state, dispatch}) {
+        const url = state.staticStore.url.apiOrderProduct;
         const data = {
             pricePerOne: state.newOrderProduct.pricePerOne,
             quantity: parseInt(state.newOrderProduct.quantity),

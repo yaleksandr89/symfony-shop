@@ -61,7 +61,7 @@ class Product
      * @ORM\Column(type="integer")
      *
      * @ApiProperty(identifier=false)
-     * @Groups({"product:list"})
+     * @Groups({"product:list", "product:item"})
      */
     private $id;
 

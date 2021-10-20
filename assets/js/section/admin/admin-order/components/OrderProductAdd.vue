@@ -92,7 +92,7 @@ export default {
   },
   methods: {
     ...mapMutations("products", ["setNewProductInfo"]),
-    ...mapActions("products", ["getProductsByCategory", "addNewProductOrder"]),
+    ...mapActions("products", ["getProductsByCategory", "addNewOrderProduct"]),
     getProducts() {
       this.setNewProductInfo(this.form);
       this.getProductsByCategory();
@@ -109,7 +109,7 @@ export default {
     },
     submit(event) {
       this.setNewProductInfo(this.form);
-      this.addNewProductOrder();
+      this.addNewOrderProduct();
       this.resetFormData();
     },
     resetFormData() {

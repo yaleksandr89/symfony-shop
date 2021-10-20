@@ -126,7 +126,7 @@
 {% block javascripts %}
     <script>
         window.staticStore = {};
-        window.staticStore.orderId = {{ order.id|default('') }};
+        window.staticStore.orderId = '{{ order.id|default('') }}';
         window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
         window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
         window.staticStore.urlApiProductOrder = '{{ path('api_order_products_get_collection') }}';
