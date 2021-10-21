@@ -18,7 +18,7 @@
       </select>
     </div>
 
-    <div class="col-md-3">
+    <div v-if="form.categoryId" class="col-md-3">
       <select
           v-model="form.productId"
           name="add_product_product_select"
@@ -26,7 +26,7 @@
       >
         <option value="" disabled>- choose options-</option>
         <option
-            v-for="categoryProduct in categoryProducts"
+            v-for="categoryProduct in freeCategoryProducts"
             :key="categoryProduct.id"
             :value="categoryProduct.uuid"
         >
@@ -34,26 +34,28 @@
         </option>
       </select>
     </div>
-    <div class="col-md-2">
+    <div v-if="form.productId" class="col-md-2">
       <input
           v-model="form.quantity"
           type="number"
           class="form-control"
           placeholder="quantity"
-          min="0"
+          min="1"
+          :max="productQuantityMax"
       >
     </div>
-    <div class="col-md-2">
+    <div v-if="form.productId" class="col-md-2">
       <input
           v-model="form.pricePerOne"
           type="number"
           class="form-control"
           placeholder="price per one"
           step="0.01"
-          min="0"
+          min="1"
+          :max="productPriceMax"
       >
     </div>
-    <div class="col-md-3">
+    <div v-if="form.productId" class="col-md-3">
       <button
           class="btn btn-sm btn-outline-info"
           @click.prevent="viewDetails"
@@ -71,7 +73,7 @@
 </template>
 
 <script>
-import {mapActions, mapMutations, mapState} from "vuex";
+import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
 import {getProductInformativeTitle} from "../../../../utils/title-formatter";
 import {getUrlViewProduct} from "../../../../utils/url-generator";
 
@@ -89,6 +91,19 @@ export default {
   },
   computed: {
     ...mapState("products", ["categories", "categoryProducts", "staticStore"]),
+    ...mapGetters("products", ["freeCategoryProducts"]),
+    productQuantityMax() {
+      const productData = this.freeCategoryProducts.find(
+          product => product.uuid === this.form.productId
+      );
+      return parseInt(productData.quantity);
+    },
+    productPriceMax() {
+      const productData = this.freeCategoryProducts.find(
+          product => product.uuid === this.form.productId
+      );
+      return parseFloat(productData.price);
+    },
   },
   methods: {
     ...mapMutations("products", ["setNewProductInfo"]),

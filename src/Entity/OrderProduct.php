@@ -38,7 +38,7 @@ class OrderProduct
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @Groups({"order_product:list"})
+     * @Groups({"order_product:list", "order:item"})
      */
     private $id;
 
@@ -51,16 +51,22 @@ class OrderProduct
     /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="orderProducts")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @Groups({"order:item"})
      */
     private $product;
 
     /**
      * @ORM\Column(type="integer")
+     *
+     * @Groups({"order:item"})
      */
     private $quantity;
 
     /**
      * @ORM\Column(type="decimal", precision=15, scale=2)
+     *
+     * @Groups({"order:item"})
      */
     private $pricePerOne;
 

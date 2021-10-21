@@ -33,6 +33,8 @@ class OrderFormHandler
             $order = $this->orderManager->find($editOrderModel->id);
         }
 
+        $this->orderManager->calculationOrderTotalPrice($order);
+
         $this->orderManager->persist($order);
         $order = $this->fillingCategoryData($order, $editOrderModel);
         $this->orderManager->flush();

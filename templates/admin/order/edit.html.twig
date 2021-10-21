@@ -129,9 +129,10 @@
         window.staticStore.orderId = '{{ order.id|default('') }}';
         window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
         window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
-        window.staticStore.urlApiProductOrder = '{{ path('api_order_products_get_collection') }}';
         window.staticStore.urlApiCategory = '{{ path('api_categories_get_collection') }}';
         window.staticStore.urlApiProduct = '{{ path('api_products_get_collection') }}';
+        window.staticStore.urlApiOrder = '{{ path('api_orders_get_collection') }}';
+        window.staticStore.urlApiOrderProduct = '{{ path('api_order_products_get_collection') }}';
     </script>
     {# 1 вариант #}
     {# <script> #}
