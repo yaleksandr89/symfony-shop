@@ -2,6 +2,10 @@
 
 {% block title_detailed %}Edit order{% endblock %}
 
+{% block stylesheets %}
+    {{ encore_entry_link_tags('appAdminOrder') }}
+{% endblock %}
+
 {% block body %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -82,21 +86,7 @@
                     Products:
                 </div>
                 <div class="col-md-11">
-                    {% for orderProduct in order.orderProducts %}
-                        <div>
-                            {% set product = orderProduct.product %}
-                            # {{ product.id }} - {{ product.title }} - Q: {{ orderProduct.quantity }} - {{ orderProduct.pricePerOne|format_currency('USD') }}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <div class="col-md-1">
-                    Total price:
-                </div>
-                <div class="col-md-11">
-                    {{ order.totalPrice|format_currency('USD') }}
+                    <div id="app"></div>
                 </div>
             </div>
 
@@ -122,4 +112,29 @@
         } %}
     {% endif %}
 
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        window.staticStore = {};
+        window.staticStore.orderId = '{{ order.id|default('') }}';
+        window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
+        window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
+        window.staticStore.urlApiCategory = '{{ path('api_categories_get_collection') }}';
+        window.staticStore.urlApiProduct = '{{ path('api_products_get_collection') }}';
+        window.staticStore.urlApiOrder = '{{ path('api_orders_get_collection') }}';
+        window.staticStore.urlApiOrderProduct = '{{ path('api_order_products_get_collection') }}';
+    </script>
+    {# 1 вариант #}
+    {# <script> #}
+    {# const ORDER_PRODUCTS = {{ orderProducts|json_encode|raw }}; #}
+    {# </script> #}
+
+    {# 2 вариант #}
+    {# <script id="pageData" type="application/json"> #}
+    {# { #}
+    {# "orderProducts": {{ orderProducts|json_encode|raw }} #}
+    {# } #}
+    {# </script> #}
+    {{ encore_entry_script_tags('appAdminOrder') }}
 {% endblock %}

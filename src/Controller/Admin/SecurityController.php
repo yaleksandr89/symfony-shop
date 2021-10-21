@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Security\Authenticator\Admin\LoginFormAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +37,6 @@ class SecurityController extends AbstractController
      */
     public function logout(): RedirectResponse
     {
-        return $this->redirectToRoute('admin_security_login');
+        return $this->redirectToRoute(LoginFormAuthenticator::LOGIN_ROUTE);
     }
 }

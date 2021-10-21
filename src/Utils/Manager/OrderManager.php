@@ -109,7 +109,7 @@ final class OrderManager extends AbstractBaseManager
      * @param Order $order
      * @return void
      */
-    private function calculationOrderTotalPrice(Order $order): void
+    public function calculationOrderTotalPrice(Order $order): void
     {
         $orderTotalPrice = 0;
 

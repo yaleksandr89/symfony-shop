@@ -55,6 +55,7 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/edit/{id}", name="edit")
+     * @Route("/edit", name="edit_blank")
      * @Route("/add", name="add")
      * @param Request $request
      * @param ProductFormHandler $productFormHandler
