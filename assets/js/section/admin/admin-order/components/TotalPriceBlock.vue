@@ -1,10 +1,7 @@
 <template>
   <div class="row mb-1">
-    <div class="col-md-2 text-right font-weight-bold">
-      Total price:
-    </div>
-    <div class="col-md-10">
-      <span class="font-weight-bold">${{ totalPrice }}</span>
+    <div class="col-md-12 text-right">
+      Total price: <span class="font-weight-bold ml-2">${{ totalPrice }}</span>
     </div>
   </div>
 </template>
