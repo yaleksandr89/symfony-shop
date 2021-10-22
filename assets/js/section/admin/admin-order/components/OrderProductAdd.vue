@@ -42,6 +42,7 @@
           placeholder="quantity"
           min="1"
           :max="productQuantityMax"
+          @change="updateMaxValue($event, 'quantity', productQuantityMax)"
       >
     </div>
     <div v-if="form.productId" class="col-md-2">
@@ -53,6 +54,7 @@
           step="0.01"
           min="1"
           :max="productPriceMax"
+          @change="updateMaxValue($event, 'pricePerOne', productPriceMax)"
       >
     </div>
     <div v-if="form.productId" class="col-md-3">
@@ -73,25 +75,25 @@
 </template>
 
 <script>
-import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
-import {getProductInformativeTitle} from "../../../../utils/title-formatter";
-import {getUrlViewProduct} from "../../../../utils/url-generator";
+import {mapActions, mapGetters, mapMutations, mapState} from 'vuex';
+import {getProductInformativeTitle} from '../../../../utils/title-formatter';
+import {getUrlViewProduct} from '../../../../utils/url-generator';
 
 export default {
-  name: "OrderProductAdd",
+  name: 'OrderProductAdd',
   data() {
     return {
       form: {
-        categoryId: "",
-        productId: "",
-        quantity: "",
-        pricePerOne: "",
+        categoryId: '',
+        productId: '',
+        quantity: '',
+        pricePerOne: '',
       }
     };
   },
   computed: {
-    ...mapState("products", ["categories", "categoryProducts", "staticStore"]),
-    ...mapGetters("products", ["freeCategoryProducts"]),
+    ...mapState('products', ['categories', 'categoryProducts', 'staticStore']),
+    ...mapGetters('products', ['freeCategoryProducts']),
     productQuantityMax() {
       const productData = this.freeCategoryProducts.find(
           product => product.uuid === this.form.productId
@@ -106,9 +108,12 @@ export default {
     },
   },
   methods: {
-    ...mapMutations("products", ["setNewProductInfo"]),
-    ...mapActions("products", ["getProductsByCategory", "addNewOrderProduct"]),
+    ...mapMutations('products', ['setNewProductInfo']),
+    ...mapActions('products', ['getProductsByCategory', 'addNewOrderProduct']),
     getProducts() {
+      if (this.form.productId !== '') {
+        this.form.productId = '';
+      }
       this.setNewProductInfo(this.form);
       this.getProductsByCategory();
     },
@@ -118,7 +123,7 @@ export default {
     viewDetails(event) {
       const url = getUrlViewProduct(
           this.staticStore.url.viewProduct,
-          this.form.productId
+          this.freeCategoryProducts[0].id
       );
       window.open(url, '_blank').focus();
     },
@@ -129,6 +134,18 @@ export default {
     },
     resetFormData() {
       Object.assign(this.$data, this.$options.data.apply(this));
+    },
+    updateMaxValue(event, field, maxValue) {
+      const value = Number.parseFloat(event.target.value);
+      let updatedValue = 1;
+
+      if (value > 0 && value <= maxValue) {
+        updatedValue = value;
+      } else if (value > maxValue) {
+        updatedValue = maxValue;
+      }
+
+      this.form[field] = String(updatedValue);
     },
   },
 }

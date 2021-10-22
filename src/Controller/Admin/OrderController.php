@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Entity\Category;
 use App\Entity\Order;
-use App\Entity\OrderProduct;
-use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Form\Admin\EditOrderFormType;
 use App\Form\DTO\EditOrderModel;
@@ -69,29 +66,6 @@ class OrderController extends AbstractController
         }
 
         $orderProducts = [];
-//        /** @var OrderProduct $orderProduct */
-//        foreach ($order->getOrderProducts()->getValues() as $orderProduct) {
-//            /** @var Product $product */
-//            $product = $orderProduct->getProduct();
-//            /** @var Category $category */
-//            $category = $product->getCategory();
-//
-//            $orderProducts[] = [
-//                'id' => $orderProduct->getId(),
-//                'product' => [
-//                    'id' => $product->getId(),
-//                    'title' => $product->getTitle(),
-//                    'price' => $product->getPrice(),
-//                    'quantity' => $product->getQuantity(),
-//                    'category' => [
-//                        'id' => $category->getId(),
-//                        'title' => $category->getTitle(),
-//                    ]
-//                ],
-//                'quantity' => $orderProduct->getQuantity(),
-//                'pricePerOne' => $orderProduct->getPricePerOne(),
-//            ];
-//        }
 
         return $this->render('admin/order/edit.html.twig', [
             'order' => $order,
