@@ -86,7 +86,22 @@
                     Products:
                 </div>
                 <div class="col-md-11">
-                    <div id="app"></div>
+                    {% if order.id %}
+                        <div id="app"></div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            To add products, first click "Save Changes".
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    Total price:
+                </div>
+                <div class="col-md-11">
+                    {{ order.totalPrice|format_currency('USD') }}
                 </div>
             </div>
 
@@ -125,16 +140,5 @@
         window.staticStore.urlApiOrder = '{{ path('api_orders_get_collection') }}';
         window.staticStore.urlApiOrderProduct = '{{ path('api_order_products_get_collection') }}';
     </script>
-    {# 1 вариант #}
-    {# <script> #}
-    {# const ORDER_PRODUCTS = {{ orderProducts|json_encode|raw }}; #}
-    {# </script> #}
-
-    {# 2 вариант #}
-    {# <script id="pageData" type="application/json"> #}
-    {# { #}
-    {# "orderProducts": {{ orderProducts|json_encode|raw }} #}
-    {# } #}
-    {# </script> #}
     {{ encore_entry_script_tags('appAdminOrder') }}
 {% endblock %}
