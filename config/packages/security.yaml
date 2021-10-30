@@ -19,6 +19,7 @@ security:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
     admin:
+      context: website
       pattern: ^/admin
       lazy: true
       provider: app_user_provider
@@ -34,6 +35,7 @@ security:
         path: admin_security_logout
         target: admin_security_login
     front:
+      context: website
       lazy: true
       provider: app_user_provider
       access_denied_handler: App\Security\Handler\AccessMainDeniedHandler
