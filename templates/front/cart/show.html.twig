@@ -4,6 +4,10 @@
 {% block page_keywords %}user cart, shop{% endblock %}
 {% block page_description %}User's cart on RankedChoice shop{% endblock %}
 
+{% block stylesheets %}
+    {{ encore_entry_link_tags('appFrontCartShow') }}
+{% endblock %}
+
 {% block body %}
     <div class="text-center">
         <div class="container">
@@ -11,78 +15,14 @@
                 <div class="col-lg-12 text-center">
                     <div class="page-details mt-4">
                         <h1 class="h4 font-weight-normal title-gradient-1">Your cart:</h1>
-                        <div class="row">
-                            <div class="col-lg-12 order-block">
-                                <div class="order-content">
-                                    {% if cart %}
-                                        {% set cartPriceTotal = 0 %}
-                                        <table class="table table-cart table-mobile main-cart-show">
-                                            <thead>
-                                            <tr>
-                                                <th>Product</th>
-                                                <th>Price</th>
-                                                <th>Quantity</th>
-                                                <th>Total</th>
-                                                <th></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for cartProduct in cart.cartProducts %}
-                                                {% set product = cartProduct.product %}
-                                                {% set images = product.getProductImages().getValues() %}
-                                                <tr>
-                                                    <td class="product-col">
-                                                        <div class="text-center">
-                                                            {% if images|length %}
-                                                                <figure>
-                                                                    {% set cover = images[0] %}
-                                                                    <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}" target="_blank">
-                                                                        <img
-                                                                                src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameSmall) }}"
-                                                                                alt="{{ product.title }}"
-                                                                        >
-                                                                    </a>
-                                                                </figure>
-                                                            {% endif %}
-                                                            <div class="product-title">
-                                                                <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}" target="_blank">
-                                                                    {{ product.title }}
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="price-col">
-                                                        {{ product.price|format_currency('USD') }}
-                                                    </td>
-                                                    <td class="quantity-col">
-                                                        {{ cartProduct.quantity }}
-                                                    </td>
-                                                    <td class="total-col">
-                                                        {% set cartProductPriceTotal = cartProduct.quantity * product.price %}
-                                                        {% set cartPriceTotal = cartPriceTotal + cartProductPriceTotal %}
-                                                        {{ cartProductPriceTotal|format_currency('USD') }}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                        <div class="mt-2 mb-2">
-                                            Total: <strong>{{ cartPriceTotal|format_currency('USD') }}</strong>
-                                        </div>
-                                        <a href="{{ path('main_cart_create') }}" class="btn btn-success mb-3">
-                                            MAKE ORDER
-                                        </a>
-                                    {% else %}
-                                        <div class="alert alert-info">
-                                            Your cart is empty
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+                        <div id="app"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('appFrontCartShow') }}
 {% endblock %}
