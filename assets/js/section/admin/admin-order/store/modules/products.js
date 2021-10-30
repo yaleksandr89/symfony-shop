@@ -1,7 +1,7 @@
-import {concatUrlByParams, getUrlProductsByCategory} from "../../../../../utils/url-generator";
-import axios from "axios";
-import {StatusCodes} from "http-status-codes";
-import {apiConfig} from "../../../../../utils/settings";
+import {concatUrlByParams, getUrlProductsByCategory} from '../../../../../utils/url-generator';
+import axios from 'axios';
+import {StatusCodes} from 'http-status-codes';
+import {apiConfig} from '../../../../../utils/settings';
 
 const state = () => ({
     categories: [],
@@ -10,10 +10,10 @@ const state = () => ({
     busyProductsIds: [],
 
     newOrderProduct: {
-        categoryId: "",
-        productId: "",
-        quantity: "",
-        pricePerOne: "",
+        categoryId: '',
+        productId: '',
+        quantity: '',
+        pricePerOne: '',
     },
     staticStore: {
         orderId: window.staticStore.orderId,
@@ -43,11 +43,11 @@ const actions = {
             state.staticStore.url.apiOrder,
             state.staticStore.orderId
         );
-
         const result = await axios.get(url, apiConfig);
+
         if (result.data && StatusCodes.OK === result.status) {
-            commit("setOrderProducts", result.data.orderProducts);
-            commit("setBusyProductsIds");
+            commit('setOrderProducts', result.data.orderProducts);
+            commit('setBusyProductsIds');
         }
     },
     async getProductsByCategory({commit, state}) {
@@ -57,32 +57,32 @@ const actions = {
             1,
             state.itemsPerPage
         );
-
         const result = await axios.get(url, apiConfig);
+
         if (result.data && StatusCodes.OK === result.status) {
-            commit("getCategoryProducts", result.data["hydra:member"]);
+            commit('setCategoryProducts', result.data['hydra:member']);
         }
     },
     async getCategories({commit, state}) {
         const url = state.staticStore.url.apiCategory;
-
         const result = await axios.get(url, apiConfig);
+
         if (result.data && StatusCodes.OK === result.status) {
-            commit("getCategories", result.data["hydra:member"]);
+            commit('setCategories', result.data['hydra:member']);
         }
     },
     async addNewOrderProduct({state, dispatch}) {
         const url = state.staticStore.url.apiOrderProduct;
         const data = {
-            pricePerOne: state.newOrderProduct.pricePerOne,
+            pricePerOne: state.newOrderProduct.pricePerOne.toString(),
             quantity: parseInt(state.newOrderProduct.quantity),
-            product: "/api/products/" + state.newOrderProduct.productId,
-            appOrder: "/api/orders/" + state.staticStore.orderId,
+            product: '/api/products/' + state.newOrderProduct.productId,
+            appOrder: '/api/orders/' + state.staticStore.orderId,
         };
-
         const result = await axios.post(url, data, apiConfig);
+
         if (result.data && StatusCodes.CREATED === result.status) {
-            dispatch("getOrderProducts");
+            dispatch('getOrderProducts');
         }
     },
     async removeOrderProduct({state, dispatch}, orderProductId) {
@@ -93,16 +93,16 @@ const actions = {
         const result = await axios.delete(url, apiConfig);
 
         if (StatusCodes.NO_CONTENT === result.status) {
-            dispatch("getOrderProducts");
+            dispatch('getOrderProducts');
         }
     }
 };
 
 const mutations = {
-    getCategories(state, categories) {
+    setCategories(state, categories) {
         state.categories = categories;
     },
-    getCategoryProducts(state, categoryProducts) {
+    setCategoryProducts(state, categoryProducts) {
         state.categoryProducts = categoryProducts;
     },
     setNewProductInfo(state, formData) {

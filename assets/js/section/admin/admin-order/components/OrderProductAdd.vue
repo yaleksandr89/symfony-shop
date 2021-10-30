@@ -23,6 +23,7 @@
           v-model="form.productId"
           name="add_product_product_select"
           class="form-control"
+          @change="changeProduct()"
       >
         <option value="" disabled>- choose options-</option>
         <option
@@ -34,7 +35,8 @@
         </option>
       </select>
     </div>
-    <div v-if="form.productId" class="col-md-2">
+
+    <div v-if="showProductOptions" class="col-md-2">
       <input
           v-model="form.quantity"
           type="number"
@@ -42,9 +44,11 @@
           placeholder="quantity"
           min="1"
           :max="productQuantityMax"
+          @change="updateMaxValue($event, 'quantity', productQuantityMax)"
       >
     </div>
-    <div v-if="form.productId" class="col-md-2">
+
+    <div v-if="showProductOptions" class="col-md-2">
       <input
           v-model="form.pricePerOne"
           type="number"
@@ -53,9 +57,11 @@
           step="0.01"
           min="1"
           :max="productPriceMax"
+          @change="updateMaxValue($event, 'pricePerOne', productPriceMax)"
       >
     </div>
-    <div v-if="form.productId" class="col-md-3">
+
+    <div v-if="showProductOptions" class="col-md-3">
       <button
           class="btn btn-sm btn-outline-info"
           @click.prevent="viewDetails"
@@ -73,42 +79,48 @@
 </template>
 
 <script>
-import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
-import {getProductInformativeTitle} from "../../../../utils/title-formatter";
-import {getUrlViewProduct} from "../../../../utils/url-generator";
+import {mapActions, mapGetters, mapMutations, mapState} from 'vuex';
+import {getProductInformativeTitle} from '../../../../utils/title-formatter';
+import {getUrlViewProduct} from '../../../../utils/url-generator';
 
 export default {
-  name: "OrderProductAdd",
+  name: 'OrderProductAdd',
   data() {
     return {
       form: {
-        categoryId: "",
-        productId: "",
-        quantity: "",
-        pricePerOne: "",
+        categoryId: '',
+        productId: '',
+        quantity: '',
+        pricePerOne: '',
       }
     };
   },
   computed: {
-    ...mapState("products", ["categories", "categoryProducts", "staticStore"]),
-    ...mapGetters("products", ["freeCategoryProducts"]),
+    ...mapState('products', ['categories', 'categoryProducts', 'staticStore']),
+    ...mapGetters('products', ['freeCategoryProducts']),
     productQuantityMax() {
-      const productData = this.freeCategoryProducts.find(
-          product => product.uuid === this.form.productId
-      );
-      return parseInt(productData.quantity);
+      return parseInt(this.selectedProduct.quantity);
     },
     productPriceMax() {
-      const productData = this.freeCategoryProducts.find(
+      return parseFloat(this.selectedProduct.price);
+    },
+    selectedProduct() {
+      return this.freeCategoryProducts.find(
           product => product.uuid === this.form.productId
       );
-      return parseFloat(productData.price);
+    },
+    showProductOptions() {
+      return this.selectedProduct;
     },
   },
   methods: {
-    ...mapMutations("products", ["setNewProductInfo"]),
-    ...mapActions("products", ["getProductsByCategory", "addNewOrderProduct"]),
+    ...mapMutations('products', ['setNewProductInfo']),
+    ...mapActions('products', ['getProductsByCategory', 'addNewOrderProduct']),
     getProducts() {
+      const categoryId = this.form.categoryId;
+      this.resetFormData();
+
+      this.form.categoryId = categoryId;
       this.setNewProductInfo(this.form);
       this.getProductsByCategory();
     },
@@ -118,7 +130,7 @@ export default {
     viewDetails(event) {
       const url = getUrlViewProduct(
           this.staticStore.url.viewProduct,
-          this.form.productId
+          this.selectedProduct.id
       );
       window.open(url, '_blank').focus();
     },
@@ -129,6 +141,22 @@ export default {
     },
     resetFormData() {
       Object.assign(this.$data, this.$options.data.apply(this));
+    },
+    updateMaxValue(event, field, maxValue) {
+      const value = Number.parseFloat(event.target.value);
+      let updatedValue = 1;
+
+      if (value > 0 && value <= maxValue) {
+        updatedValue = value;
+      } else if (value > maxValue) {
+        updatedValue = maxValue;
+      }
+
+      this.form[field] = String(updatedValue);
+    },
+    changeProduct() {
+      this.form.quantity = '';
+      this.form.pricePerOne = '';
     },
   },
 }
