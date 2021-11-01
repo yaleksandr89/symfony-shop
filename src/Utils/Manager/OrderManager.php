@@ -68,7 +68,7 @@ final class OrderManager extends AbstractBaseManager
         $order->setOwner($user);
         $order->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
 
-        $this->addOrdersFromCart($order, $cart->getId());
+        $this->addOrdersProductsFromCart($order, $cart->getId());
         $this->calculationOrderTotalPrice($order);
 
         $this->persist($order);
@@ -82,7 +82,7 @@ final class OrderManager extends AbstractBaseManager
      * @param int $cartId
      * @return void
      */
-    private function addOrdersFromCart(Order $order, int $cartId): void
+    public function addOrdersProductsFromCart(Order $order, int $cartId): void
     {
         /** @var Cart $cart */
         $cart = $this->cartManager->find($cartId);

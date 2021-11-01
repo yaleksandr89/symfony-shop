@@ -61,7 +61,7 @@ class Product
      * @ORM\Column(type="integer")
      *
      * @ApiProperty(identifier=false)
-     * @Groups({"product:list", "order:item"})
+     * @Groups({"product:list", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $id;
 
@@ -69,28 +69,28 @@ class Product
      * @ORM\Column(type="uuid")
      *
      * @ApiProperty(identifier=true)
-     * @Groups({"product:list", "product:item", "order:item"})
+     * @Groups({"product:list", "product:item", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $uuid;
 
     /**
      * @ORM\Column(type="string", length=255)
      *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item"})
+     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="decimal", precision=15, scale=2)
      *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item"})
+     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $price;
 
     /**
      * @ORM\Column(type="integer")
      *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item"})
+     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $quantity;
 
@@ -116,6 +116,8 @@ class Product
 
     /**
      * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", cascade={"persist"}, orphanRemoval=true)
+     *
+     * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $productImages;
 
@@ -128,7 +130,7 @@ class Product
     /**
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="products")
      *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item"})
+     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
     private $category;
 
