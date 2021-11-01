@@ -2,7 +2,7 @@
   <div class="dropdown cart-dropdown">
     <a href="#" class="cart-dropdown-btn-toggle">
       <i class="fas fa-shopping-cart"></i>
-      <span class="count">15</span>
+      <span class="count">{{ countCartProducts }}</span>
     </a>
 
     <div class="dropdown-menu cart-dropdown-window">
@@ -17,11 +17,24 @@
 import CartTotalPrice from "./components/CartTotalPrice";
 import CartActions from "./components/CartActions";
 import CartProductList from "./components/CartProductList";
+import {mapActions, mapState} from 'vuex';
 
 export default {
-  name: "App",
+  name: 'App',
   components: {CartProductList, CartActions, CartTotalPrice},
-  computed: {},
-  methods: {},
+  created() {
+    this.getCart();
+  },
+  computed: {
+    ...mapState('cart', ['cart']),
+    countCartProducts() {
+      return this.cart.cartProducts
+          ? this.cart.cartProducts.length
+          : 0;
+    },
+  },
+  methods: {
+    ...mapActions('cart', ['getCart'])
+  },
 }
 </script>

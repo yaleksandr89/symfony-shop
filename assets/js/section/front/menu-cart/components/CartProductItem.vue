@@ -4,6 +4,6 @@
 
 <script>
 export default {
-  name: "CartProductItem"
+  name: 'CartProductItem'
 }
 </script>

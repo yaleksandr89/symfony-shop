@@ -25,7 +25,7 @@ import {mapActions, mapState} from "vuex";
 import Alert from "./components/Alert";
 
 export default {
-  name: "App",
+  name: 'App',
   components: {Alert, CartTotalPrice, CartProductList},
   created() {
     this.getCart();
