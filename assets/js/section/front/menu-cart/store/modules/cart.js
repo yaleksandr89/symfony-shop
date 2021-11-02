@@ -29,6 +29,7 @@ const getters = {
                 result += cartProduct.product.price * cartProduct.quantity;
             }
         );
+
         return result;
     }
 };
@@ -88,7 +89,7 @@ const actions = {
         const url = state.staticStore.url.apiCart;
         const result = await axios.post(url, {}, apiConfig);
 
-        if (result.data && StatusCodes.CREATED === result.data) {
+        if (result.data && StatusCodes.CREATED === result.status) {
             dispatch('getCart');
         }
     },
@@ -115,7 +116,7 @@ const actions = {
         };
 
         const result = await axios.post(url, data, apiConfig);
-        if (result.data && StatusCodes.CREATED === result.data) {
+        if (result.data && StatusCodes.CREATED === result.status) {
             dispatch('getCart');
         }
     },
