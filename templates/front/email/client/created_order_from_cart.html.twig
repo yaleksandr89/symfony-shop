@@ -1,0 +1,7 @@
+<h1>Symfony shop - Thank you for your purchase!</h1>
+
+<p>
+    {% for orderProduct in order.orderProducts %}
+        {{ orderProduct.product.title }}<br>
+    {% endfor %}
+</p>
