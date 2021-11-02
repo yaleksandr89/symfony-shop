@@ -8,7 +8,12 @@
     <div class="dropdown-menu cart-dropdown-window">
       <CartProductList/>
       <CartTotalPrice/>
-      <CartActions/>
+      <div v-if="countCartProducts">
+        <CartActions/>
+      </div>
+      <div class="text-center" v-else>
+        You cart is empty...
+      </div>
     </div>
   </div>
 </template>

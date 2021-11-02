@@ -1,16 +1,24 @@
 <template>
   <div class="actions">
-    <a :href="'#'" class="btn btn-success">
+    <a :href="staticStore.url.viewCart" class="btn btn-success">
       View cart
     </a>
-    <a :href="'#'" class="btn btn-cancel mt-1">
+    <a :href="'#'" class="btn btn-cancel mt-1" @click.prevent="cleanCart">
       Checkout
     </a>
   </div>
 </template>
 
 <script>
+import {mapActions, mapState} from "vuex";
+
 export default {
-  name: 'CartActions'
+  name: 'CartActions',
+  computed: {
+    ...mapState('cart', ['staticStore']),
+  },
+  methods: {
+    ...mapActions('cart', ['cleanCart'])
+  },
 }
 </script>

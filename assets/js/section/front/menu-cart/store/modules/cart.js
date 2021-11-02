@@ -9,7 +9,7 @@ const state = () => ({
         url: {
             apiCart: window.staticStore.urlCart,
             apiCartProduct: window.staticStore.urlCartProduct,
-            urlCart: window.staticStore.urlViewCart,
+            viewCart: window.staticStore.urlViewCart,
             viewProduct: window.staticStore.urlViewProduct,
             assetImageProducts: window.staticStore.urlAssetImageProducts,
         },
@@ -39,11 +39,6 @@ const actions = {
 
         if (result.data && result.data["hydra:member"].length && StatusCodes.OK === result.status) {
             commit('setCart', result.data["hydra:member"][0]);
-        } else {
-            commit('setAlert', {
-                type: 'info',
-                message: 'Your cart is empty ...'
-            });
         }
     },
     async cleanCart({state, commit}) {
