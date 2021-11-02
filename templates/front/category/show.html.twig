@@ -66,20 +66,15 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
     <script>
-        const urlSaveProductToCart = '{{ path('main_api_cart_save') }}';
         const el = document.querySelectorAll('[data-add-cart]');
-
         el.forEach(function (item) {
             item.addEventListener('click', function (event){
-               event.preventDefault();
-               let uuid = this.getAttribute('data-id');
-               const formData = new FormData();
-                formData.append('productId', uuid);
+                event.preventDefault();
 
-               axios.post(urlSaveProductToCart, formData);
+                window.vueMenuCartInstance.addCartProduct({
+                    uuid: this.getAttribute('data-id')
+                });
             });
         })
     </script>

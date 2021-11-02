@@ -45,11 +45,7 @@
                     </a>
                 {% endif %}
             </li>
-            <li class="menu-item font-weight-bold">
-                <a href="{{ path('main_cart_show') }}">
-                    <div>Cart</div>
-                </a>
-            </li>
         </ul>
     </nav>
+    {{ include('front/_embed/_menu/_menu_cart.html.twig') }}
 </div>

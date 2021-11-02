@@ -1,0 +1,13 @@
+{{ encore_entry_link_tags('appFrontMenuCart') }}
+<div id="appFrontMenuCart"></div>
+<script>
+    if (typeof window.staticStore === 'undefined') {
+        window.staticStore = {};
+    }
+    window.staticStore.urlCart = '{{ path('api_carts_get_collection') }}';
+    window.staticStore.urlCartProduct = '{{ path('api_cart_products_get_collection') }}';
+    window.staticStore.urlViewProduct = '{{ path('main_product_show_blank') }}';
+    window.staticStore.urlViewCart = '{{ path('main_cart_show') }}';
+    window.staticStore.urlAssetImageProducts = '{{ asset('uploads/images/products') }}';
+</script>
+{{ encore_entry_script_tags('appFrontMenuCart') }}
