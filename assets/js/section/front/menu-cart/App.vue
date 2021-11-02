@@ -8,6 +8,7 @@
     <div class="dropdown-menu cart-dropdown-window">
       <CartProductList/>
       <CartTotalPrice/>
+
       <div v-if="countCartProducts">
         <CartActions/>
       </div>

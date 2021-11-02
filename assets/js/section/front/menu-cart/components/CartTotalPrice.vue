@@ -9,7 +9,7 @@
 import {mapGetters} from 'vuex';
 
 export default {
-  name: 'CartTotalPrice.vue',
+  name: 'CartTotalPrice',
   computed: {
     ...mapGetters('cart', ['totalPrice'])
   },

@@ -41,7 +41,7 @@
                                             class="form-control"
                                             value="{{ product.quantity }}"
                                             min="1"
-                                            max="10"
+                                            max="{{ product.quantity }}"
                                             step="1"
                                             data-decimals="0"
                                             required
@@ -50,7 +50,7 @@
                             </div>
 
                             <div class="product-full-action">
-                                <a href="#" class="btn btn-link btn-dark">
+                                <a href="#" class="btn btn-link btn-dark" data-add-cart>
                                     <i class="fas fa-cart-plus"></i>
                                     <span>add to cart</span>
                                 </a>
@@ -73,4 +73,31 @@
         </div>
     </div>
 
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        const productUuid = '{{ product.uuid }}';
+        const productQuantityEl = document.getElementById('product_full_filter_quantity');
+        const el = document.querySelector('[data-add-cart]');
+
+        el.addEventListener('click', function (event) {
+            event.preventDefault();
+            const quantity = parseInt(productQuantityEl.value);
+
+            window.vueMenuCartInstance.addCartProduct({
+                uuid: productUuid,
+                quantity: quantity,
+            });
+        });
+        productQuantityEl.addEventListener('focusout', function (event) {
+            event.preventDefault();
+            let maxQuantity = parseInt({{ product.quantity }});
+            let selectedQuantity = parseInt(event.target.value);
+
+            if (selectedQuantity > maxQuantity) {
+                event.target.value = maxQuantity;
+            }
+        });
+    </script>
 {% endblock %}

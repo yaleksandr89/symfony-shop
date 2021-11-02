@@ -60,8 +60,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::VIEW => [
                 [
-                    'makeOrder',
-                    EventPriorities::PRE_WRITE
+                    'makeOrder', EventPriorities::PRE_WRITE
                 ],
             ],
         ];
@@ -82,7 +81,6 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
         /** @var User $user */
         $user = $this->security->getUser();
-
         if (!$user) {
             return;
         }
