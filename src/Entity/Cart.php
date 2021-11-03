@@ -20,16 +20,21 @@ use Doctrine\ORM\Mapping as ORM;
  *          "normalization_context"={"groups"="cart:list"}
  *       },
  *       "post"={
- *          "security"="is_granted('ROLE_ADMIN')",
+ *          "security_post_denormalize"="is_granted('CART_EDIT', object)",
  *          "normalization_context"={"groups"="cart:list:write"}
  *       }
  *     },
  *     itemOperations={
  *       "get"={
- *          "normalization_context"={"groups"="cart:item"}
+ *          "normalization_context"={"groups"="cart:item"},
+ *          "security"="is_granted('CART_READ', object)"
  *       },
  *       "delete"={
+ *          "security"="is_granted('CART_DELETE', object)"
  *       },
+ *     },
+ *     order={
+ *          "id"="DESC"
  *     },
  * )
  */
