@@ -1,0 +1,29 @@
+@import "~foundation-emails";
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+}
+.header {
+  text-align: center;
+  background-color: #f8f9fa;
+}
+.footer {
+  background-color: #f8f9fa;
+  color: #ababab;
+}
+.footer p {
+  padding: 20px;
+}
+.data-table {
+  width: 100%;
+}
+.data-table thead {
+  border-bottom: 1px solid #ececec;
+}
+.data-table td {
+  padding: 20px;
+}

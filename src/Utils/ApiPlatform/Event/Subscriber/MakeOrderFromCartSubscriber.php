@@ -8,8 +8,10 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\Order;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
+use App\Event\OrderCreatedFromCartEvent;
 use App\Utils\Manager\OrderManager;
 use JsonException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -50,6 +52,22 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         $this->orderManager = $orderManager;
         return $this;
     }
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @required
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return MakeOrderFromCartSubscriber
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): MakeOrderFromCartSubscriber
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
     // Autowiring <<<
 
     /**
@@ -60,16 +78,23 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::VIEW => [
                 [
-                    'makeOrder', EventPriorities::PRE_WRITE
+                    'makeOrder',
+                    EventPriorities::PRE_WRITE
+                ],
+                [
+                    'sendNotificationsAboutNewOrder',
+                    EventPriorities::POST_WRITE
                 ],
             ],
         ];
     }
 
     /**
+     * @param ViewEvent $viewEvent
      * @throws JsonException
+     * @return void
      */
-    public function makeOrder(ViewEvent $viewEvent)
+    public function makeOrder(ViewEvent $viewEvent): void
     {
         /** @var Order $order */
         $order = $viewEvent->getControllerResult();
@@ -102,6 +127,24 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         $this->orderManager->calculationOrderTotalPrice($order);
 
         $order->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
+    }
+
+    /**
+     * @param ViewEvent $viewEvent
+     * @return void
+     */
+    public function sendNotificationsAboutNewOrder(ViewEvent $viewEvent): void
+    {
+        /** @var Order $order */
+        $order = $viewEvent->getControllerResult();
+        $method = $this->getRequest($viewEvent)->getMethod();
+
+        if (!$order instanceof Order || Request::METHOD_POST !== $method) {
+            return;
+        }
+
+        $event = new OrderCreatedFromCartEvent($order);
+        $this->eventDispatcher->dispatch($event);
     }
 
     /**

@@ -1,3 +1,5 @@
 framework:
   mailer:
+    headers:
+      from: 'No reply <no-reply@alexanderyurchenko.ru>'
     dsn: '%env(MAILER_DSN)%'

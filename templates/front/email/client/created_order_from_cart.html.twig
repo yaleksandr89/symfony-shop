@@ -1,0 +1,60 @@
+{% extends 'front/email/base.html.twig' %}
+
+{% block content %}
+    <row>
+        <columns>
+            <spacer size="35"></spacer>
+            <center>
+                <h1>Symfony shop - Thank you for your purchase!</h1>
+            </center>
+            <spacer size="10"></spacer>
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <p>
+                Thank you for your purchase! Our manager will contact with you in 24 hours.
+            </p>
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <center>
+                <h2>Order info: </h2>
+            </center>
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <td>#</td>
+                        <td>Title</td>
+                        <td>Quantity</td>
+                        <td>Price</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for orderProduct in order.orderProducts %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ orderProduct.product.title }}</td>
+                            <td>{{ orderProduct.quantity }}</td>
+                            <td>{{ orderProduct.product.price }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <spacer size="10"></spacer>
+            <p>
+                <strong>Total price: {{ order.totalPrice }}</strong>
+            </p>
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <a href="{{ profileUrl }}" target="_blank">Visit our profile.</a>
+        </columns>
+    </row>
+{% endblock %}

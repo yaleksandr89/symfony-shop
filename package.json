@@ -23,6 +23,7 @@
         "axios": "^0.21.1",
         "bootstrap": "^4.3.1",
         "chart.js": "^2.9.4",
+        "foundation-emails": "^2.3.1",
         "http-status-codes": "^2.1.4",
         "jquery": "^3.5.1",
         "jquery.easing": "^1.4.1",
