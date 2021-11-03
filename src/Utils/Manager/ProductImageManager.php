@@ -109,13 +109,13 @@ final class ProductImageManager extends AbstractBaseManager
      */
     public function removeImageFromProduct(ProductImage $productImage, string $productImageDir): void
     {
-        $smallFilePath = $productImageDir . '/' . $productImage->getFilenameSmall();
+        $smallFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameSmall());
         $this->filesystemWorker->remove($smallFilePath);
 
-        $middleFilePath = $productImageDir . '/' . $productImage->getFilenameMiddle();
+        $middleFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameMiddle());
         $this->filesystemWorker->remove($middleFilePath);
 
-        $bigFilePath = $productImageDir . '/' . $productImage->getFilenameBig();
+        $bigFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameBig());
         $this->filesystemWorker->remove($bigFilePath);
 
         $this->filesystemWorker->removeFolderIfEmpty($productImageDir);

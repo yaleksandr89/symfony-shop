@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Utils\File;
 
+use App\Utils\FileSystem\FilesystemWorker;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
 
@@ -14,9 +15,10 @@ final class ImageResizer
      */
     private Imagine $imagine;
 
-    public function __construct()
+    public function __construct(FilesystemWorker $filesystemWorker,)
     {
         $this->imagine = new Imagine();
+        $this->filesystemWorker = $filesystemWorker;
     }
 
     /**
@@ -27,7 +29,7 @@ final class ImageResizer
      */
     public function resizeImageAndSave(string $originalFileFolder, string $originalFilename, array $targetParams): string
     {
-        $originalFilePath = $originalFileFolder . '/' . $originalFilename;
+        $originalFilePath = $this->filesystemWorker->generatePathToFile($originalFileFolder, $originalFilename);
         [$imageWidth, $imageHeight] = getimagesize($originalFilePath);
 
         $ratio = $imageWidth / $imageHeight;
