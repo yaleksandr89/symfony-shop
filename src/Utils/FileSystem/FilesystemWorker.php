@@ -53,4 +53,14 @@ final class FilesystemWorker
             }
         }
     }
+
+    /**
+     * @param string $dir
+     * @param string $filename
+     * @return string
+     */
+    public function generatePathToFile(string $dir, string $filename): string
+    {
+        return $dir . DIRECTORY_SEPARATOR . $filename;
+    }
 }
