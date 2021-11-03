@@ -117,6 +117,9 @@
     "laminas/laminas-code": {
         "version": "4.4.3"
     },
+    "lorenzo/pinky": {
+        "version": "1.0.5"
+    },
     "monolog/monolog": {
         "version": "2.3.4"
     },
@@ -664,7 +667,16 @@
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
+    "tijsverkoyen/css-to-inline-styles": {
+        "version": "2.2.3"
+    },
+    "twig/cssinliner-extra": {
+        "version": "v3.3.3"
+    },
     "twig/extra-bundle": {
+        "version": "v3.3.3"
+    },
+    "twig/inky-extra": {
         "version": "v3.3.3"
     },
     "twig/intl-extra": {

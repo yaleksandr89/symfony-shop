@@ -8,6 +8,7 @@ use App\Entity\Order;
 use App\Entity\User;
 use App\Utils\Mailer\DTO\MailerOptionModel;
 use App\Utils\Mailer\MailerSender;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OrderCreatedFromCartEmailSender
 {
@@ -25,6 +26,22 @@ class OrderCreatedFromCartEmailSender
     public function setMailerSender(MailerSender $mailerSender): OrderCreatedFromCartEmailSender
     {
         $this->mailerSender = $mailerSender;
+        return $this;
+    }
+
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
+
+    /**
+     * @required
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return OrderCreatedFromCartEmailSender
+     */
+    public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): OrderCreatedFromCartEmailSender
+    {
+        $this->urlGenerator = $urlGenerator;
         return $this;
     }
     // Autowiring <<<
@@ -45,6 +62,7 @@ class OrderCreatedFromCartEmailSender
             ->setHtmlTemplate('front/email/client/created_order_from_cart.html.twig')
             ->setContext([
                 'order' => $order,
+                'profileUrl' => $this->urlGenerator->generate('main_profile_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
             ]);
 
         $this->mailerSender->sendTemplatedEmail($mailerOptions);

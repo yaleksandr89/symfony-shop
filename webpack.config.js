@@ -27,6 +27,8 @@ Encore
     .addEntry('appFrontCartShow', './assets/js/section/front/front-cart-show/app.js')
     .addEntry('appFrontMenuCart', './assets/js/section/front/menu-cart/app.js')
 
+
+    .addStyleEntry('email', './assets/css/section/front/email.scss')
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     //.enableStimulusBridge('./assets/controllers.json')
 
