@@ -39,7 +39,7 @@
                                             type="number"
                                             id="product_full_filter_quantity"
                                             class="form-control"
-                                            value="{{ product.quantity }}"
+                                            value="1"
                                             min="1"
                                             max="{{ product.quantity }}"
                                             step="1"
@@ -90,13 +90,15 @@
                 quantity: quantity,
             });
         });
+
         productQuantityEl.addEventListener('focusout', function (event) {
             event.preventDefault();
-            let maxQuantity = parseInt({{ product.quantity }});
-            let selectedQuantity = parseInt(event.target.value);
+
+            const maxQuantity = parseInt({{ product.quantity }});
+            const selectedQuantity = parseInt(event.target.value);
 
             if (selectedQuantity > maxQuantity) {
-                event.target.value = maxQuantity;
+                productQuantityEl.value = maxQuantity.toString();
             }
         });
     </script>
