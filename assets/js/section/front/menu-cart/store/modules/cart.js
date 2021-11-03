@@ -77,6 +77,14 @@ const actions = {
         );
 
         if (existCartProduct) {
+            let newQuantity = existCartProduct.quantity + productData.quantity;
+
+            // если количество имеющегося продукта меньше, чем добавляемое значение
+            // то позволяем добавить только максимальное значение
+            if (existCartProduct.product.quantity <= newQuantity) {
+                newQuantity = existCartProduct.product.quantity;
+            }
+
             dispatch('addExistCartProduct', {
                 cartProductId: existCartProduct.id,
                 quantity: existCartProduct.quantity + productData.quantity
