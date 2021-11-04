@@ -8,21 +8,54 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInter
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Entity\Cart;
+use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 
 class FilterCartQueryExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
+    // >>> Autowiring
+    /**
+     * @var Security
+     */
+    private $security;
 
+    /**
+     * @required
+     * @param Security $security
+     * @return FilterCartQueryExtension
+     */
+    public function setSecurity(Security $security): FilterCartQueryExtension
+    {
+        $this->security = $security;
+        return $this;
+    }
+    // Autowiring <<<
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @param QueryNameGeneratorInterface $queryNameGenerator
+     * @param string $resourceClass
+     * @param string|null $operationName
+     */
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         string $operationName = null
-    ) {
+    ): void {
         $this->andWhere($queryBuilder, $resourceClass);
     }
 
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @param QueryNameGeneratorInterface $queryNameGenerator
+     * @param string $resourceClass
+     * @param array $identifiers
+     * @param string|null $operationName
+     * @param array $context
+     */
     public function applyToItem(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
@@ -30,7 +63,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         array $identifiers,
         string $operationName = null,
         array $context = []
-    ) {
+    ): void {
         $this->andWhere($queryBuilder, $resourceClass);
     }
 
@@ -42,6 +75,13 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
     private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (Cart::class !== $resourceClass) {
+            return;
+        }
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        if ($user instanceof User && $user->isAdminRole()) {
             return;
         }
 

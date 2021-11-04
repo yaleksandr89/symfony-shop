@@ -156,6 +156,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return bool
      */
+    public function isAdminRole(): bool
+    {
+        $isAdmin = false;
+
+        foreach ($this->roles as $role) {
+            if ($isAdmin) {
+                continue;
+            }
+
+            $isAdmin = in_array($role, ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']);
+        }
+
+        return $isAdmin;
+    }
+
+    /**
+     * @return bool
+     */
     public function hasAccessToAdminSection(): bool
     {
         $hasAccess = false;
