@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class AuthenticationMainEntryPoint implements AuthenticationEntryPointInterface
+class AuthenticationFrontEntryPoint implements AuthenticationEntryPointInterface
 {
     /**
      * @var UrlGeneratorInterface

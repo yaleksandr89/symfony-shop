@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
 
-class AccessMainDeniedHandler implements AccessDeniedHandlerInterface
+class AccessFrontDeniedHandler implements AccessDeniedHandlerInterface
 {
     /**
      * @var UrlGeneratorInterface
