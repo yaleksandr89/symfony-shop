@@ -1,3 +1,8 @@
+const $ = require('jquery');
+require('bootstrap');
+
+global.$ = global.jQuery = $;
+
 import './css/section/front/libs.scss';
 
 import './css/section/front/_alert.css';
