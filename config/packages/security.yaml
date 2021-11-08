@@ -18,11 +18,8 @@ security:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
-    api:
-      context: api
-      pattern: ^/api
     admin:
-      context: api
+      context: website
       pattern: ^/admin
       lazy: true
       provider: app_user_provider
@@ -38,15 +35,15 @@ security:
         path: admin_security_logout
         target: admin_security_login
     front:
+      context: website
       lazy: true
       provider: app_user_provider
       access_denied_handler: App\Security\Handler\AccessFrontDeniedHandler
       entry_point: App\Security\EntryPoint\AuthenticationFrontEntryPoint
-      custom_authenticators:
-        - App\Security\Authenticator\Front\LoginFormAuthenticator
+      custom_authenticator: App\Security\Authenticator\Front\LoginFormAuthenticator
       remember_me:
         secret: '%kernel.secret%'
-        lifetime: 1209600 #2 week (604800 - 1 week)
+        lifetime: 604800 # 1 week
         path: /
       logout:
         path: main_logout
