@@ -33,9 +33,10 @@ use Doctrine\ORM\Mapping as ORM;
  *          "security"="is_granted('CART_DELETE', object)"
  *       },
  *     },
- *     order={
- *          "id"="DESC"
- *     },
+ *    attributes={
+ *          "order"={"cartProducts.id": "ASC"}
+ *        }
+ *    )
  * )
  */
 class Cart

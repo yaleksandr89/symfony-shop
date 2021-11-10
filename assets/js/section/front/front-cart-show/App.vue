@@ -6,12 +6,22 @@
         <div v-if="showCartContent">
           <CartProductList/>
           <CartTotalPrice/>
-          <a href="#"
-             class="btn btn-success mb-3 text-white"
-             @click.prevent="makeOrder"
-          >
-            MAKE ORDER
-          </a>
+          <div v-if="isNotEmptyCart">
+            <a href="#"
+               v-if="isUserLoggedIn"
+               class="btn btn-success mb-3 text-white"
+               @click.prevent="makeOrder"
+            >
+              MAKE ORDER
+            </a>
+            <a href="#"
+                v-else
+                class="btn btn-success mb-3 text-white"
+                @click="redirectToLoginPage"
+            >
+              SIGN IN
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -31,13 +41,22 @@ export default {
     this.getCart();
   },
   computed: {
-    ...mapState('cart', ['cart', 'isSentForm']),
+    ...mapState('cart', ['cart', 'isSentForm', 'staticStore']),
     showCartContent() {
       return !this.isSentForm && Object.keys(this.cart).length;
+    },
+    isNotEmptyCart() {
+      return this.cart.cartProducts.length;
+    },
+    isUserLoggedIn() {
+      return this.staticStore.user.isLoggedIn;
     },
   },
   methods: {
     ...mapActions('cart', ['getCart', 'makeOrder']),
+    redirectToLoginPage() {
+      window.open(this.staticStore.url.loginPage).focus();
+    }
   },
 }
 </script>
