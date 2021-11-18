@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Authenticator\Front;
 
 use App\Entity\User;
+use App\Event\UserLoggedInViaSocialNetworkEvent;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
 use App\Utils\Manager\UserManager;
@@ -14,6 +15,7 @@ use KnpU\OAuth2ClientBundle\Client\Provider\FacebookClient;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use League\OAuth2\Client\Provider\FacebookUser;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,16 +52,30 @@ class FacebookAuthenticator extends OAuth2Authenticator
      */
     private $session;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @param ClientRegistry $clientRegistry
+     * @param UserManager $userManager
+     * @param RouterInterface $router
+     * @param SessionInterface $session
+     * @param EventDispatcherInterface $eventDispatcher
+     */
     public function __construct(
         ClientRegistry $clientRegistry,
         UserManager $userManager,
         RouterInterface $router,
         SessionInterface $session,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->router = $router;
         $this->userManager = $userManager;
         $this->session = $session;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -81,43 +97,46 @@ class FacebookAuthenticator extends OAuth2Authenticator
         $client = $this->clientRegistry->getClient('facebook_main');
         $accessToken = $this->fetchAccessToken($client);
 
+        return new SelfValidatingPassport(
+            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
+                /** @var FacebookUser $facebookUser */
+                $facebookUser = $client->fetchUserFromToken($accessToken);
 
+                $email = $facebookUser->getEmail();
 
-        /** @var FacebookUser $facebookUser */
-        $facebookUser = $client->fetchUserFromToken($accessToken);
+                // 1) have they logged in with Facebook before? Easy!
+                $existingUser = $this->userManager->getRepository()->findOneBy(['facebookId' => $facebookUser->getId()]);
 
-        $email = $facebookUser->getEmail();
+                if ($existingUser) {
+                    return $existingUser;
+                }
 
-        // 1) have they logged in with Facebook before? Easy!
-        $existingUser = $this->userManager->getRepository()->findOneBy(['facebookId' => $facebookUser->getId()]);
+                // 2) do we have a matching user by email?
+                $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
 
-        if ($existingUser) {
-            return $existingUser;
-        }
+                if (!$user) {
+                    $user = UserFactory::createUserFromFacebookUser($facebookUser);
+                    $user->setEmail($email);
 
-        // 2) do we have a matching user by email?
-        $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
+                    $plainPassword = PasswordGenerator::generatePassword(15);
+                    $this->userManager->encodePassword($user, $plainPassword);
 
-        if (!$user) {
-            $user = UserFactory::createUserFromFacebookUser($facebookUser);
-            $user->setEmail($email);
+                    $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword);
+                    $this->eventDispatcher->dispatch($event);
+                    $this->session->getFlashBag()->add('success', 'An email has been sent. Please check your inbox to find password');
 
-            $plainPassword = PasswordGenerator::generatePassword(15);
-            $this->userManager->encodePassword($user, $plainPassword);
+                    $this->userManager->persist($user);
+                }
 
-            $this->session->getFlashBag()->add('success', 'An email has been sent. Please check your inbox to find password');
+                // 3) Maybe you just want to "register" them by creating
+                // a User object
+                $user->setFacebookId($facebookUser->getId());
+                $this->userManager->persist($user);
+                $this->userManager->flush();
 
-//            $this->userManager->persist($user);
-//            $this->userManager->flush();
-        }
-
-
-//        return new SelfValidatingPassport(
-//            new UserBadge($accessToken->getToken(), static function () use ($accessToken, $client) {
-//
-//
-//            })
-//        );
+                return $user;
+            })
+        );
     }
 
     /**

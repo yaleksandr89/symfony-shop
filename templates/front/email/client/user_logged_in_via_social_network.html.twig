@@ -1,0 +1,27 @@
+{% extends 'front/email/base.html.twig' %}
+
+{% block content %}
+    <row>
+        <columns>
+            <spacer size="35"></spacer>
+            <center>
+                <h1>Symfony shop - Your new password!</h1>
+            </center>
+            <spacer size="10"></spacer>
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <h5>Hello, {{ user.fullName }}!</h5><br>
+            <p>
+                To login into your profile use this new password <br><br>
+                <strong>{{ plainPassword }}</strong>
+            </p>
+        </columns>
+    </row>
+    <row>
+        <columns>
+            <a href="{{ profileUrl }}" target="_blank">Visit our profile.</a>
+        </columns>
+    </row>
+{% endblock %}
