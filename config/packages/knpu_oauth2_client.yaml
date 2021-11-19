@@ -11,3 +11,12 @@ knpu_oauth2_client:
             redirect_route: connect_facebook_check
             redirect_params: { }
             graph_api_version: v2.12
+        google_main:
+            # must be "google" - it activates that type!
+            type: google
+            # add and set these environment variables in your .env files
+            client_id: '%env(OAUTH_GOOGLE_ID)%'
+            client_secret: '%env(OAUTH_GOOGLE_SECRET)%'
+            # a route name you'll create
+            redirect_route: connect_google_check
+            redirect_params: {}

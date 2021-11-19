@@ -43,6 +43,7 @@ security:
       custom_authenticator:
         - App\Security\Authenticator\Front\LoginFormAuthenticator
         - App\Security\Authenticator\Front\FacebookAuthenticator
+        - App\Security\Authenticator\Front\GoogleAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)
