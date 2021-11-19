@@ -48,9 +48,10 @@ class UserLoggedInViaSocialNetworkEmailSender
     /**
      * @param User $user
      * @param string $plainPassword
+     * @param array $verifyEmail
      * @return void
      */
-    public function sendEmailToClient(User $user, string $plainPassword): void
+    public function sendEmailToClient(User $user, string $plainPassword, array $verifyEmail): void
     {
         $mailerOptions = $this->getMailerOptions()
             ->setRecipient($user->getEmail())
@@ -60,6 +61,9 @@ class UserLoggedInViaSocialNetworkEmailSender
                 'user' => $user,
                 'plainPassword' => $plainPassword,
                 'profileUrl' => $this->urlGenerator->generate('main_profile_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                'signedUrl' => $verifyEmail['signedUrl'],
+                'expiresAtMessageKey' => $verifyEmail['expiresAtMessageKey'],
+                'expiresAtMessageData' => $verifyEmail['expiresAtMessageData'],
             ]);
 
         $this->mailerSender->sendTemplatedEmail($mailerOptions);

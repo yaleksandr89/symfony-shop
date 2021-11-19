@@ -20,13 +20,20 @@ class UserLoggedInViaSocialNetworkEvent extends Event
     private $plainPassword;
 
     /**
+     * @var array
+     */
+    private $verifyEmail;
+
+    /**
      * @param User $user
      * @param string $plainPassword
+     * @param array $verifyEmail
      */
-    public function __construct(User $user, string $plainPassword)
+    public function __construct(User $user, string $plainPassword, array $verifyEmail)
     {
         $this->user = $user;
         $this->plainPassword = $plainPassword;
+        $this->verifyEmail = $verifyEmail;
     }
 
     /**
@@ -43,5 +50,10 @@ class UserLoggedInViaSocialNetworkEvent extends Event
     public function getPlainPassword(): string
     {
         return $this->plainPassword;
+    }
+
+    public function getVerifyEmail(): array
+    {
+        return $this->verifyEmail;
     }
 }

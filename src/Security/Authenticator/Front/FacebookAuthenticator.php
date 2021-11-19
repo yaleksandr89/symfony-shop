@@ -10,25 +10,20 @@ use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
 use App\Utils\Manager\UserManager;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
-use KnpU\OAuth2ClientBundle\Client\Provider\FacebookClient;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use League\OAuth2\Client\Provider\FacebookUser;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 class FacebookAuthenticator extends OAuth2Authenticator
 {
@@ -58,24 +53,32 @@ class FacebookAuthenticator extends OAuth2Authenticator
     private $eventDispatcher;
 
     /**
+     * @var VerifyEmailHelperInterface
+     */
+    private $verifyEmailHelper;
+
+    /**
      * @param ClientRegistry $clientRegistry
      * @param UserManager $userManager
      * @param RouterInterface $router
      * @param SessionInterface $session
      * @param EventDispatcherInterface $eventDispatcher
+     * @param VerifyEmailHelperInterface $helper
      */
     public function __construct(
         ClientRegistry $clientRegistry,
         UserManager $userManager,
         RouterInterface $router,
         SessionInterface $session,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        VerifyEmailHelperInterface $helper
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->router = $router;
         $this->userManager = $userManager;
         $this->session = $session;
         $this->eventDispatcher = $eventDispatcher;
+        $this->verifyEmailHelper = $helper;
     }
 
     /**
@@ -116,22 +119,21 @@ class FacebookAuthenticator extends OAuth2Authenticator
 
                 if (!$user) {
                     $user = UserFactory::createUserFromFacebookUser($facebookUser);
-                    $user->setEmail($email);
 
-                    $plainPassword = PasswordGenerator::generatePassword(15);
+                    $plainPassword = PasswordGenerator::generatePassword(20);
                     $this->userManager->encodePassword($user, $plainPassword);
 
-                    $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword);
-                    $this->eventDispatcher->dispatch($event);
-                    $this->session->getFlashBag()->add('success', 'An email has been sent. Please check your inbox to find password');
-
                     $this->userManager->persist($user);
+                    $verifyEmail = $this->getDataForVerifyEmail($user);
+
+                    $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword, $verifyEmail);
+                    $this->eventDispatcher->dispatch($event);
+                    $this->session->getFlashBag()->add('success', 'An email has been sent. Please check inbox to find password and verified your email');
                 }
 
                 // 3) Maybe you just want to "register" them by creating
                 // a User object
                 $user->setFacebookId($facebookUser->getId());
-                $this->userManager->persist($user);
                 $this->userManager->flush();
 
                 return $user;
@@ -166,5 +168,25 @@ class FacebookAuthenticator extends OAuth2Authenticator
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());
 
         return new Response($message, Response::HTTP_FORBIDDEN);
+    }
+
+    /**
+     * @param User $user
+     * @return array
+     */
+    private function getDataForVerifyEmail(User $user): array
+    {
+        $signatureComponents = $this->verifyEmailHelper->generateSignature(
+            'main_verify_email',
+            (string)$user->getId(),
+            $user->getEmail(),
+            ['id' => (string)$user->getId()]
+        );
+
+        return [
+            'signedUrl' => $signatureComponents->getSignedUrl(),
+            'expiresAtMessageKey' => $signatureComponents->getExpirationMessageKey(),
+            'expiresAtMessageData' => $signatureComponents->getExpirationMessageData(),
+        ];
     }
 }

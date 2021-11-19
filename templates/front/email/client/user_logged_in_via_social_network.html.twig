@@ -19,6 +19,15 @@
             </p>
         </columns>
     </row>
+    <spacer size="10"></spacer>
+    <row>
+        <columns>
+            <p>Please confirm your email address by clicking the following link: </p>
+            <a href="{{ signedUrl }}">Confirm my Email</a>.
+            <p>This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</p>
+        </columns>
+    </row>
+    <spacer size="10"></spacer>
     <row>
         <columns>
             <a href="{{ profileUrl }}" target="_blank">Visit our profile.</a>

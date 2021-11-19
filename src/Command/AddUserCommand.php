@@ -14,7 +14,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -90,7 +89,7 @@ class AddUserCommand extends Command
             ->setDescription(self::$defaultDescription)
             ->addOption('email', 'email', InputArgument::REQUIRED, 'Enter email')
             ->addOption('password', 'password', InputArgument::REQUIRED, 'Enter password')
-            ->addOption('isAdmin', '', InputArgument::OPTIONAL, 'If set the user is created as an administrator', '0');
+            ->addOption('role', '', InputArgument::REQUIRED, 'Set role');
     }
 
     /**
@@ -110,26 +109,27 @@ class AddUserCommand extends Command
 
         $email = $input->getOption('email');
         $password = $input->getOption('password');
-        $isAdmin = $input->getOption('isAdmin');
+        $role = $input->getOption('role');
 
         $io->title('Add User Command Wizard');
         $io->text(['Please, enter some information:']);
 
         $email = $this->checkingEmail($email, $io);
         $password = $this->checkingPassword($password, $io);
-        $isAdmin = $this->checkingIsAdmin($isAdmin, $io);
+        $assignedRole = $this->checkingRole($role, $io);
 
         try {
-            $user = $this->createUser($email, $password, $isAdmin);
+            $user = $this->createUser($email, $password, $assignedRole);
         } catch (RuntimeException $exception) {
             $io->error($exception->getMessage());
             return Command::FAILURE;
         }
 
         $successMessage = sprintf(
-            '%s was successfully created: %s',
-            $isAdmin ? 'Administrator' : 'User',
-            $email
+            'User was successfully created: email[%s], password[%s], role[%s]',
+            $email,
+            $password,
+            $assignedRole,
         );
         $io->success($successMessage);
 
@@ -145,7 +145,13 @@ class AddUserCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function createUser(string $email, string $password, bool $isAdmin): User
+    /**
+     * @param string $email
+     * @param string $password
+     * @param string $role
+     * @return User
+     */
+    private function createUser(string $email, string $password, string $role): User
     {
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
 
@@ -155,7 +161,7 @@ class AddUserCommand extends Command
 
         $user = new User();
         $user->setEmail($email);
-        $user->setRoles([$isAdmin ? 'ROLE_ADMIN' : 'ROLE_USER']);
+        $user->setRoles([$role]);
 
         $hashPassword = $this->hasher->hashPassword($user, $password);
         $user->setPassword($hashPassword);
@@ -215,28 +221,28 @@ class AddUserCommand extends Command
     }
 
     /**
-     * @param string $isAdmin
+     * @param bool $role
      * @param SymfonyStyle $io
-     * @return bool|null
+     * @return string|null
      */
-    private function checkingIsAdmin(string $isAdmin, SymfonyStyle $io): ?bool
+    private function checkingRole(bool $role, SymfonyStyle $io): ?string
     {
-        if (!$isAdmin) {
-            $isIsAdmin = false;
+        if (!$role) {
+            $assignedRole = '';
 
-            while (!$isIsAdmin) {
-                $isAdminQuestion = new Question('Is admin? (1 or 0)', '0');
-                $isAdmin = $io->askQuestion($isAdminQuestion);
+            while ('' === $assignedRole) {
+                //$roleQuestion = new Question('Set role?', 'ROLE_USER');
+                $roleQuestion = $io->ask('Set role?', 'ROLE_USER');
+                //$role = $io->askQuestion($roleQuestion);
 
-                if ($isAdmin === '1' || $isAdmin === '0') {
-                    $isIsAdmin = true;
+                if ($roleQuestion === 'ROLE_USER' || $roleQuestion === 'ROLE_ADMIN' || $roleQuestion === 'ROLE_SUPER_ADMIN') {
+                    $assignedRole = $roleQuestion;
                 } else {
-                    $io->error('Please, enter 0 / 1 or leave empty (default = 0)');
+                    $io->error('Please, enter role user or leave empty (default = ROLE_USER)');
                 }
             }
-            return (bool)$isAdmin;
+            return $assignedRole;
         }
         return null;
     }
-
 }

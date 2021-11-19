@@ -1,11 +1,21 @@
-<h1>Hi! Please confirm your email!</h1>
+{% extends 'front/email/base.html.twig' %}
 
-<p>
-    Please confirm your email address by clicking the following link: <br><br>
-    <a href="{{ signedUrl }}">Confirm my Email</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
-
-<p>
-    Cheers!
-</p>
+{% block content %}
+    <row>
+        <columns>
+            <spacer size="35"></spacer>
+            <center>
+                <h1>Hi! Please confirm your email!</h1>
+            </center>
+        </columns>
+    </row>
+    <spacer size="30"></spacer>
+    <row>
+        <columns>
+            <spacer size="35"></spacer>
+            <p>Please confirm your email address by clicking the following link: </p>
+            <a href="{{ signedUrl }}">Confirm my Email</a>.
+            <p>This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</p>
+        </columns>
+    </row>
+{% endblock %}

@@ -37,8 +37,9 @@ class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSub
     {
         $user = $event->getUser();
         $plainPassword = $event->getPlainPassword();
+        $verifyEmail = $event->getVerifyEmail();
 
-        $this->mailerSender->sendEmailToClient($user, $plainPassword);
+        $this->mailerSender->sendEmailToClient($user, $plainPassword, $verifyEmail);
     }
 
     /**
