@@ -19,32 +19,38 @@
 
         <div class="card-body">
             {{ form_start(form) }}
-            <div class="form-group row">
-                <div class="col-md-1">
-                    Id:
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        Id:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.id }}
+                    </div>
                 </div>
-                <div class="col-md-11">
-                    {{ order.id }}
-                </div>
-            </div>
+            {% endif %}
 
-            <div class="form-group row">
-                <div class="col-md-1">
-                    Created at:
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        Created at:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.createdAt|format_datetime('full', 'medium') }}
+                    </div>
                 </div>
-                <div class="col-md-11">
-                    {{ order.createdAt|format_datetime('full', 'medium') }}
+            {% endif %}
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        Updated at:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.updatedAt|format_datetime('full', 'medium') }}
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group row">
-                <div class="col-md-1">
-                    Updated at:
-                </div>
-                <div class="col-md-11">
-                    {{ order.updatedAt|format_datetime('full', 'medium') }}
-                </div>
-            </div>
+            {% endif %}
 
             <div class="form-group row">
                 <div class="col-md-1">
@@ -81,29 +87,33 @@
                 </div>
             </div>
 
-            <div class="form-group row">
-                <div class="col-md-1">
-                    Products:
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        Products:
+                    </div>
+                    <div class="col-md-11">
+                        {% if order.id %}
+                            <div id="app"></div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                To add products, first click "Save Changes".
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="col-md-11">
-                    {% if order.id %}
-                        <div id="app"></div>
-                    {% else %}
-                        <div class="alert alert-info">
-                            To add products, first click "Save Changes".
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% endif %}
 
-            <div class="form-group row">
-                <div class="col-md-1">
-                    Total price:
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        Total price:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.totalPrice|format_currency('USD') }}
+                    </div>
                 </div>
-                <div class="col-md-11">
-                    {{ order.totalPrice|format_currency('USD') }}
-                </div>
-            </div>
+            {% endif %}
 
             <hr/>
             {% include 'admin/_embed/_card/_form_buttons.html.twig' with {

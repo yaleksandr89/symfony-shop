@@ -45,10 +45,12 @@
                                 </a>
                             </div>
 
+                            {% include 'front/_embed/_menu/_login_via_social_network.html.twig' %}
+
                             <div class="form-additional mt-2 pt-1">
                                 <div class="row">
                                     <div class="col-sm-12 text-center">
-                                        <a href="#">
+                                        <a href="{{ path('main_forgot_password_request') }}">
                                             Or reset your password
                                         </a>
                                     </div>

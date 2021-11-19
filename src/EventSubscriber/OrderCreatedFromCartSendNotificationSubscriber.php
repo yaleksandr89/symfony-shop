@@ -28,7 +28,11 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
     }
     // Autowiring <<<
 
-    public function onOrderCreatedFromCartEvent(OrderCreatedFromCartEvent $event)
+    /**
+     * @param OrderCreatedFromCartEvent $event
+     * @return void
+     */
+    public function onOrderCreatedFromCartEvent(OrderCreatedFromCartEvent $event): void
     {
         $order = $event->getOrder();
 
