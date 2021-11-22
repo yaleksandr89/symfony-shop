@@ -1,6 +1,15 @@
-controllers:
-  resource: ../../src/Controller/
+controllers_admin:
+  resource: ../../src/Controller/Admin
   type: annotation
+
+controllers_front:
+  resource: ../../src/Controller/Front
+  type: annotation
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
 
 kernel:
   resource: ../../src/Kernel.php

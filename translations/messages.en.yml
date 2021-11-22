@@ -1,0 +1,50 @@
+registration_form:
+  head: Registration Form
+  sing_up: Sing up
+  enter_your_password: Password
+  enter_your_email: Email
+  agree_to_term: I agree to the privacy policy
+  privacy policy: privacy policy*
+  placeholder:
+    email: Please enter your email
+    plainPassword: Please enter your password
+
+login_form:
+  head: Authorization form
+  your_email: Email address
+  your_password: Password
+  remember_me: Remember me
+  login_in: Log in
+  create_account: Create an Account
+  reset_password: Reset password
+  placeholder:
+    email: Please enter your email
+    password: Please enter your password
+
+login_social_network:
+  facebook: Login with Facebook
+  google: Login with Google
+
+header_menu:
+  en: En
+  ru: Rus
+  profile: Profile
+  login: Login
+
+footer:
+  user_links:
+    head: Useful links
+    homepage: Homepage
+    sing_up: Sign up
+    login: Login
+    logout: Log out
+  my_account:
+    head: My Account
+    sing_up: Sign in
+    view_cart: View cart
+    my_profile: My profile
+  сhange_language:
+    head: Change language
+    russian: Russian
+    english: English
+  copyright: Copyright © RankedChoice Team. All Rights Reserved.

@@ -1,0 +1,50 @@
+registration_form:
+  head: Форма регистрации
+  sing_up: Зарегистрироваться
+  enter_your_email: Адрес электронной почты
+  enter_your_password: Пароль
+  agree_to_term: Я согласен с
+  privacy policy: политикой конфиденциальности*
+  placeholder:
+    email: Пожалуйста, введите свой адрес электронной почты
+    plainPassword: Пожалуйста, введите свой пароль
+
+login_form:
+  head: Форма авторизации
+  your_email: Адрес электронной почты
+  your_password: Пароль
+  remember_me: Запомнить меня
+  login_in: Авторизоваться
+  create_account: Создать Аккаунт
+  reset_password: Сбросить пароль
+  placeholder:
+    email: Пожалуйста, введите свой адрес электронной почты
+    password: Пожалуйста, введите свой пароль
+
+login_social_network:
+  facebook: Авторизоваться через Facebook
+  google: Авторизоваться через Google
+
+header_menu:
+  en: Англ
+  ru: Рус
+  profile: Профиль
+  login: Авторизоваться
+
+footer:
+  user_links:
+    head: Полезные ссылки
+    homepage: Главная страница
+    sing_up: Зарегистрироваться
+    login: Авторизоваться
+    logout: Разлогиниться
+  my_account:
+    head: Личный кабинет
+    sing_up: Зарегистрироваться
+    view_cart: Просмотреть корзину
+    my_profile: Мой профиль
+  сhange_language:
+    head: Сменить язык
+    russian: Русский
+    english: Английский
+  copyright: Авторское право © Команда RankedChoice. все права защищены.

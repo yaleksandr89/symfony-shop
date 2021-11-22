@@ -1,0 +1,9 @@
+#select-language {
+  width:  auto;
+  &:focus {
+    outline: none;
+    text-decoration: none;
+    box-shadow: none;
+    border: 1px solid #ced4da;
+  }
+}

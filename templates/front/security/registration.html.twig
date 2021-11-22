@@ -1,6 +1,6 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}Sign Up - RankedChoice{% endblock %}
+{% block title %}{{ 'registration_form.head'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-content pt-4 pb-4">
@@ -9,7 +9,7 @@
                 <div class="col-lg-12">
                     <div class="page-details page-login mt-4">
                         <h1 class="h3 mb-3 text-center font-weight-normal title-gradient-1">
-                            Registration Form
+                            {{ 'registration_form.head'|trans }}
                         </h1>
                         {{ form_start(registrationForm) }}
 
@@ -27,18 +27,20 @@
 
                         <div class="form-footer">
                             <div class="row">
-                                <div class="col-lg-4">
+                                <div class="col-lg-12">
                                     <button type="submit" class="btn btn btn-success">
-                                        SIGN UP
+                                        {{ 'registration_form.sing_up'|trans }}
                                     </button>
                                 </div>
-                                <div class="col-lg-8">
-                                    <div class="custom-control custom-checkbox">
-                                        {{ form_widget(registrationForm.agreeTerms) }}
-                                        {{ form_label(registrationForm.agreeTerms) }}
-                                        {{ form_errors(registrationForm.agreeTerms) }}
-                                    </div>
+                            </div>
+                            <div class="row">
+                            <div class="col-lg-12">
+                                <div class="custom-control custom-checkbox">
+                                    {{ form_widget(registrationForm.agreeTerms) }}
+                                        {{ form_label(registrationForm.agreeTerms) }} <a href="#">{{ 'registration_form.privacy policy'|trans }}</a>
+                                    {{ form_errors(registrationForm.agreeTerms) }}
                                 </div>
+                            </div>
                             </div>
                         </div>
 
