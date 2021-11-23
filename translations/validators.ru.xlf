@@ -1,530 +1,1257 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file source-language="en" target-language="ru" datatype="plaintext" original="file.ext">
-    <header>
-      <tool tool-id="symfony" tool-name="Symfony"/>
-    </header>
-    <body>
-      <trans-unit id="zh5oKD9" resname="This value should be false.">
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="ru" trgLang="ru">
+  <file id="validators.ru">
+    <unit id="zh5oKD9" name="This value should be false.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be false.</source>
         <target>Значение должно быть ложным.</target>
-      </trans-unit>
-      <trans-unit id="NN2_iru" resname="This value should be true.">
+      </segment>
+    </unit>
+    <unit id="NN2_iru" name="This value should be true.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be true.</source>
         <target>Значение должно быть истинным.</target>
-      </trans-unit>
-      <trans-unit id="OjM_kpf" resname="This value should be of type {{ type }}.">
+      </segment>
+    </unit>
+    <unit id="OjM_kpf" name="This value should be of type {{ type }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be of type {{ type }}.</source>
         <target>Тип значения должен быть {{ type }}.</target>
-      </trans-unit>
-      <trans-unit id="f0P5pBD" resname="This value should be blank.">
+      </segment>
+    </unit>
+    <unit id="f0P5pBD" name="This value should be blank.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be blank.</source>
         <target>Значение должно быть пустым.</target>
-      </trans-unit>
-      <trans-unit id="ih.4TRN" resname="The value you selected is not a valid choice.">
+      </segment>
+    </unit>
+    <unit id="ih.4TRN" name="The value you selected is not a valid choice.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The value you selected is not a valid choice.</source>
         <target>Выбранное Вами значение недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="u81CkP8" resname="You must select at least {{ limit }} choice.|You must select at least {{ limit }} choices.">
+      </segment>
+    </unit>
+    <unit id="u81CkP8">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>You must select at least {{ limit }} choice.|You must select at least {{ limit }} choices.</source>
         <target>Вы должны выбрать хотя бы {{ limit }} вариант.|Вы должны выбрать хотя бы {{ limit }} варианта.|Вы должны выбрать хотя бы {{ limit }} вариантов.</target>
-      </trans-unit>
-      <trans-unit id="nIvOQ_o" resname="You must select at most {{ limit }} choice.|You must select at most {{ limit }} choices.">
+      </segment>
+    </unit>
+    <unit id="nIvOQ_o">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>You must select at most {{ limit }} choice.|You must select at most {{ limit }} choices.</source>
         <target>Вы должны выбрать не более чем {{ limit }} вариант.|Вы должны выбрать не более чем {{ limit }} варианта.|Вы должны выбрать не более чем {{ limit }} вариантов.</target>
-      </trans-unit>
-      <trans-unit id="87zjiHi" resname="One or more of the given values is invalid.">
+      </segment>
+    </unit>
+    <unit id="87zjiHi" name="One or more of the given values is invalid.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>One or more of the given values is invalid.</source>
         <target>Одно или несколько заданных значений недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="3NeQftv" resname="This field was not expected.">
+      </segment>
+    </unit>
+    <unit id="3NeQftv" name="This field was not expected.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This field was not expected.</source>
         <target>Это поле не ожидалось.</target>
-      </trans-unit>
-      <trans-unit id="SwMV4zp" resname="This field is missing.">
+      </segment>
+    </unit>
+    <unit id="SwMV4zp" name="This field is missing.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This field is missing.</source>
         <target>Это поле отсутствует.</target>
-      </trans-unit>
-      <trans-unit id="LO2vFKN" resname="This value is not a valid date.">
+      </segment>
+    </unit>
+    <unit id="LO2vFKN" name="This value is not a valid date.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid date.</source>
         <target>Значение не является правильной датой.</target>
-      </trans-unit>
-      <trans-unit id="86dU_nv" resname="This value is not a valid datetime.">
+      </segment>
+    </unit>
+    <unit id="86dU_nv" name="This value is not a valid datetime.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid datetime.</source>
         <target>Значение даты и времени недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="PSvNXdi" resname="This value is not a valid email address.">
+      </segment>
+    </unit>
+    <unit id="PSvNXdi" name="This value is not a valid email address.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid email address.</source>
         <target>Значение адреса электронной почты недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="3KeHbZy" resname="The file could not be found.">
+      </segment>
+    </unit>
+    <unit id="3KeHbZy" name="The file could not be found.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file could not be found.</source>
         <target>Файл не может быть найден.</target>
-      </trans-unit>
-      <trans-unit id="KtJhQZo" resname="The file is not readable.">
+      </segment>
+    </unit>
+    <unit id="KtJhQZo" name="The file is not readable.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file is not readable.</source>
         <target>Файл не может быть прочитан.</target>
-      </trans-unit>
-      <trans-unit id="JocOVM2" resname="The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.">
+      </segment>
+    </unit>
+    <unit id="JocOVM2">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.</source>
         <target>Файл слишком большой ({{ size }} {{ suffix }}). Максимально допустимый размер {{ limit }} {{ suffix }}.</target>
-      </trans-unit>
-      <trans-unit id="YW21SPH" resname="The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.">
+      </segment>
+    </unit>
+    <unit id="YW21SPH">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.</source>
         <target>MIME-тип файла недопустим ({{ type }}). Допустимы MIME-типы файлов {{ types }}.</target>
-      </trans-unit>
-      <trans-unit id="NubOmrs" resname="This value should be {{ limit }} or less.">
+      </segment>
+    </unit>
+    <unit id="NubOmrs" name="This value should be {{ limit }} or less.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be {{ limit }} or less.</source>
         <target>Значение должно быть {{ limit }} или меньше.</target>
-      </trans-unit>
-      <trans-unit id="HX7TOFm" resname="This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.">
+      </segment>
+    </unit>
+    <unit id="HX7TOFm">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.</source>
         <target>Значение слишком длинное. Должно быть равно {{ limit }} символу или меньше.|Значение слишком длинное. Должно быть равно {{ limit }} символам или меньше.|Значение слишком длинное. Должно быть равно {{ limit }} символам или меньше.</target>
-      </trans-unit>
-      <trans-unit id="qgR8M_U" resname="This value should be {{ limit }} or more.">
+      </segment>
+    </unit>
+    <unit id="qgR8M_U" name="This value should be {{ limit }} or more.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be {{ limit }} or more.</source>
         <target>Значение должно быть {{ limit }} или больше.</target>
-      </trans-unit>
-      <trans-unit id="ekfrU.c" resname="This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.">
+      </segment>
+    </unit>
+    <unit id="ekfrU.c">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.</source>
         <target>Значение слишком короткое. Должно быть равно {{ limit }} символу или больше.|Значение слишком короткое. Должно быть равно {{ limit }} символам или больше.|Значение слишком короткое. Должно быть равно {{ limit }} символам или больше.</target>
-      </trans-unit>
-      <trans-unit id="1KV4L.t" resname="This value should not be blank.">
+      </segment>
+    </unit>
+    <unit id="1KV4L.t" name="This value should not be blank.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should not be blank.</source>
         <target>Значение не должно быть пустым.</target>
-      </trans-unit>
-      <trans-unit id="2G4Vepm" resname="This value should not be null.">
+      </segment>
+    </unit>
+    <unit id="2G4Vepm" name="This value should not be null.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should not be null.</source>
         <target>Значение не должно быть null.</target>
-      </trans-unit>
-      <trans-unit id="yDc3m6E" resname="This value should be null.">
+      </segment>
+    </unit>
+    <unit id="yDc3m6E" name="This value should be null.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be null.</source>
         <target>Значение должно быть null.</target>
-      </trans-unit>
-      <trans-unit id="zKzWejA" resname="This value is not valid.">
+      </segment>
+    </unit>
+    <unit id="zKzWejA" name="This value is not valid.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not valid.</source>
         <target>Значение недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="HSuBZpQ" resname="This value is not a valid time.">
+      </segment>
+    </unit>
+    <unit id="HSuBZpQ" name="This value is not a valid time.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid time.</source>
         <target>Значение времени недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="snWc_QT" resname="This value is not a valid URL.">
+      </segment>
+    </unit>
+    <unit id="snWc_QT" name="This value is not a valid URL.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid URL.</source>
         <target>Значение не является допустимым URL.</target>
-      </trans-unit>
-      <trans-unit id="jpaLsb2" resname="The two values should be equal.">
+      </segment>
+    </unit>
+    <unit id="jpaLsb2" name="The two values should be equal.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The two values should be equal.</source>
         <target>Оба значения должны быть одинаковыми.</target>
-      </trans-unit>
-      <trans-unit id="fIlB1B_" resname="The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.">
+      </segment>
+    </unit>
+    <unit id="fIlB1B_" name="The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.</source>
         <target>Файл слишком большой. Максимально допустимый размер {{ limit }} {{ suffix }}.</target>
-      </trans-unit>
-      <trans-unit id="tW7o0t9" resname="The file is too large.">
+      </segment>
+    </unit>
+    <unit id="tW7o0t9" name="The file is too large.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file is too large.</source>
         <target>Файл слишком большой.</target>
-      </trans-unit>
-      <trans-unit id=".exF5Ww" resname="The file could not be uploaded.">
+      </segment>
+    </unit>
+    <unit id=".exF5Ww" name="The file could not be uploaded.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file could not be uploaded.</source>
         <target>Файл не может быть загружен.</target>
-      </trans-unit>
-      <trans-unit id="d7sS5yw" resname="This value should be a valid number.">
+      </segment>
+    </unit>
+    <unit id="d7sS5yw" name="This value should be a valid number.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be a valid number.</source>
         <target>Значение должно быть числом.</target>
-      </trans-unit>
-      <trans-unit id="BS2Ez6i" resname="This file is not a valid image.">
+      </segment>
+    </unit>
+    <unit id="BS2Ez6i" name="This file is not a valid image.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This file is not a valid image.</source>
         <target>Файл не является допустимым форматом изображения.</target>
-      </trans-unit>
-      <trans-unit id="ydcT9kU" resname="This is not a valid IP address.">
+      </segment>
+    </unit>
+    <unit id="ydcT9kU" name="This is not a valid IP address.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This is not a valid IP address.</source>
         <target>Значение не является допустимым IP адресом.</target>
-      </trans-unit>
-      <trans-unit id="lDOGNFX" resname="This value is not a valid language.">
+      </segment>
+    </unit>
+    <unit id="lDOGNFX" name="This value is not a valid language.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid language.</source>
         <target>Значение не является допустимым языком.</target>
-      </trans-unit>
-      <trans-unit id="y9IdYkA" resname="This value is not a valid locale.">
+      </segment>
+    </unit>
+    <unit id="y9IdYkA" name="This value is not a valid locale.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid locale.</source>
         <target>Значение не является допустимой локалью.</target>
-      </trans-unit>
-      <trans-unit id="1YC0pOd" resname="This value is not a valid country.">
+      </segment>
+    </unit>
+    <unit id="1YC0pOd" name="This value is not a valid country.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid country.</source>
         <target>Значение не является допустимой страной.</target>
-      </trans-unit>
-      <trans-unit id="B5ebaMp" resname="This value is already used.">
+      </segment>
+    </unit>
+    <unit id="B5ebaMp" name="This value is already used.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is already used.</source>
         <target>Это значение уже используется.</target>
-      </trans-unit>
-      <trans-unit id="L6097a6" resname="The size of the image could not be detected.">
+      </segment>
+    </unit>
+    <unit id="L6097a6" name="The size of the image could not be detected.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The size of the image could not be detected.</source>
         <target>Не удалось определить размер изображения.</target>
-      </trans-unit>
-      <trans-unit id="zVtJJEa" resname="The image width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.">
+      </segment>
+    </unit>
+    <unit id="zVtJJEa">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.</source>
         <target>Ширина изображения слишком велика ({{ width }}px). Максимально допустимая ширина {{ max_width }}px.</target>
-      </trans-unit>
-      <trans-unit id="s8LFQGC" resname="The image width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.">
+      </segment>
+    </unit>
+    <unit id="s8LFQGC">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.</source>
         <target>Ширина изображения слишком мала ({{ width }}px). Минимально допустимая ширина {{ min_width }}px.</target>
-      </trans-unit>
-      <trans-unit id="Z.NgqFj" resname="The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.">
+      </segment>
+    </unit>
+    <unit id="Z.NgqFj">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.</source>
         <target>Высота изображения слишком велика ({{ height }}px). Максимально допустимая высота {{ max_height }}px.</target>
-      </trans-unit>
-      <trans-unit id="AW1lWVM" resname="The image height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.">
+      </segment>
+    </unit>
+    <unit id="AW1lWVM">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.</source>
         <target>Высота изображения слишком мала ({{ height }}px). Минимально допустимая высота {{ min_height }}px.</target>
-      </trans-unit>
-      <trans-unit id="PSdMNab" resname="This value should be the user's current password.">
+      </segment>
+    </unit>
+    <unit id="PSdMNab" name="This value should be the user's current password.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be the user's current password.</source>
         <target>Значение должно быть текущим паролем пользователя.</target>
-      </trans-unit>
-      <trans-unit id="gYImVyV" resname="This value should have exactly {{ limit }} character.|This value should have exactly {{ limit }} characters.">
+      </segment>
+    </unit>
+    <unit id="gYImVyV">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should have exactly {{ limit }} character.|This value should have exactly {{ limit }} characters.</source>
         <target>Значение должно быть равно {{ limit }} символу.|Значение должно быть равно {{ limit }} символам.|Значение должно быть равно {{ limit }} символам.</target>
-      </trans-unit>
-      <trans-unit id="xJ2Bcr_" resname="The file was only partially uploaded.">
+      </segment>
+    </unit>
+    <unit id="xJ2Bcr_" name="The file was only partially uploaded.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The file was only partially uploaded.</source>
         <target>Файл был загружен только частично.</target>
-      </trans-unit>
-      <trans-unit id="HzkJDtF" resname="No file was uploaded.">
+      </segment>
+    </unit>
+    <unit id="HzkJDtF" name="No file was uploaded.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>No file was uploaded.</source>
         <target>Файл не был загружен.</target>
-      </trans-unit>
-      <trans-unit id="mHfEaB3" resname="No temporary folder was configured in php.ini.">
+      </segment>
+    </unit>
+    <unit id="mHfEaB3" name="No temporary folder was configured in php.ini.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>No temporary folder was configured in php.ini.</source>
         <target>Не настроена временная директория в php.ini.</target>
-      </trans-unit>
-      <trans-unit id="y9K3BGb" resname="Cannot write temporary file to disk.">
+      </segment>
+    </unit>
+    <unit id="y9K3BGb" name="Cannot write temporary file to disk.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Cannot write temporary file to disk.</source>
         <target>Невозможно записать временный файл на диск.</target>
-      </trans-unit>
-      <trans-unit id="kx3yHIM" resname="A PHP extension caused the upload to fail.">
+      </segment>
+    </unit>
+    <unit id="kx3yHIM" name="A PHP extension caused the upload to fail.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>A PHP extension caused the upload to fail.</source>
         <target>Расширение PHP вызвало ошибку при загрузке.</target>
-      </trans-unit>
-      <trans-unit id="gTJYRl6" resname="This collection should contain {{ limit }} element or more.|This collection should contain {{ limit }} elements or more.">
+      </segment>
+    </unit>
+    <unit id="gTJYRl6">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This collection should contain {{ limit }} element or more.|This collection should contain {{ limit }} elements or more.</source>
         <target>Эта коллекция должна содержать {{ limit }} элемент или больше.|Эта коллекция должна содержать {{ limit }} элемента или больше.|Эта коллекция должна содержать {{ limit }} элементов или больше.</target>
-      </trans-unit>
-      <trans-unit id="FFn3lVn" resname="This collection should contain {{ limit }} element or less.|This collection should contain {{ limit }} elements or less.">
+      </segment>
+    </unit>
+    <unit id="FFn3lVn">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This collection should contain {{ limit }} element or less.|This collection should contain {{ limit }} elements or less.</source>
         <target>Эта коллекция должна содержать {{ limit }} элемент или меньше.|Эта коллекция должна содержать {{ limit }} элемента или меньше.|Эта коллекция должна содержать {{ limit }} элементов или меньше.</target>
-      </trans-unit>
-      <trans-unit id="bSdilZv" resname="This collection should contain exactly {{ limit }} element.|This collection should contain exactly {{ limit }} elements.">
+      </segment>
+    </unit>
+    <unit id="bSdilZv">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This collection should contain exactly {{ limit }} element.|This collection should contain exactly {{ limit }} elements.</source>
         <target>Эта коллекция должна содержать ровно {{ limit }} элемент.|Эта коллекция должна содержать ровно {{ limit }} элемента.|Эта коллекция должна содержать ровно {{ limit }} элементов.</target>
-      </trans-unit>
-      <trans-unit id="MAzmID7" resname="Invalid card number.">
+      </segment>
+    </unit>
+    <unit id="MAzmID7" name="Invalid card number.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Invalid card number.</source>
         <target>Неверный номер карты.</target>
-      </trans-unit>
-      <trans-unit id="c3REGK3" resname="Unsupported card type or invalid card number.">
+      </segment>
+    </unit>
+    <unit id="c3REGK3" name="Unsupported card type or invalid card number.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Unsupported card type or invalid card number.</source>
         <target>Неподдерживаемый тип или неверный номер карты.</target>
-      </trans-unit>
-      <trans-unit id="XSVzcbV" resname="This is not a valid International Bank Account Number (IBAN).">
+      </segment>
+    </unit>
+    <unit id="XSVzcbV" name="This is not a valid International Bank Account Number (IBAN).">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This is not a valid International Bank Account Number (IBAN).</source>
         <target>Значение не является допустимым международным номером банковского счета (IBAN).</target>
-      </trans-unit>
-      <trans-unit id="yHirwNr" resname="This value is not a valid ISBN-10.">
+      </segment>
+    </unit>
+    <unit id="yHirwNr" name="This value is not a valid ISBN-10.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid ISBN-10.</source>
         <target>Значение имеет неверный формат ISBN-10.</target>
-      </trans-unit>
-      <trans-unit id="c_q0_ua" resname="This value is not a valid ISBN-13.">
+      </segment>
+    </unit>
+    <unit id="c_q0_ua" name="This value is not a valid ISBN-13.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid ISBN-13.</source>
         <target>Значение имеет неверный формат ISBN-13.</target>
-      </trans-unit>
-      <trans-unit id="M4FlD6n" resname="This value is neither a valid ISBN-10 nor a valid ISBN-13.">
+      </segment>
+    </unit>
+    <unit id="M4FlD6n" name="This value is neither a valid ISBN-10 nor a valid ISBN-13.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is neither a valid ISBN-10 nor a valid ISBN-13.</source>
         <target>Значение не соответствует форматам ISBN-10 и ISBN-13.</target>
-      </trans-unit>
-      <trans-unit id="cuct0Ow" resname="This value is not a valid ISSN.">
+      </segment>
+    </unit>
+    <unit id="cuct0Ow" name="This value is not a valid ISSN.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid ISSN.</source>
         <target>Значение не соответствует формату ISSN.</target>
-      </trans-unit>
-      <trans-unit id="JBLs1a1" resname="This value is not a valid currency.">
+      </segment>
+    </unit>
+    <unit id="JBLs1a1" name="This value is not a valid currency.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid currency.</source>
         <target>Некорректный формат валюты.</target>
-      </trans-unit>
-      <trans-unit id="c.WxzFW" resname="This value should be equal to {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="c.WxzFW" name="This value should be equal to {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be equal to {{ compared_value }}.</source>
         <target>Значение должно быть равно {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="_jdjkwq" resname="This value should be greater than {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="_jdjkwq" name="This value should be greater than {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be greater than {{ compared_value }}.</source>
         <target>Значение должно быть больше чем {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="o8A8a0H" resname="This value should be greater than or equal to {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="o8A8a0H" name="This value should be greater than or equal to {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be greater than or equal to {{ compared_value }}.</source>
         <target>Значение должно быть больше или равно {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="bOF1fpm" resname="This value should be identical to {{ compared_value_type }} {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="bOF1fpm">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be identical to {{ compared_value_type }} {{ compared_value }}.</source>
         <target>Значение должно быть идентичным {{ compared_value_type }} {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="jG0QFKw" resname="This value should be less than {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="jG0QFKw" name="This value should be less than {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be less than {{ compared_value }}.</source>
         <target>Значение должно быть меньше чем {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="9lWrKmm" resname="This value should be less than or equal to {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="9lWrKmm" name="This value should be less than or equal to {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be less than or equal to {{ compared_value }}.</source>
         <target>Значение должно быть меньше или равно {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="ftTwGs." resname="This value should not be equal to {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="ftTwGs." name="This value should not be equal to {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should not be equal to {{ compared_value }}.</source>
         <target>Значение не должно быть равно {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="Bi22JLt" resname="This value should not be identical to {{ compared_value_type }} {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="Bi22JLt">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should not be identical to {{ compared_value_type }} {{ compared_value }}.</source>
         <target>Значение не должно быть идентичным {{ compared_value_type }} {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="VczCWzQ" resname="The image ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.">
+      </segment>
+    </unit>
+    <unit id="VczCWzQ">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.</source>
         <target>Соотношение сторон изображения слишком велико ({{ ratio }}). Максимальное соотношение сторон {{ max_ratio }}.</target>
-      </trans-unit>
-      <trans-unit id="v57PXhq" resname="The image ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.">
+      </segment>
+    </unit>
+    <unit id="v57PXhq">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.</source>
         <target>Соотношение сторон изображения слишком мало ({{ ratio }}). Минимальное соотношение сторон {{ min_ratio }}.</target>
-      </trans-unit>
-      <trans-unit id="rpajj.a" resname="The image is square ({{ width }}x{{ height }}px). Square images are not allowed.">
+      </segment>
+    </unit>
+    <unit id="rpajj.a" name="The image is square ({{ width }}x{{ height }}px). Square images are not allowed.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image is square ({{ width }}x{{ height }}px). Square images are not allowed.</source>
         <target>Изображение квадратное ({{ width }}x{{ height }}px). Квадратные изображения не разрешены.</target>
-      </trans-unit>
-      <trans-unit id="G_lu2qW" resname="The image is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented images are not allowed.">
+      </segment>
+    </unit>
+    <unit id="G_lu2qW">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented images are not allowed.</source>
         <target>Изображение в альбомной ориентации ({{ width }}x{{ height }}px). Изображения в альбомной ориентации не разрешены.</target>
-      </trans-unit>
-      <trans-unit id="sFyGx4B" resname="The image is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented images are not allowed.">
+      </segment>
+    </unit>
+    <unit id="sFyGx4B">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The image is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented images are not allowed.</source>
         <target>Изображение в портретной ориентации ({{ width }}x{{ height }}px). Изображения в портретной ориентации не разрешены.</target>
-      </trans-unit>
-      <trans-unit id="jZgqcpL" resname="An empty file is not allowed.">
+      </segment>
+    </unit>
+    <unit id="jZgqcpL" name="An empty file is not allowed.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>An empty file is not allowed.</source>
         <target>Пустые файлы не разрешены.</target>
-      </trans-unit>
-      <trans-unit id="bcfVezI" resname="The host could not be resolved.">
+      </segment>
+    </unit>
+    <unit id="bcfVezI" name="The host could not be resolved.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The host could not be resolved.</source>
         <target>Имя хоста не может быть разрешено.</target>
-      </trans-unit>
-      <trans-unit id="NtzKvgt" resname="This value does not match the expected {{ charset }} charset.">
+      </segment>
+    </unit>
+    <unit id="NtzKvgt" name="This value does not match the expected {{ charset }} charset.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value does not match the expected {{ charset }} charset.</source>
         <target>Значение не совпадает с ожидаемой {{ charset }} кодировкой.</target>
-      </trans-unit>
-      <trans-unit id="Wi2y9.N" resname="This is not a valid Business Identifier Code (BIC).">
+      </segment>
+    </unit>
+    <unit id="Wi2y9.N" name="This is not a valid Business Identifier Code (BIC).">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This is not a valid Business Identifier Code (BIC).</source>
         <target>Значение не соответствует формату BIC.</target>
-      </trans-unit>
-      <trans-unit id="VKDowX6" resname="Error">
+      </segment>
+    </unit>
+    <unit id="VKDowX6" name="Error">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Error</source>
         <target>Ошибка</target>
-      </trans-unit>
-      <trans-unit id="8zqt0Ik" resname="This is not a valid UUID.">
+      </segment>
+    </unit>
+    <unit id="8zqt0Ik" name="This is not a valid UUID.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This is not a valid UUID.</source>
         <target>Значение не соответствует формату UUID.</target>
-      </trans-unit>
-      <trans-unit id="ru.4wkH" resname="This value should be a multiple of {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="ru.4wkH" name="This value should be a multiple of {{ compared_value }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be a multiple of {{ compared_value }}.</source>
         <target>Значение должно быть кратно {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="M3vyK6s" resname="This Business Identifier Code (BIC) is not associated with IBAN {{ iban }}.">
+      </segment>
+    </unit>
+    <unit id="M3vyK6s" name="This Business Identifier Code (BIC) is not associated with IBAN {{ iban }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This Business Identifier Code (BIC) is not associated with IBAN {{ iban }}.</source>
         <target>Данный BIC не связан с IBAN {{ iban }}.</target>
-      </trans-unit>
-      <trans-unit id="2v2xpAh" resname="This value should be valid JSON.">
+      </segment>
+    </unit>
+    <unit id="2v2xpAh" name="This value should be valid JSON.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be valid JSON.</source>
         <target>Значение должно быть корректным JSON.</target>
-      </trans-unit>
-      <trans-unit id="9CWVEGq" resname="This collection should contain only unique elements.">
+      </segment>
+    </unit>
+    <unit id="9CWVEGq" name="This collection should contain only unique elements.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This collection should contain only unique elements.</source>
         <target>Эта коллекция должна содержать только уникальные элементы.</target>
-      </trans-unit>
-      <trans-unit id="WdvZfq." resname="This value should be positive.">
+      </segment>
+    </unit>
+    <unit id="WdvZfq." name="This value should be positive.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be positive.</source>
         <target>Значение должно быть положительным.</target>
-      </trans-unit>
-      <trans-unit id="ubHMK2q" resname="This value should be either positive or zero.">
+      </segment>
+    </unit>
+    <unit id="ubHMK2q" name="This value should be either positive or zero.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be either positive or zero.</source>
         <target>Значение должно быть положительным или равным нулю.</target>
-      </trans-unit>
-      <trans-unit id="IwNTzo_" resname="This value should be negative.">
+      </segment>
+    </unit>
+    <unit id="IwNTzo_" name="This value should be negative.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be negative.</source>
         <target>Значение должно быть отрицательным.</target>
-      </trans-unit>
-      <trans-unit id="0GfwMfP" resname="This value should be either negative or zero.">
+      </segment>
+    </unit>
+    <unit id="0GfwMfP" name="This value should be either negative or zero.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be either negative or zero.</source>
         <target>Значение должно быть отрицательным или равным нулю.</target>
-      </trans-unit>
-      <trans-unit id="fs3qQZR" resname="This value is not a valid timezone.">
+      </segment>
+    </unit>
+    <unit id="fs3qQZR" name="This value is not a valid timezone.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid timezone.</source>
         <target>Значение не является корректным часовым поясом.</target>
-      </trans-unit>
-      <trans-unit id="40dnsod" resname="This password has been leaked in a data breach, it must not be used. Please use another password.">
+      </segment>
+    </unit>
+    <unit id="40dnsod">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This password has been leaked in a data breach, it must not be used. Please use another password.</source>
         <target>Данный пароль был скомпрометирован в результате утечки данных и не должен быть использован. Пожалуйста, используйте другой пароль.</target>
-      </trans-unit>
-      <trans-unit id="VvxxWas" resname="This value should be between {{ min }} and {{ max }}.">
+      </segment>
+    </unit>
+    <unit id="VvxxWas" name="This value should be between {{ min }} and {{ max }}.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be between {{ min }} and {{ max }}.</source>
         <target>Значение должно быть между {{ min }} и {{ max }}.</target>
-      </trans-unit>
-      <trans-unit id="7g313cV" resname="This value is not a valid hostname.">
+      </segment>
+    </unit>
+    <unit id="7g313cV" name="This value is not a valid hostname.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid hostname.</source>
         <target>Значение не является корректным именем хоста.</target>
-      </trans-unit>
-      <trans-unit id="xwtBimR" resname="The number of elements in this collection should be a multiple of {{ compared_value }}.">
+      </segment>
+    </unit>
+    <unit id="xwtBimR">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The number of elements in this collection should be a multiple of {{ compared_value }}.</source>
         <target>Количество элементов в этой коллекции должно быть кратным {{ compared_value }}.</target>
-      </trans-unit>
-      <trans-unit id="FDRZr.s" resname="This value should satisfy at least one of the following constraints:">
+      </segment>
+    </unit>
+    <unit id="FDRZr.s" name="This value should satisfy at least one of the following constraints:">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should satisfy at least one of the following constraints:</source>
         <target>Значение должно удовлетворять как минимум одному из следующих ограничений:</target>
-      </trans-unit>
-      <trans-unit id="WwY0IGI" resname="Each element of this collection should satisfy its own set of constraints.">
+      </segment>
+    </unit>
+    <unit id="WwY0IGI" name="Each element of this collection should satisfy its own set of constraints.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Each element of this collection should satisfy its own set of constraints.</source>
         <target>Каждый элемент этой коллекции должен удовлетворять своему собственному набору ограничений.</target>
-      </trans-unit>
-      <trans-unit id="lrbaa8g" resname="This value is not a valid International Securities Identification Number (ISIN).">
+      </segment>
+    </unit>
+    <unit id="lrbaa8g" name="This value is not a valid International Securities Identification Number (ISIN).">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid International Securities Identification Number (ISIN).</source>
         <target>Значение не является корректным международным идентификационным номером ценных бумаг (ISIN).</target>
-      </trans-unit>
-      <trans-unit id="6akW5mb" resname="This value should be a valid expression.">
+      </segment>
+    </unit>
+    <unit id="6akW5mb" name="This value should be a valid expression.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value should be a valid expression.</source>
         <target>Это значение должно быть корректным выражением.</target>
-      </trans-unit>
-      <trans-unit id=".SEaaBa" resname="This form should not contain extra fields.">
+      </segment>
+    </unit>
+    <unit id=".SEaaBa" name="This form should not contain extra fields.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This form should not contain extra fields.</source>
         <target>Эта форма не должна содержать дополнительных полей.</target>
-      </trans-unit>
-      <trans-unit id="WPnLAh9" resname="The uploaded file was too large. Please try to upload a smaller file.">
+      </segment>
+    </unit>
+    <unit id="WPnLAh9" name="The uploaded file was too large. Please try to upload a smaller file.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The uploaded file was too large. Please try to upload a smaller file.</source>
         <target>Загруженный файл слишком большой. Пожалуйста, попробуйте загрузить файл меньшего размера.</target>
-      </trans-unit>
-      <trans-unit id="fvxWW3V" resname="The CSRF token is invalid. Please try to resubmit the form.">
+      </segment>
+    </unit>
+    <unit id="fvxWW3V" name="The CSRF token is invalid. Please try to resubmit the form.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The CSRF token is invalid. Please try to resubmit the form.</source>
         <target>CSRF значение недопустимо. Пожалуйста, попробуйте повторить отправку формы.</target>
-      </trans-unit>
-      <trans-unit id="eo1zeih" resname="This value is not a valid HTML5 color.">
+      </segment>
+    </unit>
+    <unit id="eo1zeih" name="This value is not a valid HTML5 color.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>This value is not a valid HTML5 color.</source>
         <target>Значение не является допустимым HTML5 цветом.</target>
-      </trans-unit>
-      <trans-unit id="dN.ZVc0" resname="Please enter a valid birthdate.">
+      </segment>
+    </unit>
+    <unit id="dN.ZVc0" name="Please enter a valid birthdate.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid birthdate.</source>
         <target>Пожалуйста, введите действительную дату рождения.</target>
-      </trans-unit>
-      <trans-unit id="OPymPfZ" resname="The selected choice is invalid.">
+      </segment>
+    </unit>
+    <unit id="OPymPfZ" name="The selected choice is invalid.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The selected choice is invalid.</source>
         <target>Выбранный вариант недопустим.</target>
-      </trans-unit>
-      <trans-unit id="GUH6TYE" resname="The collection is invalid.">
+      </segment>
+    </unit>
+    <unit id="GUH6TYE" name="The collection is invalid.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The collection is invalid.</source>
         <target>Коллекция недопустима.</target>
-      </trans-unit>
-      <trans-unit id="14il0ha" resname="Please select a valid color.">
+      </segment>
+    </unit>
+    <unit id="14il0ha" name="Please select a valid color.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid color.</source>
         <target>Пожалуйста, выберите допустимый цвет.</target>
-      </trans-unit>
-      <trans-unit id="4AJRUCC" resname="Please select a valid country.">
+      </segment>
+    </unit>
+    <unit id="4AJRUCC" name="Please select a valid country.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid country.</source>
         <target>Пожалуйста, выберите действительную страну.</target>
-      </trans-unit>
-      <trans-unit id="xAI5mrh" resname="Please select a valid currency.">
+      </segment>
+    </unit>
+    <unit id="xAI5mrh" name="Please select a valid currency.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid currency.</source>
         <target>Пожалуйста, выберите действительную валюту.</target>
-      </trans-unit>
-      <trans-unit id="c6v9ASZ" resname="Please choose a valid date interval.">
+      </segment>
+    </unit>
+    <unit id="c6v9ASZ" name="Please choose a valid date interval.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please choose a valid date interval.</source>
         <target>Пожалуйста, выберите действительный период.</target>
-      </trans-unit>
-      <trans-unit id="2BR60Jg" resname="Please enter a valid date and time.">
+      </segment>
+    </unit>
+    <unit id="2BR60Jg" name="Please enter a valid date and time.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid date and time.</source>
         <target>Пожалуйста, введите действительные дату и время.</target>
-      </trans-unit>
-      <trans-unit id="ofLBhv0" resname="Please enter a valid date.">
+      </segment>
+    </unit>
+    <unit id="ofLBhv0" name="Please enter a valid date.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid date.</source>
         <target>Пожалуйста, введите действительную дату.</target>
-      </trans-unit>
-      <trans-unit id="Xsmm6Mc" resname="Please select a valid file.">
+      </segment>
+    </unit>
+    <unit id="Xsmm6Mc" name="Please select a valid file.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid file.</source>
         <target>Пожалуйста, выберите допустимый файл.</target>
-      </trans-unit>
-      <trans-unit id="Fka0cZD" resname="The hidden field is invalid.">
+      </segment>
+    </unit>
+    <unit id="Fka0cZD" name="The hidden field is invalid.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The hidden field is invalid.</source>
         <target>Значение скрытого поля недопустимо.</target>
-      </trans-unit>
-      <trans-unit id="69ux5Ml" resname="Please enter an integer.">
+      </segment>
+    </unit>
+    <unit id="69ux5Ml" name="Please enter an integer.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter an integer.</source>
         <target>Пожалуйста, введите целое число.</target>
-      </trans-unit>
-      <trans-unit id="TQbat_9" resname="Please select a valid language.">
+      </segment>
+    </unit>
+    <unit id="TQbat_9" name="Please select a valid language.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid language.</source>
         <target>Пожалуйста, выберите допустимый язык.</target>
-      </trans-unit>
-      <trans-unit id="vpa7l8w" resname="Please select a valid locale.">
+      </segment>
+    </unit>
+    <unit id="vpa7l8w" name="Please select a valid locale.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid locale.</source>
         <target>Пожалуйста, выберите допустимую локаль.</target>
-      </trans-unit>
-      <trans-unit id="Gz8pWER" resname="Please enter a valid money amount.">
+      </segment>
+    </unit>
+    <unit id="Gz8pWER" name="Please enter a valid money amount.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid money amount.</source>
         <target>Пожалуйста, введите допустимое количество денег.</target>
-      </trans-unit>
-      <trans-unit id="PRxiOhB" resname="Please enter a number.">
+      </segment>
+    </unit>
+    <unit id="PRxiOhB" name="Please enter a number.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a number.</source>
         <target>Пожалуйста, введите номер.</target>
-      </trans-unit>
-      <trans-unit id="seAdKJo" resname="The password is invalid.">
+      </segment>
+    </unit>
+    <unit id="seAdKJo" name="The password is invalid.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The password is invalid.</source>
         <target>Пароль недействителен.</target>
-      </trans-unit>
-      <trans-unit id="A5k0Q20" resname="Please enter a percentage value.">
+      </segment>
+    </unit>
+    <unit id="A5k0Q20" name="Please enter a percentage value.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a percentage value.</source>
         <target>Пожалуйста, введите процентное значение.</target>
-      </trans-unit>
-      <trans-unit id="rH6V.WA" resname="The values do not match.">
+      </segment>
+    </unit>
+    <unit id="rH6V.WA" name="The values do not match.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The values do not match.</source>
         <target>Значения не совпадают.</target>
-      </trans-unit>
-      <trans-unit id="Eopl1Sm" resname="Please enter a valid time.">
+      </segment>
+    </unit>
+    <unit id="Eopl1Sm" name="Please enter a valid time.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid time.</source>
         <target>Пожалуйста, введите действительное время.</target>
-      </trans-unit>
-      <trans-unit id="ll14Sm9" resname="Please select a valid timezone.">
+      </segment>
+    </unit>
+    <unit id="ll14Sm9" name="Please select a valid timezone.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid timezone.</source>
         <target>Пожалуйста, выберите действительный часовой пояс.</target>
-      </trans-unit>
-      <trans-unit id="1xP1kmd" resname="Please enter a valid URL.">
+      </segment>
+    </unit>
+    <unit id="1xP1kmd" name="Please enter a valid URL.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid URL.</source>
         <target>Пожалуйста, введите действительный URL.</target>
-      </trans-unit>
-      <trans-unit id="iMmAsrC" resname="Please enter a valid search term.">
+      </segment>
+    </unit>
+    <unit id="iMmAsrC" name="Please enter a valid search term.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid search term.</source>
         <target>Пожалуйста, введите действительный поисковый запрос.</target>
-      </trans-unit>
-      <trans-unit id="GRMTXRX" resname="Please provide a valid phone number.">
+      </segment>
+    </unit>
+    <unit id="GRMTXRX" name="Please provide a valid phone number.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please provide a valid phone number.</source>
         <target>Пожалуйста, введите действительный номер телефона.</target>
-      </trans-unit>
-      <trans-unit id="WkYuMDd" resname="The checkbox has an invalid value.">
+      </segment>
+    </unit>
+    <unit id="WkYuMDd" name="The checkbox has an invalid value.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>The checkbox has an invalid value.</source>
         <target>Флажок имеет недопустимое значение.</target>
-      </trans-unit>
-      <trans-unit id="lY5Mzyl" resname="Please enter a valid email address.">
+      </segment>
+    </unit>
+    <unit id="lY5Mzyl" name="Please enter a valid email address.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid email address.</source>
         <target>Пожалуйста, введите допустимый email адрес.</target>
-      </trans-unit>
-      <trans-unit id="TzSC4.o" resname="Please select a valid option.">
+      </segment>
+    </unit>
+    <unit id="TzSC4.o" name="Please select a valid option.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid option.</source>
         <target>Пожалуйста, выберите допустимый вариант.</target>
-      </trans-unit>
-      <trans-unit id="qGRcTk7" resname="Please select a valid range.">
+      </segment>
+    </unit>
+    <unit id="qGRcTk7" name="Please select a valid range.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please select a valid range.</source>
         <target>Пожалуйста, выберите допустимый диапазон.</target>
-      </trans-unit>
-      <trans-unit id="PU.w6nC" resname="Please enter a valid week.">
+      </segment>
+    </unit>
+    <unit id="PU.w6nC" name="Please enter a valid week.">
+      <notes>
+        <note category="state" priority="1">obsolete</note>
+      </notes>
+      <segment>
         <source>Please enter a valid week.</source>
         <target>Пожалуйста, введите действительную неделю.</target>
-      </trans-unit>
-    </body>
+      </segment>
+    </unit>
+    <unit id="YRKYC4." name="There is already an account with this email">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Entity/User.php:0</note>
+      </notes>
+      <segment>
+        <source>There is already an account with this email</source>
+        <target>У данной электронной почты уже зарегистрирована учетная запись</target>
+      </segment>
+    </unit>
+    <unit id="TdLhlyP" name="The password fields must match.">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/Front/ChangePasswordFormType.php:20</note>
+      </notes>
+      <segment>
+        <source>The password fields must match.</source>
+        <target>Поля паролей должны совпадать.</target>
+      </segment>
+    </unit>
+    <unit id="bH3T3JL" name="Please enter a title">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditCategoryModel.php:0</note>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please enter a title</source>
+        <target>Пожалуйста, укажите заголовок</target>
+      </segment>
+    </unit>
+    <unit id="LwjfNmu" name="Please select user">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditOrderModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please select user</source>
+        <target>Пожалуйста, выберите пользователя</target>
+      </segment>
+    </unit>
+    <unit id="kCEFjqB" name="Please select status">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditOrderModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please select status</source>
+        <target>Пожалуйста, выберите статус</target>
+      </segment>
+    </unit>
+    <unit id="KqsDjMt" name="Please enter a price">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please enter a price</source>
+        <target>Пожалуйста, введите цену</target>
+      </segment>
+    </unit>
+    <unit id="LUrPyim" name="Please upload a valid image (*.jpg or *.png)">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please upload a valid image (*.jpg or *.png)</source>
+        <target>Пожалуйста, загрузите валидное изображение (*.jpg или *.png)</target>
+      </segment>
+    </unit>
+    <unit id="k927W6Y" name="Please indicate a quantity">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please indicate a quantity</source>
+        <target>Пожалуйста, укажите количество</target>
+      </segment>
+    </unit>
+    <unit id="ka8XRfM" name="Please select a category">
+      <notes>
+        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
+      </notes>
+      <segment>
+        <source>Please select a category</source>
+        <target>Пожалуйста, выберите категорию</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

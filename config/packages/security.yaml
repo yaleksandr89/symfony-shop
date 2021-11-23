@@ -20,7 +20,7 @@ security:
       security: false
     admin:
       context: website
-      pattern: ^/admin
+      pattern: ^/%app_locales.in_brackets%/admin
       lazy: true
       provider: app_user_provider
       access_denied_handler: App\Security\Handler\AccessAdminDeniedHandler
@@ -67,15 +67,15 @@ security:
   # Note: Only the *first* access control that matches will be used
   access_control:
     # >>> All
-    - { path: ^/admin/login }
-    - { path: ^/admin/logout }
+    - { path: ^/%app_locales.in_brackets%/admin/login }
+    - { path: ^/%app_locales.in_brackets%/admin/logout }
     # All <<<
 
     # >>> Admin Zone
-    - { path: ^/admin/user, roles: ROLE_SUPER_ADMIN }
-    - { path: ^/admin, roles: ROLE_ADMIN }
+    - { path: ^/%app_locales.in_brackets%/admin/user, roles: ROLE_SUPER_ADMIN }
+    - { path: ^/%app_locales.in_brackets%/admin, roles: ROLE_ADMIN }
     # Admin Zone <<<
 
     # >>> Front Zone
-    - { path: ^/profile, roles: ROLE_USER }
+    - { path: ^/%app_locales.in_brackets%/profile, roles: ROLE_USER }
     # Front Zone <<<

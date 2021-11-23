@@ -1,102 +1,110 @@
-homepage:
-  head: Главная страница
-  description: Главная страница "Symfony shop"
-
-registration_form:
-  head: Регистрация
-  sing_up: Зарегистрироваться
-  enter_your_email: Адрес электронной почты
-  enter_your_password: Пароль
-  agree_to_term: Я согласен с
-  privacy policy: политикой конфиденциальности*
-  placeholder:
-    email: Пожалуйста, введите свой адрес электронной почты
-    plainPassword: Пожалуйста, введите свой пароль
-
-login_form:
-  head: Авторизация
-  your_email: Адрес электронной почты
-  your_password: Пароль
-  remember_me: Запомнить меня
-  login_in: Авторизоваться
-  create_account: Создать Аккаунт
-  reset_password: Сбросить пароль
-  placeholder:
-    email: Пожалуйста, введите свой адрес электронной почты
-    password: Пожалуйста, введите свой пароль
-
-personal_account:
-  head: Добро пожаловать в ЛК
-  labels:
-    email: Адрес электронной почты
-    full_name: ФИО
-    phone: Телефон
-    address: Адрес
-    zipcode: Почтовый индекс
-  logout: Разлогиниться
-  message: Прежде чем сделать заказ, заполните полную информацию.
-  edit_profile: Редактировать ЛК
-  edit:
-    head: Редактировать ЛК
-    labels:
-      full_name: Введите ФИО
-      phone: Введите телефон
-      address: Введите адрес
-      zipcode: Введите почтовый индекс
-    save_changes: Сохранить изменения
-
-login_social_network:
-  facebook: Авторизоваться через Facebook
-  google: Авторизоваться через Google
-
-similar_products:
-  head: Мы рекомендуем
-  new: Новинка
-
-product:
-  add_to_cart: Добавить в корзину
-  new: Новинка
-  products_not_fount: Продукты не найдены
-
-category:
-  show_me: Перейти
-  new_collection: Новая коллекция
-  unique: Уникальное предложение
-
-cart:
-  head: Корзина
-  make_order: Сделать заказ
-  view_cart: Перейти
-  checkout: Отчистить
-  total_price: Всего
-  cart_empty: В корзине нет товаров...
-  login: Авторизоваться
-  product: Продукт
-  quantity: Количество
-  price: Цена
-  actions: Действия
-  total: Всего
-
-header_menu:
-  en: Англ
-  ru: Рус
-  profile: Профиль
-  login: Авторизоваться
-
-footer:
-  user_links:
-    head: Полезные ссылки
-    homepage: Главная страница
-    sing_up: Зарегистрироваться
-    login: Авторизоваться
-    logout: Разлогиниться
-  my_account:
-    head: Личный кабинет
-    sing_up: Зарегистрироваться
-    view_cart: Просмотреть корзину
-    my_profile: Мой профиль
-  сhange_language:
-    head: Сменить язык
-    russian: Русский
-    english: Английский
-  copyright: Авторское право © Команда RankedChoice. все права защищены.
+homepage.head: 'Главная страница'
+homepage.description: 'Главная страница "Symfony shop"'
+registration_form.head: Регистрация
+registration_form.sing_up: Зарегистрироваться
+registration_form.enter_your_email: 'Адрес электронной почты'
+registration_form.enter_your_password: Пароль
+registration_form.agree_to_term: 'Я согласен с'
+'registration_form.privacy policy': 'политикой конфиденциальности*'
+registration_form.placeholder.email: 'Пожалуйста, введите свой адрес электронной почты'
+registration_form.placeholder.plainPassword: 'Пожалуйста, введите свой пароль'
+login_form.head: Авторизация
+login_form.your_email: 'Адрес электронной почты'
+login_form.your_password: Пароль
+login_form.remember_me: 'Запомнить меня'
+login_form.login_in: Авторизоваться
+login_form.create_account: 'Создать Аккаунт'
+login_form.reset_password: 'Сбросить пароль'
+login_form.placeholder.email: 'Пожалуйста, введите свой адрес электронной почты'
+login_form.placeholder.password: 'Пожалуйста, введите свой пароль'
+personal_account.head: 'Добро пожаловать в ЛК'
+personal_account.labels.email: 'Адрес электронной почты'
+personal_account.labels.full_name: ФИО
+personal_account.labels.phone: Телефон
+personal_account.labels.address: Адрес
+personal_account.labels.zipcode: 'Почтовый индекс'
+personal_account.logout: Разлогиниться
+personal_account.message: 'Прежде чем сделать заказ, заполните полную информацию.'
+personal_account.edit_profile: 'Редактировать ЛК'
+personal_account.edit.head: 'Редактировать ЛК'
+personal_account.edit.labels.full_name: 'Введите ФИО'
+personal_account.edit.labels.phone: 'Введите телефон'
+personal_account.edit.labels.address: 'Введите адрес'
+personal_account.edit.labels.zipcode: 'Введите почтовый индекс'
+personal_account.edit.save_changes: 'Сохранить изменения'
+login_social_network.facebook: 'Авторизоваться через Facebook'
+login_social_network.google: 'Авторизоваться через Google'
+similar_products.head: 'Мы рекомендуем'
+similar_products.new: Новинка
+product.add_to_cart: 'Добавить в корзину'
+product.new: Новинка
+product.products_not_fount: 'Продукты не найдены'
+category.show_me: Перейти
+category.new_collection: 'Новая коллекция'
+category.unique: 'Уникальное предложение'
+cart.head: Корзина
+cart.make_order: 'Сделать заказ'
+cart.view_cart: Перейти
+cart.checkout: Отчистить
+cart.total_price: Всего
+cart.cart_empty: 'В корзине нет товаров...'
+cart.login: Авторизоваться
+cart.product: Продукт
+cart.quantity: Количество
+cart.price: Цена
+cart.actions: Действия
+cart.total: Всего
+header_menu.en: Англ
+header_menu.ru: Рус
+header_menu.profile: Профиль
+header_menu.login: Авторизоваться
+footer.user_links.head: 'Полезные ссылки'
+footer.user_links.homepage: 'Главная страница'
+footer.user_links.sing_up: Зарегистрироваться
+footer.user_links.login: Авторизоваться
+footer.user_links.logout: Разлогиниться
+footer.my_account.head: 'Личный кабинет'
+footer.my_account.sing_up: Зарегистрироваться
+footer.my_account.view_cart: 'Просмотреть корзину'
+footer.my_account.my_profile: 'Мой профиль'
+footer.сhange_language.head: 'Сменить язык'
+footer.сhange_language.russian: Русский
+footer.сhange_language.english: Английский
+footer.copyright: 'Авторское право © Команда RankedChoice. все права защищены.'
+'You have to login in order to access this page.': 'Вам необходимо войти в систему, чтобы получить доступ к этой странице.'
+'An email has been sent. Please check inbox to find password and verified your email': 'Было отправлено электронное письмо. Пожалуйста, проверьте входящие, чтобы найти пароль и подтвердить свой адрес электронной почты'
+'Please log in to the site!': 'Пожалуйста, авторизуйтесь на сайте!'
+'The order successfully created': 'Заказ успешно создан'
+'An email has been sent. Please check your inbox to complete registration.': 'Было отправлено электронное письмо. Пожалуйста, проверьте свой почтовый ящик, чтобы завершить регистрацию.'
+'Your email address has been verified.': 'Ваш адрес электронной почты был подтвержден.'
+'Your changes were saved!': 'Ваши изменения были сохранены!'
+'Something went wrong. Please check!': 'Что-то пошло не так. Пожалуйста, проверьте!'
+email: 'Электронное письмо'
+'New password': 'Новый пароль'
+'Repeat Password': 'Повторите пароль'
+plainPassword: 'пароль (plainPassword)'
+Title: Заголовок
+'Save changes': 'Сохранить изменения'
+Email: 'Электронное письмо'
+Roles: 'Уровни доступа'
+'Full name': ФИО
+Phone: Телефон
+Address: Адрес
+'Zip code': 'Почтовый индекс'
+'Is Deleted': 'Удалено?'
+Price: Цена
+Quantity: Количество
+Description: Описание
+'Choose new image': 'Выберите новое изображение'
+'Is Published': 'Опубликовано?'
+Category: Категория
+'Please select a category': 'Пожалуйста, выберите категорию'
+Status: Статус
+User: Пользователь
+Admin: Администратор
+'Super Admin': 'Супер Администратор'
+Created: Создан
+Denied: Отклонен
+Delivered: Доставлен
+Complected: Укомплектован
+Processed: Обработан

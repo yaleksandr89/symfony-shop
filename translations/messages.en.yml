@@ -1,102 +1,103 @@
-homepage:
-  head: Homepage
-  description: Main page of Symfony shop
-
-registration_form:
-  head: Registration
-  sing_up: Sing up
-  enter_your_password: Password
-  enter_your_email: Email
-  agree_to_term: I agree to the privacy policy
-  privacy policy: privacy policy*
-  placeholder:
-    email: Please enter your email
-    plainPassword: Please enter your password
-
-login_form:
-  head: Authorization
-  your_email: Email address
-  your_password: Password
-  remember_me: Remember me
-  login_in: Log in
-  create_account: Create an Account
-  reset_password: Reset password
-  placeholder:
-    email: Please enter your email
-    password: Please enter your password
-
-personal_account:
-  head: Welcome, to your profile
-  labels:
-    email: Your email
-    full_name: Your full name
-    phone: Your phone
-    address: Your address
-    zipcode: Your zipcode
-  logout: Logout
-  message: Please, before you make some order fill your full information.
-  edit_profile: Edit profile info
-  edit:
-    head: Edit profile
-    labels:
-      full_name: Enter full name
-      phone: Enter phone
-      address: Enter address
-      zipcode: Enter zipcode
-    save_changes: Save changes
-
-login_social_network:
-  facebook: Login with Facebook
-  google: Login with Google
-
-similar_products:
-  head: We recommend
-  new: New
-
-product:
-  add_to_cart: Add to cart
-  new: New
-  products_not_fount: Products not fount
-
-category:
-  show_me: Show me
-  new_collection: New Collection
-  unique: Unique
-
-cart:
-  head: Cart
-  make_order: Make Order
-  view_cart: View_cart
-  checkout: Checkout
-  total_price: Total price
-  cart_empty: Your cart is empty ...
-  login: Login
-  product: Product
-  quantity: Quantity
-  price: Price
-  actions: Actions
-  total: Total
-
-header_menu:
-  en: En
-  ru: Rus
-  profile: Profile
-  login: Login
-
-footer:
-  user_links:
-    head: Useful links
-    homepage: Homepage
-    sing_up: Sign up
-    login: Login
-    logout: Log out
-  my_account:
-    head: My Account
-    sing_up: Sign in
-    view_cart: View cart
-    my_profile: My profile
-  сhange_language:
-    head: Change language
-    russian: Russian
-    english: English
-  copyright: Copyright © RankedChoice Team. All Rights Reserved.
+homepage.head: Homepage
+homepage.description: 'Main page of Symfony shop'
+registration_form.head: Registration
+registration_form.sing_up: 'Sing up'
+registration_form.enter_your_password: Password
+registration_form.enter_your_email: Email
+registration_form.agree_to_term: 'I agree to the privacy policy'
+'registration_form.privacy policy': 'privacy policy*'
+registration_form.placeholder.email: 'Please enter your email'
+registration_form.placeholder.plainPassword: 'Please enter your password'
+login_form.head: Authorization
+login_form.your_email: 'Email address'
+login_form.your_password: Password
+login_form.remember_me: 'Remember me'
+login_form.login_in: 'Log in'
+login_form.create_account: 'Create an Account'
+login_form.reset_password: 'Reset password'
+login_form.placeholder.email: 'Please enter your email'
+login_form.placeholder.password: 'Please enter your password'
+personal_account.head: 'Welcome, to your profile'
+personal_account.labels.email: 'Your email'
+personal_account.labels.full_name: 'Your full name'
+personal_account.labels.phone: 'Your phone'
+personal_account.labels.address: 'Your address'
+personal_account.labels.zipcode: 'Your zipcode'
+personal_account.logout: Logout
+personal_account.message: 'Please, before you make some order fill your full information.'
+personal_account.edit_profile: 'Edit profile info'
+personal_account.edit.head: 'Edit profile'
+personal_account.edit.labels.full_name: 'Enter full name'
+personal_account.edit.labels.phone: 'Enter phone'
+personal_account.edit.labels.address: 'Enter address'
+personal_account.edit.labels.zipcode: 'Enter zipcode'
+personal_account.edit.save_changes: 'Save changes'
+login_social_network.facebook: 'Login with Facebook'
+login_social_network.google: 'Login with Google'
+similar_products.head: 'We recommend'
+similar_products.new: New
+product.add_to_cart: 'Add to cart'
+product.new: New
+product.products_not_fount: 'Products not fount'
+category.show_me: 'Show me'
+category.new_collection: 'New Collection'
+category.unique: Unique
+cart.head: Cart
+cart.make_order: 'Make Order'
+cart.view_cart: View_cart
+cart.checkout: Checkout
+cart.total_price: 'Total price'
+cart.cart_empty: 'Your cart is empty ...'
+cart.login: Login
+cart.product: Product
+cart.quantity: Quantity
+cart.price: Price
+cart.actions: Actions
+cart.total: Total
+header_menu.en: En
+header_menu.ru: Rus
+header_menu.profile: Profile
+header_menu.login: Login
+footer.user_links.head: 'Useful links'
+footer.user_links.homepage: Homepage
+footer.user_links.sing_up: 'Sign up'
+footer.user_links.login: Login
+footer.user_links.logout: 'Log out'
+footer.my_account.head: 'My Account'
+footer.my_account.sing_up: 'Sign in'
+footer.my_account.view_cart: 'View cart'
+footer.my_account.my_profile: 'My profile'
+footer.сhange_language.head: 'Change language'
+footer.сhange_language.russian: Russian
+footer.сhange_language.english: English
+footer.copyright: 'Copyright © RankedChoice Team. All Rights Reserved.'
+'You have to login in order to access this page.': 'You have to login in order to access this page.'
+'An email has been sent. Please check inbox to find password and verified your email': 'An email has been sent. Please check inbox to find password and verified your email'
+'Please log in to the site!': 'Please log in to the site!'
+'The order successfully created': 'The order successfully created'
+'An email has been sent. Please check your inbox to complete registration.': 'An email has been sent. Please check your inbox to complete registration.'
+'Your email address has been verified.': 'Your email address has been verified.'
+'Your changes were saved!': 'Your changes were saved!'
+'Something went wrong. Please check!': 'Something went wrong. Please check!'
+email: email
+'New password': 'New password'
+'Repeat Password': 'Repeat Password'
+plainPassword: plainPassword
+Title: Title
+'Save changes': 'Save changes'
+Email: Email
+Roles: Roles
+'Full name': 'Full name'
+Phone: Phone
+Address: Address
+'Zip code': 'Zip code'
+'Is Deleted': 'Is Deleted'
+Price: Price
+Quantity: Quantity
+Description: Description
+'Choose new image': 'Choose new image'
+'Is Published': 'Is Published'
+Category: Category
+'Please select a category': 'Please select a category'
+Status: Status
+User: User
