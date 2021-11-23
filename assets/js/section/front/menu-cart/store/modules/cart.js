@@ -14,6 +14,7 @@ const state = () => ({
             viewCart: window.staticStore.urlViewCart,
             assetImageProducts: window.staticStore.urlAssetImageProducts,
         },
+        localization: window.staticStore.menu_cart_localization,
     },
 });
 

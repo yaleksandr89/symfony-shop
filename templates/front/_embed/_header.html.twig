@@ -1,6 +1,5 @@
 {% include 'front/_embed/_menu/_mobile_menu.html.twig' %}
 
 <header class="header">
-    {#{% include 'front/_embed/_menu/_desktop_menu.html.twig' %}#}
-    {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu')) }}
+    {% include 'front/_embed/_menu/_desktop_menu.html.twig' %}
 </header>

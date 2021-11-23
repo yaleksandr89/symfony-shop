@@ -10,7 +10,7 @@ parameters:
   product_images_dir: '%uploads_images_dir%/products'
   product_images_url: '/uploads/images/products'
   locale: 'en'
-  app_locales: en|ru
+  app_locales: 'en|ru'
 services:
   # default configuration for services in *this* file
   _defaults:

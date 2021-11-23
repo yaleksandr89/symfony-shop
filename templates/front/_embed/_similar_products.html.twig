@@ -3,7 +3,7 @@
     <div class="pt-2 pb-2">
         <div class="container-fluid">
             <div class="text-center mb-3">
-                <h2 class="title">We recommend</h2>
+                <h2 class="title">{{ 'similar_products.head'|trans }}</h2>
             </div>
             <div class="row">
                 <div class="col-lg-12">
@@ -20,7 +20,7 @@
                                     {% endif %}
                                     <div class="product-item text-center">
                                         <figure class="product-media">
-                                            <span class="product-sale-status sale-status-new">New</span>
+                                            <span class="product-sale-status sale-status-new">{{ 'similar_products.new'|trans }}</span>
                                             <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}">
                                                 <img src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.getFilenameMiddle()) }}"
                                                      alt="{{ product.title }}"
@@ -29,7 +29,7 @@
 
                                             <div class="product-actions">
                                                 <a href="#" class="btn-add-to-cart">
-                                                    add to cart
+                                                    {{ 'product.add_to_cart'|trans }}
                                                 </a>
                                             </div>
                                         </figure>

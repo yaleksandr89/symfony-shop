@@ -1,6 +1,6 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}Edit my profile - RankedChoice{% endblock %}
+{% block title %}{{ 'personal_account.edit.head'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-content">
@@ -8,7 +8,9 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="page-details mt-4">
-                        <h1 class="h4 mb-3 text-center font-weight-normal title-gradient-1">Edit your profile</h1>
+                        <h1 class="h4 mb-3 text-center font-weight-normal title-gradient-1">
+                            {{ 'personal_account.edit.head'|trans }}
+                        </h1>
                         {{ form_start(profileEditForm) }}
 
                         <div class="form-group">
@@ -37,7 +39,9 @@
 
                         <div class="form-footer">
                             <button type="submit" class="btn btn-success">
-                                <span>SAVE CHANGES</span>
+                                <span>
+                                    {{ 'personal_account.edit.save_changes'|trans }}
+                                </span>
                             </button>
                         </div>
 

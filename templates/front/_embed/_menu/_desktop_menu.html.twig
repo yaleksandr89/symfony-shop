@@ -8,14 +8,7 @@
     </a>
     <nav class="main-nav">
         <ul class="menu">
-            {% for category in nav_categories %}
-                <li class="menu-item">
-                    <a href="{{ category.url }}">
-                        <div>{{ category.title }}</div>
-                    </a>
-                </li>
-            {% endfor %}
-
+            {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu')) }}
             <li class="menu-item font-weight-bold">
                 {% if app.user is not null and app.user.verified %}
                     <a href="{{ path('main_profile_index') }}">
@@ -27,10 +20,15 @@
                     </a>
                 {% endif %}
             </li>
+            <li class="menu-item">
+                <select class="custom-select custom-select-sm" id="desktop-select-language">
+                    <option value="/en/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.en'|trans }}</option>
+                    <option value="/ru/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.ru'|trans }}</option>
+                </select>
+            </li>
+            <li class="menu-item">
+                {{ include('front/_embed/_menu/_menu_cart.html.twig') }}
+            </li>
         </ul>
     </nav>
-    <select class="custom-select custom-select-sm" id="select-language">
-        <option value="/en/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.en'|trans }}</option>
-        <option value="/ru/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.ru'|trans }}</option>
-    </select>
 </div>

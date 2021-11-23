@@ -1,8 +1,8 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}{{ category.title }} - RankedChoice{% endblock %}
-{% block page_keywords %}Jeans, Ranked Choice Homepage, Jackets{% endblock %}
-{% block page_description %}Category page of RankedChoice shop!{% endblock %}
+{% block title %}Category - {{ category.title }}{% endblock %}
+{% block page_keywords %}{{ category.title|lower }}{% endblock %}
+{% block page_description %}{{ category.title }}!{% endblock %}
 
 {% block body %}
     <div class="text-center">
@@ -27,7 +27,7 @@
                                     <div class="col-6 col-md-4 col-lg-4 col-xl-3">
                                         <div class="product-item">
                                             <figure class="product-media">
-                                                <span class="product-sale-status sale-status-new">New</span>
+                                                <span class="product-sale-status sale-status-new">{{ 'similar_products.new'|trans }}</span>
                                                 <a href="{{ path('main_product_show', {'uuid': product.uuid}) }}">
                                                     <img
                                                         src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
@@ -37,7 +37,7 @@
                                                 </a>
                                                 <div class="product-actions">
                                                     <a href="#" class="btn-add-to-cart" data-id="{{ product.uuid }}" data-add-cart>
-                                                        add to cart
+                                                        {{ 'product.add_to_cart'|trans }}
                                                     </a>
                                                 </div>
                                             </figure>
@@ -54,7 +54,7 @@
                                 {% endif %}
                             {% else %}
                                 <div class="alert alert-warning alert-dismissible text-center" role="alert">
-                                    Products not fount
+                                    {{ 'product.products_not_fount'|trans }}
                                 </div>
                             {% endfor %}
                         </div>

@@ -9,5 +9,12 @@
     window.staticStore.urlViewProduct = '{{ path('main_product_show_blank') }}';
     window.staticStore.urlViewCart = '{{ path('main_cart_show') }}';
     window.staticStore.urlAssetImageProducts = '{{ asset('uploads/images/products') }}';
+    window.staticStore.menu_cart_localization = {
+        'make_order': '{{ 'cart.head'|trans }}',
+        'view_cart': '{{ 'cart.view_cart'|trans }}',
+        'checkout': '{{ 'cart.checkout'|trans }}',
+        'total_price': '{{ 'cart.total_price'|trans }}',
+        'cart_empty': '{{ 'cart.cart_empty'|trans }}',
+    }
 </script>
 {{ encore_entry_script_tags('appFrontMenuCart') }}

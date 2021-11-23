@@ -1,5 +1,9 @@
+homepage:
+  head: Homepage
+  description: Main page of Symfony shop
+
 registration_form:
-  head: Registration Form
+  head: Registration
   sing_up: Sing up
   enter_your_password: Password
   enter_your_email: Email
@@ -10,7 +14,7 @@ registration_form:
     plainPassword: Please enter your password
 
 login_form:
-  head: Authorization form
+  head: Authorization
   your_email: Email address
   your_password: Password
   remember_me: Remember me
@@ -21,9 +25,57 @@ login_form:
     email: Please enter your email
     password: Please enter your password
 
+personal_account:
+  head: Welcome, to your profile
+  labels:
+    email: Your email
+    full_name: Your full name
+    phone: Your phone
+    address: Your address
+    zipcode: Your zipcode
+  logout: Logout
+  message: Please, before you make some order fill your full information.
+  edit_profile: Edit profile info
+  edit:
+    head: Edit profile
+    labels:
+      full_name: Enter full name
+      phone: Enter phone
+      address: Enter address
+      zipcode: Enter zipcode
+    save_changes: Save changes
+
 login_social_network:
   facebook: Login with Facebook
   google: Login with Google
+
+similar_products:
+  head: We recommend
+  new: New
+
+product:
+  add_to_cart: Add to cart
+  new: New
+  products_not_fount: Products not fount
+
+category:
+  show_me: Show me
+  new_collection: New Collection
+  unique: Unique
+
+cart:
+  head: Cart
+  make_order: Make Order
+  view_cart: View_cart
+  checkout: Checkout
+  total_price: Total price
+  cart_empty: Your cart is empty ...
+  login: Login
+  product: Product
+  quantity: Quantity
+  price: Price
+  actions: Actions
+  total: Total
 
 header_menu:
   en: En

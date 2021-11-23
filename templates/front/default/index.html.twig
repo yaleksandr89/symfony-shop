@@ -1,8 +1,7 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}Homepage - RankedChoice{% endblock %}
-{% block page_keywords %}Jeans, Jackets{% endblock %}
-{% block page_description %}Main page of RankedChoice shop!{% endblock %}
+{% block title %}{{ 'homepage.head'|trans }}{% endblock %}
+{% block page_description %}{{ 'homepage.description'|trans }}!{% endblock %}
 
 {% block body %}
     <div class="container-fluid mt-2">
@@ -18,13 +17,13 @@
 
                                 <div class="banner-content">
                                     <h3 class="banner-subtitle">
-                                        New Collection!
+                                        {{ 'category.new_collection'|trans }}!
                                     </h3>
                                     <h2 class="banner-title">
                                         {{ category.title }}
                                     </h2>
                                     <a href="{{ category.url }}" class="btn btn-link">
-                                        Show me
+                                        {{ 'category.show_me'|trans }}!
                                     </a>
                                 </div>
                             </div>
@@ -44,7 +43,7 @@
 
                                     <div class="banner-content">
                                         <h3 class="banner-subtitle">
-                                            Unique!
+                                            {{ 'category.unique'|trans }}!
                                         </h3>
                                         <a href="{{ category.url }}" class="btn btn-link">
                                             {{ category.title }}
@@ -59,7 +58,5 @@
         {% endif %}
     </div>
 
-    {{ render(controller('App\\Controller\\Front\\EmbedController::showSimilarProducts', {
-        'productCount': 4
-    })) }}
+    {{ render(controller('App\\Controller\\Front\\EmbedController::showSimilarProducts', {'productCount': 4})) }}
 {% endblock %}

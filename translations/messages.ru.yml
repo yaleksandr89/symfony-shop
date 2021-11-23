@@ -1,5 +1,9 @@
+homepage:
+  head: Главная страница
+  description: Главная страница "Symfony shop"
+
 registration_form:
-  head: Форма регистрации
+  head: Регистрация
   sing_up: Зарегистрироваться
   enter_your_email: Адрес электронной почты
   enter_your_password: Пароль
@@ -10,7 +14,7 @@ registration_form:
     plainPassword: Пожалуйста, введите свой пароль
 
 login_form:
-  head: Форма авторизации
+  head: Авторизация
   your_email: Адрес электронной почты
   your_password: Пароль
   remember_me: Запомнить меня
@@ -21,9 +25,57 @@ login_form:
     email: Пожалуйста, введите свой адрес электронной почты
     password: Пожалуйста, введите свой пароль
 
+personal_account:
+  head: Добро пожаловать в ЛК
+  labels:
+    email: Адрес электронной почты
+    full_name: ФИО
+    phone: Телефон
+    address: Адрес
+    zipcode: Почтовый индекс
+  logout: Разлогиниться
+  message: Прежде чем сделать заказ, заполните полную информацию.
+  edit_profile: Редактировать ЛК
+  edit:
+    head: Редактировать ЛК
+    labels:
+      full_name: Введите ФИО
+      phone: Введите телефон
+      address: Введите адрес
+      zipcode: Введите почтовый индекс
+    save_changes: Сохранить изменения
+
 login_social_network:
   facebook: Авторизоваться через Facebook
   google: Авторизоваться через Google
+
+similar_products:
+  head: Мы рекомендуем
+  new: Новинка
+
+product:
+  add_to_cart: Добавить в корзину
+  new: Новинка
+  products_not_fount: Продукты не найдены
+
+category:
+  show_me: Перейти
+  new_collection: Новая коллекция
+  unique: Уникальное предложение
+
+cart:
+  head: Корзина
+  make_order: Сделать заказ
+  view_cart: Перейти
+  checkout: Отчистить
+  total_price: Всего
+  cart_empty: В корзине нет товаров...
+  login: Авторизоваться
+  product: Продукт
+  quantity: Количество
+  price: Цена
+  actions: Действия
+  total: Всего
 
 header_menu:
   en: Англ

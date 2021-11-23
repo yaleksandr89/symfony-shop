@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Front;
 
 use App\Entity\Category;
-use App\Entity\Product;
-use App\Entity\ProductImage;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -32,6 +29,7 @@ class EmbedController extends AbstractController
         $this->urlGenerator = $urlGenerator;
         return $this;
     }
+
     // Autowiring <<<
 
     public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, int $categoryId = null): Response
@@ -44,11 +42,10 @@ class EmbedController extends AbstractController
     }
 
     /**
-     * @param Request $request
      * @param CategoryRepository $categoryRepository
      * @return Response
      */
-    public function showHeaderMenu(Request $request, CategoryRepository $categoryRepository): Response
+    public function showHeaderMenu(CategoryRepository $categoryRepository): Response
     {
         $preparedListCategory = [];
 
@@ -60,8 +57,8 @@ class EmbedController extends AbstractController
             ];
         }
 
-        return $this->render('front/_embed/_menu/_desktop_menu.html.twig', [
-            'nav_categories' => $preparedListCategory
+        return $this->render('front/_embed/_menu/_menu_data_nav.html.twig', [
+            'nav_categories' => $preparedListCategory,
         ]);
     }
 }

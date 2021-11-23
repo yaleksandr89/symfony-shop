@@ -22,19 +22,19 @@ class ProfileEditFormType extends AbstractType
     {
         $builder
             ->add('fullName', TextType::class, [
-                'label' => 'Enter your full name',
+                'label' => 'personal_account.edit.labels.full_name',
                 'trim' => true,
             ])
             ->add('phone', TextType::class, [
-                'label' => 'Enter your phone',
+                'label' => 'personal_account.edit.labels.phone',
                 'trim' => true,
             ])
             ->add('address', TextType::class, [
-                'label' => 'Enter your address',
+                'label' =>'personal_account.edit.labels.address',
                 'trim' => true,
             ])
             ->add('zipCode', IntegerType::class, [
-                'label' => 'Enter your zipCode',
+                'label' => 'personal_account.edit.labels.zipcode',
                 'trim' => true,
             ]);
     }
