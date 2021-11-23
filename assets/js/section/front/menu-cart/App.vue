@@ -13,7 +13,7 @@
         <CartActions/>
       </div>
       <div class="text-center" v-else>
-        You cart is empty...
+        {{ staticStore.localization.cart_empty }}
       </div>
     </div>
   </div>
@@ -32,7 +32,7 @@ export default {
     this.getCart();
   },
   computed: {
-    ...mapState('cart', ['cart']),
+    ...mapState('cart', ['cart', 'staticStore']),
     countCartProducts() {
       return this.cart.cartProducts
           ? this.cart.cartProducts.length

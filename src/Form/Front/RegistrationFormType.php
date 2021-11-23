@@ -26,25 +26,21 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Enter enter your email',
+                'label' => 'registration_form.enter_your_email',
                 'required' => true,
                 'trim' => true,
                 'attr' => [
                     'class' => 'form-control',
                     'autofocus' => 'autofocus',
-                    'placeholder' => 'Please enter your email',
+                    'placeholder' => 'registration_form.placeholder.email',
                 ],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Email should not be blank.'
-                    ]),
-                    new Email([
-                        'message' => 'This value is not a valid email address.'
-                    ]),
+                    new NotBlank(),
+                    new Email(),
                 ],
             ])
             ->add('agreeTerms', CheckboxType::class, [
-                'label' => 'I agree to the <a href="#">privacy policy</a> *',
+                'label' => 'registration_form.agree_to_term',
                 'mapped' => false,
                 'required' => true,
                 'label_html' => true,
@@ -55,28 +51,23 @@ class RegistrationFormType extends AbstractType
                     'class' => 'custom-control-label'
                 ],
                 'constraints' => [
-                    new IsTrue([
-                        'message' => 'Check the box.',
-                    ]),
+                    new IsTrue(),
                 ],
             ])
             ->add('plainPassword', PasswordType::class, [
-                'label' => 'Enter your password',
+                'label' => 'registration_form.enter_your_password',
                 'required' => true,
                 'trim' => true,
                 'mapped' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Please enter your email',
+                    'placeholder' => 'registration_form.placeholder.plainPassword',
                     'autocomplete' => 'new-password'
                 ],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter a password',
-                    ]),
+                    new NotBlank(),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
                         'max' => 4096,
                     ]),
                 ],

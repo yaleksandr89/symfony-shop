@@ -1,6 +1,6 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}My profile - RankedChoice{% endblock %}
+{% block title %}{{ 'personal_account.head'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-content">
@@ -8,44 +8,46 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="page-details mt-4">
-                        <h1 class="h4 mb-3 font-weight-normal title-gradient-1" id="page_header_title">Welcome, to your profile!</h1>
-                        <table class="table">
+                        <h1 class="h4 mb-3 font-weight-normal title-gradient-1" id="page_header_title">
+                            {{ 'personal_account.head'|trans }}!
+                        </h1>
+                        <table class="table text-left">
                             <tbody>
                             <tr>
-                                <td>Your email: </td>
+                                <td>{{ 'personal_account.head'|trans }}: </td>
                                 <td>{{ app.user.email }}</td>
                             </tr>
                             <tr>
-                                <td>Your full name: </td>
+                                <td>{{ 'personal_account.labels.full_name'|trans }}: </td>
                                 <td>{% if app.user.fullName %}{{ app.user.fullName }}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
-                                <td>Your phone: </td>
+                                <td>{{ 'personal_account.labels.phone'|trans }}: </td>
                                 <td>{% if app.user.phone %}{{ app.user.phone }}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
-                                <td>Your address: </td>
+                                <td>{{ 'personal_account.labels.address'|trans }}: </td>
                                 <td>{% if app.user.address %}{{ app.user.address }}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
-                                <td>Your zipcode: </td>
+                                <td>{{ 'personal_account.labels.zipcode'|trans }}: </td>
                                 <td>{% if app.user.zipcode %}{{ app.user.zipcode }}{% else %}-{% endif %}</td>
                             </tr>
                             </tbody>
                         </table>
 
                         <div class="alert alert-info">
-                            Please, before you make some order fill your full information.
+                            {{ 'personal_account.message'|trans }}
                         </div>
                         <hr/>
                         <div class="form-footer-buttons">
                             <a href="{{ path('main_profile_edit') }}" class="btn btn-link btn-dark">
                                 <i class="far fa-address-card"></i>
-                                <span>EDIT PROFILE INFO</span>
+                                <span>{{ 'personal_account.edit_profile'|trans }}</span>
                             </a>
                             <a href="{{ path('main_logout') }}" class="btn btn-link btn-dark">
                                 <i class="fas fa-sign-out-alt"></i>
-                                <span>LOGOUT</span>
+                                <span>{{ 'personal_account.logout'|trans }}</span>
                             </a>
                         </div>
                     </div>

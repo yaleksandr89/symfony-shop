@@ -1,108 +1,62 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}Homepage - RankedChoice{% endblock %}
-{% block page_keywords %}Jeans, Jackets{% endblock %}
-{% block page_description %}Main page of RankedChoice shop!{% endblock %}
+{% block title %}{{ 'homepage.head'|trans }}{% endblock %}
+{% block page_description %}{{ 'homepage.description'|trans }}!{% endblock %}
 
 {% block body %}
     <div class="container-fluid mt-2">
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="banner banner-big">
-                    <a href="#">
-                        <img src="{{ asset('build/images/banner/collection/banner_1.jpg') }}" alt="banner">
-                    </a>
+        {% if categories|length > 0 %}
+            <div class="row">
+                {% for category in categories %}
+                    {% if loop.index == 1 or loop.index == 2 %}
+                        <div class="col-lg-6">
+                            <div class="banner banner-big">
+                                <a href="{{ category.url }}">
+                                    <img src="{{ category.rand_product_img }}" alt="{{ category.title }}">
+                                </a>
 
-                    <div class="banner-content">
-                        <h3 class="banner-subtitle">
-                            New Collection!
-                        </h3>
-                        <h2 class="banner-title">
-                            Jeans
-                        </h2>
-                        <a href="#" class="btn btn-link">
-                            Show me
-                        </a>
-                    </div>
-                </div>
+                                <div class="banner-content">
+                                    <h3 class="banner-subtitle">
+                                        {{ 'category.new_collection'|trans }}!
+                                    </h3>
+                                    <h2 class="banner-title">
+                                        {{ category.title }}
+                                    </h2>
+                                    <a href="{{ category.url }}" class="btn btn-link">
+                                        {{ 'category.show_me'|trans }}!
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
+            {% if categories|length > 2 %}
+                <div class="row mt-1 justify-content-center align-items-center">
+                    {% for category in categories %}
+                        {% if loop.index != 1 and loop.index != 2 %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="banner banner-middle">
+                                    <a href="{{ category.url }}">
+                                        <img src="{{ category.rand_product_img }}" alt="{{ category.title }}">
+                                    </a>
 
-            <div class="col-lg-6">
-                <div class="banner banner-big">
-                    <a href="#">
-                        <img src="{{ asset('build/images/banner/collection/banner_2.jpg') }}" alt="banner">
-                    </a>
-
-                    <div class="banner-content">
-                        <h3 class="banner-subtitle">
-                            Discounts Over 50%
-                        </h3>
-                        <h2 class="banner-title">
-                            Jackets
-                        </h2>
-                        <a href="#" class="btn btn-link">
-                            Show me
-                        </a>
-                    </div>
+                                    <div class="banner-content">
+                                        <h3 class="banner-subtitle">
+                                            {{ 'category.unique'|trans }}!
+                                        </h3>
+                                        <a href="{{ category.url }}" class="btn btn-link">
+                                            {{ category.title }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-            </div>
-        </div>
-
-        <div class="row mt-1 justify-content-center align-items-center">
-            <div class="col-md-6 col-lg-4">
-                <div class="banner banner-middle">
-                    <a href="#">
-                        <img src="{{ asset('build/images/banner/collection/banner_3.jpg') }}" alt="banner">
-                    </a>
-
-                    <div class="banner-content">
-                        <h3 class="banner-subtitle">
-                            Unique!
-                        </h3>
-                        <a href="#" class="btn btn-link">
-                            Hats
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-4">
-                <div class="banner banner-middle">
-                    <a href="#">
-                        <img src="{{ asset('build/images/banner/collection/banner_4.jpg') }}" alt="banner">
-                    </a>
-
-                    <div class="banner-content">
-                        <h3 class="banner-subtitle">
-                            Fashionable!
-                        </h3>
-                        <a href="#" class="btn btn-link">
-                            Dresses
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-4">
-                <div class="banner banner-middle">
-                    <a href="#">
-                        <img src="{{ asset('build/images/banner/collection/banner_5.jpg') }}" alt="banner">
-                    </a>
-
-                    <div class="banner-content">
-                        <h3 class="banner-subtitle text-white">
-                            Branded!
-                        </h3>
-                        <a href="#" class="btn btn-link">
-                            Sneakers
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+            {% endif %}
+        {% endif %}
     </div>
 
-    {{ render(controller('App\\Controller\\Front\\EmbedController::showSimilarProducts', {
-        'productCount': 4
-    })) }}
+    {{ render(controller('App\\Controller\\Front\\EmbedController::showSimilarProducts', {'productCount': 4})) }}
 {% endblock %}

@@ -1,3 +1,20 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+front_index:
+    path: /
+    defaults:
+      _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+      path: '/%locale%'
+      permanent: true
+
+admin_login:
+  path: /admin/login
+  defaults:
+    _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    path: '/%locale%/admin/login'
+    permanent: true
+
+admin_dashboard:
+  path: /admin/dashboard
+  defaults:
+    _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    path: '/%locale%/admin/dashboard'
+    permanent: true

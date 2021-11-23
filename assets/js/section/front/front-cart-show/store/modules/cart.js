@@ -26,6 +26,7 @@ const state = () => ({
         user: {
             isLoggedIn: window.staticStore.isUserLoggedIn
         },
+        localization: window.staticStore.front_cart_localization,
     },
 });
 
@@ -56,7 +57,7 @@ const actions = {
             commit('setCart', {});
             commit('setAlert', {
                 type: 'info',
-                message: 'Your cart is empty ...'
+                message: state.staticStore.localization.cart_empty
             });
         }
     },

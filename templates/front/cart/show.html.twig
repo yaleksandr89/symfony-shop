@@ -1,8 +1,8 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}Your cart - RankedChoice{% endblock %}
-{% block page_keywords %}user cart, shop{% endblock %}
-{% block page_description %}User's cart on RankedChoice shop{% endblock %}
+{% block title %}{{ 'cart.head'|trans }}{% endblock %}
+{% block page_keywords %}...{% endblock %}
+{% block page_description %}...{% endblock %}
 
 {% block stylesheets %}
     {{ encore_entry_link_tags('appFrontCartShow') }}
@@ -14,7 +14,9 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="page-details mt-4">
-                        <h1 class="h4 font-weight-normal title-gradient-1">Your cart:</h1>
+                        <h1 class="h4 font-weight-normal title-gradient-1">
+                            {{ 'cart.head'|trans }}
+                        </h1>
                         <div id="app"></div>
                     </div>
                 </div>
@@ -35,6 +37,17 @@
         window.staticStore.urlOrder = '{{ path('api_orders_get_collection') }}';
         window.staticStore.urlViewProduct = '{{ path('main_product_show_blank') }}';
         window.staticStore.urlAssetImageProducts = '{{ asset('uploads/images/products') }}';
+        window.staticStore.front_cart_localization = {
+            'total_price': '{{ 'cart.total_price'|trans }}',
+            'cart_empty': '{{ 'cart.cart_empty'|trans }}',
+            'make_order': '{{ 'cart.make_order'|trans }}',
+            'login': '{{ 'cart.login'|trans }}',
+            'product': '{{ 'cart.product'|trans }}',
+            'quantity': '{{ 'cart.quantity'|trans }}',
+            'price': '{{ 'cart.price'|trans }}',
+            'actions': '{{ 'cart.actions'|trans }}',
+            'total': '{{ 'cart.total'|trans }}',
+        };
     </script>
     {{ encore_entry_script_tags('appFrontCartShow') }}
 {% endblock %}

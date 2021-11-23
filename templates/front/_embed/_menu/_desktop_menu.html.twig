@@ -8,44 +8,27 @@
     </a>
     <nav class="main-nav">
         <ul class="menu">
-            <li class="menu-item">
-                <a href="{{ path('main_category_show', {'slug': 'jeans'}) }}">
-                    <div>Jeans</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="{{ path('main_category_show', {'slug': 'hats'}) }}">
-                    <div>Hats</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="{{ path('main_category_show', {'slug': 'jackets'}) }}">
-                    <div>Jackets</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="{{ path('main_category_show', {'slug': 'dresses'}) }}">
-                    <div>Dresses</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="{{ path('main_category_show', {'slug': 'sneakers'}) }}">
-                    <div>Sneakers</div>
-                </a>
-            </li>
-
+            {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu')) }}
             <li class="menu-item font-weight-bold">
                 {% if app.user is not null and app.user.verified %}
                     <a href="{{ path('main_profile_index') }}">
-                        <div>Profile</div>
+                        <div>{{ 'header_menu.profile'|trans }}</div>
                     </a>
                 {% else %}
                     <a href="{{ path('main_login') }}">
-                        <div>Login</div>
+                        <div>{{ 'header_menu.login'|trans }}</div>
                     </a>
                 {% endif %}
             </li>
+            <li class="menu-item">
+                <select class="custom-select custom-select-sm" id="desktop-select-language">
+                    <option value="/en/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.en'|trans }}</option>
+                    <option value="/ru/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.ru'|trans }}</option>
+                </select>
+            </li>
+            <li class="menu-item">
+                {{ include('front/_embed/_menu/_menu_cart.html.twig') }}
+            </li>
         </ul>
     </nav>
-    {{ include('front/_embed/_menu/_menu_cart.html.twig') }}
 </div>

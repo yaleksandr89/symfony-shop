@@ -1,8 +1,8 @@
 {% extends 'front/base.html.twig' %}
 
-{% block title %}{{ product.title }} - RankedChoice{% endblock %}
-{% block page_keywords %}Jeans, Ranked Choice Homepage, Jackets{% endblock %}
-{% block page_description %}Product page of RankedChoice shop!{% endblock %}
+{% block title %}{{ product.title }}{% endblock %}
+{% block page_keywords %}...{% endblock %}
+{% block page_description %}...{% endblock %}
 
 {% block body %}
 
@@ -52,7 +52,7 @@
                             <div class="product-full-action">
                                 <a href="#" class="btn btn-link btn-dark" data-add-cart>
                                     <i class="fas fa-cart-plus"></i>
-                                    <span>add to cart</span>
+                                    <span>{{ 'product.add_to_cart'|trans }}</span>
                                 </a>
                             </div>
                         </div>

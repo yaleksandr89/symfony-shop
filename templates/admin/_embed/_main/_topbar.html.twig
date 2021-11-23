@@ -13,7 +13,7 @@
     </button>
 
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item dropdown no-arrow">
+        <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">{% if app.user is not empty %}{{ app.user.userIdentifier }}{% endif %}</span>
@@ -27,5 +27,8 @@
             </div>
         </li>
     </ul>
-
+    <select class="custom-select custom-select-sm select-language" id="desktop-select-language">
+        <option value="/en/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.en'|trans }}</option>
+        <option value="/ru/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.ru'|trans }}</option>
+    </select>
 </nav>

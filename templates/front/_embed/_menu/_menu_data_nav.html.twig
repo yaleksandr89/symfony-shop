@@ -1,0 +1,7 @@
+{% for category in nav_categories %}
+    <li class="menu-item">
+        <a href="{{ category.url }}">
+            <div>{{ category.title }}</div>
+        </a>
+    </li>
+{% endfor %}

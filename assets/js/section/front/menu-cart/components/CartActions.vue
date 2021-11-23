@@ -1,10 +1,10 @@
 <template>
   <div class="actions">
     <a :href="staticStore.url.viewCart" class="btn btn-success">
-      View cart
+      {{ staticStore.localization.view_cart }}
     </a>
     <a :href="'#'" class="btn btn-cancel mt-1" @click.prevent="cleanCart">
-      Checkout
+      {{ staticStore.localization.checkout }}
     </a>
   </div>
 </template>
@@ -18,7 +18,7 @@ export default {
     ...mapState('cart', ['staticStore']),
   },
   methods: {
-    ...mapActions('cart', ['cleanCart'])
+    ...mapActions('cart', ['cleanCart']),
   },
 }
 </script>

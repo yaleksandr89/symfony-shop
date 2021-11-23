@@ -12,14 +12,14 @@
                class="btn btn-success mb-3 text-white"
                @click.prevent="makeOrder"
             >
-              MAKE ORDER
+              {{ staticStore.localization.make_order }}
             </a>
             <a href="#"
                 v-else
                 class="btn btn-success mb-3 text-white"
                 @click="redirectToLoginPage"
             >
-              SIGN IN
+              {{ staticStore.localization.login }}
             </a>
           </div>
         </div>

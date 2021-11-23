@@ -49,6 +49,4 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
             OrderCreatedFromCartEvent::class => 'onOrderCreatedFromCartEvent',
         ];
     }
-
-
 }

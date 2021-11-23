@@ -2,11 +2,11 @@
   <table class="table table-cart table-mobile main-cart-show">
     <thead>
     <tr>
-      <td>Product</td>
-      <td>Price</td>
-      <td>Quantity</td>
-      <td>Total</td>
-      <td>Actions</td>
+      <td>{{ staticStore.localization.product }}</td>
+      <td>{{ staticStore.localization.price }}</td>
+      <td>{{ staticStore.localization.quantity }}</td>
+      <td>{{ staticStore.localization.total }}</td>
+      <td>{{ staticStore.localization.actions }}</td>
     </tr>
     </thead>
     <tbody>
@@ -27,7 +27,7 @@ export default {
   name: "CartProductList",
   components: {CartProductItem},
   computed: {
-    ...mapState('cart', ['cart']),
+    ...mapState('cart', ['cart', 'staticStore']),
   },
 }
 </script>
