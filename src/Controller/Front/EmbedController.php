@@ -29,7 +29,6 @@ class EmbedController extends AbstractController
         $this->urlGenerator = $urlGenerator;
         return $this;
     }
-
     // Autowiring <<<
 
     public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, int $categoryId = null): Response
@@ -43,9 +42,10 @@ class EmbedController extends AbstractController
 
     /**
      * @param CategoryRepository $categoryRepository
+     * @param string|null $isActiveItemMenu
      * @return Response
      */
-    public function showHeaderMenu(CategoryRepository $categoryRepository): Response
+    public function showHeaderMenu(CategoryRepository $categoryRepository, ?string $isActiveItemMenu): Response
     {
         $preparedListCategory = [];
 
@@ -57,8 +57,9 @@ class EmbedController extends AbstractController
             ];
         }
 
-        return $this->render('front/_embed/_menu/_menu_data_nav.html.twig', [
+        return $this->render('front/_embed/_menu/_menu_nav_item.twig', [
             'nav_categories' => $preparedListCategory,
+            'isActiveItemMenu' => $isActiveItemMenu,
         ]);
     }
 }

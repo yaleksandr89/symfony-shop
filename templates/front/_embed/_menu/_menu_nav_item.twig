@@ -1,5 +1,5 @@
 {% for category in nav_categories %}
-    <li class="menu-item">
+    <li class="menu-item {% if category.title|lower == isActiveItemMenu %}active{% endif %}">
         <a href="{{ category.url }}">
             <div>{{ category.title }}</div>
         </a>
