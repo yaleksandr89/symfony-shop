@@ -11,6 +11,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 class EmailVerifier
@@ -50,12 +51,7 @@ class EmailVerifier
      */
     public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
     {
-        $signatureComponents = $this->verifyEmailHelper->generateSignature(
-            $verifyEmailRouteName,
-            (string)$user->getId(),
-            $user->getEmail(),
-            ['id' => (string)$user->getId()]
-        );
+        $signatureComponents = $this->generateEmailSignature($verifyEmailRouteName, $user);
 
         $context = $email->getContext();
         $context['signedUrl'] = $signatureComponents->getSignedUrl();
@@ -80,5 +76,15 @@ class EmailVerifier
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
+
+    public function generateEmailSignature(string $verifyEmailRouteName, UserInterface $user): VerifyEmailSignatureComponents
+    {
+        return $this->verifyEmailHelper->generateSignature(
+            $verifyEmailRouteName,
+            (string)$user->getId(),
+            $user->getEmail(),
+            ['id' => (string)$user->getId()]
+        );
     }
 }
