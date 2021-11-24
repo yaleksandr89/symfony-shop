@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Messanger\Message\Event;
+namespace App\Messenger\Message\Event;
 
 use App\Entity\User;
 

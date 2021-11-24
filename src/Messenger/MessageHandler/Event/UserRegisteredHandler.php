@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Messanger\MessageHandler\Event;
+namespace App\Messenger\MessageHandler\Event;
 
 use App\Entity\User;
-use App\Messanger\Message\Event\EventUserRegisteredEvent;
+use App\Messenger\Message\Event\EventUserRegisteredEvent;
 use App\Security\Verifier\EmailVerifier;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use App\Utils\Manager\UserManager;

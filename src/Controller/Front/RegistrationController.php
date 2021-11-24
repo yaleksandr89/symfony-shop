@@ -6,16 +6,13 @@ namespace App\Controller\Front;
 
 use App\Entity\User;
 use App\Form\Front\RegistrationFormType;
-use App\Messanger\Message\Event\EventUserRegisteredEvent;
+use App\Messenger\Message\Event\EventUserRegisteredEvent;
 use App\Repository\UserRepository;
 use App\Security\Verifier\EmailVerifier;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
@@ -41,8 +38,8 @@ class RegistrationController extends AbstractController
      * @Route("/registration", name="main_registration")
      * @param Request $request
      * @param UserPasswordHasherInterface $passwordEncoder
+     * @param MessageBusInterface $messageBus
      * @return Response
-     * @throws TransportExceptionInterface
      */
     public function registration(Request $request, UserPasswordHasherInterface $passwordEncoder, MessageBusInterface $messageBus): Response
     {
@@ -70,18 +67,6 @@ class RegistrationController extends AbstractController
             $event = new EventUserRegisteredEvent($user->getId());
             $messageBus->dispatch($event);
 
-            // generate a signed url and email it to the user
-            /*
-            $this->emailVerifier->sendEmailConfirmation(
-                'main_verify_email',
-                $user,
-                (new TemplatedEmail())
-                    ->from(new Address('no-reply@alexanderyurchenko.ru', 'No Reply'))
-                    ->to($user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('front/email/security/confirmation_email.html.twig')
-            );
-            */
             // do anything else you need here, like send an email
             $this->addFlash('success', 'An email has been sent. Please check your inbox to complete registration.');
 
