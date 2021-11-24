@@ -10,7 +10,7 @@ framework:
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             async:
-                dns: '%env(MESSENGER_TRANSPORT_DSN)%'
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 retry_strategy:
                     delay: 500
             # failed: 'doctrine://default?queue_name=failed'
@@ -18,4 +18,4 @@ framework:
 
         routing:
             # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            'App\Messanger\Message\Event\EventUserRegisteredEvent': async
