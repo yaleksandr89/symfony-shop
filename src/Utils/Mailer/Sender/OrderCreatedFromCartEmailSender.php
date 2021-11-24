@@ -6,46 +6,10 @@ namespace App\Utils\Mailer\Sender;
 
 use App\Entity\Order;
 use App\Entity\User;
-use App\Utils\Mailer\DTO\MailerOptionModel;
-use App\Utils\Mailer\MailerSender;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class OrderCreatedFromCartEmailSender
+class OrderCreatedFromCartEmailSender extends BaseSender
 {
-    // >>> Autowiring
-    /**
-     * @var MailerSender
-     */
-    private $mailerSender;
-
-    /**
-     * @required
-     * @param MailerSender $mailerSender
-     * @return OrderCreatedFromCartEmailSender
-     */
-    public function setMailerSender(MailerSender $mailerSender): OrderCreatedFromCartEmailSender
-    {
-        $this->mailerSender = $mailerSender;
-        return $this;
-    }
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
-
-    /**
-     * @required
-     * @param UrlGeneratorInterface $urlGenerator
-     * @return OrderCreatedFromCartEmailSender
-     */
-    public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): OrderCreatedFromCartEmailSender
-    {
-        $this->urlGenerator = $urlGenerator;
-        return $this;
-    }
-    // Autowiring <<<
-
     /**
      * @param Order $order
      * @return void
@@ -86,13 +50,5 @@ class OrderCreatedFromCartEmailSender
             ]);
 
         $this->mailerSender->sendTemplatedEmail($mailerOptions);
-    }
-
-    /**
-     * @return MailerOptionModel
-     */
-    private function getMailerOptions(): MailerOptionModel
-    {
-        return (new MailerOptionModel());
     }
 }
