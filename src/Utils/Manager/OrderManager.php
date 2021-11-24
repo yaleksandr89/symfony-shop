@@ -11,6 +11,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 
 final class OrderManager extends AbstractBaseManager
@@ -39,6 +40,16 @@ final class OrderManager extends AbstractBaseManager
     public function getRepository(): ObjectRepository
     {
         return $this->em->getRepository(Order::class);
+    }
+
+    /**
+     * alias: 'o'
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder(): QueryBuilder
+    {
+        return $this->getRepository()
+            ->createQueryBuilder('o');
     }
 
     /**

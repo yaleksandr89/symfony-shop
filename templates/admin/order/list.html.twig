@@ -16,19 +16,19 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Full name</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Id', 'o.id') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Full name', 'u.id') }}</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>Created at</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Created at', 'o.createdAt') }}</th>
                         <th>Count of products</th>
-                        <th>Total price</th>
-                        <th>Status</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Total price', 'o.totalPrice') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Status', 'o.status') }}</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for order in orders %}
+                    {% for order in pagination %}
                         <tr>
                             <td>{{ order.id }}</td>
                             <td>{{ order.owner.fullname|default('Fullanme is\'t specified') }}</td>
@@ -45,6 +45,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
             </div>
         </div>
     </div>

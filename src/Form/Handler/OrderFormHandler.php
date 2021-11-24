@@ -8,6 +8,9 @@ use App\Entity\Order;
 use App\Form\DTO\EditOrderModel;
 use App\Utils\Manager\OrderManager;
 use DateTimeImmutable;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class OrderFormHandler
 {
@@ -15,10 +18,12 @@ class OrderFormHandler
      * @var OrderManager
      */
     private OrderManager $orderManager;
+    private PaginatorInterface $paginator;
 
-    public function __construct(OrderManager $orderManager)
+    public function __construct(OrderManager $orderManager, PaginatorInterface $paginator)
     {
         $this->orderManager = $orderManager;
+        $this->paginator = $paginator;
     }
 
     /**
@@ -40,6 +45,26 @@ class OrderFormHandler
         $this->orderManager->flush();
 
         return $order;
+    }
+
+    /**
+     * @param Request $request
+     * @param $filterForm
+     * @return PaginationInterface
+     */
+    public function processOrderFiltersForm(Request $request, $filterForm): PaginationInterface
+    {
+        $query = $this->orderManager
+            ->getQueryBuilder()
+            ->leftJoin('o.owner', 'u')
+            ->where('o.isDeleted = :isDeleted')
+            ->setParameter('isDeleted', false)
+            ->getQuery();
+
+        return $this->paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+        );
     }
 
     /**

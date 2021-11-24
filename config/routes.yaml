@@ -5,6 +5,13 @@ front_index:
       path: '/%locale%'
       permanent: true
 
+admin_redirect_to_dashboard:
+  path: /admin
+  defaults:
+    _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    path: '/%locale%/admin/dashboard'
+    permanent: true
+
 admin_login:
   path: /admin/login
   defaults:

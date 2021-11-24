@@ -21,21 +21,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderController extends AbstractController
 {
-    // >>> Autowiring
-    // Autowiring <<<
-
     /**
      * @Route("/list", name="list")
-     * @param OrderRepository $orderRepository
+     * @param Request $request
+     * @param OrderFormHandler $orderFormHandler
      * @return Response
      */
-    public function list(OrderRepository $orderRepository): Response
+    public function list(Request $request, OrderFormHandler $orderFormHandler): Response
     {
-        /** @var Order $orders */
-        $orders = $orderRepository->findBy(['isDeleted' => false], ['id' => 'DESC'], 50);
+        $filterForm = null;
+        $pagination =  $orderFormHandler->processOrderFiltersForm($request, $filterForm);
 
         return $this->render('admin/order/list.html.twig', [
-            'orders' => $orders,
+            'pagination' => $pagination,
             'orderStatusChoice' => OrderStaticStorage::getOrderStatusChoices()
         ]);
     }

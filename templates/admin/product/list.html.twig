@@ -16,18 +16,18 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Category</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Id', 'p.id') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Category', 'c.id') }}</th>
                         <th>Title</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Price', 'p.price') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Quantity', 'p.quantity') }}</th>
                         <th>Cover</th>
                         <th>Is published</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for product in products %}
+                    {% for product in pagination %}
                         <tr>
                             <td>{{ product.id }}</td>
                             <td>
@@ -58,6 +58,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
             </div>
         </div>
     </div>

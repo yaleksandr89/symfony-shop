@@ -9,7 +9,10 @@ use App\Form\DTO\EditProductModel;
 use App\Utils\File\FileSaver;
 use App\Utils\FileSystem\FilesystemWorker;
 use App\Utils\Manager\ProductManager;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductFormHandler
 {
@@ -28,19 +31,25 @@ class ProductFormHandler
      */
     private FilesystemWorker $filesystemWorker;
 
+    /** @var PaginatorInterface */
+    private PaginatorInterface $paginator;
+
     /**
      * @param ProductManager $productManager
      * @param FileSaver $fileSaver
      * @param FilesystemWorker $filesystemWorker
+     * @param PaginatorInterface $paginator
      */
     public function __construct(
         ProductManager $productManager,
         FileSaver $fileSaver,
-        FilesystemWorker $filesystemWorker
+        FilesystemWorker $filesystemWorker,
+        PaginatorInterface $paginator
     ) {
         $this->fileSaver = $fileSaver;
         $this->productManager = $productManager;
         $this->filesystemWorker = $filesystemWorker;
+        $this->paginator = $paginator;
     }
 
     /**
@@ -77,6 +86,26 @@ class ProductFormHandler
         }
 
         return $product;
+    }
+
+    /**
+     * @param Request $request
+     * @param $filterForm
+     * @return PaginationInterface
+     */
+    public function processOrderFiltersForm(Request $request, $filterForm): PaginationInterface
+    {
+        $query = $this->productManager
+            ->getQueryBuilder()
+            ->leftJoin('p.category', 'c')
+            ->where('p.isDeleted = :isDeleted')
+            ->setParameter('isDeleted', false)
+            ->getQuery();
+
+        return $this->paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+        );
     }
 
     /**
