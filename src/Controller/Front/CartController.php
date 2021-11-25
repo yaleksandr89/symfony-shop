@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Front;
 
+use App\Entity\User;
 use App\Repository\CartRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,8 +40,10 @@ class CartController extends AbstractController
     public function create(Request $request, OrderManager $orderManager): Response
     {
         $cartToken = $request->cookies->get('CART_TOKEN');
+
+        /** @var User $user */
         $user = $this->getUser();
-dd($user);
+
         $orderManager->createOrderFromCartByToken($cartToken, $user);
 
         $redirectUrl = $this->generateUrl('main_cart_show');
@@ -50,14 +53,5 @@ dd($user);
         $response->headers->clearCookie('CART_TOKEN', '/', null);
 
         return $response;
-//        if (!$user) {
-//            $this->addFlash('warning', 'Please log in to the site!');
-//            return $this->redirectToRoute('main_homepage');
-//        }
-//
-//        $orderManager->createOrderFromCartBySessionId($phpSessionId, $user);
-//
-//        $this->addFlash('success', 'The order successfully created');
-//        return $this->redirectToRoute('main_cart_show');
     }
 }
