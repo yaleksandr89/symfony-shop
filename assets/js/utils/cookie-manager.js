@@ -1,6 +1,4 @@
-/**
- * @see https://learn.javascript.ru/cookie
- */
+/** @see https://learn.javascript.ru/cookie */
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',

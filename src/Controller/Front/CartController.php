@@ -7,6 +7,7 @@ namespace App\Controller\Front;
 use App\Repository\CartRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,8 +22,8 @@ class CartController extends AbstractController
      */
     public function show(Request $request, CartRepository $cartRepository): Response
     {
-        $phpSessionId = $this->getPhpSessionId($request);
-        $cart = $cartRepository->findOneBy(['sessionId' => $phpSessionId]);
+        $cartToken = $request->cookies->get('CART_TOKEN');
+        $cart = $cartRepository->findOneBy(['token' => $cartToken]);
 
         return $this->render('front/cart/show.html.twig', [
             'cart' => $cart,
@@ -37,26 +38,26 @@ class CartController extends AbstractController
      */
     public function create(Request $request, OrderManager $orderManager): Response
     {
-        $phpSessionId = $this->getPhpSessionId($request);
+        $cartToken = $request->cookies->get('CART_TOKEN');
         $user = $this->getUser();
+dd($user);
+        $orderManager->createOrderFromCartByToken($cartToken, $user);
 
-        if (!$user) {
-            $this->addFlash('warning', 'Please log in to the site!');
-            return $this->redirectToRoute('main_homepage');
-        }
+        $redirectUrl = $this->generateUrl('main_cart_show');
 
-        $orderManager->createOrderFromCartBySessionId($phpSessionId, $user);
+        // Пример удаления куки 'CART_TOKEN' через контроллер
+        $response = new RedirectResponse($redirectUrl);
+        $response->headers->clearCookie('CART_TOKEN', '/', null);
 
-        $this->addFlash('success', 'The order successfully created');
-        return $this->redirectToRoute('main_cart_show');
-    }
-
-    /**
-     * @param Request $request
-     * @return string|null
-     */
-    private function getPhpSessionId(Request $request): ?string
-    {
-        return $request->cookies->get('PHPSESSID');
+        return $response;
+//        if (!$user) {
+//            $this->addFlash('warning', 'Please log in to the site!');
+//            return $this->redirectToRoute('main_homepage');
+//        }
+//
+//        $orderManager->createOrderFromCartBySessionId($phpSessionId, $user);
+//
+//        $this->addFlash('success', 'The order successfully created');
+//        return $this->redirectToRoute('main_cart_show');
     }
 }
