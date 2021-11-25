@@ -6,9 +6,7 @@ namespace App\Utils\Generator;
 
 use Exception;
 
-/**
- * @see https://thisinterestsme.com/php-random-password/
- */
+/** @see https://thisinterestsme.com/php-random-password/ */
 class PasswordGenerator
 {
     /**
