@@ -153,6 +153,9 @@
     "league/oauth2-google": {
         "version": "4.0.0"
     },
+    "lexik/form-filter-bundle": {
+        "version": "v7.0.1"
+    },
     "lorenzo/pinky": {
         "version": "1.0.5"
     },

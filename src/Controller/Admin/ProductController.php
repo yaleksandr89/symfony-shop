@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Product;
+use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\EditProductModel;
 use App\Form\Admin\EditProductFormType;
 use App\Form\Handler\ProductFormHandler;
@@ -47,11 +48,14 @@ class ProductController extends AbstractController
     public function list(Request $request, ProductFormHandler $productFormHandler): Response
     {
 
-        $filterForm = null;
+        $filterForm = $this->createForm(ProductFilterFormType::class, EditProductModel::makeFromProduct());
+        $filterForm->handleRequest($request);
+
         $pagination =  $productFormHandler->processOrderFiltersForm($request, $filterForm);
 
         return $this->render('admin/product/list.html.twig', [
-            'pagination' => $pagination
+            'pagination' => $pagination,
+            'form' => $filterForm->createView()
         ]);
     }
 

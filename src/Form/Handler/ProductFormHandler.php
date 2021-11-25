@@ -11,45 +11,46 @@ use App\Utils\FileSystem\FilesystemWorker;
 use App\Utils\Manager\ProductManager;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductFormHandler
 {
-    /**
-     * @var FileSaver
-     */
+    /** @var FileSaver */
     private FileSaver $fileSaver;
 
-    /**
-     * @var ProductManager
-     */
+    /** @var ProductManager */
     private ProductManager $productManager;
 
-    /**
-     * @var FilesystemWorker
-     */
+    /** @var FilesystemWorker */
     private FilesystemWorker $filesystemWorker;
 
     /** @var PaginatorInterface */
     private PaginatorInterface $paginator;
+
+    /** @var FilterBuilderUpdater */
+    private FilterBuilderUpdater $filterBuilderUpdater;
 
     /**
      * @param ProductManager $productManager
      * @param FileSaver $fileSaver
      * @param FilesystemWorker $filesystemWorker
      * @param PaginatorInterface $paginator
+     * @param FilterBuilderUpdater $filterBuilderUpdater
      */
     public function __construct(
         ProductManager $productManager,
         FileSaver $fileSaver,
         FilesystemWorker $filesystemWorker,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,
+        FilterBuilderUpdater $filterBuilderUpdater
     ) {
         $this->fileSaver = $fileSaver;
         $this->productManager = $productManager;
         $this->filesystemWorker = $filesystemWorker;
         $this->paginator = $paginator;
+        $this->filterBuilderUpdater = $filterBuilderUpdater;
     }
 
     /**
@@ -93,17 +94,20 @@ class ProductFormHandler
      * @param $filterForm
      * @return PaginationInterface
      */
-    public function processOrderFiltersForm(Request $request, $filterForm): PaginationInterface
+    public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
-        $query = $this->productManager
+        $queryBuilder = $this->productManager
             ->getQueryBuilder()
             ->leftJoin('p.category', 'c')
             ->where('p.isDeleted = :isDeleted')
-            ->setParameter('isDeleted', false)
-            ->getQuery();
+            ->setParameter('isDeleted', false);
+
+        if ($filterForm->isSubmitted()) {
+            $this->filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
+        }
 
         return $this->paginator->paginate(
-            $query,
+            $queryBuilder->getQuery(),
             $request->query->getInt('page', 1),
         );
     }

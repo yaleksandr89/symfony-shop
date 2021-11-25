@@ -1,0 +1,75 @@
+<div class="cart shadow mb-4">
+    <div class="card-header py-3">
+        {% include 'admin/_embed/_filters/_header.html.twig' with {
+            'id': 'order_list_filters_btn'
+        }%}
+    </div>
+    <div class="card-body" id="order_list_filters_block">
+        {{ form_start(form) }}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>Filters</td>
+                        <td>Value</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ form_label(form.id) }}</td>
+                        <td>
+                            {{ form_widget(form.id) }}
+                            <div class="form-error">
+                                {{ form_errors(form.id) }}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ form_label(form.owner) }}</td>
+                        <td>
+                            {{ form_widget(form.owner) }}
+                            <div class="form-error">
+                                {{ form_errors(form.owner) }}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ form_label(form.status) }}</td>
+                        <td>
+                            {{ form_widget(form.status) }}
+                            <div class="form-error">
+                                {{ form_errors(form.status) }}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ form_label(form.totalPrice) }}</td>
+                        <td>
+                            {{ form_widget(form.totalPrice) }}
+                            <div class="form-error">
+                                {{ form_errors(form.totalPrice) }}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ form_label(form.createdAt) }}</td>
+                        <td>
+                            {{ form_widget(form.createdAt) }}
+                            <div class="form-error">
+                                {{ form_errors(form.createdAt) }}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">
+                            {% include 'admin/order/_embed/_table_actions_btn.html.twig' %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>

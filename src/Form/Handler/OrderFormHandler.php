@@ -10,20 +10,31 @@ use App\Utils\Manager\OrderManager;
 use DateTimeImmutable;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class OrderFormHandler
 {
-    /**
-     * @var OrderManager
-     */
+    /** @var OrderManager */
     private OrderManager $orderManager;
+
+    /** @var PaginatorInterface */
     private PaginatorInterface $paginator;
 
-    public function __construct(OrderManager $orderManager, PaginatorInterface $paginator)
+    /** @var FilterBuilderUpdater */
+    private FilterBuilderUpdater $filterBuilderUpdater;
+
+    /**
+     * @param OrderManager $orderManager
+     * @param PaginatorInterface $paginator
+     * @param FilterBuilderUpdater $filterBuilderUpdater
+     */
+    public function __construct(OrderManager $orderManager, PaginatorInterface $paginator, FilterBuilderUpdater $filterBuilderUpdater)
     {
         $this->orderManager = $orderManager;
         $this->paginator = $paginator;
+        $this->filterBuilderUpdater = $filterBuilderUpdater;
     }
 
     /**
@@ -49,20 +60,23 @@ class OrderFormHandler
 
     /**
      * @param Request $request
-     * @param $filterForm
+     * @param FormInterface $filterForm
      * @return PaginationInterface
      */
-    public function processOrderFiltersForm(Request $request, $filterForm): PaginationInterface
+    public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
-        $query = $this->orderManager
+        $queryBuilder = $this->orderManager
             ->getQueryBuilder()
             ->leftJoin('o.owner', 'u')
             ->where('o.isDeleted = :isDeleted')
-            ->setParameter('isDeleted', false)
-            ->getQuery();
+            ->setParameter('isDeleted', false);
+
+        if ($filterForm->isSubmitted()) {
+            $this->filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
+        }
 
         return $this->paginator->paginate(
-            $query,
+            $queryBuilder->getQuery(),
             $request->query->getInt('page', 1),
         );
     }

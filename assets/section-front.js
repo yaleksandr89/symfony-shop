@@ -22,4 +22,4 @@ import './css/section/front/_spinner.css';
 import './css/section/front/_typography.css';
 
 require('./js/section/front/utils/menu');
-require('./js/section/front/main');
+require('./js/utils/changed-locale');

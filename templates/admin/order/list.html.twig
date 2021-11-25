@@ -3,6 +3,9 @@
 {% block title_detailed %}All orders{% endblock %}
 
 {% block body %}
+    {% include 'admin/order/_embed/_table_filtration.html.twig' with {
+        'form': form
+    } %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_header_action.html.twig' with
@@ -51,4 +54,20 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const filterVisibilityBtnElement = document.getElementById('order_list_filters_btn');
+        const filterVisibilityBlockElement = document.getElementById('order_list_filters_block');
+        const filterSection = 'order_list';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterVisibilityBtnElement.addEventListener('click', () =>{
+                 toggleFiltersVisibility(filterSection);
+                 changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+            });
+            changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+        });
+    </script>
 {% endblock %}

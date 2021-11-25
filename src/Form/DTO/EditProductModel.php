@@ -6,6 +6,7 @@ namespace App\Form\DTO;
 
 use App\Entity\Category;
 use App\Entity\Product;
+use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -67,12 +68,17 @@ class EditProductModel
     public $isDeleted;
 
     /**
+     * @var DateTime
+     */
+    public $createdAt;
+
+    /**
      * @param Product|null $product
      * @return static
      */
-    public static function makeFromProduct(?Product $product): static
+    public static function makeFromProduct(?Product $product = null): static
     {
-        $model = new self();
+        $model = new static();
 
         if (!$product) {
             return $model;
@@ -86,6 +92,7 @@ class EditProductModel
         $model->category = $product->getCategory();
         $model->isPublished = $product->getIsPublished();
         $model->isDeleted = $product->getIsDeleted();
+        $model->createdAt = $product->getCreatedAt();
 
         return $model;
     }
