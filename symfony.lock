@@ -123,6 +123,12 @@
     "imagine/imagine": {
         "version": "1.2.4"
     },
+    "knplabs/knp-components": {
+        "version": "v3.3.0"
+    },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v5.7.0"
+    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.8",
         "recipe": {
@@ -146,6 +152,9 @@
     },
     "league/oauth2-google": {
         "version": "4.0.0"
+    },
+    "lexik/form-filter-bundle": {
+        "version": "v7.0.1"
     },
     "lorenzo/pinky": {
         "version": "1.0.5"

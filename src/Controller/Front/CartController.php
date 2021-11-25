@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Front;
 
+use App\Entity\User;
 use App\Repository\CartRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,8 +23,8 @@ class CartController extends AbstractController
      */
     public function show(Request $request, CartRepository $cartRepository): Response
     {
-        $phpSessionId = $this->getPhpSessionId($request);
-        $cart = $cartRepository->findOneBy(['sessionId' => $phpSessionId]);
+        $cartToken = $request->cookies->get('CART_TOKEN');
+        $cart = $cartRepository->findOneBy(['token' => $cartToken]);
 
         return $this->render('front/cart/show.html.twig', [
             'cart' => $cart,
@@ -37,26 +39,19 @@ class CartController extends AbstractController
      */
     public function create(Request $request, OrderManager $orderManager): Response
     {
-        $phpSessionId = $this->getPhpSessionId($request);
+        $cartToken = $request->cookies->get('CART_TOKEN');
+
+        /** @var User $user */
         $user = $this->getUser();
 
-        if (!$user) {
-            $this->addFlash('warning', 'Please log in to the site!');
-            return $this->redirectToRoute('main_homepage');
-        }
+        $orderManager->createOrderFromCartByToken($cartToken, $user);
 
-        $orderManager->createOrderFromCartBySessionId($phpSessionId, $user);
+        $redirectUrl = $this->generateUrl('main_cart_show');
 
-        $this->addFlash('success', 'The order successfully created');
-        return $this->redirectToRoute('main_cart_show');
-    }
+        // Пример удаления куки 'CART_TOKEN' через контроллер
+        $response = new RedirectResponse($redirectUrl);
+        $response->headers->clearCookie('CART_TOKEN', '/', null);
 
-    /**
-     * @param Request $request
-     * @return string|null
-     */
-    private function getPhpSessionId(Request $request): ?string
-    {
-        return $request->cookies->get('PHPSESSID');
+        return $response;
     }
 }

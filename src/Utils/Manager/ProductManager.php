@@ -7,6 +7,7 @@ namespace App\Utils\Manager;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 
 final class ProductManager extends AbstractBaseManager
@@ -38,6 +39,16 @@ final class ProductManager extends AbstractBaseManager
     public function getRepository(): ObjectRepository
     {
         return $this->em->getRepository(Product::class);
+    }
+
+    /**
+     * alias: 'p'
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder(): QueryBuilder
+    {
+        return $this->getRepository()
+            ->createQueryBuilder('p');
     }
 
     /**

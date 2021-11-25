@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Product;
+use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\EditProductModel;
 use App\Form\Admin\EditProductFormType;
 use App\Form\Handler\ProductFormHandler;
@@ -40,16 +41,21 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/list", name="list")
-     * @param ProductRepository $productRepository
+     * @param Request $request
+     * @param ProductFormHandler $productFormHandler
      * @return Response
      */
-    public function list(ProductRepository $productRepository): Response
+    public function list(Request $request, ProductFormHandler $productFormHandler): Response
     {
-        //$products = $this->productRepository->findAll();
-        $products = $this->productRepository->findBy(['isDeleted' => false], ['id' => 'DESC'], 50);
+
+        $filterForm = $this->createForm(ProductFilterFormType::class, EditProductModel::makeFromProduct());
+        $filterForm->handleRequest($request);
+
+        $pagination =  $productFormHandler->processOrderFiltersForm($request, $filterForm);
 
         return $this->render('admin/product/list.html.twig', [
-            'products' => $products
+            'pagination' => $pagination,
+            'form' => $filterForm->createView()
         ]);
     }
 

@@ -8,17 +8,33 @@ use App\Entity\Order;
 use App\Form\DTO\EditOrderModel;
 use App\Utils\Manager\OrderManager;
 use DateTimeImmutable;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
+use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class OrderFormHandler
 {
-    /**
-     * @var OrderManager
-     */
+    /** @var OrderManager */
     private OrderManager $orderManager;
 
-    public function __construct(OrderManager $orderManager)
+    /** @var PaginatorInterface */
+    private PaginatorInterface $paginator;
+
+    /** @var FilterBuilderUpdater */
+    private FilterBuilderUpdater $filterBuilderUpdater;
+
+    /**
+     * @param OrderManager $orderManager
+     * @param PaginatorInterface $paginator
+     * @param FilterBuilderUpdater $filterBuilderUpdater
+     */
+    public function __construct(OrderManager $orderManager, PaginatorInterface $paginator, FilterBuilderUpdater $filterBuilderUpdater)
     {
         $this->orderManager = $orderManager;
+        $this->paginator = $paginator;
+        $this->filterBuilderUpdater = $filterBuilderUpdater;
     }
 
     /**
@@ -40,6 +56,29 @@ class OrderFormHandler
         $this->orderManager->flush();
 
         return $order;
+    }
+
+    /**
+     * @param Request $request
+     * @param FormInterface $filterForm
+     * @return PaginationInterface
+     */
+    public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
+    {
+        $queryBuilder = $this->orderManager
+            ->getQueryBuilder()
+            ->leftJoin('o.owner', 'u')
+            ->where('o.isDeleted = :isDeleted')
+            ->setParameter('isDeleted', false);
+
+        if ($filterForm->isSubmitted()) {
+            $this->filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
+        }
+
+        return $this->paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+        );
     }
 
     /**

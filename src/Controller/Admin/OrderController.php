@@ -7,9 +7,9 @@ namespace App\Controller\Admin;
 use App\Entity\Order;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Form\Admin\EditOrderFormType;
+use App\Form\Admin\FilterType\OrderFilterFormType;
 use App\Form\DTO\EditOrderModel;
 use App\Form\Handler\OrderFormHandler;
-use App\Repository\OrderRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,22 +21,23 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderController extends AbstractController
 {
-    // >>> Autowiring
-    // Autowiring <<<
-
     /**
      * @Route("/list", name="list")
-     * @param OrderRepository $orderRepository
+     * @param Request $request
+     * @param OrderFormHandler $orderFormHandler
      * @return Response
      */
-    public function list(OrderRepository $orderRepository): Response
+    public function list(Request $request, OrderFormHandler $orderFormHandler): Response
     {
-        /** @var Order $orders */
-        $orders = $orderRepository->findBy(['isDeleted' => false], ['id' => 'DESC'], 50);
+        $filterForm = $this->createForm(OrderFilterFormType::class, EditOrderModel::makeFromOrder());
+        $filterForm->handleRequest($request);
+
+        $pagination = $orderFormHandler->processOrderFiltersForm($request, $filterForm);
 
         return $this->render('admin/order/list.html.twig', [
-            'orders' => $orders,
-            'orderStatusChoice' => OrderStaticStorage::getOrderStatusChoices()
+            'pagination' => $pagination,
+            'orderStatusChoice' => OrderStaticStorage::getOrderStatusChoices(),
+            'form' => $filterForm->createView()
         ]);
     }
 

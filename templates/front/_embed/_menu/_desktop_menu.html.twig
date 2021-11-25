@@ -1,3 +1,5 @@
+{% set isActiveItemMenu = app.request.pathInfo|split('/')|last %}
+
 <div class="container-fluid">
     <button class="mobile-menu-toggler" id="mobile_menu_toggler">
         <i class="fas fa-bars"></i>
@@ -8,8 +10,8 @@
     </a>
     <nav class="main-nav">
         <ul class="menu">
-            {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu')) }}
-            <li class="menu-item font-weight-bold">
+            {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu', {'isActiveItemMenu': isActiveItemMenu})) }}
+            <li class="menu-item font-weight-bold {% if 'profile' in app.request.pathInfo %}active{% endif %}">
                 {% if app.user is not null and app.user.verified %}
                     <a href="{{ path('main_profile_index') }}">
                         <div>{{ 'header_menu.profile'|trans }}</div>

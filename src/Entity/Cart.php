@@ -51,11 +51,11 @@ class Cart
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      *
-     * @Groups({"cart:list", "cart:item"})
+     * @Groups({"cart:list", "cart:item", "cart:list:write"})
      */
-    private $sessionId;
+    private $token;
 
     /**
      * @ORM\Column(type="datetime_immutable")
@@ -86,18 +86,18 @@ class Cart
     /**
      * @return string|null
      */
-    public function getSessionId(): ?string
+    public function getToken(): ?string
     {
-        return $this->sessionId;
+        return $this->token;
     }
 
     /**
-     * @param string $sessionId
+     * @param string|null $token
      * @return $this
      */
-    public function setSessionId(string $sessionId): self
+    public function setToken(?string $token): self
     {
-        $this->sessionId = $sessionId;
+        $this->token = $token;
 
         return $this;
     }

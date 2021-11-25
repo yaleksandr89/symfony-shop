@@ -6,9 +6,12 @@ namespace App\Security\Voters;
 
 use App\Entity\Cart;
 use App\Entity\User;
+use App\Repository\CartRepository;
+use LogicException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Security;
 
 class CartVoter extends Voter
 {
@@ -16,9 +19,7 @@ class CartVoter extends Voter
     private const CART_EDIT = 'CART_EDIT';
     private const CART_DELETE = 'CART_DELETE';
 
-    /**
-     * @var RequestStack
-     */
+    /** @var RequestStack */
     private $requestStack;
 
     /**
@@ -76,9 +77,12 @@ class CartVoter extends Voter
                 return $this->canDelete($cart);
         }
 
-        throw new \LogicException('This code should not be reached!');
+        throw new LogicException('This code should not be reached!');
     }
 
+    /**
+     * @return bool
+     */
     private function canRead(): bool
     {
         // так как отрабатывает проверка в FilterCartQueryExtension.php
@@ -91,19 +95,19 @@ class CartVoter extends Voter
      */
     private function canEdit(Cart $cart): bool
     {
-        $phpSessionId = $this->getPhpSessionId();
-
-        if (!$phpSessionId) {
-            return false;
-        }
-
         // если корзина еще не существует
         if (!$cart->getId()) {
             return true;
         }
 
+        $cartToken = $this->getCartToken();
+
+        if (!$cartToken) {
+            return false;
+        }
+
         // проверяем, что это корзина пользователя
-        return $cart->getSessionId() === $phpSessionId;
+        return $cart->getToken() === $cartToken;
     }
 
     /**
@@ -112,24 +116,24 @@ class CartVoter extends Voter
      */
     private function canDelete(Cart $cart): bool
     {
-        $phpSessionId = $this->getPhpSessionId();
+        $cartToken = $this->getCartToken();
 
-        if (!$phpSessionId || !$cart->getId()) {
+        if (!$cartToken || !$cart->getId()) {
             return false;
         }
 
         // проверяем, что это корзина пользователя
-        return $cart->getSessionId() === $phpSessionId;
+        return $cart->getToken() === $cartToken;
     }
 
     /**
      * @return string|null
      */
-    private function getPhpSessionId(): ?string
+    private function getCartToken(): ?string
     {
         return $this->requestStack
             ->getCurrentRequest()
             ->cookies
-            ->get('PHPSESSID');
+            ->get('CART_TOKEN');
     }
 }

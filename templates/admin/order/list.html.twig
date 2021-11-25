@@ -3,6 +3,9 @@
 {% block title_detailed %}All orders{% endblock %}
 
 {% block body %}
+    {% include 'admin/order/_embed/_table_filtration.html.twig' with {
+        'form': form
+    } %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_header_action.html.twig' with
@@ -16,19 +19,19 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Full name</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Id', 'o.id') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Full name', 'u.id') }}</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>Created at</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Created at', 'o.createdAt') }}</th>
                         <th>Count of products</th>
-                        <th>Total price</th>
-                        <th>Status</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Total price', 'o.totalPrice') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Status', 'o.status') }}</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for order in orders %}
+                    {% for order in pagination %}
                         <tr>
                             <td>{{ order.id }}</td>
                             <td>{{ order.owner.fullname|default('Fullanme is\'t specified') }}</td>
@@ -46,6 +49,25 @@
                     </tbody>
                 </table>
             </div>
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const filterVisibilityBtnElement = document.getElementById('order_list_filters_btn');
+        const filterVisibilityBlockElement = document.getElementById('order_list_filters_block');
+        const filterSection = 'order_list';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterVisibilityBtnElement.addEventListener('click', () =>{
+                 toggleFiltersVisibility(filterSection);
+                 changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+            });
+            changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+        });
+    </script>
 {% endblock %}

@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -30,6 +31,15 @@ class CategoryRepository extends ServiceEntityRepository
             ->andWhere('c.isDeleted = FALSE')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    public function forFormQueryBuilderFindActiveCategory(): QueryBuilder
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.isDeleted = FALSE');
     }
 
     /**

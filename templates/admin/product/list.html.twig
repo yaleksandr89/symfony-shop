@@ -3,6 +3,9 @@
 {% block title_detailed %}All Products{% endblock %}
 
 {% block body %}
+    {% include 'admin/product/_embed/_table_filtration.html.twig' with {
+        'form': form
+    } %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_header_action.html.twig' with
@@ -16,18 +19,19 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Category</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Id', 'p.id') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Category', 'c.id') }}</th>
                         <th>Title</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Price', 'p.price') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'Quantity', 'p.quantity') }}</th>
                         <th>Cover</th>
+                        <th>Created At</th>
                         <th>Is published</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for product in products %}
+                    {% for product in pagination %}
                         <tr>
                             <td>{{ product.id }}</td>
                             <td>
@@ -49,6 +53,7 @@
                                     >
                                 {% endif %}
                             </td>
+                            <td>{{ product.createdAt|format_datetime('full', 'medium') }}</td>
                             <td>
                                 <i class="fas fa-check fa-sm" style="color: {% if product.isPublished %}green{% else %}lightgray{% endif %};"></i></td>
                             <td>
@@ -59,6 +64,25 @@
                     </tbody>
                 </table>
             </div>
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const filterVisibilityBtnElement = document.getElementById('product_list_filters_btn');
+        const filterVisibilityBlockElement = document.getElementById('product_list_filters_block');
+        const filterSection = 'product_list';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterVisibilityBtnElement.addEventListener('click', () =>{
+                toggleFiltersVisibility(filterSection);
+                changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+            });
+            changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+        });
+    </script>
 {% endblock %}

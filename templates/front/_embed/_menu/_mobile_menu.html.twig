@@ -1,11 +1,13 @@
+{% set isActiveItemMenu = app.request.pathInfo|split('/')|last %}
+
 <div class="mobile-menu-container" id="mobile_menu_container">
     <button class="mobile-menu-close-btn" id="mobile_menu_close_btn">
         <i class="fas fa-times"></i>
     </button>
     <nav class="mobile-nav">
         <ul class="mobile-menu">
-            {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu')) }}
-            <li class="menu-item font-weight-bold">
+            {{ render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu', {'isActiveItemMenu': isActiveItemMenu})) }}
+            <li class="menu-item font-weight-bold {% if 'profile' in app.request.pathInfo %}active{% endif %}">
                 {% if app.user is not null and app.user.verified %}
                     <a href="{{ path('main_profile_index') }}">
                         <div>{{ 'header_menu.profile'|trans }}</div>
@@ -16,7 +18,7 @@
                     </a>
                 {% endif %}
             </li>
-            <li class="menu-item font-weight-bold">
+            <li class="menu-item font-weight-bold {% if 'cart' in app.request.pathInfo %}active{% endif %}">
                 <a href="{{ path('main_cart_show') }}">
                     <div>{{ 'cart.head'|trans }}</div>
                 </a>
