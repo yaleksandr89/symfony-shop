@@ -1,0 +1,5 @@
+App\Entity\Order:
+  order_1:
+    owner: '@user_1'
+    totalPrice: 100
+    status: 0

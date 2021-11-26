@@ -3,6 +3,12 @@
     "license": "proprietary",
     "minimum-stability": "stable",
     "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/theofidry/AliceBundle"
+        }
+    ],
     "require": {
         "php": ">=8.0",
         "ext-ctype": "*",
@@ -63,6 +69,7 @@
         "twig/twig": "^2.12|^3.0"
     },
     "require-dev": {
+        "hautelook/alice-bundle": "*",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "5.3.*",
         "symfony/css-selector": "5.3.*",
