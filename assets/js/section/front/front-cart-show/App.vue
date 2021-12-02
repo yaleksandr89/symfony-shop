@@ -55,7 +55,7 @@ export default {
   methods: {
     ...mapActions('cart', ['getCart', 'makeOrder']),
     redirectToLoginPage() {
-      window.open(this.staticStore.url.loginPage).focus();
+      location.href = this.staticStore.url.loginPage;
     }
   },
 }

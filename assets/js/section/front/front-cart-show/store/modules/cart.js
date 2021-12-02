@@ -52,7 +52,11 @@ const actions = {
         const url = state.staticStore.url.apiCart;
         const result = await axios.get(url, apiConfig);
 
-        if (result.data && result.data["hydra:member"][0].cartProducts.length && StatusCodes.OK === result.status) {
+        if (
+            result.data &&
+            result.data["hydra:member"].length &&
+            StatusCodes.OK === result.status
+        ) {
             commit('setCart', result.data["hydra:member"][0]);
         } else {
             commit('setCart', {});
