@@ -7,6 +7,7 @@ namespace App\Utils\ApiPlatform\Event\Subscriber;
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\Cart;
 use App\Utils\Generator\TokenGenerator;
+use Exception;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -28,6 +29,7 @@ class SetCartTokenSubscriber implements EventSubscriberInterface
 
     /**
      * @param ViewEvent $event
+     * @throws Exception
      */
     public function setCartTokenToCart(ViewEvent $event): void
     {

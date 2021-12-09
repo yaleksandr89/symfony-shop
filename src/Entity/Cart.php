@@ -20,8 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
  *          "normalization_context"={"groups"="cart:list"}
  *       },
  *       "post"={
- *          "security_post_denormalize"="is_granted('CART_EDIT', object)",
- *          "normalization_context"={"groups"="cart:list:write"}
+ *          "normalization_context"={"groups"="cart:list:write"},
+ *          "security_post_denormalize"="is_granted('CART_EDIT', object)"
  *       }
  *     },
  *     itemOperations={
