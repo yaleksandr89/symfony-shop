@@ -122,10 +122,10 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
      *
      * Ex.: https://127.0.0.1:8000/api/carts?page=1&context=admin
      *
-     * @param UserInterface $user
+     * @param UserInterface|null $user
      * @return bool
      */
-    private function displayAllForAdmin(UserInterface $user): bool
+    private function displayAllForAdmin(?UserInterface $user): bool
     {
         return (
             $user instanceof User
