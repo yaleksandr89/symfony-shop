@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Functional\Controller\Main;
+namespace App\Tests\Functional\Controller\Front;
 
 use Generator;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
