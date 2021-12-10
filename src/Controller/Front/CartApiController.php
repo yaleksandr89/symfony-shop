@@ -35,17 +35,17 @@ class CartApiController extends AbstractController
         ProductRepository $productRepository
     ): JsonResponse {
         $manager = $this->getDoctrine()->getManager();
-        $phpSessionId = $request->cookies->get('PHPSESSID');
+        $cartToken = $request->cookies->get('CART_TOKEN');
         $productUuid = $request->request->get('productId');
 
         /** @var Product $product */
         $product = $productRepository->findById($productUuid);
 
         /** @var Cart $cart */
-        $cart = $cartRepository->findOneBy(['sessionId' => $phpSessionId]);
+        $cart = $cartRepository->findOneBy(['token' => $cartToken]);
         if (!$cart) {
             $cart = new Cart();
-            $cart->setSessionId($phpSessionId);
+            $cart->setToken($cartToken);
         }
 
         /** @var CartProduct $cartProduct */

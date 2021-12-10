@@ -33,7 +33,6 @@ security:
         path: /admin/
       logout:
         path: admin_security_logout
-        target: admin_security_login
     front:
       context: website
       lazy: true
@@ -50,7 +49,6 @@ security:
         path: /
       logout:
         path: main_logout
-        target: main_login
         # where to redirect after logout
         # target: app_any_route
 
