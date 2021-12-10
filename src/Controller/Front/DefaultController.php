@@ -50,24 +50,25 @@ class DefaultController extends AbstractController
             $preparedProduct = [];
             /** @var Product $item */
             foreach ($category->getProducts()->toArray() as $item) {
-                if (false === $item->getIsDeleted() && true === $item->getIsPublished()) {
+                if (false === $item->getIsDeleted() && true === $item->getIsPublished() && false !== $item->getProductImages()->first()) {
                     $preparedProduct[] = $item;
                 }
             }
+            if (count($preparedProduct) > 0) {
+                /** @var Product $randomProduct */
+                $productArrKey = array_rand($preparedProduct, 1);
+                $randomProduct = $preparedProduct[$productArrKey];
 
-            /** @var Product $randomProduct */
-            $productArrKey = array_rand($preparedProduct, 1);
-            $randomProduct = $preparedProduct[$productArrKey];
+                /** @var ProductImage $productImg */
+                $productImg = $randomProduct->getProductImages()->first();
+                $randProductImg = $request->getUriForPath($baseProductImagDir) . "/{$randomProduct->getId()}/{$productImg->getFilenameBig()}";
 
-            /** @var ProductImage $productImg */
-            $productImg = $randomProduct->getProductImages()->first();
-            $randProductImg = $request->getUriForPath($baseProductImagDir) . "/{$randomProduct->getId()}/{$productImg->getFilenameBig()}";
-
-            $preparedListCategory[] = [
-                'title' => $category->getTitle(),
-                'url' => $this->urlGenerator->generate('main_category_show', ['slug' => $category->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL),
-                'rand_product_img' => $randProductImg
-            ];
+                $preparedListCategory[] = [
+                    'title' => $category->getTitle(),
+                    'url' => $this->urlGenerator->generate('main_category_show', ['slug' => $category->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'rand_product_img' => $randProductImg
+                ];
+            }
         }
 
         return $this->render('front/default/index.html.twig', [
