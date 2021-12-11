@@ -42,7 +42,8 @@ final class ProductManager extends AbstractBaseManager
     }
 
     /**
-     * alias: 'p'
+     * alias: 'p'.
+     *
      * @return QueryBuilder
      */
     public function getQueryBuilder(): QueryBuilder
@@ -53,6 +54,7 @@ final class ProductManager extends AbstractBaseManager
 
     /**
      * @param object $entity
+     *
      * @return void;
      */
     public function softRemove(object $entity): void
@@ -68,13 +70,13 @@ final class ProductManager extends AbstractBaseManager
 
     /**
      * @param Product $product
+     *
      * @return string
      */
     public function getProductImagesDir(Product $product): string
     {
         return sprintf('%s/%s', $this->productImagesDir, $product->getId());
     }
-
 
     public function updateProductImages(Product $product, string $tempImageFilename = null): Product
     {
@@ -92,5 +94,4 @@ final class ProductManager extends AbstractBaseManager
 
         return $product;
     }
-
 }

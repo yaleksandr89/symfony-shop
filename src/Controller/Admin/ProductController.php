@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Product;
+use App\Form\Admin\EditProductFormType;
 use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\EditProductModel;
-use App\Form\Admin\EditProductFormType;
 use App\Form\Handler\ProductFormHandler;
 use App\Repository\ProductRepository;
 use App\Utils\Manager\ProductManager;
@@ -29,33 +29,37 @@ class ProductController extends AbstractController
 
     /**
      * @required
+     *
      * @param ProductRepository $productRepository
+     *
      * @return ProductController
      */
     public function setProductRepository(ProductRepository $productRepository): ProductController
     {
         $this->productRepository = $productRepository;
+
         return $this;
     }
     // Autowiring <<<
 
     /**
      * @Route("/list", name="list")
-     * @param Request $request
+     *
+     * @param Request            $request
      * @param ProductFormHandler $productFormHandler
+     *
      * @return Response
      */
     public function list(Request $request, ProductFormHandler $productFormHandler): Response
     {
-
         $filterForm = $this->createForm(ProductFilterFormType::class, EditProductModel::makeFromProduct());
         $filterForm->handleRequest($request);
 
-        $pagination =  $productFormHandler->processOrderFiltersForm($request, $filterForm);
+        $pagination = $productFormHandler->processOrderFiltersForm($request, $filterForm);
 
         return $this->render('admin/product/list.html.twig', [
             'pagination' => $pagination,
-            'form' => $filterForm->createView()
+            'form' => $filterForm->createView(),
         ]);
     }
 
@@ -63,9 +67,11 @@ class ProductController extends AbstractController
      * @Route("/edit/{id}", name="edit")
      * @Route("/edit", name="edit_blank")
      * @Route("/add", name="add")
-     * @param Request $request
+     *
+     * @param Request            $request
      * @param ProductFormHandler $productFormHandler
-     * @param Product|null $product
+     * @param Product|null       $product
+     *
      * @return Response
      */
     public function edit(Request $request, ProductFormHandler $productFormHandler, Product $product = null): Response
@@ -78,10 +84,11 @@ class ProductController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $product = $productFormHandler->processEditForm($form, $editProductModel);
             $this->addFlash('success', 'Your changes were saved!');
+
             return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
         }
 
-        if ($form->isSubmitted() && !$form->isValid()){
+        if ($form->isSubmitted() && !$form->isValid()) {
             $this->addFlash('warning', 'Something went wrong. Please check!');
         }
 
@@ -98,8 +105,10 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     * @param Product $product
+     *
+     * @param Product        $product
      * @param ProductManager $productManager
+     *
      * @return Response
      */
     public function delete(Product $product, ProductManager $productManager): Response

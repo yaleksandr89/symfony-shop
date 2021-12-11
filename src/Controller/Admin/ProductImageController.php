@@ -19,9 +19,11 @@ class ProductImageController extends AbstractController
 {
     /**
      * @Route("/delete/{id}", name="delete")
-     * @param ProductImage $productImage
-     * @param ProductManager $productManager
+     *
+     * @param ProductImage        $productImage
+     * @param ProductManager      $productManager
      * @param ProductImageManager $productImageManager
+     *
      * @return Response
      */
     public function delete(ProductImage $productImage, ProductManager $productManager, ProductImageManager $productImageManager): Response

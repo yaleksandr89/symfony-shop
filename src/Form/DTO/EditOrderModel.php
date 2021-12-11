@@ -18,12 +18,14 @@ class EditOrderModel
 
     /**
      * @Assert\NotBlank(message="Please select user")
+     *
      * @var User
      */
     public $owner;
 
     /**
      * @Assert\NotBlank(message="Please select status")
+     *
      * @var int
      */
     public $status;
@@ -45,6 +47,7 @@ class EditOrderModel
 
     /**
      * @param Order|null $order
+     *
      * @return static
      */
     public static function makeFromOrder(?Order $order = null): static

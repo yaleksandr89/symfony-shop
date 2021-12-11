@@ -28,12 +28,15 @@ class UserController extends AbstractController
 
     /**
      * @required
+     *
      * @param UserRepository $userRepository
+     *
      * @return UserController
      */
     public function setCategoryRepository(UserRepository $userRepository): UserController
     {
         $this->userRepository = $userRepository;
+
         return $this;
     }
     // Autowiring <<<
@@ -47,16 +50,18 @@ class UserController extends AbstractController
         $users = $this->userRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
 
         return $this->render('admin/user/list.html.twig', [
-            'users' => $users
+            'users' => $users,
         ]);
     }
 
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
-     * @param Request $request
+     *
+     * @param Request         $request
      * @param UserFormHandler $userFormHandler
-     * @param User|null $user
+     * @param User|null       $user
+     *
      * @return Response
      */
     public function edit(Request $request, UserFormHandler $userFormHandler, User $user = null): Response
@@ -70,6 +75,7 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $userFormHandler->processEditForm($editUserModel);
             $this->addFlash('success', 'Your changes were saved!');
+
             return $this->redirectToRoute('admin_user_edit', ['id' => $user->getId()]);
         }
 
@@ -85,8 +91,10 @@ class UserController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     * @param User $user
+     *
+     * @param User        $user
      * @param UserManager $userManager
+     *
      * @return Response
      */
     public function delete(User $user, UserManager $userManager): Response

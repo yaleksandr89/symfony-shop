@@ -32,6 +32,7 @@ class EditUserModel
 
     /**
      * @Assert\Length(max="255")
+     *
      * @var string
      */
     public $fullName;
@@ -39,12 +40,14 @@ class EditUserModel
     /**
      * @Assert\Length(max="30")
      * @Assert\Regex(pattern="/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/")
+     *
      * @var string
      */
     public $phone;
 
     /**
      * @Assert\Length(max="255")
+     *
      * @var string
      */
     public $address;
@@ -62,12 +65,14 @@ class EditUserModel
     /**
      * @Assert\Email
      * @Assert\Length(max="180")
+     *
      * @var string
      */
     public $email;
 
     /**
      * @param User|null $user
+     *
      * @return static
      */
     public static function makeFromUser(?User $user): static
@@ -93,6 +98,7 @@ class EditUserModel
 
     /**
      * @param ExecutionContextInterface $context
+     *
      * @return void
      */
     public function validate(ExecutionContextInterface $context): void

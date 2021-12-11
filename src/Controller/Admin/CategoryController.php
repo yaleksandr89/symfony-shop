@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Category;
-use App\Form\DTO\EditCategoryModel;
 use App\Form\Admin\EditCategoryFormType;
+use App\Form\DTO\EditCategoryModel;
 use App\Form\Handler\CategoryFormHandler;
 use App\Repository\CategoryRepository;
 use App\Utils\Manager\CategoryManager;
@@ -28,12 +28,15 @@ class CategoryController extends AbstractController
 
     /**
      * @required
+     *
      * @param CategoryRepository $categoryRepository
+     *
      * @return CategoryController
      */
     public function setCategoryRepository(CategoryRepository $categoryRepository): CategoryController
     {
         $this->categoryRepository = $categoryRepository;
+
         return $this;
     }
     // Autowiring <<<
@@ -46,16 +49,18 @@ class CategoryController extends AbstractController
         $categories = $this->categoryRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
 
         return $this->render('admin/category/list.html.twig', [
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
 
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
-     * @param Request $request
+     *
+     * @param Request             $request
      * @param CategoryFormHandler $categoryFormHandler
-     * @param Category|null $category
+     * @param Category|null       $category
+     *
      * @return Response
      */
     public function edit(Request $request, CategoryFormHandler $categoryFormHandler, Category $category = null): Response
@@ -68,10 +73,11 @@ class CategoryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
             $this->addFlash('success', 'Your changes were saved!');
+
             return $this->redirectToRoute('admin_category_edit', ['id' => $category->getId()]);
         }
 
-        if ($form->isSubmitted() && !$form->isValid()){
+        if ($form->isSubmitted() && !$form->isValid()) {
             $this->addFlash('warning', 'Something went wrong. Please check!');
         }
 
@@ -83,8 +89,10 @@ class CategoryController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     * @param Category $category
+     *
+     * @param Category        $category
      * @param CategoryManager $categoryManager
+     *
      * @return Response
      */
     public function delete(Category $category, CategoryManager $categoryManager): Response

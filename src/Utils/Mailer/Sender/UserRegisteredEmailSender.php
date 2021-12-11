@@ -11,7 +11,7 @@ use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 class UserRegisteredEmailSender extends BaseSender
 {
     /**
-     * @param User $user
+     * @param User                           $user
      * @param VerifyEmailSignatureComponents $signatureComponents
      */
     public function sendEmailToClient(User $user, VerifyEmailSignatureComponents $signatureComponents): void

@@ -10,9 +10,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class UserLoggedInViaSocialNetworkEmailSender extends BaseSender
 {
     /**
-     * @param User $user
+     * @param User   $user
      * @param string $plainPassword
-     * @param array $verifyEmail
+     * @param array  $verifyEmail
+     *
      * @return void
      */
     public function sendEmailToClient(User $user, string $plainPassword, array $verifyEmail): void

@@ -24,14 +24,14 @@ class EditUserFormType extends AbstractType
                 'label' => 'Email',
                 'required' => true,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('plainPassword', TextType::class, [
                 'label' => 'New password',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('roles', ChoiceType::class, [
@@ -40,35 +40,35 @@ class EditUserFormType extends AbstractType
                 'multiple' => true,
                 'choices' => array_flip(UserStaticStorage::getUserRolesChoices()),
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('fullName', TextType::class, [
                 'label' => 'Full name',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('phone', TextType::class, [
                 'label' => 'Phone',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('address', TextType::class, [
                 'label' => 'Address',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('zipCode', TextType::class, [
                 'label' => 'Zip code',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('isDeleted', CheckboxType::class, [
@@ -90,7 +90,7 @@ class EditUserFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EditUserModel::class,
-            'user_repository' =>null,
+            'user_repository' => null,
         ]);
     }
 }

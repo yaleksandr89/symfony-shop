@@ -26,16 +26,18 @@ class UpdateSlugProduct extends Command
 
     /**
      * @required
+     *
      * @param Doctrine $doctrine
+     *
      * @return UpdateSlugProduct
      */
     public function setDoctrine(Doctrine $doctrine): UpdateSlugProduct
     {
         $this->doctrine = $doctrine;
+
         return $this;
     }
     // Autowiring <<<
-
 
     /**
      * @var string
@@ -58,8 +60,9 @@ class UpdateSlugProduct extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -73,7 +76,7 @@ class UpdateSlugProduct extends Command
         $stopWatch = new Stopwatch();
         $stopWatch->start('update-slug-product');
 
-        $all = (bool)$input->getOption('all');
+        $all = (bool) $input->getOption('all');
 
         $io->title('Update slug product');
 
@@ -86,9 +89,9 @@ class UpdateSlugProduct extends Command
             $io->success($updateMessage);
         } catch (RuntimeException $exception) {
             $io->error($exception->getMessage());
+
             return Command::FAILURE;
         }
-
 
         $event = $stopWatch->stop('update-slug-product');
         $stopWatchMessage = sprintf(
@@ -104,6 +107,7 @@ class UpdateSlugProduct extends Command
 
     /**
      * @param bool $all
+     *
      * @return int
      */
     private function updateSlugProduct(bool $all): int

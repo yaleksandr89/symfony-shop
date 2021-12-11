@@ -111,11 +111,13 @@ class Order
 
     /**
      * @param DateTimeImmutable $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -129,11 +131,13 @@ class Order
 
     /**
      * @param User|null $owner
+     *
      * @return $this
      */
     public function setOwner(?User $owner): self
     {
         $this->owner = $owner;
+
         return $this;
     }
 
@@ -147,11 +151,13 @@ class Order
 
     /**
      * @param int $status
+     *
      * @return $this
      */
     public function setStatus(int $status): self
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -165,11 +171,13 @@ class Order
 
     /**
      * @param float|null $totalPrice
+     *
      * @return $this
      */
     public function setTotalPrice(?float $totalPrice): self
     {
         $this->totalPrice = $totalPrice;
+
         return $this;
     }
 
@@ -183,11 +191,13 @@ class Order
 
     /**
      * @param DateTimeImmutable|null $updatedAt
+     *
      * @return $this
      */
     public function setUpdatedAt(?DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 
@@ -201,11 +211,13 @@ class Order
 
     /**
      * @param bool $isDeleted
+     *
      * @return $this
      */
     public function setIsDeleted(bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
         return $this;
     }
 

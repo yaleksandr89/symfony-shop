@@ -58,11 +58,11 @@ class FacebookAuthenticator extends OAuth2Authenticator
     private $verifyEmailHelper;
 
     /**
-     * @param ClientRegistry $clientRegistry
-     * @param UserManager $userManager
-     * @param RouterInterface $router
-     * @param SessionInterface $session
-     * @param EventDispatcherInterface $eventDispatcher
+     * @param ClientRegistry             $clientRegistry
+     * @param UserManager                $userManager
+     * @param RouterInterface            $router
+     * @param SessionInterface           $session
+     * @param EventDispatcherInterface   $eventDispatcher
      * @param VerifyEmailHelperInterface $helper
      */
     public function __construct(
@@ -83,6 +83,7 @@ class FacebookAuthenticator extends OAuth2Authenticator
 
     /**
      * @param Request $request
+     *
      * @return bool|null
      */
     public function supports(Request $request): ?bool
@@ -93,6 +94,7 @@ class FacebookAuthenticator extends OAuth2Authenticator
 
     /**
      * @param Request $request
+     *
      * @return PassportInterface
      */
     public function authenticate(Request $request): PassportInterface
@@ -142,9 +144,10 @@ class FacebookAuthenticator extends OAuth2Authenticator
     }
 
     /**
-     * @param Request $request
+     * @param Request        $request
      * @param TokenInterface $token
-     * @param string $firewallName
+     * @param string         $firewallName
+     *
      * @return RedirectResponse
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
@@ -159,8 +162,9 @@ class FacebookAuthenticator extends OAuth2Authenticator
     }
 
     /**
-     * @param Request $request
+     * @param Request                 $request
      * @param AuthenticationException $exception
+     *
      * @return Response
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
@@ -172,15 +176,16 @@ class FacebookAuthenticator extends OAuth2Authenticator
 
     /**
      * @param User $user
+     *
      * @return array
      */
     private function getDataForVerifyEmail(User $user): array
     {
         $signatureComponents = $this->verifyEmailHelper->generateSignature(
             'main_verify_email',
-            (string)$user->getId(),
+            (string) $user->getId(),
             $user->getEmail(),
-            ['id' => (string)$user->getId()]
+            ['id' => (string) $user->getId()]
         );
 
         return [

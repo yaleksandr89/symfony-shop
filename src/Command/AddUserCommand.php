@@ -28,12 +28,15 @@ class AddUserCommand extends Command
 
     /**
      * @required
+     *
      * @param EntityManagerInterface $em
+     *
      * @return AddUserCommand
      */
     public function setEm(EntityManagerInterface $em): AddUserCommand
     {
         $this->em = $em;
+
         return $this;
     }
 
@@ -44,12 +47,15 @@ class AddUserCommand extends Command
 
     /**
      * @required
+     *
      * @param UserPasswordHasherInterface $hasher
+     *
      * @return AddUserCommand
      */
     public function setEncoder(UserPasswordHasherInterface $hasher): AddUserCommand
     {
         $this->hasher = $hasher;
+
         return $this;
     }
 
@@ -60,12 +66,15 @@ class AddUserCommand extends Command
 
     /**
      * @required
+     *
      * @param UserRepository $userRepository
+     *
      * @return AddUserCommand
      */
     public function setUserRepository(UserRepository $userRepository): AddUserCommand
     {
         $this->userRepository = $userRepository;
+
         return $this;
     }
     // Autowiring <<<
@@ -93,8 +102,9 @@ class AddUserCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -122,6 +132,7 @@ class AddUserCommand extends Command
             $user = $this->createUser($email, $password, $assignedRole);
         } catch (RuntimeException $exception) {
             $io->error($exception->getMessage());
+
             return Command::FAILURE;
         }
 
@@ -149,6 +160,7 @@ class AddUserCommand extends Command
      * @param string $email
      * @param string $password
      * @param string $role
+     *
      * @return User
      */
     private function createUser(string $email, string $password, string $role): User
@@ -175,8 +187,9 @@ class AddUserCommand extends Command
     }
 
     /**
-     * @param bool $email
+     * @param bool         $email
      * @param SymfonyStyle $io
+     *
      * @return string|null
      */
     private function checkingEmail(bool $email, SymfonyStyle $io): ?string
@@ -192,14 +205,17 @@ class AddUserCommand extends Command
                     $io->error('Incorrect email format, repeat the input');
                 }
             }
+
             return $email;
         }
+
         return null;
     }
 
     /**
-     * @param bool $password
+     * @param bool         $password
      * @param SymfonyStyle $io
+     *
      * @return string|null
      */
     private function checkingPassword(bool $password, SymfonyStyle $io): ?string
@@ -215,14 +231,17 @@ class AddUserCommand extends Command
                     $io->error('The password can\'t be less than 6 characters');
                 }
             }
+
             return $password;
         }
+
         return null;
     }
 
     /**
-     * @param bool $role
+     * @param bool         $role
      * @param SymfonyStyle $io
+     *
      * @return string|null
      */
     private function checkingRole(bool $role, SymfonyStyle $io): ?string
@@ -235,14 +254,16 @@ class AddUserCommand extends Command
                 $roleQuestion = $io->ask('Set role?', 'ROLE_USER');
                 //$role = $io->askQuestion($roleQuestion);
 
-                if ($roleQuestion === 'ROLE_USER' || $roleQuestion === 'ROLE_ADMIN' || $roleQuestion === 'ROLE_SUPER_ADMIN') {
+                if ('ROLE_USER' === $roleQuestion || 'ROLE_ADMIN' === $roleQuestion || 'ROLE_SUPER_ADMIN' === $roleQuestion) {
                     $assignedRole = $roleQuestion;
                 } else {
                     $io->error('Please, enter role user or leave empty (default = ROLE_USER)');
                 }
             }
+
             return $assignedRole;
         }
+
         return null;
     }
 }

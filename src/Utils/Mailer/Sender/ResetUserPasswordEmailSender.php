@@ -7,12 +7,11 @@ namespace App\Utils\Mailer\Sender;
 use App\Entity\User;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
-use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 
 class ResetUserPasswordEmailSender extends BaseSender
 {
     /**
-     * @param User $user
+     * @param User               $user
      * @param ResetPasswordToken $resetPasswordToken
      */
     public function sendEmailToClient(User $user, ResetPasswordToken $resetPasswordToken): void

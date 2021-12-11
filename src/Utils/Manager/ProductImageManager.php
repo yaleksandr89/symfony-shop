@@ -30,9 +30,9 @@ final class ProductImageManager extends AbstractBaseManager
 
     /**
      * @param EntityManagerInterface $em
-     * @param FilesystemWorker $filesystemWorker
-     * @param string $uploadsTempDir
-     * @param ImageResizer $imageResizer
+     * @param FilesystemWorker       $filesystemWorker
+     * @param string                 $uploadsTempDir
+     * @param ImageResizer           $imageResizer
      */
     public function __construct(
         EntityManagerInterface $em,
@@ -56,8 +56,9 @@ final class ProductImageManager extends AbstractBaseManager
     }
 
     /**
-     * @param string $productDir
+     * @param string      $productDir
      * @param string|null $tempImageFilename
+     *
      * @return ProductImage|null
      */
     public function saveImageForProduct(string $productDir, string $tempImageFilename = null): ?ProductImage
@@ -104,7 +105,8 @@ final class ProductImageManager extends AbstractBaseManager
 
     /**
      * @param ProductImage $productImage
-     * @param string $productImageDir
+     * @param string       $productImageDir
+     *
      * @return void;
      */
     public function removeImageFromProduct(ProductImage $productImage, string $productImageDir): void

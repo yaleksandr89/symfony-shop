@@ -28,12 +28,15 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     /**
      * @required
+     *
      * @param Security $security
+     *
      * @return MakeOrderFromCartSubscriber
      */
     public function setSecurity(Security $security): MakeOrderFromCartSubscriber
     {
         $this->security = $security;
+
         return $this;
     }
 
@@ -44,12 +47,15 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     /**
      * @required
+     *
      * @param OrderManager $orderManager
+     *
      * @return MakeOrderFromCartSubscriber
      */
     public function setOrderManager(OrderManager $orderManager): MakeOrderFromCartSubscriber
     {
         $this->orderManager = $orderManager;
+
         return $this;
     }
 
@@ -60,12 +66,15 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     /**
      * @required
+     *
      * @param EventDispatcherInterface $eventDispatcher
+     *
      * @return MakeOrderFromCartSubscriber
      */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): MakeOrderFromCartSubscriber
     {
         $this->eventDispatcher = $eventDispatcher;
+
         return $this;
     }
     // Autowiring <<<
@@ -79,11 +88,11 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
             KernelEvents::VIEW => [
                 [
                     'makeOrder',
-                    EventPriorities::PRE_WRITE
+                    EventPriorities::PRE_WRITE,
                 ],
                 [
                     'sendNotificationsAboutNewOrder',
-                    EventPriorities::POST_WRITE
+                    EventPriorities::POST_WRITE,
                 ],
             ],
         ];
@@ -91,7 +100,9 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     /**
      * @param ViewEvent $viewEvent
+     *
      * @throws JsonException
+     *
      * @return void
      */
     public function makeOrder(ViewEvent $viewEvent): void
@@ -121,7 +132,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $cartId = (int)$content['cartId'];
+        $cartId = (int) $content['cartId'];
 
         $this->orderManager->addOrdersProductsFromCart($order, $cartId);
         $this->orderManager->calculationOrderTotalPrice($order);
@@ -131,6 +142,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     /**
      * @param ViewEvent $viewEvent
+     *
      * @return void
      */
     public function sendNotificationsAboutNewOrder(ViewEvent $viewEvent): void
@@ -149,6 +161,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     /**
      * @param ViewEvent $viewEvent
+     *
      * @return Request
      */
     private function getRequest(ViewEvent $viewEvent): Request

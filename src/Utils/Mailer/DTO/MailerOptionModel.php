@@ -46,11 +46,13 @@ class MailerOptionModel
 
     /**
      * @param string $recipient
+     *
      * @return MailerOptionModel
      */
     public function setRecipient(string $recipient): MailerOptionModel
     {
         $this->recipient = $recipient;
+
         return $this;
     }
 
@@ -64,11 +66,13 @@ class MailerOptionModel
 
     /**
      * @param string $cc
+     *
      * @return MailerOptionModel
      */
     public function setCc(string $cc): MailerOptionModel
     {
         $this->cc = $cc;
+
         return $this;
     }
 
@@ -82,11 +86,13 @@ class MailerOptionModel
 
     /**
      * @param string $subject
+     *
      * @return MailerOptionModel
      */
     public function setSubject(string $subject): MailerOptionModel
     {
         $this->subject = $subject;
+
         return $this;
     }
 
@@ -100,11 +106,13 @@ class MailerOptionModel
 
     /**
      * @param string $htmlTemplate
+     *
      * @return MailerOptionModel
      */
     public function setHtmlTemplate(string $htmlTemplate): MailerOptionModel
     {
         $this->htmlTemplate = $htmlTemplate;
+
         return $this;
     }
 
@@ -118,11 +126,13 @@ class MailerOptionModel
 
     /**
      * @param array $context
+     *
      * @return MailerOptionModel
      */
     public function setContext(array $context): MailerOptionModel
     {
         $this->context = $context;
+
         return $this;
     }
 
@@ -136,11 +146,13 @@ class MailerOptionModel
 
     /**
      * @param string $text
+     *
      * @return MailerOptionModel
      */
     public function setText(string $text): MailerOptionModel
     {
         $this->text = $text;
+
         return $this;
     }
 }

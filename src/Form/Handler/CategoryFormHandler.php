@@ -22,6 +22,7 @@ class CategoryFormHandler
 
     /**
      * @param EditCategoryModel $editCategoryModel
+     *
      * @return Category
      */
     public function processEditForm(EditCategoryModel $editCategoryModel): Category
@@ -40,14 +41,15 @@ class CategoryFormHandler
     }
 
     /**
-     * @param Category $category
+     * @param Category          $category
      * @param EditCategoryModel $editCategoryModel
+     *
      * @return Category
      */
     private function fillingCategoryData(Category $category, EditCategoryModel $editCategoryModel): Category
     {
         $title = (!is_string($editCategoryModel->title))
-            ? (string)$editCategoryModel->title
+            ? (string) $editCategoryModel->title
             : $editCategoryModel->title;
 
         $category->setTitle($title);

@@ -33,10 +33,10 @@ class ProductFormHandler
     private FilterBuilderUpdater $filterBuilderUpdater;
 
     /**
-     * @param ProductManager $productManager
-     * @param FileSaver $fileSaver
-     * @param FilesystemWorker $filesystemWorker
-     * @param PaginatorInterface $paginator
+     * @param ProductManager       $productManager
+     * @param FileSaver            $fileSaver
+     * @param FilesystemWorker     $filesystemWorker
+     * @param PaginatorInterface   $paginator
      * @param FilterBuilderUpdater $filterBuilderUpdater
      */
     public function __construct(
@@ -54,8 +54,9 @@ class ProductFormHandler
     }
 
     /**
-     * @param FormInterface $form
+     * @param FormInterface    $form
      * @param EditProductModel $editProductModel
+     *
      * @return Product
      */
     public function processEditForm(FormInterface $form, EditProductModel $editProductModel): Product
@@ -82,7 +83,7 @@ class ProductFormHandler
         $this->productManager->flush();
 
         if ($tempImageFilename) {
-            $this->filesystemWorker->remove($uploadsTempDir . '/' . $uploadsFilename);
+            $this->filesystemWorker->remove($uploadsTempDir.'/'.$uploadsFilename);
             $this->filesystemWorker->removeFolderIfEmpty($uploadsTempDir);
         }
 
@@ -92,6 +93,7 @@ class ProductFormHandler
     /**
      * @param Request $request
      * @param $filterForm
+     *
      * @return PaginationInterface
      */
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
@@ -113,36 +115,37 @@ class ProductFormHandler
     }
 
     /**
-     * @param Product $product
+     * @param Product          $product
      * @param EditProductModel $editProductModel
+     *
      * @return Product
      */
     private function fillingProductData(Product $product, EditProductModel $editProductModel): Product
     {
         $title = (!is_string($editProductModel->title))
-            ? (string)$editProductModel->title
+            ? (string) $editProductModel->title
             : $editProductModel->title;
 
         $price = (!is_string($editProductModel->price))
-            ? (string)$editProductModel->price
+            ? (string) $editProductModel->price
             : $editProductModel->price;
 
         $quantity = (!is_int($editProductModel->quantity))
-            ? (int)$editProductModel->quantity
+            ? (int) $editProductModel->quantity
             : $editProductModel->quantity;
 
         $description = (!is_string($editProductModel->description))
-            ? (string)$editProductModel->description
+            ? (string) $editProductModel->description
             : $editProductModel->description;
 
         $category = $editProductModel->category;
 
         $isPublished = (!is_bool($editProductModel->isPublished))
-            ? (bool)$editProductModel->isPublished
+            ? (bool) $editProductModel->isPublished
             : $editProductModel->isPublished;
 
         $isDeleted = (!is_bool($editProductModel->isDeleted))
-            ? (bool)$editProductModel->isDeleted
+            ? (bool) $editProductModel->isDeleted
             : $editProductModel->isDeleted;
 
         $product->setTitle($title);

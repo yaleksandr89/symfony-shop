@@ -33,8 +33,8 @@ class EmailVerifier
 
     /**
      * @param VerifyEmailHelperInterface $helper
-     * @param MailerInterface $mailer
-     * @param EntityManagerInterface $manager
+     * @param MailerInterface            $mailer
+     * @param EntityManagerInterface     $manager
      */
     public function __construct(VerifyEmailHelperInterface $helper, MailerInterface $mailer, EntityManagerInterface $manager)
     {
@@ -44,9 +44,10 @@ class EmailVerifier
     }
 
     /**
-     * @param string $verifyEmailRouteName
-     * @param UserInterface $user
+     * @param string         $verifyEmailRouteName
+     * @param UserInterface  $user
      * @param TemplatedEmail $email
+     *
      * @throws TransportExceptionInterface
      */
     public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
@@ -64,13 +65,14 @@ class EmailVerifier
     }
 
     /**
-     * @param Request $request
+     * @param Request       $request
      * @param UserInterface $user
+     *
      * @throws VerifyEmailExceptionInterface
      */
     public function handleEmailConfirmation(string $requestUri, UserInterface $user): void
     {
-        $this->verifyEmailHelper->validateEmailConfirmation($requestUri, (string)$user->getId(), $user->getEmail());
+        $this->verifyEmailHelper->validateEmailConfirmation($requestUri, (string) $user->getId(), $user->getEmail());
 
         $user->setIsVerified(true);
 
@@ -82,9 +84,9 @@ class EmailVerifier
     {
         return $this->verifyEmailHelper->generateSignature(
             $verifyEmailRouteName,
-            (string)$user->getId(),
+            (string) $user->getId(),
             $user->getEmail(),
-            ['id' => (string)$user->getId()]
+            ['id' => (string) $user->getId()]
         );
     }
 }

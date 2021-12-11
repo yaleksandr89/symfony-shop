@@ -19,6 +19,7 @@ class EditProductModel
 
     /**
      * @Assert\NotBlank(message="Please enter a title")
+     *
      * @var string
      */
     public $title;
@@ -26,6 +27,7 @@ class EditProductModel
     /**
      * @Assert\NotBlank(message="Please enter a price")
      * @Assert\GreaterThanOrEqual(value="0")
+     *
      * @var string
      */
     public $price;
@@ -36,12 +38,14 @@ class EditProductModel
      *     mimeTypes = {"image/jpeg","image/png"},
      *     mimeTypesMessage = "Please upload a valid image (*.jpg or *.png)"
      * )
+     *
      * @var UploadedFile|null
      */
     public $newImage;
 
     /**
      * @Assert\NotBlank(message="Please indicate a quantity")
+     *
      * @var int
      */
     public $quantity;
@@ -53,6 +57,7 @@ class EditProductModel
 
     /**
      * @Assert\NotBlank(message="Please select a category")
+     *
      * @var Category
      */
     public $category;
@@ -74,6 +79,7 @@ class EditProductModel
 
     /**
      * @param Product|null $product
+     *
      * @return static
      */
     public static function makeFromProduct(?Product $product = null): static

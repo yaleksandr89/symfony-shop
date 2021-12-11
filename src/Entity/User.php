@@ -113,35 +113,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param string $email
+     *
      * @return $this
      */
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
     /**
      * A visual identifier that represents this user.
+     *
      * @return string
+     *
      * @see UserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string)$this->email;
+        return (string) $this->email;
     }
 
     /**
      * @return string
+     *
      * @deprecated since Symfony 5.3, use getUserIdentifier instead
      */
     public function getUsername(): string
     {
-        return (string)$this->email;
+        return (string) $this->email;
     }
 
     /**
      * @return array
+     *
      * @see UserInterface
      */
     public function getRoles(): array
@@ -155,11 +161,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param array $roles
+     *
      * @return $this
      */
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
         return $this;
     }
 
@@ -201,6 +209,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @return string
+     *
      * @see PasswordAuthenticatedUserInterface
      */
     public function getPassword(): string
@@ -210,18 +219,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param string $password
+     *
      * @return $this
      */
     public function setPassword(string $password): self
     {
         $this->password = $password;
+
         return $this;
     }
 
     /**
      * Returning a salt is only needed, if you are not using a modern
      * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
+     *
      * @return string|null
+     *
      * @see UserInterface
      */
     public function getSalt(): ?string
@@ -231,6 +244,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @return void
+     *
      * @see UserInterface
      */
     public function eraseCredentials(): void
@@ -249,6 +263,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param bool $isVerified
+     *
      * @return $this
      */
     public function setIsVerified(bool $isVerified): self
@@ -268,11 +283,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param string|null $fullName
+     *
      * @return $this
      */
     public function setFullName(?string $fullName): self
     {
         $this->fullName = $fullName;
+
         return $this;
     }
 
@@ -286,11 +303,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param string|null $phone
+     *
      * @return $this
      */
     public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
+
         return $this;
     }
 
@@ -304,11 +323,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param string|null $address
+     *
      * @return $this
      */
     public function setAddress(?string $address): self
     {
         $this->address = $address;
+
         return $this;
     }
 
@@ -318,17 +339,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getZipCode(): ?int
     {
         return (!is_int($this->zipCode))
-            ? (int)$this->zipCode
+            ? (int) $this->zipCode
             : $this->zipCode;
     }
 
     /**
      * @param int|null $zipCode
+     *
      * @return $this
      */
     public function setZipCode(?int $zipCode): self
     {
         $this->zipCode = $zipCode;
+
         return $this;
     }
 
@@ -342,11 +365,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param bool|null $isDeleted
+     *
      * @return $this
      */
     public function setIsDeleted(?bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
         return $this;
     }
 
@@ -360,6 +385,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param Order $order
+     *
      * @return $this
      */
     public function addOrder(Order $order): self
@@ -374,6 +400,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param Order $order
+     *
      * @return $this
      */
     public function removeOrder(Order $order): self

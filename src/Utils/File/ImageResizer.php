@@ -15,7 +15,7 @@ final class ImageResizer
      */
     private Imagine $imagine;
 
-    public function __construct(FilesystemWorker $filesystemWorker,)
+    public function __construct(FilesystemWorker $filesystemWorker, )
     {
         $this->imagine = new Imagine();
         $this->filesystemWorker = $filesystemWorker;
@@ -24,7 +24,8 @@ final class ImageResizer
     /**
      * @param string $originalFileFolder
      * @param string $originalFilename
-     * @param array $targetParams
+     * @param array  $targetParams
+     *
      * @return string
      */
     public function resizeImageAndSave(string $originalFileFolder, string $originalFilename, array $targetParams): string

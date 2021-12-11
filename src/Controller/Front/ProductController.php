@@ -15,7 +15,9 @@ class ProductController extends AbstractController
     /**
      * @Route("/product/{uuid}", name="main_product_show")
      * @Route("/product", name="main_product_show_blank")
+     *
      * @param Product|null $product
+     *
      * @return Response
      */
     public function show(Product $product = null): Response
@@ -24,8 +26,9 @@ class ProductController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if ($product->getIsDeleted() === true) {
+        if (true === $product->getIsDeleted()) {
             $this->addFlash('warning', "The product {$product->getTitle()} not found!");
+
             return $this->redirectToRoute('main_homepage');
         }
 
@@ -33,5 +36,4 @@ class ProductController extends AbstractController
             'product' => $product,
         ]);
     }
-
 }

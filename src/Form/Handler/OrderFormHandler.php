@@ -26,8 +26,8 @@ class OrderFormHandler
     private FilterBuilderUpdater $filterBuilderUpdater;
 
     /**
-     * @param OrderManager $orderManager
-     * @param PaginatorInterface $paginator
+     * @param OrderManager         $orderManager
+     * @param PaginatorInterface   $paginator
      * @param FilterBuilderUpdater $filterBuilderUpdater
      */
     public function __construct(OrderManager $orderManager, PaginatorInterface $paginator, FilterBuilderUpdater $filterBuilderUpdater)
@@ -39,6 +39,7 @@ class OrderFormHandler
 
     /**
      * @param EditOrderModel $editOrderModel
+     *
      * @return Order
      */
     public function processEditForm(EditOrderModel $editOrderModel): Order
@@ -59,8 +60,9 @@ class OrderFormHandler
     }
 
     /**
-     * @param Request $request
+     * @param Request       $request
      * @param FormInterface $filterForm
+     *
      * @return PaginationInterface
      */
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
@@ -82,18 +84,19 @@ class OrderFormHandler
     }
 
     /**
-     * @param Order $order
+     * @param Order          $order
      * @param EditOrderModel $editCategoryModel
+     *
      * @return Order
      */
     private function fillingCategoryData(Order $order, EditOrderModel $editCategoryModel): Order
     {
         $status = (!is_string($editCategoryModel->status))
-            ? (int)$editCategoryModel->status
+            ? (int) $editCategoryModel->status
             : $editCategoryModel->status;
 
         $isDeleted = (!is_bool($editCategoryModel->isDeleted))
-            ? (bool)$editCategoryModel->isDeleted
+            ? (bool) $editCategoryModel->isDeleted
             : $editCategoryModel->isDeleted;
 
         $order->setStatus($status);

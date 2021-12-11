@@ -45,6 +45,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     /**
      * @param Request $request
+     *
      * @return bool|null
      */
     public function supports(Request $request): ?bool
@@ -54,6 +55,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     /**
      * @param Request $request
+     *
      * @return PassportInterface
      */
     public function authenticate(Request $request): PassportInterface
@@ -74,15 +76,16 @@ class LoginFormAuthenticator extends AbstractAuthenticator
             new UserBadge($email),
             new PasswordCredentials($plaintextPassword),
             [
-                new RememberMeBadge()
+                new RememberMeBadge(),
             ]
         );
     }
 
     /**
-     * @param Request $request
+     * @param Request        $request
      * @param TokenInterface $token
-     * @param string $firewallName
+     * @param string         $firewallName
+     *
      * @return Response|null
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -95,8 +98,9 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     }
 
     /**
-     * @param Request $request
+     * @param Request                 $request
      * @param AuthenticationException $exception
+     *
      * @return Response|null
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

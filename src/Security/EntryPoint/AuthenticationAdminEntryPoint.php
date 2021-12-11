@@ -27,13 +27,15 @@ class AuthenticationAdminEntryPoint implements AuthenticationEntryPointInterface
     }
 
     /**
-     * @param Request $request
+     * @param Request                      $request
      * @param AuthenticationException|null $authException
+     *
      * @return RedirectResponse
      */
     public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
     {
         $request->getSession()->getFlashBag()->add('warning', 'You have to login in order to access this page.');
+
         return new RedirectResponse($this->urlGenerator->generate(LoginFormAuthenticator::LOGIN_ROUTE));
     }
 }

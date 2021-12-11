@@ -22,10 +22,12 @@ class CartApiController extends AbstractController
 {
     /**
      * @Route("/cart", methods="POST", name="cart_save")
-     * @param Request $request
-     * @param CartRepository $cartRepository
+     *
+     * @param Request               $request
+     * @param CartRepository        $cartRepository
      * @param CartProductRepository $cartProductRepository
-     * @param ProductRepository $productRepository
+     * @param ProductRepository     $productRepository
+     *
      * @return JsonResponse
      */
     public function saveCart(
@@ -69,7 +71,7 @@ class CartApiController extends AbstractController
         return new JsonResponse([
             'success' => false,
             'data' => [
-                'test' => 123
+                'test' => 123,
             ],
         ]);
     }

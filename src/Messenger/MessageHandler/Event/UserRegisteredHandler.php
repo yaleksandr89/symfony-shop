@@ -13,18 +13,18 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class UserRegisteredHandler implements MessageHandlerInterface
 {
-    /** @var EmailVerifier  */
+    /** @var EmailVerifier */
     private EmailVerifier $emailVerifier;
 
-    /** @var UserManager  */
+    /** @var UserManager */
     private UserManager $userManager;
 
-    /** @var UserRegisteredEmailSender  */
+    /** @var UserRegisteredEmailSender */
     private UserRegisteredEmailSender $emailSender;
 
     /**
-     * @param EmailVerifier $emailVerifier
-     * @param UserManager $userManager
+     * @param EmailVerifier             $emailVerifier
+     * @param UserManager               $userManager
      * @param UserRegisteredEmailSender $emailSender
      */
     public function __construct(EmailVerifier $emailVerifier, UserManager $userManager, UserRegisteredEmailSender $emailSender)

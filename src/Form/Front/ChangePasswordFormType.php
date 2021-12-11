@@ -22,7 +22,7 @@ class ChangePasswordFormType extends AbstractType
                 'first_options' => [
                     'attr' => [
                         'autocomplete' => 'new-password',
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                     'constraints' => [
                         new NotBlank([
@@ -40,7 +40,7 @@ class ChangePasswordFormType extends AbstractType
                 'second_options' => [
                     'attr' => [
                         'autocomplete' => 'new-password',
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                     'label' => 'Repeat Password',
                 ],

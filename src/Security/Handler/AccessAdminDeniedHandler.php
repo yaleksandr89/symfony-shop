@@ -28,13 +28,15 @@ class AccessAdminDeniedHandler implements AccessDeniedHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param AccessDeniedException $accessDeniedException
+     *
      * @return Response|null
      */
     public function handle(Request $request, AccessDeniedException $accessDeniedException): ?Response
     {
         $request->getSession()->getFlashBag()->add('warning', 'You have to login in order to access this page.');
+
         return new RedirectResponse($this->urlGenerator->generate(LoginFormAuthenticator::LOGIN_ROUTE));
     }
 }

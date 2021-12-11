@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\CartRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=CartRepository::class)
@@ -93,6 +93,7 @@ class Cart
 
     /**
      * @param string|null $token
+     *
      * @return $this
      */
     public function setToken(?string $token): self
@@ -112,6 +113,7 @@ class Cart
 
     /**
      * @param DateTimeImmutable $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt(DateTimeImmutable $createdAt): self
@@ -131,6 +133,7 @@ class Cart
 
     /**
      * @param CartProduct $cartProduct
+     *
      * @return $this
      */
     public function addCartProduct(CartProduct $cartProduct): self
@@ -145,6 +148,7 @@ class Cart
 
     /**
      * @param CartProduct $cartProduct
+     *
      * @return $this
      */
     public function removeCartProduct(CartProduct $cartProduct): self

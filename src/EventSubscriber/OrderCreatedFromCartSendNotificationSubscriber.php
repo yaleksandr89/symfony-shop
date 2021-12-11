@@ -18,18 +18,22 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
 
     /**
      * @required
+     *
      * @param OrderCreatedFromCartEmailSender $orderCreatedFromCartEmailSender
+     *
      * @return OrderCreatedFromCartSendNotificationSubscriber
      */
     public function setOrderCreatedFromCartEmailSender(OrderCreatedFromCartEmailSender $orderCreatedFromCartEmailSender): OrderCreatedFromCartSendNotificationSubscriber
     {
         $this->orderCreatedFromCartEmailSender = $orderCreatedFromCartEmailSender;
+
         return $this;
     }
     // Autowiring <<<
 
     /**
      * @param OrderCreatedFromCartEvent $event
+     *
      * @return void
      */
     public function onOrderCreatedFromCartEvent(OrderCreatedFromCartEvent $event): void

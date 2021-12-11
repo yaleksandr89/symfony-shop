@@ -15,6 +15,7 @@ class AuthFacebookController extends AbstractController
      * @Route("/connect/facebook", name="connect_facebook_start")
      *
      * @param ClientRegistry $clientRegistry
+     *
      * @return RedirectResponse
      */
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
@@ -31,6 +32,5 @@ class AuthFacebookController extends AbstractController
      */
     public function connectCheckAction(): void
     {
-        //
     }
 }

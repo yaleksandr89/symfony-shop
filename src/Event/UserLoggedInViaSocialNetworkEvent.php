@@ -25,9 +25,9 @@ class UserLoggedInViaSocialNetworkEvent extends Event
     private $verifyEmail;
 
     /**
-     * @param User $user
+     * @param User   $user
      * @param string $plainPassword
-     * @param array $verifyEmail
+     * @param array  $verifyEmail
      */
     public function __construct(User $user, string $plainPassword, array $verifyEmail)
     {

@@ -29,7 +29,7 @@ final class FileSaver
     /**
      * @param SluggerInterface $slugger
      * @param FilesystemWorker $filesystemWorker
-     * @param string $uploadsTempDir
+     * @param string           $uploadsTempDir
      */
     public function __construct(SluggerInterface $slugger, FilesystemWorker $filesystemWorker, string $uploadsTempDir)
     {
@@ -40,6 +40,7 @@ final class FileSaver
 
     /**
      * @param UploadedFile|null $uploadedFile
+     *
      * @return string|null
      */
     public function saveUploadedFileIntoTemp(?UploadedFile $uploadedFile): ?string

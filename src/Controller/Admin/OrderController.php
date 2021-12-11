@@ -23,8 +23,10 @@ class OrderController extends AbstractController
 {
     /**
      * @Route("/list", name="list")
-     * @param Request $request
+     *
+     * @param Request          $request
      * @param OrderFormHandler $orderFormHandler
+     *
      * @return Response
      */
     public function list(Request $request, OrderFormHandler $orderFormHandler): Response
@@ -37,16 +39,18 @@ class OrderController extends AbstractController
         return $this->render('admin/order/list.html.twig', [
             'pagination' => $pagination,
             'orderStatusChoice' => OrderStaticStorage::getOrderStatusChoices(),
-            'form' => $filterForm->createView()
+            'form' => $filterForm->createView(),
         ]);
     }
 
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
-     * @param Request $request
+     *
+     * @param Request          $request
      * @param OrderFormHandler $orderFormHandler
-     * @param Order|null $order
+     * @param Order|null       $order
+     *
      * @return Response
      */
     public function edit(Request $request, OrderFormHandler $orderFormHandler, Order $order = null): Response
@@ -59,6 +63,7 @@ class OrderController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $order = $orderFormHandler->processEditForm($editOrderModel);
             $this->addFlash('success', 'Your changes were saved!');
+
             return $this->redirectToRoute('admin_order_edit', ['id' => $order->getId()]);
         }
 
@@ -77,8 +82,10 @@ class OrderController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     * @param Order $order
+     *
+     * @param Order        $order
      * @param OrderManager $orderManager
+     *
      * @return Response
      */
     public function delete(Order $order, OrderManager $orderManager): Response

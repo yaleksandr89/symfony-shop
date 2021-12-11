@@ -15,7 +15,8 @@ class ProfileEditFormType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
+     *
      * @return void
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -30,7 +31,7 @@ class ProfileEditFormType extends AbstractType
                 'trim' => true,
             ])
             ->add('address', TextType::class, [
-                'label' =>'personal_account.edit.labels.address',
+                'label' => 'personal_account.edit.labels.address',
                 'trim' => true,
             ])
             ->add('zipCode', IntegerType::class, [
@@ -41,6 +42,7 @@ class ProfileEditFormType extends AbstractType
 
     /**
      * @param OptionsResolver $resolver
+     *
      * @return void
      */
     public function configureOptions(OptionsResolver $resolver): void

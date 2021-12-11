@@ -12,6 +12,7 @@ class OrderCreatedFromCartEmailSender extends BaseSender
 {
     /**
      * @param Order $order
+     *
      * @return void
      */
     public function sendEmailToClient(Order $order): void
@@ -34,6 +35,7 @@ class OrderCreatedFromCartEmailSender extends BaseSender
 
     /**
      * @param Order $order
+     *
      * @return void
      */
     public function sendEmailToManager(Order $order): void
