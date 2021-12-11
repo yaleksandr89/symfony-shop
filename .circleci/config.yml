@@ -1,0 +1,62 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/php:7.4-node-browsers
+
+    steps:
+      - checkout
+      - run: sudo apt update
+      - run: sudo apt install libpng-dev libpq-dev libxslt1.1 libxslt1-dev
+      - run: sudo docker-php-ext-install zip gd pgsql xsl
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "composer.json" }}
+            - v1-dependencies-
+
+      - run:
+          name: "Create environment file"
+          command: mv .env.test .env
+
+#      - run:
+#          name: "Install npm 7.15.0"
+#          command: sudo npm install -g npm@7.15.0
+#
+#      - run:
+#          name: "Install dependencies"
+#          command: composer install -n --prefer-dist
+#
+#      - save_cache:
+#          key: v1-dependencies-{{ checksum "composer.json" }}
+#          paths:
+#            - ./vendor
+#      - restore_cache:
+#          keys:
+#            - node-v1-{{ checksum "package.json" }}
+#            - node-v1-
+#      - run: npm install
+#      - save_cache:
+#          key: node-v1-{{ checksum "package.json" }}
+#          paths:
+#            - node_modules
+#      - run: npm run build
+#
+#      - run:
+#          name: Download Symfony cli
+#          command: wget https://get.symfony.com/cli/installer -O - | bash
+#
+#      - run:
+#          name: Move symfony Cli to local bin
+#          command: sudo mv ~/.symfony/bin/symfony /usr/local/bin/symfony
+#
+#      - run:
+#          name: Download Selenium
+#          command: curl -O https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar
+#
+#      - run:
+#          name: Start Selenium
+#          command: java -jar selenium-server-standalone-3.141.59.jar
+#          background: true
+#
+#      - run: make run-test
