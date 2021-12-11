@@ -19,6 +19,7 @@ jobs:
           name: "Create environment file"
           command: mv .env.test .env
 
+
 #      - run:
 #          name: "Install npm 7.15.0"
 #          command: sudo npm install -g npm@7.15.0
