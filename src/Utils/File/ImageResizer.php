@@ -10,10 +10,11 @@ use Imagine\Image\Box;
 
 final class ImageResizer
 {
-    /**
-     * @var Imagine
-     */
+    /** @var Imagine */
     private Imagine $imagine;
+
+    /** @var FilesystemWorker */
+    private FilesystemWorker $filesystemWorker;
 
     public function __construct(FilesystemWorker $filesystemWorker, )
     {
