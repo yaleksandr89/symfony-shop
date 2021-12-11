@@ -107,6 +107,7 @@ class CartProductVoter extends Voter
         }
 
         $cartToken = $this->getCartToken();
+
         if (!$cartToken) {
             return false;
         }
