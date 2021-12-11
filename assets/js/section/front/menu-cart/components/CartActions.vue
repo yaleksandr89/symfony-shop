@@ -10,15 +10,15 @@
 </template>
 
 <script>
-import {mapActions, mapState} from "vuex";
+import { mapActions, mapState } from "vuex";
 
 export default {
-  name: 'CartActions',
+  name: "CartActions",
   computed: {
-    ...mapState('cart', ['staticStore']),
+    ...mapState("cart", ["staticStore"]),
   },
   methods: {
-    ...mapActions('cart', ['cleanCart']),
+    ...mapActions("cart", ["cleanCart"]),
   },
-}
+};
 </script>

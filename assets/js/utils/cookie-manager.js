@@ -1,21 +1,22 @@
 /** @see https://learn.javascript.ru/cookie */
 export function setCookie(name, value, options = {}) {
   options = {
-    path: '/',
-    ...options
+    path: "/",
+    ...options,
   };
 
   if (options.expires instanceof Date) {
     options.expires = options.expires.toUTCString();
   }
 
-  let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+  let updatedCookie =
+    encodeURIComponent(name) + "=" + encodeURIComponent(value);
 
   for (let optionKey in options) {
-    updatedCookie += '; ' + optionKey;
+    updatedCookie += "; " + optionKey;
     let optionValue = options[optionKey];
     if (optionValue !== true) {
-      updatedCookie += '=' + optionValue;
+      updatedCookie += "=" + optionValue;
     }
   }
 
@@ -24,8 +25,12 @@ export function setCookie(name, value, options = {}) {
 
 export function getCookie(name) {
   let matches = document.cookie.match(
+    /* eslint-disable */
     new RegExp(
-    '(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'
-  ));
+      "(?:^|; )" +
+        name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
+        "=([^;]*)"
+    )
+  );
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }

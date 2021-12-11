@@ -6,13 +6,13 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from 'vuex';
+import { mapGetters, mapState } from "vuex";
 
 export default {
-  name: 'CartTotalPrice',
+  name: "CartTotalPrice",
   computed: {
-    ...mapState('cart', ['staticStore']),
-    ...mapGetters('cart', ['totalPrice'])
+    ...mapState("cart", ["staticStore"]),
+    ...mapGetters("cart", ["totalPrice"]),
   },
-}
+};
 </script>
