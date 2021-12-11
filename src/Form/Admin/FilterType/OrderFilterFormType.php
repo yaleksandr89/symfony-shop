@@ -25,7 +25,7 @@ class OrderFilterFormType extends AbstractType
             ->add('id', NumberFilterType::class, [
                 'label' => 'Id',
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('owner', EntityFilterType::class, [
@@ -35,14 +35,14 @@ class OrderFilterFormType extends AbstractType
                     return sprintf('#%s %s', $user->getId(), $user->getEmail());
                 },
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('status', ChoiceFilterType::class, [
                 'label' => 'Status',
                 'choices' => array_flip(OrderStaticStorage::getOrderStatusChoices()),
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('totalPrice', NumberRangeFilterType::class, [
@@ -51,14 +51,14 @@ class OrderFilterFormType extends AbstractType
                     'label' => 'From',
                     'condition_operator' => FilterOperands::OPERATOR_GREATER_THAN_EQUAL,
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
                 'right_number_options' => [
                     'label' => 'To',
                     'condition_operator' => FilterOperands::OPERATOR_LOWER_THAN_EQUAL,
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
             ])
@@ -68,14 +68,14 @@ class OrderFilterFormType extends AbstractType
                     'label' => 'From',
                     'widget' => 'single_text',
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
                 'right_datetime_options' => [
                     'label' => 'To',
                     'widget' => 'single_text',
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
             ]);
@@ -94,7 +94,7 @@ class OrderFilterFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => EditOrderModel::class,
             'method' => 'GET',
-            'validation_groups' => ['filtering']
+            'validation_groups' => ['filtering'],
         ]);
     }
 }

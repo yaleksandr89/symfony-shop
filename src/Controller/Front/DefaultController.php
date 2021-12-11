@@ -24,20 +24,25 @@ class DefaultController extends AbstractController
 
     /**
      * @required
+     *
      * @param UrlGeneratorInterface $urlGenerator
+     *
      * @return DefaultController
      */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): DefaultController
     {
         $this->urlGenerator = $urlGenerator;
+
         return $this;
     }
     // Autowiring <<<
 
     /**
      * @Route("/", name="main_homepage")
-     * @param Request $request
+     *
+     * @param Request            $request
      * @param CategoryRepository $categoryRepository
+     *
      * @return Response
      */
     public function index(Request $request, CategoryRepository $categoryRepository): Response
@@ -61,18 +66,18 @@ class DefaultController extends AbstractController
 
                 /** @var ProductImage $productImg */
                 $productImg = $randomProduct->getProductImages()->first();
-                $randProductImg = $request->getUriForPath($baseProductImagDir) . "/{$randomProduct->getId()}/{$productImg->getFilenameBig()}";
+                $randProductImg = $request->getUriForPath($baseProductImagDir)."/{$randomProduct->getId()}/{$productImg->getFilenameBig()}";
 
                 $preparedListCategory[] = [
                     'title' => $category->getTitle(),
                     'url' => $this->urlGenerator->generate('main_category_show', ['slug' => $category->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL),
-                    'rand_product_img' => $randProductImg
+                    'rand_product_img' => $randProductImg,
                 ];
             }
         }
 
         return $this->render('front/default/index.html.twig', [
-            'categories' => $preparedListCategory
+            'categories' => $preparedListCategory,
         ]);
     }
 }

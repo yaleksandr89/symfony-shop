@@ -17,8 +17,10 @@ class CartController extends AbstractController
 {
     /**
      * @Route("/cart", name="main_cart_show")
-     * @param Request $request
+     *
+     * @param Request        $request
      * @param CartRepository $cartRepository
+     *
      * @return Response
      */
     public function show(Request $request, CartRepository $cartRepository): Response
@@ -33,8 +35,10 @@ class CartController extends AbstractController
 
     /**
      * @Route("/cart/create", name="main_cart_create")
-     * @param Request $request
+     *
+     * @param Request      $request
      * @param OrderManager $orderManager
+     *
      * @return Response
      */
     public function create(Request $request, OrderManager $orderManager): Response

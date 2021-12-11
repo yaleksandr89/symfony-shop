@@ -22,6 +22,7 @@ class LocaleSubscriber implements EventSubscriberInterface
 
     /**
      * @param RequestEvent $requestEvent
+     *
      * @return void
      */
     public function onKernelRequest(RequestEvent $requestEvent): void
@@ -52,9 +53,9 @@ class LocaleSubscriber implements EventSubscriberInterface
             KernelEvents::REQUEST => [
                 [
                     'onKernelRequest',
-                    20
-                ]
-            ]
+                    20,
+                ],
+            ],
         ];
     }
 }

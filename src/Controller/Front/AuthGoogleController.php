@@ -15,6 +15,7 @@ class AuthGoogleController extends AbstractController
      * @Route("/connect/google", name="connect_google_start")
      *
      * @param ClientRegistry $clientRegistry
+     *
      * @return RedirectResponse
      */
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
@@ -31,6 +32,5 @@ class AuthGoogleController extends AbstractController
      */
     public function connectCheckAction(): void
     {
-        //
     }
 }

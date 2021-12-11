@@ -23,12 +23,13 @@ class SetCartTokenSubscriber implements EventSubscriberInterface
         return [
             KernelEvents::VIEW => [
                 'setCartTokenToCart', EventPriorities::PRE_WRITE,
-            ]
+            ],
         ];
     }
 
     /**
      * @param ViewEvent $event
+     *
      * @throws Exception
      */
     public function setCartTokenToCart(ViewEvent $event): void

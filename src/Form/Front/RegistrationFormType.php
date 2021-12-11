@@ -20,7 +20,7 @@ class RegistrationFormType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -45,10 +45,10 @@ class RegistrationFormType extends AbstractType
                 'required' => true,
                 'label_html' => true,
                 'attr' => [
-                    'class' => 'custom-control-input'
+                    'class' => 'custom-control-input',
                 ],
                 'label_attr' => [
-                    'class' => 'custom-control-label'
+                    'class' => 'custom-control-label',
                 ],
                 'constraints' => [
                     new IsTrue(),
@@ -62,7 +62,7 @@ class RegistrationFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'registration_form.placeholder.plainPassword',
-                    'autocomplete' => 'new-password'
+                    'autocomplete' => 'new-password',
                 ],
                 'constraints' => [
                     new NotBlank(),
@@ -76,6 +76,7 @@ class RegistrationFormType extends AbstractType
 
     /**
      * @param OptionsResolver $resolver
+     *
      * @return void
      */
     public function configureOptions(OptionsResolver $resolver): void

@@ -6,13 +6,13 @@
     </a>
 
     <div class="dropdown-menu cart-dropdown-window">
-      <CartProductList/>
-      <CartTotalPrice/>
+      <CartProductList />
+      <CartTotalPrice />
 
       <div v-if="countCartProducts">
-        <CartActions/>
+        <CartActions />
       </div>
-      <div class="text-center" v-else>
+      <div v-else class="text-center">
         {{ staticStore.localization.cart_empty }}
       </div>
     </div>
@@ -23,24 +23,22 @@
 import CartTotalPrice from "./components/CartTotalPrice";
 import CartActions from "./components/CartActions";
 import CartProductList from "./components/CartProductList";
-import {mapActions, mapState} from 'vuex';
+import { mapActions, mapState } from "vuex";
 
 export default {
-  name: 'App',
-  components: {CartProductList, CartActions, CartTotalPrice},
+  name: "App",
+  components: { CartProductList, CartActions, CartTotalPrice },
+  computed: {
+    ...mapState("cart", ["cart", "staticStore"]),
+    countCartProducts() {
+      return this.cart.cartProducts ? this.cart.cartProducts.length : 0;
+    },
+  },
   created() {
     this.getCart();
   },
-  computed: {
-    ...mapState('cart', ['cart', 'staticStore']),
-    countCartProducts() {
-      return this.cart.cartProducts
-          ? this.cart.cartProducts.length
-          : 0;
-    },
-  },
   methods: {
-    ...mapActions('cart', ['getCart'])
+    ...mapActions("cart", ["getCart"]),
   },
-}
+};
 </script>

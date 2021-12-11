@@ -12,6 +12,7 @@ class UserFactory
 {
     /**
      * @param FacebookUser $facebookUser
+     *
      * @return User
      */
     public static function createUserFromFacebookUser(FacebookUser $facebookUser): User
@@ -26,6 +27,7 @@ class UserFactory
 
     /**
      * @param GoogleUser $googleUser
+     *
      * @return User
      */
     public static function createUserFromGoogleUser(GoogleUser $googleUser): User

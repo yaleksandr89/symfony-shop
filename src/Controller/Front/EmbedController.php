@@ -21,12 +21,15 @@ class EmbedController extends AbstractController
 
     /**
      * @required
+     *
      * @param UrlGeneratorInterface $urlGenerator
+     *
      * @return EmbedController
      */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): EmbedController
     {
         $this->urlGenerator = $urlGenerator;
+
         return $this;
     }
     // Autowiring <<<
@@ -42,7 +45,8 @@ class EmbedController extends AbstractController
 
     /**
      * @param CategoryRepository $categoryRepository
-     * @param string|null $isActiveItemMenu
+     * @param string|null        $isActiveItemMenu
+     *
      * @return Response
      */
     public function showHeaderMenu(CategoryRepository $categoryRepository, ?string $isActiveItemMenu): Response

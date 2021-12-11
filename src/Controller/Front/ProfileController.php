@@ -21,18 +21,22 @@ class ProfileController extends AbstractController
 
     /**
      * @required
+     *
      * @param Doctrine $doctrine
+     *
      * @return ProfileController
      */
     public function setDoctrine(Doctrine $doctrine): ProfileController
     {
         $this->doctrine = $doctrine;
+
         return $this;
     }
     // Autowiring <<<
 
     /**
      * @Route("/profile", name="main_profile_index")
+     *
      * @return Response
      */
     public function index(): Response
@@ -42,7 +46,9 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/edit", name="main_profile_edit")
+     *
      * @param Request $request
+     *
      * @return Response
      */
     public function edit(Request $request): Response

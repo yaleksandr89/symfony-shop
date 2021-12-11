@@ -6,12 +6,10 @@ namespace App\Security\Voters;
 
 use App\Entity\Cart;
 use App\Entity\User;
-use App\Repository\CartRepository;
 use LogicException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class CartVoter extends Voter
 {
@@ -32,7 +30,8 @@ class CartVoter extends Voter
 
     /**
      * @param string $attribute
-     * @param mixed $subject
+     * @param mixed  $subject
+     *
      * @return bool
      */
     protected function supports(string $attribute, $subject): bool
@@ -51,9 +50,10 @@ class CartVoter extends Voter
     }
 
     /**
-     * @param string $attribute
-     * @param mixed $subject
+     * @param string         $attribute
+     * @param mixed          $subject
      * @param TokenInterface $token
+     *
      * @return bool
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -91,6 +91,7 @@ class CartVoter extends Voter
 
     /**
      * @param Cart $cart
+     *
      * @return bool
      */
     private function canEdit(Cart $cart): bool
@@ -112,6 +113,7 @@ class CartVoter extends Voter
 
     /**
      * @param Cart $cart
+     *
      * @return bool
      */
     private function canDelete(Cart $cart): bool

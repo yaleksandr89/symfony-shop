@@ -36,6 +36,7 @@ class ProductRepository extends ServiceEntityRepository
     /**
      * @param int|null $productCount
      * @param int|null $categoryId
+     *
      * @return array
      */
     public function findByCategoryAndCount(?int $categoryId, int $productCount = null): array
@@ -57,6 +58,7 @@ class ProductRepository extends ServiceEntityRepository
 
     /**
      * @param string $productId
+     *
      * @return Product|null
      */
     public function findById(string $productId): ?Product
@@ -69,7 +71,7 @@ class ProductRepository extends ServiceEntityRepository
 
         try {
             $queryBuilder = $this->getSingleResult($queryBuilder);
-        } catch (NoResultException | NonUniqueResultException $e) {
+        } catch (NoResultException|NonUniqueResultException $e) {
             return null;
         }
 
@@ -78,6 +80,7 @@ class ProductRepository extends ServiceEntityRepository
 
     /**
      * @param QueryBuilder $queryBuilder
+     *
      * @return array
      */
     private function getResult(QueryBuilder $queryBuilder): array
@@ -89,7 +92,9 @@ class ProductRepository extends ServiceEntityRepository
 
     /**
      * @param QueryBuilder $queryBuilder
+     *
      * @return Product
+     *
      * @throws NoResultException
      * @throws NonUniqueResultException
      */

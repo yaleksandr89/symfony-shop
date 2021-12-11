@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProductImageRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -76,6 +76,7 @@ class ProductImage
 
     /**
      * @param Product|null $product
+     *
      * @return $this
      */
     public function setProduct(?Product $product): self
@@ -95,6 +96,7 @@ class ProductImage
 
     /**
      * @param string $filenameBig
+     *
      * @return $this
      */
     public function setFilenameBig(string $filenameBig): self
@@ -114,6 +116,7 @@ class ProductImage
 
     /**
      * @param string $filenameMiddle
+     *
      * @return $this
      */
     public function setFilenameMiddle(string $filenameMiddle): self
@@ -133,6 +136,7 @@ class ProductImage
 
     /**
      * @param string $filenameSmall
+     *
      * @return $this
      */
     public function setFilenameSmall(string $filenameSmall): self

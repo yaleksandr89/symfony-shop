@@ -12,7 +12,6 @@ use Doctrine\ORM\QueryBuilder;
 
 class FilterProductQueryExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
@@ -35,7 +34,8 @@ class FilterProductQueryExtension implements QueryCollectionExtensionInterface, 
 
     /**
      * @param QueryBuilder $queryBuilder
-     * @param string $resourceClass
+     * @param string       $resourceClass
+     *
      * @return void
      */
     private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void

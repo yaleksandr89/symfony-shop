@@ -5,15 +5,15 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import { mapState } from "vuex";
 
 export default {
   name: "Alert",
   computed: {
-    ...mapState('cart', ['alert']),
+    ...mapState("cart", ["alert"]),
     alertClass() {
       return "alert alert-" + this.alert.type;
-    }
+    },
   },
-}
+};
 </script>

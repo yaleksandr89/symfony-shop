@@ -7,22 +7,23 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import { mapState } from "vuex";
 
 export default {
-  name: 'TotalPriceBlock',
+  name: "TotalPriceBlock",
   computed: {
-    ...mapState('products',['orderProducts']),
+    ...mapState("products", ["orderProducts"]),
     totalPrice() {
       let totalPrice = 0;
       if (this.orderProducts) {
-        this.orderProducts.forEach(orderProducts => {
-          totalPrice += parseFloat(orderProducts.pricePerOne) * orderProducts.quantity
+        this.orderProducts.forEach((orderProducts) => {
+          totalPrice +=
+            parseFloat(orderProducts.pricePerOne) * orderProducts.quantity;
         });
       }
 
       return parseFloat(totalPrice.toFixed(2));
     },
   },
-}
+};
 </script>

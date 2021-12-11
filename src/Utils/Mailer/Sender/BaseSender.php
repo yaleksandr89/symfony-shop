@@ -16,12 +16,15 @@ abstract class BaseSender
 
     /**
      * @required
+     *
      * @param MailerSender $mailerSender
+     *
      * @return self
      */
     public function setMailerSender(MailerSender $mailerSender): self
     {
         $this->mailerSender = $mailerSender;
+
         return $this;
     }
 
@@ -32,12 +35,15 @@ abstract class BaseSender
 
     /**
      * @required
+     *
      * @param UrlGeneratorInterface $urlGenerator
+     *
      * @return self
      */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): self
     {
         $this->urlGenerator = $urlGenerator;
+
         return $this;
     }
     // Autowiring <<<
@@ -47,6 +53,6 @@ abstract class BaseSender
      */
     protected function getMailerOptions(): MailerOptionModel
     {
-        return (new MailerOptionModel());
+        return new MailerOptionModel();
     }
 }

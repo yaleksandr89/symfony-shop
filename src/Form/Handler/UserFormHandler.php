@@ -33,6 +33,7 @@ class UserFormHandler
 
     /**
      * @param EditUserModel $editUserModel
+     *
      * @return User
      */
     public function processEditForm(EditUserModel $editUserModel): User
@@ -51,38 +52,39 @@ class UserFormHandler
     }
 
     /**
-     * @param User $user
+     * @param User          $user
      * @param EditUserModel $editUserModel
+     *
      * @return User
      */
     private function fillingCategoryData(User $user, EditUserModel $editUserModel): User
     {
         $plainPassword = (!is_string($editUserModel->plainPassword))
-            ? (string)$editUserModel->plainPassword
+            ? (string) $editUserModel->plainPassword
             : $editUserModel->plainPassword;
 
         $roles = (!is_array($editUserModel->roles))
-            ? (array)$editUserModel->roles
+            ? (array) $editUserModel->roles
             : $editUserModel->roles;
 
         $fullName = (!is_string($editUserModel->fullName))
-            ? (string)$editUserModel->fullName
+            ? (string) $editUserModel->fullName
             : $editUserModel->fullName;
 
         $phone = (!is_string($editUserModel->phone))
-            ? (string)$editUserModel->phone
+            ? (string) $editUserModel->phone
             : $editUserModel->phone;
 
         $address = (!is_string($editUserModel->address))
-            ? (string)$editUserModel->address
+            ? (string) $editUserModel->address
             : $editUserModel->address;
 
         $zipCode = (!is_int($editUserModel->zipCode))
-            ? (int)$editUserModel->zipCode
+            ? (int) $editUserModel->zipCode
             : $editUserModel->zipCode;
 
         $isDeleted = (!is_bool($editUserModel->isDeleted))
-            ? (bool)$editUserModel->isDeleted
+            ? (bool) $editUserModel->isDeleted
             : $editUserModel->isDeleted;
 
         $email = $editUserModel->email;

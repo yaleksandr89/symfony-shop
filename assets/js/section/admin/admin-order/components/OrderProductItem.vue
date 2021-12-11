@@ -27,21 +27,20 @@
 </template>
 
 <script>
-import {mapActions, mapState} from 'vuex';
-import {getUrlViewProduct} from "../../../../utils/url-generator";
-import {getProductInformativeTitle} from "../../../../utils/title-formatter";
+import { mapActions, mapState } from "vuex";
+import { getUrlViewProduct } from "../../../../utils/url-generator";
+import { getProductInformativeTitle } from "../../../../utils/title-formatter";
 
 export default {
   name: "OrderProductItem",
   props: {
     orderProduct: {
       type: Object,
-      default: () => {
-      },
+      default: () => {},
     },
     index: {
       type: Number,
-      default: 0
+      default: 0,
     },
   },
   computed: {
@@ -59,21 +58,21 @@ export default {
       return this.orderProduct.quantity;
     },
     pricePerOne() {
-      return '$' + this.orderProduct.pricePerOne;
+      return "$" + this.orderProduct.pricePerOne;
     },
   },
   methods: {
-    ...mapActions('products', ['removeOrderProduct']),
+    ...mapActions("products", ["removeOrderProduct"]),
     viewDetails(event) {
       const url = getUrlViewProduct(
-          this.staticStore.url.viewProduct,
-          this.orderProduct.product.id
+        this.staticStore.url.viewProduct,
+        this.orderProduct.product.id
       );
-      window.open(url, '_blank').focus();
+      window.open(url, "_blank").focus();
     },
     remove(event) {
       this.removeOrderProduct(this.orderProduct.id);
-    }
+    },
   },
-}
+};
 </script>

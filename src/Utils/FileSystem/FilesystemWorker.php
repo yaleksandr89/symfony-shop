@@ -21,6 +21,7 @@ final class FilesystemWorker
 
     /**
      * @param string $folder
+     *
      * @return void
      */
     public function createFolderIfNotExist(string $folder): void
@@ -32,6 +33,7 @@ final class FilesystemWorker
 
     /**
      * @param string $item
+     *
      * @return void
      */
     public function remove(string $item): void
@@ -57,10 +59,11 @@ final class FilesystemWorker
     /**
      * @param string $dir
      * @param string $filename
+     *
      * @return string
      */
     public function generatePathToFile(string $dir, string $filename): string
     {
-        return $dir . DIRECTORY_SEPARATOR . $filename;
+        return $dir.DIRECTORY_SEPARATOR.$filename;
     }
 }

@@ -19,12 +19,15 @@ final class UserManager extends AbstractBaseManager
 
     /**
      * @required
+     *
      * @param UserPasswordHasherInterface $userPasswordHasher
+     *
      * @return UserManager
      */
     public function setUserPasswordHasher(UserPasswordHasherInterface $userPasswordHasher): UserManager
     {
         $this->userPasswordHasher = $userPasswordHasher;
+
         return $this;
     }
     // Autowiring <<<
@@ -38,7 +41,7 @@ final class UserManager extends AbstractBaseManager
     }
 
     /**
-     * @param User $user
+     * @param User   $user
      * @param string $plainPassword
      */
     public function encodePassword(User $user, string $plainPassword): void

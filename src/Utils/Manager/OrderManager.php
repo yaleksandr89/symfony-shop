@@ -24,12 +24,15 @@ final class OrderManager extends AbstractBaseManager
 
     /**
      * @required
+     *
      * @param CartManager $cartManager
+     *
      * @return OrderManager
      */
     public function setCartManager(CartManager $cartManager): OrderManager
     {
         $this->cartManager = $cartManager;
+
         return $this;
     }
     // Autowiring <<<
@@ -43,7 +46,8 @@ final class OrderManager extends AbstractBaseManager
     }
 
     /**
-     * alias: 'o'
+     * alias: 'o'.
+     *
      * @return QueryBuilder
      */
     public function getQueryBuilder(): QueryBuilder
@@ -54,7 +58,8 @@ final class OrderManager extends AbstractBaseManager
 
     /**
      * @param string $cartToken
-     * @param User $user
+     * @param User   $user
+     *
      * @return void
      */
     public function createOrderFromCartByToken(string $cartToken, User $user): void
@@ -71,6 +76,7 @@ final class OrderManager extends AbstractBaseManager
     /**
      * @param Cart $cart
      * @param User $user
+     *
      * @return void
      */
     public function createOrderFromCart(Cart $cart, User $user): void
@@ -90,7 +96,8 @@ final class OrderManager extends AbstractBaseManager
 
     /**
      * @param Order $order
-     * @param int $cartId
+     * @param int   $cartId
+     *
      * @return void
      */
     public function addOrdersProductsFromCart(Order $order, int $cartId): void
@@ -118,6 +125,7 @@ final class OrderManager extends AbstractBaseManager
 
     /**
      * @param Order $order
+     *
      * @return void
      */
     public function calculationOrderTotalPrice(Order $order): void

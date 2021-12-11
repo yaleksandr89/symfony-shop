@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\ProductRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV4;
-use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+
 /**
  * @ApiResource(
  *     collectionOperations={
@@ -181,11 +182,13 @@ class Product
 
     /**
      * @param string $title
+     *
      * @return $this
      */
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -199,11 +202,13 @@ class Product
 
     /**
      * @param string $price
+     *
      * @return $this
      */
     public function setPrice(string $price): self
     {
         $this->price = $price;
+
         return $this;
     }
 
@@ -217,11 +222,13 @@ class Product
 
     /**
      * @param int $quantity
+     *
      * @return $this
      */
     public function setQuantity(int $quantity): self
     {
         $this->quantity = $quantity;
+
         return $this;
     }
 
@@ -235,11 +242,13 @@ class Product
 
     /**
      * @param DateTimeImmutable $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -253,11 +262,13 @@ class Product
 
     /**
      * @param string|null $description
+     *
      * @return $this
      */
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -271,11 +282,13 @@ class Product
 
     /**
      * @param bool $isPublished
+     *
      * @return $this
      */
     public function setIsPublished(bool $isPublished): self
     {
         $this->isPublished = $isPublished;
+
         return $this;
     }
 
@@ -289,11 +302,13 @@ class Product
 
     /**
      * @param bool $isDeleted
+     *
      * @return $this
      */
     public function setIsDeleted(bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
+
         return $this;
     }
 
@@ -307,6 +322,7 @@ class Product
 
     /**
      * @param ProductImage $productImage
+     *
      * @return $this
      */
     public function addProductImage(ProductImage $productImage): self
@@ -321,6 +337,7 @@ class Product
 
     /**
      * @param ProductImage $productImage
+     *
      * @return $this
      */
     public function removeProductImage(ProductImage $productImage): self
@@ -343,6 +360,7 @@ class Product
 
     /**
      * @param string|null $slug
+     *
      * @return $this
      */
     public function setSlug(?string $slug): self
@@ -374,6 +392,7 @@ class Product
 
     /**
      * @param CartProduct $cartProduct
+     *
      * @return $this
      */
     public function addCartProduct(CartProduct $cartProduct): self
@@ -388,6 +407,7 @@ class Product
 
     /**
      * @param CartProduct $cartProduct
+     *
      * @return $this
      */
     public function removeCartProduct(CartProduct $cartProduct): self
@@ -412,6 +432,7 @@ class Product
 
     /**
      * @param OrderProduct $orderProduct
+     *
      * @return $this
      */
     public function addOrderProduct(OrderProduct $orderProduct): self
@@ -426,6 +447,7 @@ class Product
 
     /**
      * @param OrderProduct $orderProduct
+     *
      * @return $this
      */
     public function removeOrderProduct(OrderProduct $orderProduct): self

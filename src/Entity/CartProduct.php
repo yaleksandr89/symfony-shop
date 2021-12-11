@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\CartProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=CartProductRepository::class)
@@ -87,6 +87,7 @@ class CartProduct
 
     /**
      * @param Cart|null $cart
+     *
      * @return $this
      */
     public function setCart(?Cart $cart): self
@@ -106,6 +107,7 @@ class CartProduct
 
     /**
      * @param Product|null $product
+     *
      * @return $this
      */
     public function setProduct(?Product $product): self
@@ -125,6 +127,7 @@ class CartProduct
 
     /**
      * @param int $quantity
+     *
      * @return $this
      */
     public function setQuantity(int $quantity): self

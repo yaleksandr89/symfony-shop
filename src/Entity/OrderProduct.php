@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\OrderProductRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -88,11 +88,13 @@ class OrderProduct
 
     /**
      * @param Order|null $appOrder
+     *
      * @return $this
      */
     public function setAppOrder(?Order $appOrder): self
     {
         $this->appOrder = $appOrder;
+
         return $this;
     }
 
@@ -106,11 +108,13 @@ class OrderProduct
 
     /**
      * @param Product|null $product
+     *
      * @return $this
      */
     public function setProduct(?Product $product): self
     {
         $this->product = $product;
+
         return $this;
     }
 
@@ -124,11 +128,13 @@ class OrderProduct
 
     /**
      * @param int $quantity
+     *
      * @return $this
      */
     public function setQuantity(int $quantity): self
     {
         $this->quantity = $quantity;
+
         return $this;
     }
 
@@ -142,11 +148,13 @@ class OrderProduct
 
     /**
      * @param string $pricePerOne
+     *
      * @return $this
      */
     public function setPricePerOne(string $pricePerOne): self
     {
         $this->pricePerOne = $pricePerOne;
+
         return $this;
     }
 }

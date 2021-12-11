@@ -31,7 +31,8 @@ class CartProductVoter extends Voter
 
     /**
      * @param string $attribute
-     * @param mixed $subject
+     * @param mixed  $subject
+     *
      * @return bool
      */
     protected function supports(string $attribute, $subject): bool
@@ -50,9 +51,10 @@ class CartProductVoter extends Voter
     }
 
     /**
-     * @param string $attribute
-     * @param mixed $subject
+     * @param string         $attribute
+     * @param mixed          $subject
      * @param TokenInterface $token
+     *
      * @return bool
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -97,6 +99,7 @@ class CartProductVoter extends Voter
 
     /**
      * @param Cart $cart
+     *
      * @return bool
      */
     private function canEdit(Cart $cart): bool
@@ -118,6 +121,7 @@ class CartProductVoter extends Voter
 
     /**
      * @param Cart $cart
+     *
      * @return bool
      */
     private function canDelete(Cart $cart): bool

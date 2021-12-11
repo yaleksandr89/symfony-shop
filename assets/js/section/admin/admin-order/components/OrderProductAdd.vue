@@ -2,16 +2,16 @@
   <div class="row mb-2">
     <div class="col-md-2">
       <select
-          v-model="form.categoryId"
-          name="add_product_category_select"
-          class="form-control"
-          @change="getProducts()"
+        v-model="form.categoryId"
+        name="add_product_category_select"
+        class="form-control"
+        @change="getProducts()"
       >
         <option value="" disabled>- choose options-</option>
         <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.id"
+          v-for="category in categories"
+          :key="category.id"
+          :value="category.id"
         >
           {{ category.title }}
         </option>
@@ -20,16 +20,16 @@
 
     <div v-if="form.categoryId" class="col-md-3">
       <select
-          v-model="form.productId"
-          name="add_product_product_select"
-          class="form-control"
-          @change="changeProduct()"
+        v-model="form.productId"
+        name="add_product_product_select"
+        class="form-control"
+        @change="changeProduct()"
       >
         <option value="" disabled>- choose options-</option>
         <option
-            v-for="categoryProduct in freeCategoryProducts"
-            :key="categoryProduct.id"
-            :value="categoryProduct.uuid"
+          v-for="categoryProduct in freeCategoryProducts"
+          :key="categoryProduct.id"
+          :value="categoryProduct.uuid"
         >
           {{ productTitle(categoryProduct) }}
         </option>
@@ -38,40 +38,34 @@
 
     <div v-if="showProductOptions" class="col-md-2">
       <input
-          v-model="form.quantity"
-          type="number"
-          class="form-control"
-          placeholder="quantity"
-          min="1"
-          :max="productQuantityMax"
-          @change="updateMaxValue($event, 'quantity', productQuantityMax)"
-      >
+        v-model="form.quantity"
+        type="number"
+        class="form-control"
+        placeholder="quantity"
+        min="1"
+        :max="productQuantityMax"
+        @change="updateMaxValue($event, 'quantity', productQuantityMax)"
+      />
     </div>
 
     <div v-if="showProductOptions" class="col-md-2">
       <input
-          v-model="form.pricePerOne"
-          type="number"
-          class="form-control"
-          placeholder="price per one"
-          step="0.01"
-          min="1"
-          :max="productPriceMax"
-          @change="updateMaxValue($event, 'pricePerOne', productPriceMax)"
-      >
+        v-model="form.pricePerOne"
+        type="number"
+        class="form-control"
+        placeholder="price per one"
+        step="0.01"
+        min="1"
+        :max="productPriceMax"
+        @change="updateMaxValue($event, 'pricePerOne', productPriceMax)"
+      />
     </div>
 
     <div v-if="showProductOptions" class="col-md-3">
-      <button
-          class="btn btn-sm btn-outline-info"
-          @click.prevent="viewDetails"
-      >
+      <button class="btn btn-sm btn-outline-info" @click.prevent="viewDetails">
         Details
       </button>
-      <button
-          class="btn btn-sm btn-outline-success"
-          @click.prevent="submit"
-      >
+      <button class="btn btn-sm btn-outline-success" @click.prevent="submit">
         Add
       </button>
     </div>
@@ -79,25 +73,25 @@
 </template>
 
 <script>
-import {mapActions, mapGetters, mapMutations, mapState} from 'vuex';
-import {getProductInformativeTitle} from '../../../../utils/title-formatter';
-import {getUrlViewProduct} from '../../../../utils/url-generator';
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { getProductInformativeTitle } from "../../../../utils/title-formatter";
+import { getUrlViewProduct } from "../../../../utils/url-generator";
 
 export default {
-  name: 'OrderProductAdd',
+  name: "OrderProductAdd",
   data() {
     return {
       form: {
-        categoryId: '',
-        productId: '',
-        quantity: '',
-        pricePerOne: '',
-      }
+        categoryId: "",
+        productId: "",
+        quantity: "",
+        pricePerOne: "",
+      },
     };
   },
   computed: {
-    ...mapState('products', ['categories', 'categoryProducts', 'staticStore']),
-    ...mapGetters('products', ['freeCategoryProducts']),
+    ...mapState("products", ["categories", "categoryProducts", "staticStore"]),
+    ...mapGetters("products", ["freeCategoryProducts"]),
     productQuantityMax() {
       return parseInt(this.selectedProduct.quantity);
     },
@@ -106,7 +100,7 @@ export default {
     },
     selectedProduct() {
       return this.freeCategoryProducts.find(
-          product => product.uuid === this.form.productId
+        (product) => product.uuid === this.form.productId
       );
     },
     showProductOptions() {
@@ -114,8 +108,8 @@ export default {
     },
   },
   methods: {
-    ...mapMutations('products', ['setNewProductInfo']),
-    ...mapActions('products', ['getProductsByCategory', 'addNewOrderProduct']),
+    ...mapMutations("products", ["setNewProductInfo"]),
+    ...mapActions("products", ["getProductsByCategory", "addNewOrderProduct"]),
     getProducts() {
       const categoryId = this.form.categoryId;
       this.resetFormData();
@@ -127,14 +121,14 @@ export default {
     productTitle(product) {
       return getProductInformativeTitle(product);
     },
-    viewDetails(event) {
+    viewDetails() {
       const url = getUrlViewProduct(
-          this.staticStore.url.viewProduct,
-          this.selectedProduct.id
+        this.staticStore.url.viewProduct,
+        this.selectedProduct.id
       );
-      window.open(url, '_blank').focus();
+      window.open(url, "_blank").focus();
     },
-    submit(event) {
+    submit() {
       this.setNewProductInfo(this.form);
       this.addNewOrderProduct();
       this.resetFormData();
@@ -155,9 +149,9 @@ export default {
       this.form[field] = String(updatedValue);
     },
     changeProduct() {
-      this.form.quantity = '';
-      this.form.pricePerOne = '';
+      this.form.quantity = "";
+      this.form.pricePerOne = "";
     },
   },
-}
+};
 </script>

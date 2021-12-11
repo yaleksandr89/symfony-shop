@@ -85,6 +85,7 @@ class Category
 
     /**
      * @param string|null $title
+     *
      * @return $this
      */
     public function setTitle(?string $title): self
@@ -105,6 +106,7 @@ class Category
 
     /**
      * @param string $slug
+     *
      * @return $this
      */
     public function setSlug(string $slug): self
@@ -124,6 +126,7 @@ class Category
 
     /**
      * @param Product $product
+     *
      * @return $this
      */
     public function addProduct(Product $product): self
@@ -138,6 +141,7 @@ class Category
 
     /**
      * @param Product $product
+     *
      * @return $this
      */
     public function removeProduct(Product $product): self
@@ -162,6 +166,7 @@ class Category
 
     /**
      * @param bool|null $isDeleted
+     *
      * @return $this
      */
     public function setIsDeleted(?bool $isDeleted): self

@@ -21,12 +21,15 @@ class MailerSender
 
     /**
      * @required
+     *
      * @param MailerInterface $mailer
+     *
      * @return MailerSender
      */
     public function setMailer(MailerInterface $mailer): MailerSender
     {
         $this->mailer = $mailer;
+
         return $this;
     }
 
@@ -37,18 +40,22 @@ class MailerSender
 
     /**
      * @required
+     *
      * @param LoggerInterface $logger
+     *
      * @return MailerSender
      */
     public function setLogger(LoggerInterface $logger): MailerSender
     {
         $this->logger = $logger;
+
         return $this;
     }
     // Autowiring <<<
 
     /**
      * @param MailerOptionModel $mailerOptionModel
+     *
      * @return TemplatedEmail
      */
     public function sendTemplatedEmail(MailerOptionModel $mailerOptionModel): TemplatedEmail
@@ -81,6 +88,7 @@ class MailerSender
 
     /**
      * @param MailerOptionModel $mailerOptionModel
+     *
      * @return Email
      */
     private function sendSystemEmail(MailerOptionModel $mailerOptionModel): Email
@@ -98,7 +106,7 @@ class MailerSender
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $ex) {
             $this->logger->critical($mailerOptionModel->getSubject(), [
-                'errorText' => $ex->getTraceAsString()
+                'errorText' => $ex->getTraceAsString(),
             ]);
         }
 

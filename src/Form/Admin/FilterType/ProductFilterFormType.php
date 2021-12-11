@@ -26,7 +26,7 @@ class ProductFilterFormType extends AbstractType
             ->add('id', NumberFilterType::class, [
                 'label' => 'Id',
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('category', EntityFilterType::class, [
@@ -35,19 +35,20 @@ class ProductFilterFormType extends AbstractType
                 'query_builder' => function ($category) {
                     /** @var CategoryRepository $categoryRep */
                     $categoryRep = $category;
+
                     return $categoryRep->forFormQueryBuilderFindActiveCategory();
                 },
                 'choice_label' => function ($category) {
                     return sprintf('#%s %s', $category->getId(), $category->getTitle());
                 },
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('title', TextFilterType::class, [
                 'label' => 'Title',
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ])
             ->add('price', NumberRangeFilterType::class, [
@@ -56,14 +57,14 @@ class ProductFilterFormType extends AbstractType
                     'label' => 'From',
                     'condition_operator' => FilterOperands::OPERATOR_GREATER_THAN_EQUAL,
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
                 'right_number_options' => [
                     'label' => 'To',
                     'condition_operator' => FilterOperands::OPERATOR_LOWER_THAN_EQUAL,
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
             ])
@@ -73,14 +74,14 @@ class ProductFilterFormType extends AbstractType
                     'label' => 'From',
                     'condition_operator' => FilterOperands::OPERATOR_GREATER_THAN_EQUAL,
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
                 'right_number_options' => [
                     'label' => 'To',
                     'condition_operator' => FilterOperands::OPERATOR_LOWER_THAN_EQUAL,
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
             ])
@@ -90,21 +91,21 @@ class ProductFilterFormType extends AbstractType
                     'label' => 'From',
                     'widget' => 'single_text',
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
                 'right_datetime_options' => [
                     'label' => 'To',
                     'widget' => 'single_text',
                     'attr' => [
-                        'class' => 'form-control'
+                        'class' => 'form-control',
                     ],
                 ],
             ])
             ->add('isPublished', BooleanFilterType::class, [
                 'label' => 'Is Published',
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
                 ],
             ]);
     }
@@ -122,7 +123,7 @@ class ProductFilterFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => EditProductModel::class,
             'method' => 'GET',
-            'validation_groups' => ['filtering']
+            'validation_groups' => ['filtering'],
         ]);
     }
 }

@@ -26,6 +26,7 @@ abstract class AbstractBaseManager
 
     /**
      * @param int $id
+     *
      * @return object|null
      */
     public function find(int $id): ?object
@@ -35,6 +36,7 @@ abstract class AbstractBaseManager
 
     /**
      * @param object $entity
+     *
      * @return void
      */
     public function persist(object $entity): void
@@ -52,6 +54,7 @@ abstract class AbstractBaseManager
 
     /**
      * @param object $entity
+     *
      * @return void
      */
     public function remove(object $entity): void

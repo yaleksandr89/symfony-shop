@@ -36,9 +36,11 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/registration", name="main_registration")
-     * @param Request $request
+     *
+     * @param Request                     $request
      * @param UserPasswordHasherInterface $passwordEncoder
-     * @param MessageBusInterface $messageBus
+     * @param MessageBusInterface         $messageBus
+     *
      * @return Response
      */
     public function registration(Request $request, UserPasswordHasherInterface $passwordEncoder, MessageBusInterface $messageBus): Response
@@ -80,8 +82,10 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/verify/email", name="main_verify_email")
-     * @param Request $request
+     *
+     * @param Request        $request
      * @param UserRepository $userRepository
+     *
      * @return Response
      */
     public function verifyUserEmail(Request $request, UserRepository $userRepository): Response

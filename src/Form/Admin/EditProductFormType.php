@@ -24,7 +24,8 @@ class EditProductFormType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
+     *
      * @return void
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -38,7 +39,7 @@ class EditProductFormType extends AbstractType
                     'class' => 'form-control',
                 ],
                 'constraints' => [
-                    new NotBlank([], 'Should be filled')
+                    new NotBlank([], 'Should be filled'),
                 ],
             ])
             ->add('price', NumberType::class, [
@@ -49,7 +50,7 @@ class EditProductFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'min' => 0,
-                    'step' => '0.01'
+                    'step' => '0.01',
                 ],
             ])
             ->add('quantity', IntegerType::class, [
@@ -71,7 +72,7 @@ class EditProductFormType extends AbstractType
                 'label' => 'Choose new image',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control-file'
+                    'class' => 'form-control-file',
                 ],
             ])
             ->add('isPublished', CheckboxType::class, [
@@ -116,6 +117,7 @@ class EditProductFormType extends AbstractType
 
     /**
      * @param OptionsResolver $resolver
+     *
      * @return void
      */
     public function configureOptions(OptionsResolver $resolver): void

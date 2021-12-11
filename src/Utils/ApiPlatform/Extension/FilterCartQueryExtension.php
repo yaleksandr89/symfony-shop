@@ -23,12 +23,15 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     /**
      * @required
+     *
      * @param Security $security
+     *
      * @return FilterCartQueryExtension
      */
     public function setSecurity(Security $security): FilterCartQueryExtension
     {
         $this->security = $security;
+
         return $this;
     }
 
@@ -37,24 +40,26 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
      */
     private $request;
 
-
     /**
      * @required
+     *
      * @param RequestStack $request
+     *
      * @return FilterCartQueryExtension
      */
     public function setRequest(RequestStack $request): FilterCartQueryExtension
     {
         $this->request = $request;
+
         return $this;
     }
     // Autowiring <<<
 
     /**
-     * @param QueryBuilder $queryBuilder
+     * @param QueryBuilder                $queryBuilder
      * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $resourceClass
-     * @param string|null $operationName
+     * @param string                      $resourceClass
+     * @param string|null                 $operationName
      */
     public function applyToCollection(
         QueryBuilder $queryBuilder,
@@ -66,12 +71,12 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
     }
 
     /**
-     * @param QueryBuilder $queryBuilder
+     * @param QueryBuilder                $queryBuilder
      * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $resourceClass
-     * @param array $identifiers
-     * @param string|null $operationName
-     * @param array $context
+     * @param string                      $resourceClass
+     * @param array                       $identifiers
+     * @param string|null                 $operationName
+     * @param array                       $context
      */
     public function applyToItem(
         QueryBuilder $queryBuilder,
@@ -86,7 +91,8 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     /**
      * @param QueryBuilder $queryBuilder
-     * @param string $resourceClass
+     * @param string       $resourceClass
+     *
      * @return void
      */
     private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
@@ -98,7 +104,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         /** @var User $user */
         $user = $this->security->getUser();
 
-        /**
+        /*
          * This is just an example of a check.
          * If your project doesn't need this check, just remove the method and this check.
          */
@@ -109,7 +115,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $request = Request::createFromGlobals();
-        $cartToken = $request->cookies->get("CART_TOKEN");
+        $cartToken = $request->cookies->get('CART_TOKEN');
 
         $queryBuilder->andWhere(
             sprintf("%s.token = '%s'", $rootAlias, $cartToken)
@@ -118,19 +124,20 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     /**
      * If you want to show all carts in the admin section (only for admin)
-     * Add query param "context = admin"
+     * Add query param "context = admin".
      *
      * Ex.: https://127.0.0.1:8000/api/carts?page=1&context=admin
      *
      * @param UserInterface|null $user
+     *
      * @return bool
      */
     private function displayAllForAdmin(?UserInterface $user): bool
     {
-        return (
+        return
             $user instanceof User
             && $user->isAdminRole()
-            && $this->request->getCurrentRequest()->get('context') === 'admin'
-        );
+            && 'admin' === $this->request->getCurrentRequest()->get('context')
+        ;
     }
 }

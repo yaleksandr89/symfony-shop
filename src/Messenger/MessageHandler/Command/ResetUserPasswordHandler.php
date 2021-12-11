@@ -24,7 +24,7 @@ class ResetUserPasswordHandler implements MessageHandlerInterface
     private $userPasswordEmailSender;
 
     /**
-     * @param UserManager $userManager
+     * @param UserManager                  $userManager
      * @param ResetPasswordHelperInterface $resetPasswordHelper
      * @param ResetUserPasswordEmailSender $userPasswordEmailSender
      */
