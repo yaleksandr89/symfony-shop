@@ -79,7 +79,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $urlReferer = $request->getSession()->get('HTTP_REFERER');
+        $urlReferer = $request->getSession()->get('HTTP_REFERER') ?? '';
 
         $cartUrlReferer = explode('/', $urlReferer);
         $cartUrlReferer = array_pop($cartUrlReferer);
