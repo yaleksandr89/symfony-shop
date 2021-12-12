@@ -3,6 +3,7 @@ uploads/
 uploads
 deploy.php
 .php-cs-fixer.cache
+.env.prod
 ### Custom Rules <###
 
 ###> symfony/framework-bundle ###

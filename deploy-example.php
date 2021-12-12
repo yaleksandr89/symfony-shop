@@ -31,7 +31,7 @@ set('keep_releases', 3);
 
 // Shared files/dirs between deploys
 add('shared_files', [
-    '.env.local.php',
+    '.env.prod',
 ]);
 
 add('shared_dirs', [
@@ -48,7 +48,7 @@ add('writable_dirs', [
 
 // Предварительно сгенерировать файл: "composer dump-env prod"
 task('upload:env', function () {
-    upload('.env.local.php', '{{deploy_path}}/shared/.env.local.php');
+    upload('.env.prod', '{{deploy_path}}/shared/.env');
 })->desc('Environment setup');
 
 // Hosts
@@ -68,6 +68,10 @@ task('deploy:npm:install', function () {
 
 task('deploy:npm:build', function () {
     run('cd {{release_path}} && npm run build');
+});
+
+task('deploy:database:migrate', function () {
+    run('{{bin/console}} doctrine:migrations:migrate');
 });
 
 // [Optional] if deploy fails automatically unlock.
@@ -97,6 +101,7 @@ task('deploy', [
     'deploy:assetic:dump',
     'deploy:cache:clear',
     'deploy:cache:warmup',
+    'deploy:database:migrate',
     'deploy:writable',
     'deploy:symlink',
     'deploy:unlock',
