@@ -31,7 +31,7 @@ set('keep_releases', 3);
 
 // Shared files/dirs between deploys
 add('shared_files', [
-    '.env.prod',
+    '.env',
 ]);
 
 add('shared_dirs', [
