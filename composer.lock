@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9b7c272eaac921d080dfa5af6eb41f12",
+    "content-hash": "a8fac199b50dea523634a8b9be4a5795",
     "packages": [
         {
             "name": "api-platform/core",
@@ -10944,6 +10944,43 @@
                 "source": "https://github.com/dmaicher/doctrine-test-bundle/tree/v6.7.1"
             },
             "time": "2021-11-09T11:55:09+00:00"
+        },
+        {
+            "name": "deployer/dist",
+            "version": "v6.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/deployphp/distribution.git",
+                "reference": "857158fa5466d5135ce87f07fe67779b6b6a13d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/deployphp/distribution/zipball/857158fa5466d5135ce87f07fe67779b6b6a13d2",
+                "reference": "857158fa5466d5135ce87f07fe67779b6b6a13d2",
+                "shasum": ""
+            },
+            "bin": [
+                "dep"
+            ],
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Anton Medvedev",
+                    "email": "anton@medv.io"
+                }
+            ],
+            "description": "Deployer Phar Distribution",
+            "homepage": "https://deployer.org",
+            "support": {
+                "docs": "https://deployer.org/docs",
+                "issues": "https://github.com/deployphp/deployer/issues",
+                "source": "https://github.com/deployphp/deployer"
+            },
+            "time": "2020-04-25T18:48:50+00:00"
         },
         {
             "name": "doctrine/data-fixtures",

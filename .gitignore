@@ -1,5 +1,6 @@
 ###> Custom Rules ###
 uploads/
+deploy.php
 ### Custom Rules <###
 
 ###> symfony/framework-bundle ###
