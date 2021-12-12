@@ -1,5 +1,6 @@
 ###> Custom Rules ###
 uploads/
+uploads
 deploy.php
 .php-cs-fixer.cache
 ### Custom Rules <###
