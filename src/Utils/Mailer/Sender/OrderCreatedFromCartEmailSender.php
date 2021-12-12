@@ -44,7 +44,7 @@ class OrderCreatedFromCartEmailSender extends BaseSender
         $user = $order->getOwner();
 
         $mailerOptions = $this->getMailerOptions()
-            ->setRecipient('y.aleksandr89@yandex.ru')
+            ->setRecipient($this->container->get('parameter_bag')->get('admin_email'))
             ->setSubject("Client created order (ID: {$order->getId()})")
             ->setHtmlTemplate('front/email/manager/created_order_from_cart.html.twig')
             ->setContext([

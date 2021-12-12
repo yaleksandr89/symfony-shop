@@ -4,6 +4,7 @@ namespace App\Utils\Mailer\Sender;
 
 use App\Utils\Mailer\DTO\MailerOptionModel;
 use App\Utils\Mailer\MailerSender;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class BaseSender
@@ -43,6 +44,25 @@ abstract class BaseSender
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): self
     {
         $this->urlGenerator = $urlGenerator;
+
+        return $this;
+    }
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
+     * @required
+     *
+     * @param ContainerInterface $container
+     *
+     * @return self
+     */
+    public function setContainer(ContainerInterface $container): self
+    {
+        $this->container = $container;
 
         return $this;
     }

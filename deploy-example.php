@@ -36,7 +36,6 @@ add('shared_files', [
 
 add('shared_dirs', [
     'var/log',
-    'var/cache',
     'public/uploads',
 ]);
 

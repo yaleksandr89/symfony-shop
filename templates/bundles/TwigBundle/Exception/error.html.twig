@@ -1,0 +1,22 @@
+{% extends 'front/base.html.twig' %}
+
+{% block body_id 'error' %}
+
+{% block body %}
+    <div class="page-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="page-details mt-4">
+                        <div class="alert">
+                            Oops! We can't seem to find out the page you're looking for.
+                        </div>
+                        <a href="{{ path('main_homepage') }}" class="btn btn-link btn-dark mt-2">
+                            Return to homepage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

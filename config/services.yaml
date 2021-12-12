@@ -14,6 +14,7 @@ parameters:
   app_locales.in_brackets: '(%app_locales%)'
   router.request_context.scheme: '%env(SITE_BASE_SCHEME)%'
   router.request_context.host: '%env(SITE_BASE_HOST)%'
+  admin_email: '%env(ADMIN_EMAIL)%'
 
 services:
   # default configuration for services in *this* file
