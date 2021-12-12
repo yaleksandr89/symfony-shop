@@ -70,6 +70,7 @@
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^6.7",
+        "deployer/dist": "^6.8",
         "friendsofphp/php-cs-fixer": "^3.3",
         "hautelook/alice-bundle": "*",
         "phpstan/phpstan": "^1.2",
