@@ -1,6 +1,7 @@
 ###> Custom Rules ###
 uploads/
 deploy.php
+.php-cs-fixer.cache
 ### Custom Rules <###
 
 ###> symfony/framework-bundle ###

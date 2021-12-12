@@ -13,6 +13,9 @@ del-cache:
 watch:
 	npm run watch
 
+deploy:
+	dep deploy production
+
 ##
 ## REFACTORING
 ## -----------
