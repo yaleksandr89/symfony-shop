@@ -56,11 +56,11 @@ jobs:
 
       - run:
           name: Selenium +x
-          command: chmod +x ./selenium-server-4.1.0.jar
+          command: chmod +x ~/project/bin/selenium-server-4.1.0.jar
 
       - run:
           name: Start Selenium
-          command: bin/selenium-server-4.1.0.jar standalone
+          command: ~/project/bin/selenium-server-4.1.0.jar standalone
           background: true
 
       - run: make run-test
