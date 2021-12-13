@@ -1,0 +1,41 @@
+# For All bots
+User-agent: *
+Disallow: */admin/*
+Disallow: /admin/*
+Disallow: /bundles/*
+Disallow: /build/*
+Disallow: /upload/*
+Disallow: /admin/*?*
+Disallow: */admin/*?*
+Disallow: *_filter_form
+{% for activeCategory in activeCategories%}
+Allow: {{ activeCategory }}
+{% endfor %}
+
+# For Yandex bots
+User-agent: Yandex
+Disallow: */admin/*
+Disallow: /admin/*
+Disallow: /bundles/*
+Disallow: /build/*
+Disallow: /upload/*
+Disallow: /admin/*?*
+Disallow: */admin/*?*
+Disallow: *_filter_form
+{% for activeCategory in activeCategories%}
+Allow: {{ activeCategory }}
+{% endfor %}
+
+# For Google bots
+User-agent: GoogleBot
+Disallow: */admin/*
+Disallow: /admin/*
+Disallow: /bundles/*
+Disallow: /build/*
+Disallow: /upload/*
+Disallow: /admin/*?*
+Disallow: */admin/*?*
+Disallow: *_filter_form
+{% for activeCategory in activeCategories%}
+Allow: {{ activeCategory }}
+{% endfor %}

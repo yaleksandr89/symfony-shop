@@ -7,6 +7,7 @@
     <title>{% block title %}Symfony shop - pet project{% endblock %}</title>
     <meta name="keywords" content="{% block page_keywords %}symfony, symfony shop, pet project, symfony 5{% endblock %}">
     <meta name="description" content="{% block page_description %}Symfony shop - pet project{% endblock %}">
+    {% block canonical_link %}{% endblock %}
     <link rel="icon" type="image/x-icon" href="{{ asset('build/images/icons/favicon.ico') }}"/>
     {{ encore_entry_link_tags('section-front') }}
     {% block stylesheets %}{% endblock %}

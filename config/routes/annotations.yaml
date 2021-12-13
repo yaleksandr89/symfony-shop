@@ -16,6 +16,13 @@ controllers_front:
   defaults:
     _locale: '%locale%'
 
+controllers_robots_txt:
+  resource: ../../src/Controller/Front/RobotsTxtController.php
+  type: annotation
+  format: txt
+  requirements:
+    _format: txt
+
 kernel:
   resource: ../../src/Kernel.php
   type: annotation
