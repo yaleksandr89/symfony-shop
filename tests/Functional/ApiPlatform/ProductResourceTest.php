@@ -31,7 +31,7 @@ class ProductResourceTest extends ResourceTestUtils
         /** @var Product $product */
         $product = self::getContainer()->get(ProductRepository::class)->findOneBy([]);
 
-        $uri = $this->uriKey . '/' . $product->getUuid();
+        $uri = $this->uriKey.'/'.$product->getUuid();
 
         $client->request('GET', $uri, [], [], self::REQUEST_HEADERS);
 
@@ -64,7 +64,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         /** @var Product $product */
         $product = self::getContainer()->get(ProductRepository::class)->findOneBy([]);
-        $uri = $this->uriKey . '/' . $product->getUuid();
+        $uri = $this->uriKey.'/'.$product->getUuid();
 
         $this->checkDefaultUserHasNotAccess($client, $uri, 'PATCH');
 

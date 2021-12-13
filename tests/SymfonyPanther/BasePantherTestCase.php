@@ -37,7 +37,7 @@ class BasePantherTestCase extends PantherTestCase
             '--window-size=1920,1080',
             '--no-sandbox',
             '--disable-dev-shm-usage',
-            // '--headless', // не отображать окно браузера
+            '--headless', // не отображать окно браузера
         ]);
 
         return $chromeOptions;

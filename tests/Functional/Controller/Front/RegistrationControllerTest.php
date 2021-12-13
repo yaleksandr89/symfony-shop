@@ -43,7 +43,7 @@ class RegistrationControllerTest extends WebTestCase
         self::assertCount(1, $transport->get());
     }
 
-    public function testRegistrationEmailDublicate(): void
+    public function testRegistrationEmailDuplicate(): void
     {
         $client = static::createClient();
 
