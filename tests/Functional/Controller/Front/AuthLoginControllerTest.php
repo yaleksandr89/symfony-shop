@@ -39,7 +39,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
             'password' => $this->password,
         ]);
 
-        self::assertSame(self::$baseUri . '/en/profile', $client->getCurrentURL());
+        self::assertSame(self::$baseUri.'/en/profile', $client->getCurrentURL());
         self::assertPageTitleContains('Welcome, to your profile');
         self::assertSelectorTextContains('#page_header_title', 'Welcome, to your profile!');
     }
@@ -50,8 +50,8 @@ class AuthLoginControllerTest extends BasePantherTestCase
     public function testLoginWithSeleniumClient(): void
     {
         $client = $this->initSeleniumClient();
-
         $client->request('GET', '/en/login');
+
         $crawler = $client->submitForm('Log in', [
             'email' => $this->email,
             'password' => $this->password,

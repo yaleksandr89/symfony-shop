@@ -49,6 +49,6 @@ class BasePantherTestCase extends PantherTestCase
         $preparedFilename = str_replace([' ', '/', '\\'], '-', $preparedFilename);
         $preparedFilename = strtolower($preparedFilename);
 
-        $client->takeScreenshot('var/test-screenshot/' . $preparedFilename . '.png');
+        $client->takeScreenshot('var/test-screenshot/'.$preparedFilename.'.png');
     }
 }
