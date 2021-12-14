@@ -76,6 +76,7 @@ const actions = {
         "max-age": 0,
       });
     }
+    await window.vueMenuCartInstance.setCart();
   },
   async removeCartProduct({ state, commit, dispatch }, cartProductId) {
     const url = concatUrlByParams(
