@@ -16,29 +16,16 @@ class ResourceTestUtils extends WebTestCase
 
     protected const REQUEST_HEADERS = [
         'HTTP_ACCEPT' => 'application/ld+json',
-        'CONTENT_TYPE' => 'application/json'
+        'CONTENT_TYPE' => 'application/json',
     ];
 
     protected const REQUEST_HEADERS_PATCH = [
         'HTTP_ACCEPT' => 'application/ld+json',
-        'CONTENT_TYPE' => 'application/merge-patch+json'
+        'CONTENT_TYPE' => 'application/merge-patch+json',
     ];
+
     protected function getResponseDecodeContent(AbstractBrowser $client)
     {
-        return json_decode(
-            $client->getResponse()->getContent()
-        );
-    }
-
-    protected function checkDefaultUserHasNotAccess(AbstractBrowser $client, string $uri, string $method)
-    {
-        /** @var User $user */
-        $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
-
-        $client->loginUser($user, 'website');
-        $client->request($method, $uri, [], [], self::REQUEST_HEADERS, json_encode([]));
-        self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
-
-        $client->restart();
+        return json_decode($client->getResponse()->getContent());
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Tests\Functional\ApiPlatform;
 
 use App\Entity\Product;
+use App\Entity\User;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group functional
@@ -38,11 +40,9 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(200);
     }
 
-    public function testCreatedProduct()
+    public function testCreatedProductWithAccess()
     {
         $client = self::createClient();
-
-        $this->checkDefaultUserHasNotAccess($client, $this->uriKey, 'POST');
 
         $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_ADMIN_1_EMAIL]);
         $client->loginUser($user, 'website');
@@ -58,19 +58,39 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(201);
     }
 
-    public function testPathProduct()
+    public function testCreatedProductWithoutAccess()
+    {
+        $client = self::createClient();
+
+        /** @var User $user */
+        $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        $client->loginUser($user, 'website');
+
+        $context = [
+            'title' => 'New product',
+            'price' => 'New 100',
+            'quantity' => 5,
+        ];
+
+        $client->request('POST', $this->uriKey, [], [], self::REQUEST_HEADERS, json_encode([$context]));
+
+        self::assertResponseRedirects('/en/login', Response::HTTP_FOUND);
+        $client->followRedirect();
+    }
+
+    public function testPathProductWithAccess()
     {
         $client = self::createClient();
 
         /** @var Product $product */
         $product = self::getContainer()->get(ProductRepository::class)->findOneBy([]);
-        $uri = $this->uriKey.'/'.$product->getUuid();
 
-        $this->checkDefaultUserHasNotAccess($client, $uri, 'PATCH');
-
+        /** @var User $user */
         $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_ADMIN_1_EMAIL]);
+
         $client->loginUser($user, 'website');
 
+        $uri = $this->uriKey.'/'.$product->getUuid();
         $context = [
             'title' => 'Update product',
         ];
@@ -78,5 +98,28 @@ class ProductResourceTest extends ResourceTestUtils
         $client->request('PATCH', $uri, [], [], self::REQUEST_HEADERS_PATCH, json_encode($context));
 
         self::assertResponseStatusCodeSame(200);
+    }
+
+    public function testPathProductWithoutAccess()
+    {
+        $client = self::createClient();
+
+        /** @var Product $product */
+        $product = self::getContainer()->get(ProductRepository::class)->findOneBy([]);
+
+        /** @var User $user */
+        $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+
+        $client->loginUser($user, 'website');
+
+        $uri = $this->uriKey.'/'.$product->getUuid();
+        $context = [
+            'title' => 'Update product',
+        ];
+
+        $client->request('PATCH', $uri, [], [], self::REQUEST_HEADERS_PATCH, json_encode($context));
+
+        self::assertResponseRedirects('/en/login', Response::HTTP_FOUND);
+        $client->followRedirect();
     }
 }

@@ -17,9 +17,3 @@ App\Entity\User:
     password: '\$2y\$13\$FtG2KFbS5Oue3sr2xVi98OCYeLO00vuR10WoKu5nxa1cDEaa5wSkO'
     isVerified: 1
     roles: '[ROLE_USER]'
-  user_4:
-    email: y.aleksandr89@yandex.ru
-    # password decoded: test3test3 | add "\" before "$"
-    password: '\$2y\$13\$jRl.OSSmh6OK3krnzullyOFeqs8lycjNHGwzwJ8HJI5JnHFkllWQC'
-    isVerified: 1
-    roles: '[ROLE_SUPER_ADMIN]'
