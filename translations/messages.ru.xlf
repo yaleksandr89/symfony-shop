@@ -1010,5 +1010,23 @@
         <target>Обработан</target>
       </segment>
     </unit>
+    <unit id="lWJ68xw" name="personal_account.resending_verify_email_link">
+      <segment>
+        <source>personal_account.resending_verify_email_link</source>
+        <target>Подтвердите свой email</target>
+      </segment>
+    </unit>
+    <unit id="LA4CX7e" name="personal_account.verify_email_link_send">
+      <segment>
+        <source>personal_account.verify_email_link_send</source>
+        <target>Письмо с подтверждением отправлено! Проверьте email.</target>
+      </segment>
+    </unit>
+    <unit id="_DgfpZL" name="personal_account.dashboard">
+      <segment>
+        <source>personal_account.dashboard</source>
+        <target>Админка</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

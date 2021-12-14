@@ -18,10 +18,12 @@
                         <div class="form-group">
                             {{ form_label(resetForm.plainPassword.first) }}
                             {{ form_widget(resetForm.plainPassword.first) }}
+                            {{ form_errors(resetForm.plainPassword.first) }}
                         </div>
                         <div class="form-group">
                             {{ form_label(resetForm.plainPassword.second) }}
                             {{ form_widget(resetForm.plainPassword.second) }}
+                            {{ form_errors(resetForm.plainPassword.second) }}
                         </div>
                         <div class="form-footer-buttons">
                             <button class="btn btn-primary">Reset password</button>

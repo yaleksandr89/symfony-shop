@@ -108,3 +108,6 @@ Denied: Отклонен
 Delivered: Доставлен
 Complected: Укомплектован
 Processed: Обработан
+personal_account.resending_verify_email_link: 'Подтвердите свой email'
+personal_account.verify_email_link_send: 'Письмо с подтверждением отправлено! Проверьте email.'
+personal_account.dashboard: Админка
