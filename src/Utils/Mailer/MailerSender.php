@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Utils\Mailer;
 
 use App\Utils\Mailer\DTO\MailerOptionModel;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -48,6 +49,25 @@ class MailerSender
     public function setLogger(LoggerInterface $logger): MailerSender
     {
         $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
+     * @required
+     *
+     * @param ContainerInterface $container
+     *
+     * @return self
+     */
+    public function setContainer(ContainerInterface $container): self
+    {
+        $this->container = $container;
 
         return $this;
     }
@@ -95,7 +115,7 @@ class MailerSender
     {
         $mailerOptionModel
             ->setSubject('[Exception] An error occurred while sending the letter')
-            ->setRecipient('y.aleksandr89@yandex.ru');
+            ->setRecipient($this->container->getParameter('admin_email'));
 
         $email = $this->getEmail()
             ->to($mailerOptionModel->getRecipient())
