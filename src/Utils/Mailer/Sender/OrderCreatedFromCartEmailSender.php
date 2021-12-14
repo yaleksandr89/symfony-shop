@@ -22,7 +22,7 @@ class OrderCreatedFromCartEmailSender extends BaseSender
 
         $mailerOptions = $this->getMailerOptions()
             ->setRecipient($user->getEmail())
-            ->setCc('y.aleksandr89@yandex.ru')
+            ->setCc($this->container->getParameter('admin_email'))
             ->setSubject('Symfony shop - Thank you for  your purchase!')
             ->setHtmlTemplate('front/email/client/created_order_from_cart.html.twig')
             ->setContext([
