@@ -11,26 +11,37 @@
                         <h1 class="h4 mb-3 font-weight-normal title-gradient-1" id="page_header_title">
                             {{ 'personal_account.head'|trans }}!
                         </h1>
+                        {% if false == app.user.verified %}
+                            {% if sendEmail %}
+                                <div class="alert alert-success">
+                                    {{ 'personal_account.verify_email_link_send'|trans }}
+                                </div>
+                            {% else %}
+                                <a href="{{ path('main_profile_resending_verify_email_link') }}" class="btn btn-link btn-dark mb-2">
+                                    <span>{{ 'personal_account.resending_verify_email_link'|trans }}</span>
+                                </a>
+                            {% endif %}
+                        {% endif %}
                         <table class="table text-left">
                             <tbody>
                             <tr>
-                                <td>{{ 'personal_account.head'|trans }}: </td>
+                                <td>{{ 'personal_account.head'|trans }}:</td>
                                 <td>{{ app.user.email }}</td>
                             </tr>
                             <tr>
-                                <td>{{ 'personal_account.labels.full_name'|trans }}: </td>
+                                <td>{{ 'personal_account.labels.full_name'|trans }}:</td>
                                 <td>{% if app.user.fullName %}{{ app.user.fullName }}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
-                                <td>{{ 'personal_account.labels.phone'|trans }}: </td>
+                                <td>{{ 'personal_account.labels.phone'|trans }}:</td>
                                 <td>{% if app.user.phone %}{{ app.user.phone }}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
-                                <td>{{ 'personal_account.labels.address'|trans }}: </td>
+                                <td>{{ 'personal_account.labels.address'|trans }}:</td>
                                 <td>{% if app.user.address %}{{ app.user.address }}{% else %}-{% endif %}</td>
                             </tr>
                             <tr>
-                                <td>{{ 'personal_account.labels.zipcode'|trans }}: </td>
+                                <td>{{ 'personal_account.labels.zipcode'|trans }}:</td>
                                 <td>{% if app.user.zipcode %}{{ app.user.zipcode }}{% else %}-{% endif %}</td>
                             </tr>
                             </tbody>
@@ -41,6 +52,12 @@
                         </div>
                         <hr/>
                         <div class="form-footer-buttons">
+                            {% if (is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')) and app.user.verified %}
+                                <a href="{{ path('admin_dashboard_show') }}" class="btn btn-link btn-dark">
+                                    <i class="fa fa-tachometer-alt"></i>
+                                    <span>{{ 'personal_account.dashboard'|trans }}</span>
+                                </a>
+                            {% endif %}
                             <a href="{{ path('main_profile_edit') }}" class="btn btn-link btn-dark">
                                 <i class="far fa-address-card"></i>
                                 <span>{{ 'personal_account.edit_profile'|trans }}</span>

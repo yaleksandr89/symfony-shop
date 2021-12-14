@@ -101,3 +101,6 @@ Category: Category
 'Please select a category': 'Please select a category'
 Status: Status
 User: User
+personal_account.dashboard: Admin
+personal_account.resending_verify_email_link: 'Confirm your email'
+personal_account.verify_email_link_send: 'Confirmation email has been sent! Check the email.'
