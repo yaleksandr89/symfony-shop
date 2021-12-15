@@ -4,7 +4,7 @@ namespace App\Utils\Mailer\Sender;
 
 use App\Utils\Mailer\DTO\MailerOptionModel;
 use App\Utils\Mailer\MailerSender;
-use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class BaseSender
@@ -48,25 +48,14 @@ abstract class BaseSender
         return $this;
     }
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @required
-     *
-     * @param ContainerInterface $container
-     *
-     * @return self
-     */
-    public function setContainer(ContainerInterface $container): self
-    {
-        $this->container = $container;
-
-        return $this;
-    }
     // Autowiring <<<
+
+    protected $parameterBag;
+
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
+        $this->parameterBag = $parameterBag;
+    }
 
     /**
      * @return MailerOptionModel

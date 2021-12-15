@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Transport\InMemoryTransport;
  */
 class RegistrationControllerTest extends WebTestCase
 {
-    private static string $uniqueEmail ='new_test_user_1@gmail.com';
+    private static string $uniqueEmail = 'new_test_user_1@gmail.com';
 
     public function testRegistration(): void
     {

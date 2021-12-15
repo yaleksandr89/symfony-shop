@@ -10,6 +10,7 @@ use App\Entity\Product;
 use App\Repository\CartProductRepository;
 use App\Repository\CartRepository;
 use App\Repository\ProductRepository;
+use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,27 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CartApiController extends AbstractController
 {
+    // >>> Autowiring
+    /**
+     * @var Doctrine
+     */
+    private Doctrine $doctrine;
+
+    /**
+     * @required
+     *
+     * @param Doctrine $doctrine
+     *
+     * @return self
+     */
+    public function setDoctrine(Doctrine $doctrine): self
+    {
+        $this->doctrine = $doctrine;
+
+        return $this;
+    }
+
+    // Autowiring <<<
     /**
      * @Route("/cart", methods="POST", name="cart_save")
      *
@@ -36,7 +58,7 @@ class CartApiController extends AbstractController
         CartProductRepository $cartProductRepository,
         ProductRepository $productRepository
     ): JsonResponse {
-        $manager = $this->getDoctrine()->getManager();
+        $manager = $this->doctrine->getManager();
         $cartToken = $request->cookies->get('CART_TOKEN');
         $productUuid = $request->request->get('productId');
 
