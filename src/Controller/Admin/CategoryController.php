@@ -10,7 +10,6 @@ use App\Form\DTO\EditCategoryModel;
 use App\Form\Handler\CategoryFormHandler;
 use App\Repository\CategoryRepository;
 use App\Utils\Manager\CategoryManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/admin/category", name="admin_category_")
  */
-class CategoryController extends AbstractController
+class CategoryController extends BaseAdminController
 {
     // >>> Autowiring
     /**
@@ -71,6 +70,10 @@ class CategoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->checkTheAccessLevel()) {
+                return $this->redirect($request->server->get('HTTP_REFERER'));
+            }
+
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
             $this->addFlash('success', 'Your changes were saved!');
 
@@ -90,15 +93,20 @@ class CategoryController extends AbstractController
     /**
      * @Route("/delete/{id}", name="delete")
      *
+     * @param Request         $request
      * @param Category        $category
      * @param CategoryManager $categoryManager
      *
      * @return Response
      */
-    public function delete(Category $category, CategoryManager $categoryManager): Response
+    public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
     {
         $id = $category->getId();
         $title = $category->getTitle();
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirect($request->server->get('HTTP_REFERER'));
+        }
 
         $categoryManager->remove($category);
         $this->addFlash('warning', "[Soft delete] The category (title: $title / ID: $id) was successfully deleted!");

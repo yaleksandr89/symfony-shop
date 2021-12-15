@@ -10,7 +10,6 @@ use App\Form\DTO\EditUserModel;
 use App\Form\Handler\UserFormHandler;
 use App\Repository\UserRepository;
 use App\Utils\Manager\UserManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/admin/user", name="admin_user_")
  */
-class UserController extends AbstractController
+class UserController extends BaseAdminController
 {
     // >>> Autowiring
     /**
@@ -73,6 +72,9 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->checkTheAccessLevel()) {
+                return $this->redirect($request->server->get('HTTP_REFERER'));
+            }
             $user = $userFormHandler->processEditForm($editUserModel);
             $this->addFlash('success', 'Your changes were saved!');
 
@@ -92,15 +94,20 @@ class UserController extends AbstractController
     /**
      * @Route("/delete/{id}", name="delete")
      *
+     * @param Request     $request
      * @param User        $user
      * @param UserManager $userManager
      *
      * @return Response
      */
-    public function delete(User $user, UserManager $userManager): Response
+    public function delete(Request $request, User $user, UserManager $userManager): Response
     {
         $id = $user->getId();
         $fullName = $user->getFullName();
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirect($request->server->get('HTTP_REFERER'));
+        }
 
         $userManager->remove($user);
         $this->addFlash('warning', "[Soft delete] The user (Full name: $fullName / ID: $id) was successfully deleted!");

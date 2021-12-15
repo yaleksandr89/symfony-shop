@@ -6,6 +6,7 @@ import { setCookie } from "../../../../../utils/cookie-manager";
 
 const state = () => ({
   cart: {},
+  isLoading: false,
 
   staticStore: {
     url: {
@@ -44,6 +45,7 @@ const actions = {
       result.data["hydra:member"].length &&
       StatusCodes.OK === result.status
     ) {
+      commit("setIsLoading", false);
       commit("setCart", result.data["hydra:member"][0]);
     }
   },
@@ -66,7 +68,7 @@ const actions = {
       dispatch("getCart");
     }
   },
-  async addCartProduct({ state, dispatch }, productData) {
+  async addCartProduct({ state, commit, dispatch }, productData) {
     if (!state.cart.cartProducts) {
       await dispatch("createCart");
     }
@@ -75,9 +77,15 @@ const actions = {
       productData.quantity = 1;
     }
 
+    if (state.isLoading) {
+      return;
+    }
+
     const existCartProduct = state.cart.cartProducts.find(
       (cartProduct) => cartProduct.product.uuid === productData.uuid
     );
+
+    commit("setIsLoading", true);
 
     if (existCartProduct) {
       let newQuantity = existCartProduct.quantity + productData.quantity;
@@ -141,6 +149,9 @@ const actions = {
 const mutations = {
   setCart(state, cart) {
     state.cart = cart;
+  },
+  setIsLoading(state, isLoading) {
+    state.isLoading = isLoading;
   },
 };
 

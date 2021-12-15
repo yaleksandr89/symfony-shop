@@ -67,8 +67,9 @@
 
 {% block javascripts %}
     <script>
-        const el = document.querySelectorAll('[data-add-cart]');
-        el.forEach(function (item) {
+        const categoryShowAddCart = document.querySelectorAll('[data-add-cart]');
+
+        categoryShowAddCart.forEach(function (item) {
             item.addEventListener('click', function (event){
                 event.preventDefault();
 

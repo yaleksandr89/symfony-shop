@@ -80,9 +80,9 @@
     <script>
         const productUuid = '{{ product.uuid }}';
         const productQuantityEl = document.getElementById('product_full_filter_quantity');
-        const el = document.querySelector('[data-add-cart]');
+        const productShowAddCart = document.querySelector('[data-add-cart]');
 
-        el.addEventListener('click', function (event) {
+        productShowAddCart.addEventListener('click', function (event) {
             event.preventDefault();
             const quantity = parseInt(productQuantityEl.value);
 
