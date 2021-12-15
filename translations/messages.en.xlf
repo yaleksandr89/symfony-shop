@@ -980,5 +980,71 @@
         <target>Confirmation email has been sent! Check the email.</target>
       </segment>
     </unit>
+    <unit id="d1tb_WR" name="Created at">
+      <segment>
+        <source>Created at</source>
+        <target>Created at</target>
+      </segment>
+    </unit>
+    <unit id="9LBu9tP" name="To">
+      <segment>
+        <source>To</source>
+        <target>To</target>
+      </segment>
+    </unit>
+    <unit id="IYGXaTQ" name="From">
+      <segment>
+        <source>From</source>
+        <target>From</target>
+      </segment>
+    </unit>
+    <unit id="naepTwi" name="Total price">
+      <segment>
+        <source>Total price</source>
+        <target>Total price</target>
+      </segment>
+    </unit>
+    <unit id="2kBN6xE" name="Denied">
+      <segment>
+        <source>Denied</source>
+        <target>Denied</target>
+      </segment>
+    </unit>
+    <unit id="YHG5tWX" name="Processed">
+      <segment>
+        <source>Processed</source>
+        <target>Processed</target>
+      </segment>
+    </unit>
+    <unit id="1wueJLy" name="Created">
+      <segment>
+        <source>Created</source>
+        <target>Created</target>
+      </segment>
+    </unit>
+    <unit id="SxuKo2C" name="Owner">
+      <segment>
+        <source>Owner</source>
+        <target>Owner</target>
+      </segment>
+    </unit>
+    <unit id="FUI3DkH" name="Complected">
+      <segment>
+        <source>Complected</source>
+        <target>Complected</target>
+      </segment>
+    </unit>
+    <unit id="kGEVZXO" name="Delivered">
+      <segment>
+        <source>Delivered</source>
+        <target>Delivered</target>
+      </segment>
+    </unit>
+    <unit id="EhVukhv" name="Id">
+      <segment>
+        <source>Id</source>
+        <target>Id</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

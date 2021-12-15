@@ -104,3 +104,14 @@ User: User
 personal_account.dashboard: Admin
 personal_account.resending_verify_email_link: 'Confirm your email'
 personal_account.verify_email_link_send: 'Confirmation email has been sent! Check the email.'
+'Created at': 'Created at'
+To: To
+From: From
+'Total price': 'Total price'
+Denied: Denied
+Processed: Processed
+Created: Created
+Owner: Owner
+Complected: Complected
+Delivered: Delivered
+Id: Id

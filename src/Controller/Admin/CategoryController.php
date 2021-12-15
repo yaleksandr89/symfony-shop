@@ -10,7 +10,6 @@ use App\Form\DTO\EditCategoryModel;
 use App\Form\Handler\CategoryFormHandler;
 use App\Repository\CategoryRepository;
 use App\Utils\Manager\CategoryManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/admin/category", name="admin_category_")
  */
-class CategoryController extends AbstractController
+class CategoryController extends BaseAdminController
 {
     // >>> Autowiring
     /**
@@ -71,6 +70,10 @@ class CategoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->checkTheAccessLevel()) {
+                return $this->redirect($request->getUri());
+            }
+
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
             $this->addFlash('success', 'Your changes were saved!');
 

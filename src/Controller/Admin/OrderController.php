@@ -11,7 +11,6 @@ use App\Form\Admin\FilterType\OrderFilterFormType;
 use App\Form\DTO\EditOrderModel;
 use App\Form\Handler\OrderFormHandler;
 use App\Utils\Manager\OrderManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/admin/order", name="admin_order_")
  */
-class OrderController extends AbstractController
+class OrderController extends BaseAdminController
 {
     /**
      * @Route("/list", name="list")
@@ -61,6 +60,10 @@ class OrderController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->checkTheAccessLevel()) {
+                return $this->redirect($request->getUri());
+            }
+
             $order = $orderFormHandler->processEditForm($editOrderModel);
             $this->addFlash('success', 'Your changes were saved!');
 

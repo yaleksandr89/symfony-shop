@@ -10,7 +10,6 @@ use App\Form\DTO\EditUserModel;
 use App\Form\Handler\UserFormHandler;
 use App\Repository\UserRepository;
 use App\Utils\Manager\UserManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/admin/user", name="admin_user_")
  */
-class UserController extends AbstractController
+class UserController extends BaseAdminController
 {
     // >>> Autowiring
     /**
@@ -73,6 +72,9 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->checkTheAccessLevel()) {
+                return $this->redirect($request->getUri());
+            }
             $user = $userFormHandler->processEditForm($editUserModel);
             $this->addFlash('success', 'Your changes were saved!');
 

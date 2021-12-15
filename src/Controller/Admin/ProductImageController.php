@@ -8,14 +8,13 @@ use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Utils\Manager\ProductImageManager;
 use App\Utils\Manager\ProductManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin/product-image", name="admin_product_image_")
  */
-class ProductImageController extends AbstractController
+class ProductImageController extends BaseAdminController
 {
     /**
      * @Route("/delete/{id}", name="delete")
@@ -34,6 +33,13 @@ class ProductImageController extends AbstractController
 
         /** @var Product $product */
         $product = $productImage->getProduct();
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirectToRoute('admin_product_edit', [
+                'id' => $product->getId(),
+            ]);
+        }
+
         $productImageDir = $productManager->getProductImagesDir($product);
         $imgId = $productImage->getId();
 

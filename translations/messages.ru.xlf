@@ -1028,5 +1028,41 @@
         <target>Админка</target>
       </segment>
     </unit>
+    <unit id="EhVukhv" name="Id">
+      <segment>
+        <source>Id</source>
+        <target>ID</target>
+      </segment>
+    </unit>
+    <unit id="SxuKo2C" name="Owner">
+      <segment>
+        <source>Owner</source>
+        <target>Владелец</target>
+      </segment>
+    </unit>
+    <unit id="naepTwi" name="Total price">
+      <segment>
+        <source>Total price</source>
+        <target>Общая стоимость</target>
+      </segment>
+    </unit>
+    <unit id="IYGXaTQ" name="From">
+      <segment>
+        <source>From</source>
+        <target>От</target>
+      </segment>
+    </unit>
+    <unit id="d1tb_WR" name="Created at">
+      <segment>
+        <source>Created at</source>
+        <target>Создан</target>
+      </segment>
+    </unit>
+    <unit id="9LBu9tP" name="To">
+      <segment>
+        <source>To</source>
+        <target>Для</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
