@@ -73,7 +73,7 @@ class UserController extends BaseAdminController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$this->checkTheAccessLevel()) {
-                return $this->redirect($request->getUri());
+                return $this->redirect($request->server->get('HTTP_REFERER'));
             }
             $user = $userFormHandler->processEditForm($editUserModel);
             $this->addFlash('success', 'Your changes were saved!');
@@ -94,15 +94,20 @@ class UserController extends BaseAdminController
     /**
      * @Route("/delete/{id}", name="delete")
      *
+     * @param Request     $request
      * @param User        $user
      * @param UserManager $userManager
      *
      * @return Response
      */
-    public function delete(User $user, UserManager $userManager): Response
+    public function delete(Request $request, User $user, UserManager $userManager): Response
     {
         $id = $user->getId();
         $fullName = $user->getFullName();
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirect($request->server->get('HTTP_REFERER'));
+        }
 
         $userManager->remove($user);
         $this->addFlash('warning', "[Soft delete] The user (Full name: $fullName / ID: $id) was successfully deleted!");

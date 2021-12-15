@@ -20,6 +20,7 @@ const state = () => ({
   },
   staticStore: {
     orderId: window.staticStore.orderId,
+    userIsVerified: JSON.parse(window.staticStore.userIsVerified),
 
     url: {
       viewProduct: window.staticStore.urlViewProduct,
@@ -75,6 +76,11 @@ const actions = {
     }
   },
   async addNewOrderProduct({ state, dispatch }) {
+    if (false === state.staticStore.userIsVerified) {
+      alert("You don't have enough rights! Contact the administrator.");
+      return;
+    }
+
     const url = state.staticStore.url.apiOrderProduct;
     const data = {
       pricePerOne: state.newOrderProduct.pricePerOne.toString(),
@@ -93,6 +99,12 @@ const actions = {
       state.staticStore.url.apiOrderProduct,
       orderProductId
     );
+
+    if (false === state.staticStore.userIsVerified) {
+      alert("You don't have enough rights! Contact the administrator.");
+      return;
+    }
+
     const result = await axios.delete(url, apiConfig);
 
     if (StatusCodes.NO_CONTENT === result.status) {

@@ -71,7 +71,7 @@ class CategoryController extends BaseAdminController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$this->checkTheAccessLevel()) {
-                return $this->redirect($request->getUri());
+                return $this->redirect($request->server->get('HTTP_REFERER'));
             }
 
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
@@ -93,15 +93,20 @@ class CategoryController extends BaseAdminController
     /**
      * @Route("/delete/{id}", name="delete")
      *
+     * @param Request         $request
      * @param Category        $category
      * @param CategoryManager $categoryManager
      *
      * @return Response
      */
-    public function delete(Category $category, CategoryManager $categoryManager): Response
+    public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
     {
         $id = $category->getId();
         $title = $category->getTitle();
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirect($request->server->get('HTTP_REFERER'));
+        }
 
         $categoryManager->remove($category);
         $this->addFlash('warning', "[Soft delete] The category (title: $title / ID: $id) was successfully deleted!");

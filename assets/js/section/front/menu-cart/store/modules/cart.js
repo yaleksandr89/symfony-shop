@@ -45,7 +45,7 @@ const actions = {
       result.data["hydra:member"].length &&
       StatusCodes.OK === result.status
     ) {
-      commit('setIsLoading', false);
+      commit("setIsLoading", false);
       commit("setCart", result.data["hydra:member"][0]);
     }
   },
@@ -85,7 +85,7 @@ const actions = {
       (cartProduct) => cartProduct.product.uuid === productData.uuid
     );
 
-    commit('setIsLoading', true);
+    commit("setIsLoading", true);
 
     if (existCartProduct) {
       let newQuantity = existCartProduct.quantity + productData.quantity;
@@ -152,7 +152,7 @@ const mutations = {
   },
   setIsLoading(state, isLoading) {
     state.isLoading = isLoading;
-  }
+  },
 };
 
 export default {

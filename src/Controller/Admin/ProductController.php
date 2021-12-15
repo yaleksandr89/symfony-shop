@@ -82,7 +82,7 @@ class ProductController extends BaseAdminController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$this->checkTheAccessLevel()) {
-                return $this->redirect($request->getUri());
+                return $this->redirect($request->server->get('HTTP_REFERER'));
             }
 
             $product = $productFormHandler->processEditForm($form, $editProductModel);
@@ -109,15 +109,20 @@ class ProductController extends BaseAdminController
     /**
      * @Route("/delete/{id}", name="delete")
      *
+     * @param Request        $request
      * @param Product        $product
      * @param ProductManager $productManager
      *
      * @return Response
      */
-    public function delete(Product $product, ProductManager $productManager): Response
+    public function delete(Request $request, Product $product, ProductManager $productManager): Response
     {
         $id = $product->getId();
         $title = $product->getTitle();
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirect($request->server->get('HTTP_REFERER'));
+        }
 
         $productManager->softRemove($product);
         $this->addFlash('warning', "[Soft delete] The product (title: $title / ID: $id) was successfully deleted!");

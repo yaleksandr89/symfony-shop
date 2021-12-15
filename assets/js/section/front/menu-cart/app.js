@@ -10,6 +10,8 @@ if (document.getElementById("appFrontMenuCart")) {
   });
 
   window.vueMenuCartInstance = {};
-  window.vueMenuCartInstance.addCartProduct = (productData) => vueMenuCartInstance.$store.dispatch("cart/addCartProduct", productData);
-  window.vueMenuCartInstance.setCart = () => vueMenuCartInstance.$store.commit('cart/setCart', {});
+  window.vueMenuCartInstance.addCartProduct = (productData) =>
+    vueMenuCartInstance.$store.dispatch("cart/addCartProduct", productData);
+  window.vueMenuCartInstance.setCart = () =>
+    vueMenuCartInstance.$store.commit("cart/setCart", {});
 }
