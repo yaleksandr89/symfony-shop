@@ -9,6 +9,7 @@ use App\Form\Front\RegistrationFormType;
 use App\Messenger\Message\Event\EventUserRegisteredEvent;
 use App\Repository\UserRepository;
 use App\Security\Verifier\EmailVerifier;
+use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,21 +18,22 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
-//use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-
 class RegistrationController extends AbstractController
 {
     /**
      * @var EmailVerifier
      */
     private EmailVerifier $emailVerifier;
+    private Doctrine $doctrine;
 
     /**
      * @param EmailVerifier $emailVerifier
+     * @param Doctrine      $doctrine
      */
-    public function __construct(EmailVerifier $emailVerifier)
+    public function __construct(EmailVerifier $emailVerifier, Doctrine $doctrine)
     {
         $this->emailVerifier = $emailVerifier;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -62,7 +64,7 @@ class RegistrationController extends AbstractController
                 )
             );
 
-            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $this->doctrine->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
 

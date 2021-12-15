@@ -16,12 +16,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -43,11 +42,6 @@ class GoogleAuthenticator extends OAuth2Authenticator
     private $userManager;
 
     /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -61,7 +55,6 @@ class GoogleAuthenticator extends OAuth2Authenticator
      * @param ClientRegistry             $clientRegistry
      * @param UserManager                $userManager
      * @param RouterInterface            $router
-     * @param SessionInterface           $session
      * @param EventDispatcherInterface   $eventDispatcher
      * @param VerifyEmailHelperInterface $helper
      */
@@ -69,14 +62,12 @@ class GoogleAuthenticator extends OAuth2Authenticator
         ClientRegistry $clientRegistry,
         UserManager $userManager,
         RouterInterface $router,
-        SessionInterface $session,
         EventDispatcherInterface $eventDispatcher,
         VerifyEmailHelperInterface $helper
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->router = $router;
         $this->userManager = $userManager;
-        $this->session = $session;
         $this->eventDispatcher = $eventDispatcher;
         $this->verifyEmailHelper = $helper;
     }
@@ -95,15 +86,15 @@ class GoogleAuthenticator extends OAuth2Authenticator
     /**
      * @param Request $request
      *
-     * @return PassportInterface
+     * @return Passport
      */
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('google_main');
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
+            new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
                 /** @var GoogleUser $googleUser */
                 $googleUser = $client->fetchUserFromToken($accessToken);
 
@@ -130,7 +121,8 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
                     $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword, $verifyEmail);
                     $this->eventDispatcher->dispatch($event);
-                    $this->session->getFlashBag()->add('success', 'An email has been sent. Please check inbox to find password and verified your email');
+
+                    $request->getSession()->getFlashBag()->add('success', 'An email has been sent. Please check inbox to find password and verified your email');
                 }
 
                 // 3) Maybe you just want to "register" them by creating

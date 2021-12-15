@@ -6,6 +6,7 @@ namespace App\Controller\Front;
 
 use App\Entity\Product;
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -14,6 +15,27 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ProductController extends AbstractController
 {
+    // >>> Autowiring
+    /**
+     * @var Doctrine
+     */
+    private Doctrine $doctrine;
+
+    /**
+     * @required
+     *
+     * @param Doctrine $doctrine
+     *
+     * @return self
+     */
+    public function setDoctrine(Doctrine $doctrine): self
+    {
+        $this->doctrine = $doctrine;
+
+        return $this;
+    }
+    // Autowiring <<<
+
     /**
      * @Route("/product/{identifier}", name="main_product_show")
      * @Route("/product", name="main_product_show_blank")
@@ -25,7 +47,7 @@ class ProductController extends AbstractController
     public function show(string $identifier): Response
     {
         try {
-            $product = $this->getDoctrine()
+            $product = $this->doctrine
                 ->getRepository(Product::class)
                 ->findOneBy(['uuid' => $identifier]);
         } catch (ConversionException $e) {
@@ -34,7 +56,7 @@ class ProductController extends AbstractController
 
         if (!$product) {
             try {
-                $product = $this->getDoctrine()
+                $product = $this->doctrine
                     ->getRepository(Product::class)
                     ->findOneBy(['slug' => $identifier]);
             } catch (ConversionException $e) {

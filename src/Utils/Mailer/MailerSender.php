@@ -8,6 +8,7 @@ use App\Utils\Mailer\DTO\MailerOptionModel;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -52,26 +53,14 @@ class MailerSender
 
         return $this;
     }
-
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @required
-     *
-     * @param ContainerInterface $container
-     *
-     * @return self
-     */
-    public function setContainer(ContainerInterface $container): self
-    {
-        $this->container = $container;
-
-        return $this;
-    }
     // Autowiring <<<
+
+    protected $parameterBag;
+
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
+        $this->parameterBag = $parameterBag;
+    }
 
     /**
      * @param MailerOptionModel $mailerOptionModel
@@ -115,7 +104,7 @@ class MailerSender
     {
         $mailerOptionModel
             ->setSubject('[Exception] An error occurred while sending the letter')
-            ->setRecipient($this->container->getParameter('admin_email'));
+            ->setRecipient($this->parameterBag->get('admin_email'));
 
         $email = $this->getEmail()
             ->to($mailerOptionModel->getRecipient())

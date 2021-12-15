@@ -19,10 +19,9 @@ class OrderCreatedFromCartEmailSender extends BaseSender
     {
         /** @var User $user */
         $user = $order->getOwner();
-
         $mailerOptions = $this->getMailerOptions()
             ->setRecipient($user->getEmail())
-            ->setCc($this->container->getParameter('admin_email'))
+            ->setCc($this->parameterBag->get('admin_email'))
             ->setSubject('Symfony shop - Thank you for  your purchase!')
             ->setHtmlTemplate('front/email/client/created_order_from_cart.html.twig')
             ->setContext([
@@ -42,9 +41,8 @@ class OrderCreatedFromCartEmailSender extends BaseSender
     {
         /** @var User $user */
         $user = $order->getOwner();
-
         $mailerOptions = $this->getMailerOptions()
-            ->setRecipient($this->container->getParameter('admin_email'))
+            ->setRecipient($this->parameterBag->get('admin_email'))
             ->setSubject("Client created order (ID: {$order->getId()})")
             ->setHtmlTemplate('front/email/manager/created_order_from_cart.html.twig')
             ->setContext([
