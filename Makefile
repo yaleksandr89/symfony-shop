@@ -32,7 +32,7 @@ php-cs-fixer:
 	${VENDOR}/bin/php-cs-fixer fix src/  --verbose
 
 phpstan:
-	${VENDOR}/bin/phpstan analyse src --level 8
+	${VENDOR}/bin/phpstan analyse src --level 4
 
 ##
 ## TESTING
