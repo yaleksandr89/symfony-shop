@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Utils\Mailer;
 
 use App\Utils\Mailer\DTO\MailerOptionModel;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -53,6 +52,7 @@ class MailerSender
 
         return $this;
     }
+
     // Autowiring <<<
 
     protected $parameterBag;

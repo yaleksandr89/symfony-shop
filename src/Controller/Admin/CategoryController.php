@@ -55,6 +55,8 @@ class CategoryController extends BaseAdminController
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
+     * @{убрать}IsGranted("CAN_ADMIN_EDIT", subject="category") - если требуется редирект в случае если пользователь isVerified = false
+     * Используется избиратель src/Security/Voters/AdminOrderEditVoter
      *
      * @param Request             $request
      * @param CategoryFormHandler $categoryFormHandler
