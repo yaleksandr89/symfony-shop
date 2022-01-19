@@ -2,12 +2,8 @@
 
 namespace App\Tests\Functional\ApiPlatform;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
-use Symfony\Component\HttpFoundation\Response;
 
 class ResourceTestUtils extends WebTestCase
 {

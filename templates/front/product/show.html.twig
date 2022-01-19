@@ -51,7 +51,7 @@
                             </div>
 
                             <div class="product-full-action">
-                                <a href="#" class="btn btn-link btn-dark" data-add-cart>
+                                <a href="#" class="btn btn-link btn-dark" data-add-cart-product-page>
                                     <i class="fas fa-cart-plus"></i>
                                     <span>{{ 'product.add_to_cart'|trans }}</span>
                                 </a>
@@ -80,7 +80,7 @@
     <script>
         const productUuid = '{{ product.uuid }}';
         const productQuantityEl = document.getElementById('product_full_filter_quantity');
-        const productShowAddCart = document.querySelector('[data-add-cart]');
+        const productShowAddCart = document.querySelector('[data-add-cart-product-page]');
 
         productShowAddCart.addEventListener('click', function (event) {
             event.preventDefault();
