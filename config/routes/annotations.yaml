@@ -23,6 +23,13 @@ controllers_robots_txt:
   requirements:
     _format: txt
 
+controllers_sitemap:
+  resource: ../../src/Controller/Front/SitemapController.php
+  type: annotation
+  format: xml
+  requirements:
+    _format: xml
+
 kernel:
   resource: ../../src/Kernel.php
   type: annotation

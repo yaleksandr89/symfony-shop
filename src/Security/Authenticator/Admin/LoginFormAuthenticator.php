@@ -18,7 +18,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class LoginFormAuthenticator extends AbstractAuthenticator
@@ -56,9 +55,9 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     /**
      * @param Request $request
      *
-     * @return PassportInterface
+     * @return Passport
      */
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         $email = $request->request->get('email');
         $plaintextPassword = $request->request->get('password');
@@ -68,7 +67,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         /** @var User $user */
         $user = $this->userRepository->findOneBy(['email' => $email]);
 
-        if ($user && !$user->hasAccessToAdminSection()) {
+        if (null !== $user && !$user->hasAccessToAdminSection()) {
             $email = '';
         }
 

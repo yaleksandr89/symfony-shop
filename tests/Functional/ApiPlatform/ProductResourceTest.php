@@ -49,7 +49,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $context = [
             'title' => 'New product',
-            'price' => 'New 100',
+            'price' => '100',
             'quantity' => 5,
         ];
 
@@ -68,7 +68,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $context = [
             'title' => 'New product',
-            'price' => 'New 100',
+            'price' => 'INCORRECT VALUE',
             'quantity' => 5,
         ];
 

@@ -45,6 +45,7 @@ class RobotsTxtController extends AbstractController
         return $this->render('front/robots.txt.twig', [
             'activeCategories' => $this->getActiveCategories(),
             'activeProducts' => $this->getActiveProducts(),
+            'sitemap' => $this->generateUrl('main_sitemap', [], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
     }
 
