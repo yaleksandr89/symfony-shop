@@ -49,7 +49,7 @@
     * Укажите email.
     * Укажите пароль (при вводе он отображаться не будет).
     * Укажите роль, для админа можно указать `ROLE_SUPER_ADMIN` (Доступные роли: `ROLE_SUPER_ADMIN`,`ROLE_ADMIN`,`ROLE_USER`).
-14. Для отправки некоторых писем (восстановление пароля, подтверждение учетной записи) используется **Symfony Messenger**, поэтому необходимо запустить команду в терминале `symfony console messenger:consume async -vv`, повесить команду или настроить Supervisor
+14. Для отправки некоторых писем (восстановление пароля, подтверждение учетной записи) используется [Symfony Messenger](https://symfony.com/doc/current/components/messenger.html "Symfony Messenger"), поэтому необходимо запустить команду в терминале `symfony console messenger:consume async -vv` или повесить команду на крон или настроить `Supervisor`
 ```bash
 ;/etc/supervisor/conf.d/messenger-worker.conf
 [program:messenger-consume]
