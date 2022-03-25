@@ -17,7 +17,7 @@ class DefaultControllerTest extends WebTestCase
         $client->request('GET', '/');
 
         self::assertResponseRedirects(
-            'http://localhost/en',
+            'http://localhost/ru',
             Response::HTTP_MOVED_PERMANENTLY,
             sprintf('The %s URL redirections to the version with locale', '/')
         );
@@ -51,7 +51,7 @@ class DefaultControllerTest extends WebTestCase
         $client->request('GET', $url);
 
         self::assertResponseRedirects(
-            '/en/login',
+            '/ru/login',
             Response::HTTP_FOUND,
             sprintf('The %s URL redirections to the login page', $url)
         );
@@ -59,15 +59,15 @@ class DefaultControllerTest extends WebTestCase
 
     public function getPublicUrls(): ?Generator
     {
-        yield ['/en/'];
-        yield ['/en/login'];
-        yield ['/en/registration'];
-        yield ['/en/reset-password'];
+        yield ['/ru/'];
+        yield ['/ru/login'];
+        yield ['/ru/registration'];
+        yield ['/ru/reset-password'];
     }
 
     public function getSecureUrls(): ?Generator
     {
-        yield ['/en/profile'];
-        yield ['/en/profile/edit'];
+        yield ['/ru/profile'];
+        yield ['/ru/profile/edit'];
     }
 }

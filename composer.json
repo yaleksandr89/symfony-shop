@@ -23,7 +23,6 @@
         "imagine/imagine": "^1.2",
         "knplabs/knp-paginator-bundle": "^5.7",
         "knpuniversity/oauth2-client-bundle": "^2.8",
-        "league/oauth2-facebook": "^2.0",
         "league/oauth2-google": "^4.0",
         "lexik/form-filter-bundle": "^7.0",
         "nelmio/cors-bundle": "^2.1",

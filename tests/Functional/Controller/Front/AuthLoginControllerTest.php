@@ -14,13 +14,13 @@ class AuthLoginControllerTest extends BasePantherTestCase
     {
         $client = static::createClient();
 
-        $client->request('GET', '/en/login');
-        $client->submitForm('Log in', [
+        $client->request('GET', '/ru/login');
+        $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
         ]);
 
-        self::assertResponseRedirects('/en/profile', Response::HTTP_FOUND);
+        self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
 
         $client->followRedirect();
         self::assertResponseIsSuccessful();
@@ -33,15 +33,15 @@ class AuthLoginControllerTest extends BasePantherTestCase
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
 
-        $client->request('GET', '/en/login');
-        $client->submitForm('Log in', [
+        $client->request('GET', '/ru/login');
+        $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
         ]);
 
-        self::assertSame(self::$baseUri.'/en/profile', $client->getCurrentURL());
-        self::assertPageTitleContains('Welcome, to your profile');
-        self::assertSelectorTextContains('#page_header_title', 'Welcome, to your profile!');
+        self::assertSame(self::$baseUri.'/ru/profile', $client->getCurrentURL());
+        self::assertPageTitleContains('Добро пожаловать в ЛК');
+        self::assertSelectorTextContains('#page_header_title', 'Добро пожаловать в ЛК!');
     }
 
     /**
@@ -50,9 +50,9 @@ class AuthLoginControllerTest extends BasePantherTestCase
     public function testLoginWithSeleniumClient(): void
     {
         $client = $this->initSeleniumClient();
-        $client->request('GET', '/en/login');
+        $client->request('GET', '/ru/login');
 
-        $crawler = $client->submitForm('Log in', [
+        $crawler = $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
         ]);
@@ -62,7 +62,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
 
         self::assertSame(
             $crawler->filter('#page_header_title')->text(),
-            'Welcome, to your profile!'
+            'Добро пожаловать в ЛК!'
         );
     }
 }
