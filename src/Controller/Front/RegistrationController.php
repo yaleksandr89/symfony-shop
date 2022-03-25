@@ -16,24 +16,24 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    /**
-     * @var EmailVerifier
-     */
     private EmailVerifier $emailVerifier;
     private Doctrine $doctrine;
+    private TranslatorInterface $translator;
 
     /**
      * @param EmailVerifier $emailVerifier
      * @param Doctrine      $doctrine
      */
-    public function __construct(EmailVerifier $emailVerifier, Doctrine $doctrine)
+    public function __construct(EmailVerifier $emailVerifier, Doctrine $doctrine, TranslatorInterface $translator)
     {
         $this->emailVerifier = $emailVerifier;
         $this->doctrine = $doctrine;
+        $this->translator = $translator;
     }
 
     /**
@@ -72,7 +72,7 @@ class RegistrationController extends AbstractController
             $messageBus->dispatch($event);
 
             // do anything else you need here, like send an email
-            $this->addFlash('success', 'An email has been sent. Please check your inbox to complete registration.');
+            $this->addFlash('success', $this->translator->trans('An email has been sent. Please check your inbox to complete registration.'));
 
             return $this->redirectToRoute('main_homepage');
         }
@@ -114,7 +114,7 @@ class RegistrationController extends AbstractController
         }
 
         // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', $this->translator->trans('Your email address has been verified.'));
 
         return $this->redirectToRoute('main_homepage');
     }

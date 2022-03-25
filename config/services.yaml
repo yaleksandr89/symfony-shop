@@ -9,8 +9,8 @@ parameters:
   uploads_images_dir: '%uploads_dir%/images'
   product_images_dir: '%uploads_images_dir%/products'
   product_images_url: '/uploads/images/products'
-  locale: 'en'
-  app_locales: en|ru
+  locale: 'ru'
+  app_locales: ru|en
   app_locales.in_brackets: '(%app_locales%)'
   router.request_context.scheme: '%env(SITE_BASE_SCHEME)%'
   router.request_context.host: '%env(SITE_BASE_HOST)%'

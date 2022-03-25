@@ -22,16 +22,16 @@ class RegistrationControllerTest extends WebTestCase
 
         $newUserPassword = 'test123456';
 
-        $client->request('GET', '/en/registration');
-        $client->submitForm('Sing up', [
+        $client->request('GET', '/ru/registration');
+        $client->submitForm('Зарегистрироваться', [
             'registration_form[email]' => self::$uniqueEmail,
             'registration_form[plainPassword]' => $newUserPassword,
             'registration_form[agreeTerms]' => true,
         ]);
 
-        self::assertResponseRedirects('/en/', Response::HTTP_FOUND);
+        self::assertResponseRedirects('/ru/', Response::HTTP_FOUND);
         $client->followRedirect();
-        self::assertSelectorTextContains('div', 'An email has been sent. Please check your inbox to complete registration.');
+        self::assertSelectorTextContains('div', 'Было отправлено электронное письмо. Пожалуйста, проверьте свой почтовый ящик, чтобы завершить регистрацию.');
 
         /** @var User $user */
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => self::$uniqueEmail]);
@@ -50,8 +50,8 @@ class RegistrationControllerTest extends WebTestCase
         $newUserEmail = UserFixtures::USER_ADMIN_1_EMAIL;
         $newUserPassword = UserFixtures::USER_ADMIN_1_PASSWORD;
 
-        $client->request('GET', '/en/registration');
-        $client->submitForm('Sing up', [
+        $client->request('GET', '/ru/registration');
+        $client->submitForm('Зарегистрироваться', [
             'registration_form[email]' => $newUserEmail,
             'registration_form[plainPassword]' => $newUserPassword,
             'registration_form[agreeTerms]' => true,
@@ -59,7 +59,7 @@ class RegistrationControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorTextContains('div', 'There is already an account with this email');
+        self::assertSelectorTextContains('div', 'У данной электронной почты уже зарегистрирована учетная запись');
     }
 
     public function testRegistrationPasswordToShort(): void
@@ -68,8 +68,8 @@ class RegistrationControllerTest extends WebTestCase
 
         $newUserPassword = '123';
 
-        $client->request('GET', '/en/registration');
-        $client->submitForm('Sing up', [
+        $client->request('GET', '/ru/registration');
+        $client->submitForm('Зарегистрироваться', [
             'registration_form[email]' => self::$uniqueEmail,
             'registration_form[plainPassword]' => $newUserPassword,
             'registration_form[agreeTerms]' => true,
@@ -77,6 +77,6 @@ class RegistrationControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertSelectorTextContains('div', 'This value is too short. It should have 6 characters or more.');
+        self::assertSelectorTextContains('div', 'Значение слишком короткое. Должно быть равно 6 символам или больше.');
     }
 }

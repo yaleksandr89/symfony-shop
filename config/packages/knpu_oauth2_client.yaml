@@ -1,16 +1,5 @@
 knpu_oauth2_client:
     clients:
-        # configure your clients as described here: https://github.com/knpuniversity/oauth2-client-bundle#configuration
-        facebook_main:
-            # must be "facebook" - it activates that type!
-            type: facebook
-            # add and set these environment variables in your .env files
-            client_id: '%env(OAUTH_FACEBOOK_ID)%'
-            client_secret: '%env(OAUTH_FACEBOOK_SECRET)%'
-            # a route name you'll create
-            redirect_route: connect_facebook_check
-            redirect_params: { }
-            graph_api_version: v2.12
         google_main:
             # must be "google" - it activates that type!
             type: google

@@ -11,5 +11,4 @@ symfony console doctrine:schema:update --force
 
 php bin/console hautelook:fixtures:load -n
 
-symfony php ./vendor/bin/phpunit --testdox --group unit,integration,functional,functional-selenium
-#symfony php ./vendor/bin/phpunit --testdox --group unit,integration,functional,functional-selenium
+symfony php ./vendor/bin/phpunit --testdox --group unit,integration,functional,functional-panther,functional-selenium

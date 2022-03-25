@@ -74,7 +74,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $client->request('POST', $this->uriKey, [], [], self::REQUEST_HEADERS, json_encode([$context]));
 
-        self::assertResponseRedirects('/en/login', Response::HTTP_FOUND);
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
         $client->followRedirect();
     }
 
@@ -119,7 +119,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $client->request('PATCH', $uri, [], [], self::REQUEST_HEADERS_PATCH, json_encode($context));
 
-        self::assertResponseRedirects('/en/login', Response::HTTP_FOUND);
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
         $client->followRedirect();
     }
 }

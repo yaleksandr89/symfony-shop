@@ -41,7 +41,7 @@ security:
       entry_point: App\Security\EntryPoint\AuthenticationFrontEntryPoint
       custom_authenticator:
         - App\Security\Authenticator\Front\LoginFormAuthenticator
-        - App\Security\Authenticator\Front\FacebookAuthenticator
+#        - App\Security\Authenticator\Front\FacebookAuthenticator
         - App\Security\Authenticator\Front\GoogleAuthenticator
       remember_me:
         secret: '%kernel.secret%'
