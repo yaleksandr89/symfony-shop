@@ -32,7 +32,6 @@ personal_account.edit.labels.phone: 'Enter phone'
 personal_account.edit.labels.address: 'Enter address'
 personal_account.edit.labels.zipcode: 'Enter zipcode'
 personal_account.edit.save_changes: 'Save changes'
-login_social_network.facebook: 'Login with Facebook'
 login_social_network.google: 'Login with Google'
 similar_products.head: 'We recommend'
 similar_products.new: New

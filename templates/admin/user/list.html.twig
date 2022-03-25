@@ -21,7 +21,6 @@
                         <th>Role</th>
                         <th>Profile info</th>
                         <th>Is verified email</th>
-                        <th>From Facebook</th>
                         <th>From Google</th>
                         <th></th>
                     </tr>
@@ -48,13 +47,6 @@
                             </td>
                             <td>
                                 {% if user.isVerified %}
-                                    <div class="alert alert-success">Verified</div>
-                                {% else %}
-                                    <div class="alert alert-warning">Not Verified</div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if user.facebookId %}
                                     <div class="alert alert-success">Verified</div>
                                 {% else %}
                                     <div class="alert alert-warning">Not Verified</div>

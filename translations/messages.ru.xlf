@@ -312,15 +312,6 @@
         <target>Сохранить изменения</target>
       </segment>
     </unit>
-    <unit id="305gghq" name="login_social_network.facebook">
-      <notes>
-        <note category="file-source" priority="1">shop/templates/front/_embed/_menu/_login_via_social_network.html.twig:12</note>
-      </notes>
-      <segment>
-        <source>login_social_network.facebook</source>
-        <target>Авторизоваться через Facebook</target>
-      </segment>
-    </unit>
     <unit id="ha85IfI" name="login_social_network.google">
       <notes>
         <note category="file-source" priority="1">shop/templates/front/_embed/_menu/_login_via_social_network.html.twig:5</note>
@@ -690,7 +681,6 @@
     <unit id="LmUPn4A">
       <notes>
         <note category="file-source" priority="1">shop/src/Security/Authenticator/Front/GoogleAuthenticator.php:131</note>
-        <note category="file-source" priority="1">shop/src/Security/Authenticator/Front/FacebookAuthenticator.php:131</note>
       </notes>
       <segment>
         <source>An email has been sent. Please check inbox to find password and verified your email</source>

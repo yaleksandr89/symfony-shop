@@ -32,7 +32,6 @@ personal_account.edit.labels.phone: 'Введите телефон'
 personal_account.edit.labels.address: 'Введите адрес'
 personal_account.edit.labels.zipcode: 'Введите почтовый индекс'
 personal_account.edit.save_changes: 'Сохранить изменения'
-login_social_network.facebook: 'Авторизоваться через Facebook'
 login_social_network.google: 'Авторизоваться через Google'
 similar_products.head: 'Мы рекомендуем'
 similar_products.new: Новинка
