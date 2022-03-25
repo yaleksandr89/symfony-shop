@@ -81,11 +81,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    private $facebookId;
-
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
     private $googleId;
 
     public function __construct()
@@ -411,18 +406,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $order->setOwner(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getFacebookId(): ?string
-    {
-        return $this->facebookId;
-    }
-
-    public function setFacebookId(?string $facebookId): self
-    {
-        $this->facebookId = $facebookId;
 
         return $this;
     }
