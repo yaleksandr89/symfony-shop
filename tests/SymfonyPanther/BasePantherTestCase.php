@@ -18,7 +18,7 @@ class BasePantherTestCase extends PantherTestCase
         static::startWebServer();
 
         $capabilities = $this->getChromeCapabilities();
-        return Client::createSeleniumClient('http://127.0.0.1:4444/wd/hub', $capabilities, 'http://127.0.0.1:9080');
+        return Client::createSeleniumClient('http://127.0.0.1:5555/wd/hub', $capabilities, 'http://127.0.0.1:9080');
     }
 
     private function getChromeCapabilities(): DesiredCapabilities

@@ -34,6 +34,9 @@
             "config/packages/test/dama_doctrine_test_bundle.yaml"
         ]
     },
+    "dbrekelmans/bdi": {
+        "version": "1.0"
+    },
     "deployer/dist": {
         "version": "v6.8.0"
     },

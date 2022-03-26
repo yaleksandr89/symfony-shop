@@ -60,7 +60,7 @@ jobs:
 
       - run:
           name: Start Selenium
-          command: ~/project/bin/selenium-server-4.1.0.jar standalone
+          command: ~/project/bin/selenium-server-4.1.0.jar standalone -p 5555
           background: true
 
       - run: make run-test
