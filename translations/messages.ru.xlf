@@ -1072,5 +1072,77 @@
         <target>Авторизоваться через Гитхаб</target>
       </segment>
     </unit>
+    <unit id="U_e_xLK" name="admin.user_list.edit">
+      <segment>
+        <source>admin.user_list.edit</source>
+        <target>Редактировать</target>
+      </segment>
+    </unit>
+    <unit id="O49.BZq" name="admin.user_list.not_verified">
+      <segment>
+        <source>admin.user_list.not_verified</source>
+        <target>Не проверено</target>
+      </segment>
+    </unit>
+    <unit id="MjBzuxb" name="admin.user_list.verified">
+      <segment>
+        <source>admin.user_list.verified</source>
+        <target>Проверено</target>
+      </segment>
+    </unit>
+    <unit id="3XQLnLv" name="admin.user_list.id">
+      <segment>
+        <source>admin.user_list.id</source>
+        <target>Ид</target>
+      </segment>
+    </unit>
+    <unit id="imvhdji" name="admin.user_list.email">
+      <segment>
+        <source>admin.user_list.email</source>
+        <target>Почта</target>
+      </segment>
+    </unit>
+    <unit id="oUVglXT" name="admin.user_list.role">
+      <segment>
+        <source>admin.user_list.role</source>
+        <target>Роль</target>
+      </segment>
+    </unit>
+    <unit id="jEdlObq" name="admin.user_list.profile_info">
+      <segment>
+        <source>admin.user_list.profile_info</source>
+        <target>Информация</target>
+      </segment>
+    </unit>
+    <unit id="tZ6GW0o" name="admin.user_list.is_verified_email">
+      <segment>
+        <source>admin.user_list.is_verified_email</source>
+        <target>Почта проверена</target>
+      </segment>
+    </unit>
+    <unit id="..ZWjVX" name="admin.user_list.from_google">
+      <segment>
+        <source>admin.user_list.from_google</source>
+        <target>Google проверен</target>
+      </segment>
+    </unit>
+    <unit id="h0Dl98t" name="admin.user_list.from_yandex">
+      <segment>
+        <source>admin.user_list.from_yandex</source>
+        <target>Яндекс проверен</target>
+      </segment>
+    </unit>
+    <unit id="YEAkBLN" name="admin.user_list.from_vk">
+      <segment>
+        <source>admin.user_list.from_vk</source>
+        <target>Вконтакте проверен</target>
+      </segment>
+    </unit>
+    <unit id="2qVg_O." name="admin.user_list.from_github">
+      <segment>
+        <source>admin.user_list.from_github</source>
+        <target>Github проверен</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

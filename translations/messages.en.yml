@@ -117,3 +117,15 @@ Id: Id
 login_social_network.yandex: 'Login with Yandex'
 login_social_network.vk: 'Login with Vkontakte'
 login_social_network.github: 'Login with Github'
+admin.user_list.id: Id
+admin.user_list.email: Email
+admin.user_list.role: Role
+admin.user_list.profile_info: 'Profile info'
+admin.user_list.is_verified_email: 'Is verified email'
+admin.user_list.from_google: 'From Google'
+admin.user_list.from_yandex: 'From Yandex'
+admin.user_list.from_vk: 'From Vk'
+admin.user_list.from_github: 'From Github'
+admin.user_list.verified: Verified
+admin.user_list.not_verified: 'Not Verified'
+admin.user_list.edit: Edit
