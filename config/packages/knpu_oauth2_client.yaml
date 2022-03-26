@@ -1,5 +1,6 @@
 knpu_oauth2_client:
     clients:
+
         google_main:
             # must be "google" - it activates that type!
             type: google
@@ -9,3 +10,65 @@ knpu_oauth2_client:
             # a route name you'll create
             redirect_route: connect_google_check
             redirect_params: {}
+
+        # will create service: "knpu.oauth2.client.yandex_main"
+        # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\YandexClient
+        # composer require aego/oauth2-yandex
+        yandex_main:
+            # must be "yandex" - it activates that type!
+            type: yandex
+            # add and set these environment variables in your .env files
+            client_id: '%env(OAUTH_YANDEX_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_YANDEX_CLIENT_SECRET)%'
+            # a route name you'll create
+            redirect_route: connect_yandex_check
+            redirect_params: {}
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
+
+        # will create service: "knpu.oauth2.client.vk_main"
+        # an instance of: KnpU\OAuth2ClientBundle\Client\OAuth2Client
+        vk_main:
+            type: generic
+            provider_class: App\Utils\Oauth2\Vk\Vk
+            # optional: a class that extends OAuth2Client
+            # client_class: Some\Custom\Client
+
+            # optional: if your provider has custom constructor options
+            # provider_options: {}
+
+            # now, all the normal options!
+            client_id: '%env(OAUTH_VK_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_VK_CLIENT_SECRET)%'
+            redirect_route: connect_vk_check
+            redirect_params: {}
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
+        # will create service: "knpu.oauth2.client.github_en"
+        # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\GithubClient
+        # composer require league/oauth2-github
+        github_en:
+            # must be "github" - it activates that type!
+            type: github
+            # add and set these environment variables in your .env files
+            client_id: '%env(OAUTH_GITHUB_EN_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GITHUB_EN_CLIENT_SECRET)%'
+            # a route name you'll create
+            redirect_route: connect_github_en_check
+            redirect_params: { }
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
+        # will create service: "knpu.oauth2.client.github_rus"
+        # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\GithubClient
+        # composer require league/oauth2-github
+        github_rus:
+            # must be "github" - it activates that type!
+            type: github
+            # add and set these environment variables in your .env files
+            client_id: '%env(OAUTH_GITHUB_RUS_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GITHUB_RUS_CLIENT_SECRET)%'
+            # a route name you'll create
+            redirect_route: connect_github_rus_check
+            redirect_params: { }
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true

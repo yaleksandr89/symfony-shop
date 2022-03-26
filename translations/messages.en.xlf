@@ -1036,5 +1036,23 @@
         <target>Id</target>
       </segment>
     </unit>
+    <unit id="DZl7LyU" name="login_social_network.yandex">
+      <segment>
+        <source>login_social_network.yandex</source>
+        <target>Login with Yandex</target>
+      </segment>
+    </unit>
+    <unit id="f75DMJI" name="login_social_network.vk">
+      <segment>
+        <source>login_social_network.vk</source>
+        <target>Login with Vkontakte</target>
+      </segment>
+    </unit>
+    <unit id="vwH7yKg" name="login_social_network.github">
+      <segment>
+        <source>login_social_network.github</source>
+        <target>Login with Github</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

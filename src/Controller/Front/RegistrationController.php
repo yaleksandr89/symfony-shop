@@ -26,8 +26,9 @@ class RegistrationController extends AbstractController
     private TranslatorInterface $translator;
 
     /**
-     * @param EmailVerifier $emailVerifier
-     * @param Doctrine      $doctrine
+     * @param EmailVerifier       $emailVerifier
+     * @param Doctrine            $doctrine
+     * @param TranslatorInterface $translator
      */
     public function __construct(EmailVerifier $emailVerifier, Doctrine $doctrine, TranslatorInterface $translator)
     {

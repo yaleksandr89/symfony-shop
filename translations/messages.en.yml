@@ -114,3 +114,6 @@ Owner: Owner
 Complected: Complected
 Delivered: Delivered
 Id: Id
+login_social_network.yandex: 'Login with Yandex'
+login_social_network.vk: 'Login with Vkontakte'
+login_social_network.github: 'Login with Github'

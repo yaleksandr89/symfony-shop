@@ -1,9 +1,33 @@
 <div class="form-additional mt-2 pt-1">
     <div class="row">
         <div class="col-sm-12 text-center">
-            <a href="{{ path('connect_google_start') }}" class="btn btn-link btn-dark">
+            <a href="{{ path('connect_google_start') }}" class="btn btn-link btn-dark mb-1">
                 {{ 'login_social_network.google'|trans }}
             </a>
         </div>
+        <div class="col-sm-12 text-center">
+            <a href="{{ path('connect_yandex_start') }}" class="btn btn-link btn-dark mb-1">
+                {{ 'login_social_network.yandex'|trans }}
+            </a>
+        </div>
+        <div class="col-sm-12 text-center">
+            <a href="{{ path('connect_vk_start') }}" class="btn btn-link btn-dark mb-1">
+                {{ 'login_social_network.vk'|trans }}
+            </a>
+        </div>
+        {% if app.request.locale == 'ru' %}
+            <div class="col-sm-12 text-center">
+                <a href="{{ path('connect_github_rus_start') }}" class="btn btn-link btn-dark mb-">
+                    {{ 'login_social_network.github'|trans }}
+                </a>
+            </div>
+        {% endif %}
+        {% if app.request.locale == 'en' %}
+            <div class="col-sm-12 text-center">
+                <a href="{{ path('connect_github_en_start') }}" class="btn btn-link btn-dark mb-">
+                    {{ 'login_social_network.github'|trans }}
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>

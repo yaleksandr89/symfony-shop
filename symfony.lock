@@ -1,4 +1,7 @@
 {
+    "aego/oauth2-yandex": {
+        "version": "0.2.2"
+    },
     "api-platform/core": {
         "version": "2.6",
         "recipe": {
@@ -30,6 +33,9 @@
         "files": [
             "config/packages/test/dama_doctrine_test_bundle.yaml"
         ]
+    },
+    "dbrekelmans/bdi": {
+        "version": "1.0"
     },
     "deployer/dist": {
         "version": "v6.8.0"
@@ -181,6 +187,9 @@
     },
     "league/oauth2-client": {
         "version": "2.6.0"
+    },
+    "league/oauth2-github": {
+        "version": "3.0.0"
     },
     "league/oauth2-google": {
         "version": "4.0.0"

@@ -1054,5 +1054,23 @@
         <target>Для</target>
       </segment>
     </unit>
+    <unit id="DZl7LyU" name="login_social_network.yandex">
+      <segment>
+        <source>login_social_network.yandex</source>
+        <target>Авторизоваться через Яндекс</target>
+      </segment>
+    </unit>
+    <unit id="f75DMJI" name="login_social_network.vk">
+      <segment>
+        <source>login_social_network.vk</source>
+        <target>Авторизоваться через Вконтакт</target>
+      </segment>
+    </unit>
+    <unit id="vwH7yKg" name="login_social_network.github">
+      <segment>
+        <source>login_social_network.github</source>
+        <target>Авторизоваться через Гитхаб</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

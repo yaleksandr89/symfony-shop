@@ -22,6 +22,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 class GoogleAuthenticator extends OAuth2Authenticator
@@ -52,24 +53,32 @@ class GoogleAuthenticator extends OAuth2Authenticator
     private $verifyEmailHelper;
 
     /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * @param ClientRegistry             $clientRegistry
      * @param UserManager                $userManager
      * @param RouterInterface            $router
      * @param EventDispatcherInterface   $eventDispatcher
      * @param VerifyEmailHelperInterface $helper
+     * @param TranslatorInterface        $translator
      */
     public function __construct(
         ClientRegistry $clientRegistry,
         UserManager $userManager,
         RouterInterface $router,
         EventDispatcherInterface $eventDispatcher,
-        VerifyEmailHelperInterface $helper
+        VerifyEmailHelperInterface $helper,
+        TranslatorInterface $translator
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->router = $router;
         $this->userManager = $userManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->verifyEmailHelper = $helper;
+        $this->translator = $translator;
     }
 
     /**
@@ -111,7 +120,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
                 $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
 
                 if (!$user) {
-                    $user = UserFactory::createUserFromGoogleUser($googleUser);
+                    $user = UserFactory::createUserFromGoogle($googleUser);
 
                     $plainPassword = PasswordGenerator::generatePassword(15);
                     $this->userManager->encodePassword($user, $plainPassword);
@@ -122,7 +131,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword, $verifyEmail);
                     $this->eventDispatcher->dispatch($event);
 
-                    $request->getSession()->getFlashBag()->add('success', 'An email has been sent. Please check inbox to find password and verified your email');
+                    $request->getSession()->getFlashBag()->add('success', $this->translator->trans('An email has been sent. Please check inbox to find password and verified your email'));
                 }
 
                 // 3) Maybe you just want to "register" them by creating

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Controller\Front;
 
+use App\Repository\UserRepository;
 use App\Tests\SymfonyPanther\BasePantherTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,8 +33,8 @@ class AuthLoginControllerTest extends BasePantherTestCase
     public function testLoginWithPantherClient(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
-
         $client->request('GET', '/ru/login');
+
         $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
