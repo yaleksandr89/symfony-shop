@@ -93,6 +93,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $vkontakteId;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $githubId;
+
     public function __construct()
     {
         $this->isVerified = false;
@@ -472,5 +477,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setVkontakteId(?string $vkontakteId): void
     {
         $this->vkontakteId = $vkontakteId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getGithubId(): ?string
+    {
+        return $this->githubId;
+    }
+
+    /**
+     * @param string|null $githubId
+     *
+     * @return void
+     */
+    public function setGithubId(?string $githubId): void
+    {
+        $this->githubId = $githubId;
     }
 }

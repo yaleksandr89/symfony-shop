@@ -1048,5 +1048,11 @@
         <target>Login with Vkontakte</target>
       </segment>
     </unit>
+    <unit id="vwH7yKg" name="login_social_network.github">
+      <segment>
+        <source>login_social_network.github</source>
+        <target>Login with Github</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

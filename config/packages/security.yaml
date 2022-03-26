@@ -44,6 +44,8 @@ security:
         - App\Security\Authenticator\Front\GoogleAuthenticator
         - App\Security\Authenticator\Front\YandexAuthenticator
         - App\Security\Authenticator\Front\VkontakteAuthenticator
+        - App\Security\Authenticator\Front\GithubEnAuthenticator
+        - App\Security\Authenticator\Front\GithubRusAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)

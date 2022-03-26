@@ -1066,5 +1066,11 @@
         <target>Авторизоваться через Вконтакт</target>
       </segment>
     </unit>
+    <unit id="vwH7yKg" name="login_social_network.github">
+      <segment>
+        <source>login_social_network.github</source>
+        <target>Авторизоваться через Гитхаб</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
