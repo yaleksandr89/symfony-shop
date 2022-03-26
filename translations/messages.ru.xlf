@@ -1057,7 +1057,13 @@
     <unit id="DZl7LyU" name="login_social_network.yandex">
       <segment>
         <source>login_social_network.yandex</source>
-        <target>Авторизоваться через Google</target>
+        <target>Авторизоваться через Яндекс</target>
+      </segment>
+    </unit>
+    <unit id="f75DMJI" name="login_social_network.vk">
+      <segment>
+        <source>login_social_network.vk</source>
+        <target>Авторизоваться через Вконтакт</target>
       </segment>
     </unit>
   </file>

@@ -1042,5 +1042,11 @@
         <target>Login with Yandex</target>
       </segment>
     </unit>
+    <unit id="f75DMJI" name="login_social_network.vk">
+      <segment>
+        <source>login_social_network.vk</source>
+        <target>Login with Vkontakte</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

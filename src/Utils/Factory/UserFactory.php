@@ -6,6 +6,7 @@ namespace App\Utils\Factory;
 
 use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
+use App\Utils\Oauth2\Vk\VkUser;
 use League\OAuth2\Client\Provider\GoogleUser;
 
 class UserFactory
@@ -37,6 +38,22 @@ class UserFactory
         $user->setEmail($yandexUser->getEmail());
         $user->setFullName($yandexUser->getName());
         $user->setYandexId($yandexUser->getId());
+        //$user->setIsVerified(true);
+
+        return $user;
+    }
+
+    /**
+     * @param VkUser $vkontakteUser
+     *
+     * @return User
+     */
+    public static function createUserFromVk(VkUser $vkontakteUser): User
+    {
+        $user = new User();
+        $user->setEmail($vkontakteUser->getEmail());
+        $user->setFullName($vkontakteUser->getFullName());
+        $user->setVkontakteId($vkontakteUser->getId());
         //$user->setIsVerified(true);
 
         return $user;

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Security\Authenticator\Front;
 
-use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
 use App\Utils\Manager\UserManager;
+use App\Utils\Oauth2\Vk\VkUser;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-class YandexAuthenticator extends OAuth2Authenticator
+class VkontakteAuthenticator extends OAuth2Authenticator
 {
     /** @var ClientRegistry */
     private $clientRegistry;
@@ -49,7 +49,7 @@ class YandexAuthenticator extends OAuth2Authenticator
     /**
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * @param ClientRegistry             $clientRegistry
@@ -83,7 +83,7 @@ class YandexAuthenticator extends OAuth2Authenticator
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_yandex_check' === $request->attributes->get('_route');
+        return 'connect_vk_check' === $request->attributes->get('_route');
     }
 
     /**
@@ -93,16 +93,16 @@ class YandexAuthenticator extends OAuth2Authenticator
      */
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('yandex_main');
+        $client = $this->clientRegistry->getClient('vk_main');
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
-                /** @var YandexResourceOwner $yandexUser */
-                $yandexUser = $client->fetchUserFromToken($accessToken);
+                /** @var VkUser $vkUser */
+                $vkUser = $client->fetchUserFromToken($accessToken);
 
-                $email = $yandexUser->getEmail();
-                $existingUser = $this->userManager->getRepository()->findOneBy(['yandexId' => $yandexUser->getId()]);
+                $email = $vkUser->getEmail();
+                $existingUser = $this->userManager->getRepository()->findOneBy(['vkontakteId' => $vkUser->getId()]);
 
                 if ($existingUser) {
                     return $existingUser;
@@ -111,7 +111,7 @@ class YandexAuthenticator extends OAuth2Authenticator
                 $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
 
                 if (!$user) {
-                    $user = UserFactory::createUserFromYandex($yandexUser);
+                    $user = UserFactory::createUserFromVk($vkUser);
 
                     $plainPassword = PasswordGenerator::generatePassword(15);
                     $this->userManager->encodePassword($user, $plainPassword);
@@ -127,7 +127,7 @@ class YandexAuthenticator extends OAuth2Authenticator
 
                 // 3) Maybe you just want to "register" them by creating
                 // a User object
-                $user->setYandexId($yandexUser->getId());
+                $user->setVkontakteId($vkUser->getId());
                 $this->userManager->flush();
 
                 return $user;

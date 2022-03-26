@@ -116,4 +116,5 @@ Owner: Владелец
 From: От
 'Created at': Создан
 To: Для
-login_social_network.yandex: 'Авторизоваться через Google'
+login_social_network.yandex: 'Авторизоваться через Яндекс'
+login_social_network.vk: 'Авторизоваться через Вконтакт'

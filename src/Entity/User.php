@@ -88,6 +88,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $yandexId;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $vkontakteId;
+
     public function __construct()
     {
         $this->isVerified = false;
@@ -449,5 +454,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setYandexId(?string $yandexId): void
     {
         $this->yandexId = $yandexId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getVkontakteId(): ?string
+    {
+        return $this->vkontakteId;
+    }
+
+    /**
+     * @param string|null $vkontakteId
+     *
+     * @return void
+     */
+    public function setVkontakteId(?string $vkontakteId): void
+    {
+        $this->vkontakteId = $vkontakteId;
     }
 }

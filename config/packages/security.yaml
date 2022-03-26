@@ -43,6 +43,7 @@ security:
         - App\Security\Authenticator\Front\LoginFormAuthenticator
         - App\Security\Authenticator\Front\GoogleAuthenticator
         - App\Security\Authenticator\Front\YandexAuthenticator
+        - App\Security\Authenticator\Front\VkontakteAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)
