@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Authenticator\Front;
 
+use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
 use App\Utils\Factory\UserFactory;
@@ -11,7 +12,6 @@ use App\Utils\Generator\PasswordGenerator;
 use App\Utils\Manager\UserManager;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
-use League\OAuth2\Client\Provider\GoogleUser;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,32 +25,26 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-class GoogleAuthenticator extends OAuth2Authenticator
+class YandexAuthenticator extends OAuth2Authenticator
 {
-    /**
-     * @var ClientRegistry
-     */
+    /** @var ClientRegistry */
     private $clientRegistry;
 
-    /**
-     * @var RouterInterface
-     */
+    /** @var RouterInterface */
     private $router;
 
-    /**
-     * @var UserManager
-     */
-    private $userManager;
+    /** @var UserManager */
+    private UserManager $userManager;
 
     /**
      * @var EventDispatcherInterface
      */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var VerifyEmailHelperInterface
      */
-    private $verifyEmailHelper;
+    private VerifyEmailHelperInterface $verifyEmailHelper;
 
     /**
      * @var TranslatorInterface
@@ -89,7 +83,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_google_check' === $request->attributes->get('_route');
+        return 'connect_yandex_check' === $request->attributes->get('_route');
     }
 
     /**
@@ -99,28 +93,25 @@ class GoogleAuthenticator extends OAuth2Authenticator
      */
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('google_main');
+        $client = $this->clientRegistry->getClient('yandex_main');
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
-                /** @var GoogleUser $googleUser */
-                $googleUser = $client->fetchUserFromToken($accessToken);
+                /** @var YandexResourceOwner $yandexUser */
+                $yandexUser = $client->fetchUserFromToken($accessToken);
 
-                $email = $googleUser->getEmail();
-
-                // 1) have they logged in with Facebook before? Easy!
-                $existingUser = $this->userManager->getRepository()->findOneBy(['googleId' => $googleUser->getId()]);
+                $email = $yandexUser->getEmail();
+                $existingUser = $this->userManager->getRepository()->findOneBy(['yandexId' => $yandexUser->getId()]);
 
                 if ($existingUser) {
                     return $existingUser;
                 }
 
-                // 2) do we have a matching user by email?
                 $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
-
+;
                 if (!$user) {
-                    $user = UserFactory::createUserFromGoogle($googleUser);
+                    $user = UserFactory::createUserFromYandex($yandexUser);
 
                     $plainPassword = PasswordGenerator::generatePassword(15);
                     $this->userManager->encodePassword($user, $plainPassword);
@@ -136,7 +127,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
                 // 3) Maybe you just want to "register" them by creating
                 // a User object
-                $user->setGoogleId($googleUser->getId());
+                $user->setYandexId($yandexUser->getId());
                 $this->userManager->flush();
 
                 return $user;

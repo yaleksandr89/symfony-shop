@@ -83,6 +83,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $googleId;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $yandexId;
+
     public function __construct()
     {
         $this->isVerified = false;
@@ -410,15 +415,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getGoogleId(): ?string
     {
         return $this->googleId;
     }
 
-    public function setGoogleId(?string $googleId): self
+    /**
+     * @param string|null $googleId
+     *
+     * @return void
+     */
+    public function setGoogleId(?string $googleId): void
     {
         $this->googleId = $googleId;
+    }
 
-        return $this;
+    /**
+     * @return string|null
+     */
+    public function getYandexId(): ?string
+    {
+        return $this->yandexId;
+    }
+
+    /**
+     * @param string|null $yandexId
+     *
+     * @return void
+     */
+    public function setYandexId(?string $yandexId): void
+    {
+        $this->yandexId = $yandexId;
     }
 }

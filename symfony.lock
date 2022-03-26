@@ -1,4 +1,7 @@
 {
+    "aego/oauth2-yandex": {
+        "version": "0.2.2"
+    },
     "api-platform/core": {
         "version": "2.6",
         "recipe": {

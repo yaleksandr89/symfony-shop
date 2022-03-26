@@ -1036,5 +1036,11 @@
         <target>Id</target>
       </segment>
     </unit>
+    <unit id="DZl7LyU" name="login_social_network.yandex">
+      <segment>
+        <source>login_social_network.yandex</source>
+        <target>Login with Yandex</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

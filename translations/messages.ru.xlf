@@ -1054,5 +1054,11 @@
         <target>Для</target>
       </segment>
     </unit>
+    <unit id="DZl7LyU" name="login_social_network.yandex">
+      <segment>
+        <source>login_social_network.yandex</source>
+        <target>Авторизоваться через Google</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

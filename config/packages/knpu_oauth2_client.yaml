@@ -9,3 +9,17 @@ knpu_oauth2_client:
             # a route name you'll create
             redirect_route: connect_google_check
             redirect_params: {}
+        # will create service: "knpu.oauth2.client.yandex"
+        # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\YandexClient
+        # composer require aego/oauth2-yandex
+        yandex_main:
+            # must be "yandex" - it activates that type!
+            type: yandex
+            # add and set these environment variables in your .env files
+            client_id: '%env(OAUTH_YANDEX_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_YANDEX_CLIENT_SECRET)%'
+            # a route name you'll create
+            redirect_route: connect_yandex_check
+            redirect_params: {}
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true
