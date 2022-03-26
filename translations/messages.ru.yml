@@ -119,3 +119,15 @@ To: Для
 login_social_network.yandex: 'Авторизоваться через Яндекс'
 login_social_network.vk: 'Авторизоваться через Вконтакт'
 login_social_network.github: 'Авторизоваться через Гитхаб'
+admin.user_list.edit: Редактировать
+admin.user_list.not_verified: 'Не проверено'
+admin.user_list.verified: Проверено
+admin.user_list.id: Ид
+admin.user_list.email: Почта
+admin.user_list.role: Роль
+admin.user_list.profile_info: Информация
+admin.user_list.is_verified_email: 'Почта проверена'
+admin.user_list.from_google: 'Google проверен'
+admin.user_list.from_yandex: 'Яндекс проверен'
+admin.user_list.from_vk: 'Вконтакте проверен'
+admin.user_list.from_github: 'Github проверен'

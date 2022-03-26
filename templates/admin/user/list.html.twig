@@ -16,12 +16,15 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Profile info</th>
-                        <th>Is verified email</th>
-                        <th>From Google</th>
+                        <th>{{ 'admin.user_list.id'|trans }}</th>
+                        <th>{{ 'admin.user_list.email'|trans }}</th>
+                        <th>{{ 'admin.user_list.role'|trans }}</th>
+                        <th>{{ 'admin.user_list.profile_info'|trans }}</th>
+                        <th>{{ 'admin.user_list.is_verified_email'|trans }}</th>
+                        <th>{{ 'admin.user_list.from_google'|trans }}</th>
+                        <th>{{ 'admin.user_list.from_yandex'|trans }}</th>
+                        <th>{{ 'admin.user_list.from_vk'|trans }}</th>
+                        <th>{{ 'admin.user_list.from_github'|trans }}</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -47,20 +50,41 @@
                             </td>
                             <td>
                                 {% if user.isVerified %}
-                                    <div class="alert alert-success">Verified</div>
+                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">Not Verified</div>
+                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user.googleId %}
-                                    <div class="alert alert-success">Verified</div>
+                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">Not Verified</div>
+                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-outline-info">Edit</a>
+                                {% if user.yandexId %}
+                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                {% else %}
+                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.vkontakteId %}
+                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                {% else %}
+                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.githubId %}
+                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                {% else %}
+                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-outline-info">{{ 'admin.user_list.edit'|trans }}</a>
                             </td>
                         </tr>
                     {% endfor %}
