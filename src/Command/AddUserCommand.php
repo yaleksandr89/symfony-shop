@@ -250,9 +250,7 @@ class AddUserCommand extends Command
             $assignedRole = '';
 
             while ('' === $assignedRole) {
-                //$roleQuestion = new Question('Set role?', 'ROLE_USER');
                 $roleQuestion = $io->ask('Set role?', 'ROLE_USER');
-                //$role = $io->askQuestion($roleQuestion);
 
                 if ('ROLE_USER' === $roleQuestion || 'ROLE_ADMIN' === $roleQuestion || 'ROLE_SUPER_ADMIN' === $roleQuestion) {
                     $assignedRole = $roleQuestion;

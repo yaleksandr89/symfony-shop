@@ -150,7 +150,7 @@ class YandexAuthenticator extends OAuth2Authenticator
         return new RedirectResponse($targetUrl);
 
         // or, on success, let the request continue to be handled by the controller
-        //return null;
+        // return null;
     }
 
     /**

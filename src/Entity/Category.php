@@ -88,9 +88,9 @@ class Category
      *
      * @return $this
      */
-    public function setTitle(?string $title): self
+    public function setTitle(?string $title): static
     {
-        //$this->title = $title;
+        // $this->title = $title;
         $this->title = ucfirst(strtolower($title));
 
         return $this;
@@ -109,7 +109,7 @@ class Category
      *
      * @return $this
      */
-    public function setSlug(string $slug): self
+    public function setSlug(string $slug): static
     {
         $this->slug = $slug;
 
@@ -129,7 +129,7 @@ class Category
      *
      * @return $this
      */
-    public function addProduct(Product $product): self
+    public function addProduct(Product $product): static
     {
         if (!$this->products->contains($product)) {
             $this->products[] = $product;
@@ -144,7 +144,7 @@ class Category
      *
      * @return $this
      */
-    public function removeProduct(Product $product): self
+    public function removeProduct(Product $product): static
     {
         if ($this->products->removeElement($product)) {
             // set the owning side to null (unless already changed)
@@ -169,7 +169,7 @@ class Category
      *
      * @return $this
      */
-    public function setIsDeleted(?bool $isDeleted): self
+    public function setIsDeleted(?bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
 

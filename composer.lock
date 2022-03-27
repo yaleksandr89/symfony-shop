@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e5f16b32d536d02f8233755a5729834",
+    "content-hash": "8d4123e0a8fb216880ab2a1602372511",
     "packages": [
         {
             "name": "aego/oauth2-yandex",

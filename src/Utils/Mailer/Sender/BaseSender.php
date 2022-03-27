@@ -22,7 +22,7 @@ abstract class BaseSender
      *
      * @return self
      */
-    public function setMailerSender(MailerSender $mailerSender): self
+    public function setMailerSender(MailerSender $mailerSender): BaseSender
     {
         $this->mailerSender = $mailerSender;
 
@@ -41,7 +41,7 @@ abstract class BaseSender
      *
      * @return self
      */
-    public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): self
+    public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): BaseSender
     {
         $this->urlGenerator = $urlGenerator;
 

@@ -16,7 +16,7 @@ final class ImageResizer
     /** @var FilesystemWorker */
     private FilesystemWorker $filesystemWorker;
 
-    public function __construct(FilesystemWorker $filesystemWorker, )
+    public function __construct(FilesystemWorker $filesystemWorker)
     {
         $this->imagine = new Imagine();
         $this->filesystemWorker = $filesystemWorker;

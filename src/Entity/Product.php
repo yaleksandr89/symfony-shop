@@ -185,7 +185,7 @@ class Product
      *
      * @return $this
      */
-    public function setTitle(string $title): self
+    public function setTitle(string $title): static
     {
         $this->title = $title;
 
@@ -205,7 +205,7 @@ class Product
      *
      * @return $this
      */
-    public function setPrice(string $price): self
+    public function setPrice(string $price): static
     {
         $this->price = $price;
 
@@ -225,7 +225,7 @@ class Product
      *
      * @return $this
      */
-    public function setQuantity(int $quantity): self
+    public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
 
@@ -245,7 +245,7 @@ class Product
      *
      * @return $this
      */
-    public function setCreatedAt(DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -265,7 +265,7 @@ class Product
      *
      * @return $this
      */
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 
@@ -285,7 +285,7 @@ class Product
      *
      * @return $this
      */
-    public function setIsPublished(bool $isPublished): self
+    public function setIsPublished(bool $isPublished): static
     {
         $this->isPublished = $isPublished;
 
@@ -305,7 +305,7 @@ class Product
      *
      * @return $this
      */
-    public function setIsDeleted(bool $isDeleted): self
+    public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
 
@@ -325,7 +325,7 @@ class Product
      *
      * @return $this
      */
-    public function addProductImage(ProductImage $productImage): self
+    public function addProductImage(ProductImage $productImage): static
     {
         if (!$this->productImages->contains($productImage)) {
             $this->productImages[] = $productImage;
@@ -340,7 +340,7 @@ class Product
      *
      * @return $this
      */
-    public function removeProductImage(ProductImage $productImage): self
+    public function removeProductImage(ProductImage $productImage): static
     {
         // set the owning side to null (unless already changed)
         if ($this->productImages->removeElement($productImage) && $productImage->getProduct() === $this) {
@@ -363,7 +363,7 @@ class Product
      *
      * @return $this
      */
-    public function setSlug(?string $slug): self
+    public function setSlug(?string $slug): static
     {
         $this->slug = $slug;
 
@@ -395,7 +395,7 @@ class Product
      *
      * @return $this
      */
-    public function addCartProduct(CartProduct $cartProduct): self
+    public function addCartProduct(CartProduct $cartProduct): static
     {
         if (!$this->cartProducts->contains($cartProduct)) {
             $this->cartProducts[] = $cartProduct;
@@ -410,7 +410,7 @@ class Product
      *
      * @return $this
      */
-    public function removeCartProduct(CartProduct $cartProduct): self
+    public function removeCartProduct(CartProduct $cartProduct): static
     {
         if ($this->cartProducts->removeElement($cartProduct)) {
             // set the owning side to null (unless already changed)
@@ -435,7 +435,7 @@ class Product
      *
      * @return $this
      */
-    public function addOrderProduct(OrderProduct $orderProduct): self
+    public function addOrderProduct(OrderProduct $orderProduct): static
     {
         if (!$this->orderProducts->contains($orderProduct)) {
             $this->orderProducts[] = $orderProduct;
@@ -450,7 +450,7 @@ class Product
      *
      * @return $this
      */
-    public function removeOrderProduct(OrderProduct $orderProduct): self
+    public function removeOrderProduct(OrderProduct $orderProduct): static
     {
         if ($this->orderProducts->removeElement($orderProduct)) {
             // set the owning side to null (unless already changed)

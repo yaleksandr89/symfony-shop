@@ -27,7 +27,7 @@ class RobotsTxtController extends AbstractController
      *
      * @return self
      */
-    public function setDoctrine(Doctrine $doctrine): self
+    public function setDoctrine(Doctrine $doctrine): RobotsTxtController
     {
         $this->doctrine = $doctrine;
 

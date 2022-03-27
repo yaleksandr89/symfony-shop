@@ -55,7 +55,7 @@ final class ProductManager extends AbstractBaseManager
     /**
      * @param object $entity
      *
-     * @return void;
+     * @return void
      */
     public function softRemove(object $entity): void
     {

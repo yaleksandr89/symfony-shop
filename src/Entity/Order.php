@@ -114,7 +114,7 @@ class Order
      *
      * @return $this
      */
-    public function setCreatedAt(DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -134,7 +134,7 @@ class Order
      *
      * @return $this
      */
-    public function setOwner(?User $owner): self
+    public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
 
@@ -154,7 +154,7 @@ class Order
      *
      * @return $this
      */
-    public function setStatus(int $status): self
+    public function setStatus(int $status): static
     {
         $this->status = $status;
 
@@ -174,7 +174,7 @@ class Order
      *
      * @return $this
      */
-    public function setTotalPrice(?float $totalPrice): self
+    public function setTotalPrice(?float $totalPrice): static
     {
         $this->totalPrice = $totalPrice;
 
@@ -194,7 +194,7 @@ class Order
      *
      * @return $this
      */
-    public function setUpdatedAt(?DateTimeImmutable $updatedAt): self
+    public function setUpdatedAt(?DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 
@@ -214,7 +214,7 @@ class Order
      *
      * @return $this
      */
-    public function setIsDeleted(bool $isDeleted): self
+    public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
 
@@ -222,7 +222,7 @@ class Order
     }
 
     /**
-     * @return Collection|OrderProduct[]
+     * @return Collection
      */
     public function getOrderProducts(): Collection
     {

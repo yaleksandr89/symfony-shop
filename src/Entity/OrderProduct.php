@@ -91,7 +91,7 @@ class OrderProduct
      *
      * @return $this
      */
-    public function setAppOrder(?Order $appOrder): self
+    public function setAppOrder(?Order $appOrder): static
     {
         $this->appOrder = $appOrder;
 
@@ -111,7 +111,7 @@ class OrderProduct
      *
      * @return $this
      */
-    public function setProduct(?Product $product): self
+    public function setProduct(?Product $product): static
     {
         $this->product = $product;
 
@@ -131,7 +131,7 @@ class OrderProduct
      *
      * @return $this
      */
-    public function setQuantity(int $quantity): self
+    public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
 
@@ -151,7 +151,7 @@ class OrderProduct
      *
      * @return $this
      */
-    public function setPricePerOne(string $pricePerOne): self
+    public function setPricePerOne(string $pricePerOne): static
     {
         $this->pricePerOne = $pricePerOne;
 

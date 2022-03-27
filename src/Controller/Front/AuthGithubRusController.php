@@ -30,7 +30,7 @@ class AuthGithubRusController extends AbstractController
      *
      * @return void
      */
-    public function connectCheckAction()
+    public function connectCheckAction(): void
     {
     }
 }

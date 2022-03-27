@@ -21,9 +21,9 @@ class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSub
      *
      * @param UserLoggedInViaSocialNetworkEmailSender $mailerSender
      *
-     * @return self
+     * @return $this
      */
-    public function setOrderCreatedFromCartEmailSender(UserLoggedInViaSocialNetworkEmailSender $mailerSender): self
+    public function setOrderCreatedFromCartEmailSender(UserLoggedInViaSocialNetworkEmailSender $mailerSender): static
     {
         $this->mailerSender = $mailerSender;
 

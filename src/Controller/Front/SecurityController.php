@@ -45,6 +45,6 @@ class SecurityController extends AbstractController
     public function logout(): RedirectResponse
     {
         return $this->redirectToRoute('main_profile_index');
-        //throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        // throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }
