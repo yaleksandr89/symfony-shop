@@ -22,6 +22,15 @@
     "composer/package-versions-deprecated": {
         "version": "1.11.99.4"
     },
+    "composer/pcre": {
+        "version": "3.0.0"
+    },
+    "composer/semver": {
+        "version": "3.3.1"
+    },
+    "composer/xdebug-handler": {
+        "version": "3.0.3"
+    },
     "dama/doctrine-test-bundle": {
         "version": "6.7",
         "recipe": {
@@ -131,6 +140,18 @@
     },
     "fig/link-util": {
         "version": "1.2.0"
+    },
+    "friendsofphp/php-cs-fixer": {
+        "version": "3.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "be2103eb4a20942e28a6dd87736669b757132435"
+        },
+        "files": [
+            ".php-cs-fixer.dist.php"
+        ]
     },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
@@ -245,6 +266,9 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
+    },
+    "php-cs-fixer/diff": {
+        "version": "v2.0.2"
     },
     "php-translation/common": {
         "version": "3.1.0"
@@ -416,9 +440,6 @@
             "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
-    "symfony/amqp-messenger": {
-        "version": "v5.3.7"
-    },
     "symfony/asset": {
         "version": "v5.3.4"
     },
@@ -471,7 +492,7 @@
         "version": "v5.3.7"
     },
     "symfony/doctrine-messenger": {
-        "version": "v5.3.10"
+        "version": "v6.0.3"
     },
     "symfony/dom-crawler": {
         "version": "v5.3.7"
@@ -657,9 +678,6 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.23.1"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.23.0"
-    },
     "symfony/polyfill-php80": {
         "version": "v1.23.1"
     },
@@ -680,9 +698,6 @@
     },
     "symfony/proxy-manager-bridge": {
         "version": "v5.3.4"
-    },
-    "symfony/redis-messenger": {
-        "version": "v5.3.10"
     },
     "symfony/routing": {
         "version": "5.3",
@@ -717,9 +732,6 @@
     },
     "symfony/security-csrf": {
         "version": "v5.3.4"
-    },
-    "symfony/security-guard": {
-        "version": "v5.3.7"
     },
     "symfony/security-http": {
         "version": "v5.3.7"
