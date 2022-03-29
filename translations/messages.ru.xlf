@@ -1198,5 +1198,17 @@
         <target>Отвязать</target>
       </segment>
     </unit>
+    <unit id="cpfVdd4" name="The social network has been successfully unlinked.">
+      <segment>
+        <source>The social network has been successfully unlinked.</source>
+        <target>Социальная сеть успешно отвязана.</target>
+      </segment>
+    </unit>
+    <unit id="yjTQYPm" name="The social network has been successfully linked.">
+      <segment>
+        <source>The social network has been successfully linked.</source>
+        <target>Социальная сеть успешно привязана.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

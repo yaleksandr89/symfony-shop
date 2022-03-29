@@ -70,7 +70,10 @@
                                         </svg>
                                     </td>
                                     <td>
-                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {'socialName': app.user.googleId} %}
+                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            'socialNameId': app.user.googleId,
+                                            'socialName': 'google'
+                                        } %}
                                     </td>
                                 </tr>
                                 <tr>
@@ -82,7 +85,10 @@
                                         </svg>
                                     </td>
                                     <td>
-                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {'socialName': app.user.yandexId} %}
+                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            'socialNameId': app.user.yandexId,
+                                            'socialName': 'yandex'
+                                        } %}
                                     </td>
                                 </tr>
                                 <tr>
@@ -94,7 +100,10 @@
                                         </svg>
                                     </td>
                                     <td>
-                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {'socialName': app.user.vkontakteId} %}
+                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            'socialNameId': app.user.vkontakteId,
+                                            'socialName': 'vkontakte'
+                                        } %}
                                     </td>
                                 </tr>
                                 <tr>
@@ -106,7 +115,10 @@
                                         </svg>
                                     </td>
                                     <td>
-                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {'socialName': app.user.githubId} %}
+                                        {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            'socialNameId': app.user.githubId,
+                                            'socialName': 'github'
+                                        } %}
                                     </td>
                                 </tr>
                                 </tbody>

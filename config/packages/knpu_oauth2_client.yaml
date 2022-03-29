@@ -26,9 +26,9 @@ knpu_oauth2_client:
             # whether to check OAuth2 "state": defaults to true
             # use_state: true
 
-        # will create service: "knpu.oauth2.client.vk_main"
+        # will create service: "knpu.oauth2.client.vkontakte_main"
         # an instance of: KnpU\OAuth2ClientBundle\Client\OAuth2Client
-        vk_main:
+        vkontakte_main:
             type: generic
             provider_class: App\Utils\Oauth2\Vk\Vk
             # optional: a class that extends OAuth2Client
@@ -40,7 +40,7 @@ knpu_oauth2_client:
             # now, all the normal options!
             client_id: '%env(OAUTH_VK_CLIENT_ID)%'
             client_secret: '%env(OAUTH_VK_CLIENT_SECRET)%'
-            redirect_route: connect_vk_check
+            redirect_route: connect_vkontakte_check
             redirect_params: {}
             # whether to check OAuth2 "state": defaults to true
             # use_state: true
@@ -61,14 +61,14 @@ knpu_oauth2_client:
         # will create service: "knpu.oauth2.client.github_rus"
         # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\GithubClient
         # composer require league/oauth2-github
-        github_rus:
+        github_ru:
             # must be "github" - it activates that type!
             type: github
             # add and set these environment variables in your .env files
             client_id: '%env(OAUTH_GITHUB_RUS_CLIENT_ID)%'
             client_secret: '%env(OAUTH_GITHUB_RUS_CLIENT_SECRET)%'
             # a route name you'll create
-            redirect_route: connect_github_rus_check
+            redirect_route: connect_github_ru_check
             redirect_params: { }
             # whether to check OAuth2 "state": defaults to true
             # use_state: true

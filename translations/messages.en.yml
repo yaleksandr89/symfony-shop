@@ -138,3 +138,5 @@ personal_account.social_group.github: Github
 personal_account.social_group.integration_service: 'Integration Service'
 personal_account.social_group.link: Link
 personal_account.social_group.unlink: Unlink
+'The social network has been successfully unlinked.': 'The social network has been successfully unlinked.'
+'The social network has been successfully linked.': 'The social network has been successfully linked.'

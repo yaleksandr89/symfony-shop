@@ -140,3 +140,5 @@ personal_account.social_group.github: Гитхаб
 personal_account.social_group.integration_service: 'Сервис интеграции'
 personal_account.social_group.link: Привязать
 personal_account.social_group.unlink: Отвязать
+'The social network has been successfully unlinked.': 'Социальная сеть успешно отвязана.'
+'The social network has been successfully linked.': 'Социальная сеть успешно привязана.'

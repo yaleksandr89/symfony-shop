@@ -1180,5 +1180,17 @@
         <target>Unlink</target>
       </segment>
     </unit>
+    <unit id="cpfVdd4" name="The social network has been successfully unlinked.">
+      <segment>
+        <source>The social network has been successfully unlinked.</source>
+        <target>The social network has been successfully unlinked.</target>
+      </segment>
+    </unit>
+    <unit id="yjTQYPm" name="The social network has been successfully linked.">
+      <segment>
+        <source>The social network has been successfully linked.</source>
+        <target>The social network has been successfully linked.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
