@@ -32,7 +32,7 @@ personal_account.edit.labels.phone: 'Введите телефон'
 personal_account.edit.labels.address: 'Введите адрес'
 personal_account.edit.labels.zipcode: 'Введите почтовый индекс'
 personal_account.edit.save_changes: 'Сохранить изменения'
-login_social_network.google: 'Авторизоваться через Google'
+login_social_network.google: 'Авторизоваться через Гугл'
 similar_products.head: 'Мы рекомендуем'
 similar_products.new: Новинка
 product.add_to_cart: 'Добавить в корзину'
@@ -131,3 +131,12 @@ admin.user_list.from_google: 'Google проверен'
 admin.user_list.from_yandex: 'Яндекс проверен'
 admin.user_list.from_vk: 'Вконтакте проверен'
 admin.user_list.from_github: 'Github проверен'
+personal_account.social_group.name: Название
+personal_account.social_group.action: Действия
+personal_account.social_group.google: Гугл
+personal_account.social_group.yandex: Яндекс
+personal_account.social_group.vkontakte: Вконтакте
+personal_account.social_group.github: Гитхаб
+personal_account.social_group.integration_service: 'Сервис интеграции'
+personal_account.social_group.link: Привязать
+personal_account.social_group.unlink: Отвязать

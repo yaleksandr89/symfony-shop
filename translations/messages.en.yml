@@ -129,3 +129,12 @@ admin.user_list.from_github: 'From Github'
 admin.user_list.verified: Verified
 admin.user_list.not_verified: 'Not Verified'
 admin.user_list.edit: Edit
+personal_account.social_group.name: Name
+personal_account.social_group.action: Action
+personal_account.social_group.google: Google
+personal_account.social_group.yandex: Yandex
+personal_account.social_group.vkontakte: Vkontakte
+personal_account.social_group.github: Github
+personal_account.social_group.integration_service: 'Integration Service'
+personal_account.social_group.link: Link
+personal_account.social_group.unlink: Unlink

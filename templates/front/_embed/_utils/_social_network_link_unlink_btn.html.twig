@@ -1,0 +1,15 @@
+{% if socialName %}
+    <span class="social-group social-group--unlink">
+        {{ 'personal_account.social_group.link'|trans }}
+    </span>
+    <a class="social-group social-group--link" href="#">
+        {{ 'personal_account.social_group.unlink'|trans }}
+    </a>
+{% else %}
+    <a class="social-group social-group--link" href="#">
+        {{ 'personal_account.social_group.link'|trans }}
+    </a>
+    <span class="social-group social-group--unlink">
+        {{ 'personal_account.social_group.unlink'|trans }}
+    </span>
+{% endif %}

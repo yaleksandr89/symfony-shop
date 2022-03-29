@@ -318,7 +318,7 @@
       </notes>
       <segment>
         <source>login_social_network.google</source>
-        <target>Авторизоваться через Google</target>
+        <target>Авторизоваться через Гугл</target>
       </segment>
     </unit>
     <unit id="gcS9qZH" name="similar_products.head">
@@ -1142,6 +1142,60 @@
       <segment>
         <source>admin.user_list.from_github</source>
         <target>Github проверен</target>
+      </segment>
+    </unit>
+    <unit id="sVcu6kb" name="personal_account.social_group.name">
+      <segment>
+        <source>personal_account.social_group.name</source>
+        <target>Название</target>
+      </segment>
+    </unit>
+    <unit id="8d3i.6z" name="personal_account.social_group.action">
+      <segment>
+        <source>personal_account.social_group.action</source>
+        <target>Действия</target>
+      </segment>
+    </unit>
+    <unit id="OlHpJ6k" name="personal_account.social_group.google">
+      <segment>
+        <source>personal_account.social_group.google</source>
+        <target>Гугл</target>
+      </segment>
+    </unit>
+    <unit id="cE4Odfx" name="personal_account.social_group.yandex">
+      <segment>
+        <source>personal_account.social_group.yandex</source>
+        <target>Яндекс</target>
+      </segment>
+    </unit>
+    <unit id="KjhXQI8" name="personal_account.social_group.vkontakte">
+      <segment>
+        <source>personal_account.social_group.vkontakte</source>
+        <target>Вконтакте</target>
+      </segment>
+    </unit>
+    <unit id="Y4hPdqD" name="personal_account.social_group.github">
+      <segment>
+        <source>personal_account.social_group.github</source>
+        <target>Гитхаб</target>
+      </segment>
+    </unit>
+    <unit id="GIzLkL2" name="personal_account.social_group.integration_service">
+      <segment>
+        <source>personal_account.social_group.integration_service</source>
+        <target>Сервис интеграции</target>
+      </segment>
+    </unit>
+    <unit id="I8Kt.td" name="personal_account.social_group.link">
+      <segment>
+        <source>personal_account.social_group.link</source>
+        <target>Привязать</target>
+      </segment>
+    </unit>
+    <unit id="LuEr.5y" name="personal_account.social_group.unlink">
+      <segment>
+        <source>personal_account.social_group.unlink</source>
+        <target>Отвязать</target>
       </segment>
     </unit>
   </file>
