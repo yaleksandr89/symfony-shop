@@ -83,7 +83,7 @@ class VkontakteAuthenticator extends OAuth2Authenticator
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_vk_check' === $request->attributes->get('_route');
+        return 'connect_vkontakte_check' === $request->attributes->get('_route');
     }
 
     /**
@@ -93,7 +93,7 @@ class VkontakteAuthenticator extends OAuth2Authenticator
      */
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('vk_main');
+        $client = $this->clientRegistry->getClient('vkontakte_main');
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
@@ -150,7 +150,7 @@ class VkontakteAuthenticator extends OAuth2Authenticator
         return new RedirectResponse($targetUrl);
 
         // or, on success, let the request continue to be handled by the controller
-        //return null;
+        // return null;
     }
 
     /**

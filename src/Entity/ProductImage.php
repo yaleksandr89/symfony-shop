@@ -79,7 +79,7 @@ class ProductImage
      *
      * @return $this
      */
-    public function setProduct(?Product $product): self
+    public function setProduct(?Product $product): static
     {
         $this->product = $product;
 
@@ -99,7 +99,7 @@ class ProductImage
      *
      * @return $this
      */
-    public function setFilenameBig(string $filenameBig): self
+    public function setFilenameBig(string $filenameBig): static
     {
         $this->filenameBig = $filenameBig;
 
@@ -119,7 +119,7 @@ class ProductImage
      *
      * @return $this
      */
-    public function setFilenameMiddle(string $filenameMiddle): self
+    public function setFilenameMiddle(string $filenameMiddle): static
     {
         $this->filenameMiddle = $filenameMiddle;
 
@@ -139,7 +139,7 @@ class ProductImage
      *
      * @return $this
      */
-    public function setFilenameSmall(string $filenameSmall): self
+    public function setFilenameSmall(string $filenameSmall): static
     {
         $this->filenameSmall = $filenameSmall;
 

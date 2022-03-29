@@ -20,7 +20,7 @@ class VkUser implements ResourceOwnerInterface
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return (string) $this->response['user_id'];
     }

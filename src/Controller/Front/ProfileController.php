@@ -10,9 +10,12 @@ use App\Security\Verifier\EmailVerifier;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProfileController extends AbstractController
 {
@@ -64,6 +67,23 @@ class ProfileController extends AbstractController
     public function setEmailSender(UserRegisteredEmailSender $emailSender): ProfileController
     {
         $this->emailSender = $emailSender;
+
+        return $this;
+    }
+
+    /** @var TranslatorInterface */
+    private $translator;
+
+    /**
+     * @required
+     *
+     * @param TranslatorInterface $translator
+     *
+     * @return ProfileController
+     */
+    public function setTranslator(TranslatorInterface $translator): ProfileController
+    {
+        $this->translator = $translator;
 
         return $this;
     }
@@ -138,6 +158,34 @@ class ProfileController extends AbstractController
         }
 
         $request->getSession()->set('resending_verify_email_link', true);
+
+        return $this->redirectToRoute('main_profile_index');
+    }
+
+    /**
+     * @Route("/profile/unlink_social_network/{socialName}", name="main_profile_unlink_social_network")
+     *
+     * @param string $socialName
+     *
+     * @return RedirectResponse
+     */
+    public function unlinkSocialNetwork(string $socialName): RedirectResponse
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw new NotFoundHttpException('User not found');
+        }
+        $em = $this->doctrine->getManager();
+
+        $nameMethod = 'set'.ucfirst($socialName).'Id';
+        $user->$nameMethod(null);
+
+        $em->persist($user);
+        $em->flush();
+
+        $this->addFlash('success', $this->translator->trans('The social network has been successfully unlinked.'));
 
         return $this->redirectToRoute('main_profile_index');
     }

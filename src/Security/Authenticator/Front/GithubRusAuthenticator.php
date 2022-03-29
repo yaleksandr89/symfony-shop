@@ -89,7 +89,7 @@ class GithubRusAuthenticator extends OAuth2Authenticator
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_github_rus_check' === $request->attributes->get('_route');
+        return 'connect_github_ru_check' === $request->attributes->get('_route');
     }
 
     /**
@@ -99,7 +99,7 @@ class GithubRusAuthenticator extends OAuth2Authenticator
      */
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('github_rus');
+        $client = $this->clientRegistry->getClient('github_ru');
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
@@ -180,7 +180,7 @@ class GithubRusAuthenticator extends OAuth2Authenticator
         return new RedirectResponse($targetUrl);
 
         // or, on success, let the request continue to be handled by the controller
-        //return null;
+        // return null;
     }
 
     /**

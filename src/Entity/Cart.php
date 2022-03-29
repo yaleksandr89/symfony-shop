@@ -96,7 +96,7 @@ class Cart
      *
      * @return $this
      */
-    public function setToken(?string $token): self
+    public function setToken(?string $token): static
     {
         $this->token = $token;
 
@@ -116,7 +116,7 @@ class Cart
      *
      * @return $this
      */
-    public function setCreatedAt(DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -136,7 +136,7 @@ class Cart
      *
      * @return $this
      */
-    public function addCartProduct(CartProduct $cartProduct): self
+    public function addCartProduct(CartProduct $cartProduct): static
     {
         if (!$this->cartProducts->contains($cartProduct)) {
             $this->cartProducts[] = $cartProduct;
@@ -151,7 +151,7 @@ class Cart
      *
      * @return $this
      */
-    public function removeCartProduct(CartProduct $cartProduct): self
+    public function removeCartProduct(CartProduct $cartProduct): static
     {
         if ($this->cartProducts->removeElement($cartProduct)) {
             // set the owning side to null (unless already changed)

@@ -107,7 +107,7 @@ final class ProductImageManager extends AbstractBaseManager
      * @param ProductImage $productImage
      * @param string       $productImageDir
      *
-     * @return void;
+     * @return void
      */
     public function removeImageFromProduct(ProductImage $productImage, string $productImageDir): void
     {

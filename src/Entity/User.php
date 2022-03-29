@@ -126,7 +126,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setEmail(string $email): self
+    public function setEmail(string $email): static
     {
         $this->email = $email;
 
@@ -174,7 +174,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setRoles(array $roles): self
+    public function setRoles(array $roles): static
     {
         $this->roles = $roles;
 
@@ -232,7 +232,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setPassword(string $password): self
+    public function setPassword(string $password): static
     {
         $this->password = $password;
 
@@ -276,7 +276,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setIsVerified(bool $isVerified): self
+    public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
 
@@ -296,7 +296,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setFullName(?string $fullName): self
+    public function setFullName(?string $fullName): static
     {
         $this->fullName = $fullName;
 
@@ -316,7 +316,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setPhone(?string $phone): self
+    public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
 
@@ -336,7 +336,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setAddress(?string $address): self
+    public function setAddress(?string $address): static
     {
         $this->address = $address;
 
@@ -358,7 +358,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setZipCode(?int $zipCode): self
+    public function setZipCode(?int $zipCode): static
     {
         $this->zipCode = $zipCode;
 
@@ -378,7 +378,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function setIsDeleted(?bool $isDeleted): self
+    public function setIsDeleted(?bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
 
@@ -398,7 +398,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function addOrder(Order $order): self
+    public function addOrder(Order $order): static
     {
         if (!$this->orders->contains($order)) {
             $this->orders[] = $order;
@@ -413,7 +413,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return $this
      */
-    public function removeOrder(Order $order): self
+    public function removeOrder(Order $order): static
     {
         if ($this->orders->removeElement($order)) {
             // set the owning side to null (unless already changed)

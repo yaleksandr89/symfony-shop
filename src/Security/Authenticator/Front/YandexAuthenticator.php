@@ -127,6 +127,7 @@ class YandexAuthenticator extends OAuth2Authenticator
 
                 // 3) Maybe you just want to "register" them by creating
                 // a User object
+                $request->getSession()->getFlashBag()->add('success', $this->translator->trans('The social network has been successfully linked.'));
                 $user->setYandexId($yandexUser->getId());
                 $this->userManager->flush();
 
@@ -150,7 +151,7 @@ class YandexAuthenticator extends OAuth2Authenticator
         return new RedirectResponse($targetUrl);
 
         // or, on success, let the request continue to be handled by the controller
-        //return null;
+        // return null;
     }
 
     /**

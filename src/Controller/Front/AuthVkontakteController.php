@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class AuthVkontakteController extends AbstractController
 {
     /**
-     * @Route("/connect/vk", name="connect_vk_start")
+     * @Route("/connect/vkontakte", name="connect_vkontakte_start")
      *
      * @param ClientRegistry $clientRegistry
      *
@@ -21,12 +21,12 @@ class AuthVkontakteController extends AbstractController
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         return $clientRegistry
-            ->getClient('vk_main')
+            ->getClient('vkontakte_main')
             ->redirect([], []);
     }
 
     /**
-     * @Route("/connect/vk/check", name="connect_vk_check")
+     * @Route("/connect/vkontakte/check", name="connect_vkontakte_check")
      *
      * @return void
      */
