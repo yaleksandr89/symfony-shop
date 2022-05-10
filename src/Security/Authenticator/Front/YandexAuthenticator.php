@@ -7,6 +7,7 @@ namespace App\Security\Authenticator\Front;
 use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
+use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
 use App\Utils\Manager\UserManager;
@@ -27,6 +28,8 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 class YandexAuthenticator extends OAuth2Authenticator
 {
+    use CheckingUserSocialNetworkBeforeAuthorization;
+
     /** @var ClientRegistry */
     private $clientRegistry;
 
@@ -36,19 +39,13 @@ class YandexAuthenticator extends OAuth2Authenticator
     /** @var UserManager */
     private UserManager $userManager;
 
-    /**
-     * @var EventDispatcherInterface
-     */
+    /** @var EventDispatcherInterface */
     private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var VerifyEmailHelperInterface
-     */
+    /** @var VerifyEmailHelperInterface */
     private VerifyEmailHelperInterface $verifyEmailHelper;
 
-    /**
-     * @var TranslatorInterface
-     */
+    /** @var TranslatorInterface */
     private $translator;
 
     /**
@@ -100,9 +97,15 @@ class YandexAuthenticator extends OAuth2Authenticator
             new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
                 /** @var YandexResourceOwner $yandexUser */
                 $yandexUser = $client->fetchUserFromToken($accessToken);
-
                 $email = $yandexUser->getEmail();
+
                 $existingUser = $this->userManager->getRepository()->findOneBy(['yandexId' => $yandexUser->getId()]);
+
+                if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
+                    $request->getSession()->getFlashBag()->add('danger', $this->translator->trans('You have already logged in to the site under the username of this social network'));
+
+                    return $this->security->getUser();
+                }
 
                 if ($existingUser) {
                     return $existingUser;

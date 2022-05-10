@@ -6,6 +6,7 @@ namespace App\Security\Authenticator\Front;
 
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
+use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
 use App\Utils\Manager\UserManager;
@@ -27,6 +28,8 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 class VkontakteAuthenticator extends OAuth2Authenticator
 {
+    use CheckingUserSocialNetworkBeforeAuthorization;
+
     /** @var ClientRegistry */
     private $clientRegistry;
 
@@ -36,19 +39,13 @@ class VkontakteAuthenticator extends OAuth2Authenticator
     /** @var UserManager */
     private UserManager $userManager;
 
-    /**
-     * @var EventDispatcherInterface
-     */
+    /** @var EventDispatcherInterface */
     private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var VerifyEmailHelperInterface
-     */
+    /** @var VerifyEmailHelperInterface */
     private VerifyEmailHelperInterface $verifyEmailHelper;
 
-    /**
-     * @var TranslatorInterface
-     */
+    /** @var TranslatorInterface */
     private TranslatorInterface $translator;
 
     /**
@@ -100,9 +97,15 @@ class VkontakteAuthenticator extends OAuth2Authenticator
             new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
                 /** @var VkUser $vkUser */
                 $vkUser = $client->fetchUserFromToken($accessToken);
-
                 $email = $vkUser->getEmail();
+
                 $existingUser = $this->userManager->getRepository()->findOneBy(['vkontakteId' => $vkUser->getId()]);
+
+                if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
+                    $request->getSession()->getFlashBag()->add('danger', $this->translator->trans('You have already logged in to the site under the username of this social network'));
+
+                    return $this->security->getUser();
+                }
 
                 if ($existingUser) {
                     return $existingUser;
