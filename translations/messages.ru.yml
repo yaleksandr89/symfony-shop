@@ -142,3 +142,4 @@ personal_account.social_group.link: Привязать
 personal_account.social_group.unlink: Отвязать
 'The social network has been successfully unlinked.': 'Социальная сеть успешно отвязана.'
 'The social network has been successfully linked.': 'Социальная сеть успешно привязана.'
+'You have already logged in to the site under the username of this social network': 'Под логином этой социальной сети уже авторизовались на сайте'

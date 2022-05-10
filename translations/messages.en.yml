@@ -140,3 +140,4 @@ personal_account.social_group.link: Link
 personal_account.social_group.unlink: Unlink
 'The social network has been successfully unlinked.': 'The social network has been successfully unlinked.'
 'The social network has been successfully linked.': 'The social network has been successfully linked.'
+'You have already logged in to the site under the username of this social network': 'You have already logged in to the site under the username of this social network'
