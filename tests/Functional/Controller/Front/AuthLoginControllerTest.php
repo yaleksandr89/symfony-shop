@@ -2,14 +2,13 @@
 
 namespace App\Tests\Functional\Controller\Front;
 
-use App\Repository\UserRepository;
 use App\Tests\SymfonyPanther\BasePantherTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthLoginControllerTest extends BasePantherTestCase
 {
-    private string $email = 'test3@test.com';
-    private string $password = 'test3test3';
+    private string $email = 'test2@test.com';
+    private string $password = 'test2test2';
 
     public function testLogin(): void
     {
@@ -58,7 +57,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
             'password' => $this->password,
         ]);
 
-        //sleep(3);
+        // sleep(3);
         $this->takeScreenshot($client, ' App\Tests\Functional\Controller\Front ');
 
         self::assertSame(
