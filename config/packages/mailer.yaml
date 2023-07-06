@@ -1,5 +1,10 @@
 framework:
   mailer:
     headers:
+      # Если MAILER_DSN настроен на определенный почтовый провайдер (яндекс, гугл и .т.д.), необходимо указывать
+      # тот логин, через который получаете пароль. На примере яндекса:
+      # если пароль для smtp получали через логин user@yandex.ru, необходимо его же указать в параметре ниже
+      #
+      # P.S. в данном примере smtp настроен на домен alexanderyurchenko.ru, пароль получен для логина no-reply
       from: 'No reply <no-reply@alexanderyurchenko.ru>'
     dsn: '%env(MAILER_DSN)%'
