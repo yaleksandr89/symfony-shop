@@ -25,78 +25,78 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $email;
+    protected $email;
 
     /**
      * @ORM\Column(type="json")
      */
-    private $roles = [];
+    protected $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
-    private $password;
+    protected $password;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isVerified;
+    protected $isVerified;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $fullName;
+    protected $fullName;
 
     /**
      * @ORM\Column(type="string", length=30, nullable=true)
      */
-    private $phone;
+    protected $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $address;
+    protected $address;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $zipCode;
+    protected $zipCode;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isDeleted;
+    protected $isDeleted;
 
     /**
      * @ORM\OneToMany(targetEntity=Order::class, mappedBy="owner")
      */
-    private $orders;
+    protected $orders;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    private $googleId;
+    protected $googleId;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    private $yandexId;
+    protected $yandexId;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    private $vkontakteId;
+    protected $vkontakteId;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    private $githubId;
+    protected $githubId;
 
     public function __construct()
     {
@@ -105,27 +105,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->orders = new ArrayCollection();
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string|null
-     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     *
-     * @return $this
-     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -134,10 +123,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * A visual identifier that represents this user.
-     *
-     * @return string
-     *
      * @see UserInterface
      */
     public function getUserIdentifier(): string
@@ -146,8 +131,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return string
-     *
      * @deprecated since Symfony 5.3, use getUserIdentifier instead
      */
     public function getUsername(): string
@@ -156,8 +139,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return array
-     *
      * @see UserInterface
      */
     public function getRoles(): array
@@ -169,11 +150,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
-    /**
-     * @param array $roles
-     *
-     * @return $this
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -181,9 +157,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isAdminRole(): bool
     {
         $isAdmin = false;
@@ -199,9 +172,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $isAdmin;
     }
 
-    /**
-     * @return bool
-     */
     public function hasAccessToAdminSection(): bool
     {
         $hasAccess = false;
@@ -218,8 +188,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return string
-     *
      * @see PasswordAuthenticatedUserInterface
      */
     public function getPassword(): string
@@ -227,11 +195,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    /**
-     * @param string $password
-     *
-     * @return $this
-     */
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -243,8 +206,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Returning a salt is only needed, if you are not using a modern
      * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
      *
-     * @return string|null
-     *
      * @see UserInterface
      */
     public function getSalt(): ?string
@@ -253,8 +214,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return void
-     *
      * @see UserInterface
      */
     public function eraseCredentials(): void
@@ -263,19 +222,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    /**
-     * @return bool
-     */
     public function isVerified(): bool
     {
         return $this->isVerified;
     }
 
-    /**
-     * @param bool $isVerified
-     *
-     * @return $this
-     */
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
@@ -283,19 +234,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getFullName(): ?string
     {
         return $this->fullName;
     }
 
-    /**
-     * @param string|null $fullName
-     *
-     * @return $this
-     */
     public function setFullName(?string $fullName): static
     {
         $this->fullName = $fullName;
@@ -303,19 +246,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPhone(): ?string
     {
         return $this->phone;
     }
 
-    /**
-     * @param string|null $phone
-     *
-     * @return $this
-     */
     public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
@@ -323,19 +258,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getAddress(): ?string
     {
         return $this->address;
     }
 
-    /**
-     * @param string|null $address
-     *
-     * @return $this
-     */
     public function setAddress(?string $address): static
     {
         $this->address = $address;
@@ -343,9 +270,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getZipCode(): ?int
     {
         return (!is_int($this->zipCode))
@@ -353,11 +277,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             : $this->zipCode;
     }
 
-    /**
-     * @param int|null $zipCode
-     *
-     * @return $this
-     */
     public function setZipCode(?int $zipCode): static
     {
         $this->zipCode = $zipCode;
@@ -365,19 +284,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getIsDeleted(): ?bool
     {
         return $this->isDeleted;
     }
 
-    /**
-     * @param bool|null $isDeleted
-     *
-     * @return $this
-     */
     public function setIsDeleted(?bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
@@ -385,19 +296,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getOrders(): Collection
     {
         return $this->orders;
     }
 
-    /**
-     * @param Order $order
-     *
-     * @return $this
-     */
     public function addOrder(Order $order): static
     {
         if (!$this->orders->contains($order)) {
@@ -408,11 +311,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @param Order $order
-     *
-     * @return $this
-     */
     public function removeOrder(Order $order): static
     {
         if ($this->orders->removeElement($order)) {
@@ -425,73 +323,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getGoogleId(): ?string
     {
         return $this->googleId;
     }
 
-    /**
-     * @param string|null $googleId
-     *
-     * @return void
-     */
     public function setGoogleId(?string $googleId): void
     {
         $this->googleId = $googleId;
     }
 
-    /**
-     * @return string|null
-     */
     public function getYandexId(): ?string
     {
         return $this->yandexId;
     }
 
-    /**
-     * @param string|null $yandexId
-     *
-     * @return void
-     */
     public function setYandexId(?string $yandexId): void
     {
         $this->yandexId = $yandexId;
     }
 
-    /**
-     * @return string|null
-     */
     public function getVkontakteId(): ?string
     {
         return $this->vkontakteId;
     }
 
-    /**
-     * @param string|null $vkontakteId
-     *
-     * @return void
-     */
     public function setVkontakteId(?string $vkontakteId): void
     {
         $this->vkontakteId = $vkontakteId;
     }
 
-    /**
-     * @return string|null
-     */
     public function getGithubId(): ?string
     {
         return $this->githubId;
     }
 
-    /**
-     * @param string|null $githubId
-     *
-     * @return void
-     */
     public function setGithubId(?string $githubId): void
     {
         $this->githubId = $githubId;

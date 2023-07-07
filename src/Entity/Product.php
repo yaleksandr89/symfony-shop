@@ -64,7 +64,7 @@ class Product
      * @ApiProperty(identifier=false)
      * @Groups({"product:list", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="uuid")
@@ -72,78 +72,78 @@ class Product
      * @ApiProperty(identifier=true)
      * @Groups({"product:list", "product:item", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $uuid;
+    protected $uuid;
 
     /**
      * @ORM\Column(type="string", length=255)
      *
      * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $title;
+    protected $title;
 
     /**
      * @ORM\Column(type="decimal", precision=15, scale=2)
      *
      * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $price;
+    protected $price;
 
     /**
      * @ORM\Column(type="integer")
      *
      * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $quantity;
+    protected $quantity;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isPublished;
+    protected $isPublished;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isDeleted;
+    protected $isDeleted;
 
     /**
      * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", cascade={"persist"}, orphanRemoval=true)
      *
      * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $productImages;
+    protected $productImages;
 
     /**
      * @Gedmo\Slug(fields={"title"})
      * @ORM\Column(type="string", length=128, unique=true, nullable=true)
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="products")
      *
      * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $category;
+    protected $category;
 
     /**
      * @ORM\OneToMany(targetEntity=CartProduct::class, mappedBy="product", orphanRemoval=true)
      */
-    private $cartProducts;
+    protected $cartProducts;
 
     /**
      * @ORM\OneToMany(targetEntity=OrderProduct::class, mappedBy="product")
      */
-    private $orderProducts;
+    protected $orderProducts;
 
     public function __construct()
     {
@@ -156,35 +156,21 @@ class Product
         $this->orderProducts = new ArrayCollection();
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return UuidV4
-     */
     public function getUuid(): UuidV4
     {
         return $this->uuid;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     *
-     * @return $this
-     */
     public function setTitle(string $title): static
     {
         $this->title = $title;
@@ -192,19 +178,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    /**
-     * @param string $price
-     *
-     * @return $this
-     */
     public function setPrice(string $price): static
     {
         $this->price = $price;
@@ -212,19 +190,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getQuantity(): ?int
     {
         return $this->quantity;
     }
 
-    /**
-     * @param int $quantity
-     *
-     * @return $this
-     */
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
@@ -232,19 +202,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return DateTimeImmutable|null
-     */
     public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param DateTimeImmutable $createdAt
-     *
-     * @return $this
-     */
     public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
@@ -252,19 +214,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @param string|null $description
-     *
-     * @return $this
-     */
     public function setDescription(?string $description): static
     {
         $this->description = $description;
@@ -272,19 +226,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getIsPublished(): ?bool
     {
         return $this->isPublished;
     }
 
-    /**
-     * @param bool $isPublished
-     *
-     * @return $this
-     */
     public function setIsPublished(bool $isPublished): static
     {
         $this->isPublished = $isPublished;
@@ -292,19 +238,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getIsDeleted(): ?bool
     {
         return $this->isDeleted;
     }
 
-    /**
-     * @param bool $isDeleted
-     *
-     * @return $this
-     */
     public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
@@ -312,19 +250,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getProductImages(): Collection
     {
         return $this->productImages;
     }
 
-    /**
-     * @param ProductImage $productImage
-     *
-     * @return $this
-     */
     public function addProductImage(ProductImage $productImage): static
     {
         if (!$this->productImages->contains($productImage)) {
@@ -335,11 +265,6 @@ class Product
         return $this;
     }
 
-    /**
-     * @param ProductImage $productImage
-     *
-     * @return $this
-     */
     public function removeProductImage(ProductImage $productImage): static
     {
         // set the owning side to null (unless already changed)
@@ -350,19 +275,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSlug(): ?string
     {
         return $this->slug;
     }
 
-    /**
-     * @param string|null $slug
-     *
-     * @return $this
-     */
     public function setSlug(?string $slug): static
     {
         $this->slug = $slug;
@@ -382,19 +299,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getCartProducts(): Collection
     {
         return $this->cartProducts;
     }
 
-    /**
-     * @param CartProduct $cartProduct
-     *
-     * @return $this
-     */
     public function addCartProduct(CartProduct $cartProduct): static
     {
         if (!$this->cartProducts->contains($cartProduct)) {
@@ -405,11 +314,6 @@ class Product
         return $this;
     }
 
-    /**
-     * @param CartProduct $cartProduct
-     *
-     * @return $this
-     */
     public function removeCartProduct(CartProduct $cartProduct): static
     {
         if ($this->cartProducts->removeElement($cartProduct)) {
@@ -422,19 +326,11 @@ class Product
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getOrderProducts(): Collection
     {
         return $this->orderProducts;
     }
 
-    /**
-     * @param OrderProduct $orderProduct
-     *
-     * @return $this
-     */
     public function addOrderProduct(OrderProduct $orderProduct): static
     {
         if (!$this->orderProducts->contains($orderProduct)) {
@@ -445,11 +341,6 @@ class Product
         return $this;
     }
 
-    /**
-     * @param OrderProduct $orderProduct
-     *
-     * @return $this
-     */
     public function removeOrderProduct(OrderProduct $orderProduct): static
     {
         if ($this->orderProducts->removeElement($orderProduct)) {

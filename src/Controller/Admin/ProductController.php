@@ -9,7 +9,6 @@ use App\Form\Admin\EditProductFormType;
 use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\EditProductModel;
 use App\Form\Handler\ProductFormHandler;
-use App\Repository\ProductRepository;
 use App\Utils\Manager\ProductManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,34 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductController extends BaseAdminController
 {
-    // >>> Autowiring
-    /**
-     * @var ProductRepository
-     */
-    private ProductRepository $productRepository;
-
-    /**
-     * @required
-     *
-     * @param ProductRepository $productRepository
-     *
-     * @return ProductController
-     */
-    public function setProductRepository(ProductRepository $productRepository): ProductController
-    {
-        $this->productRepository = $productRepository;
-
-        return $this;
-    }
-    // Autowiring <<<
-
     /**
      * @Route("/list", name="list")
-     *
-     * @param Request            $request
-     * @param ProductFormHandler $productFormHandler
-     *
-     * @return Response
      */
     public function list(Request $request, ProductFormHandler $productFormHandler): Response
     {
@@ -66,12 +39,6 @@ class ProductController extends BaseAdminController
      * @Route("/edit/{id}", name="edit")
      * @Route("/edit", name="edit_blank")
      * @Route("/add", name="add")
-     *
-     * @param Request            $request
-     * @param ProductFormHandler $productFormHandler
-     * @param Product|null       $product
-     *
-     * @return Response
      */
     public function edit(Request $request, ProductFormHandler $productFormHandler, Product $product = null): Response
     {
@@ -108,12 +75,6 @@ class ProductController extends BaseAdminController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     *
-     * @param Request        $request
-     * @param Product        $product
-     * @param ProductManager $productManager
-     *
-     * @return Response
      */
     public function delete(Request $request, Product $product, ProductManager $productManager): Response
     {

@@ -48,26 +48,26 @@ class Cart
      *
      * @Groups({"cart:list", "cart:item"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      *
      * @Groups({"cart:list", "cart:item", "cart:list:write"})
      */
-    private $token;
+    protected $token;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @ORM\OneToMany(targetEntity=CartProduct::class, mappedBy="cart", orphanRemoval=true)
      *
      * @Groups({"cart:list", "cart:item"})
      */
-    private $cartProducts;
+    protected $cartProducts;
 
     public function __construct()
     {
@@ -75,27 +75,16 @@ class Cart
         $this->cartProducts = new ArrayCollection();
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string|null
-     */
     public function getToken(): ?string
     {
         return $this->token;
     }
 
-    /**
-     * @param string|null $token
-     *
-     * @return $this
-     */
     public function setToken(?string $token): static
     {
         $this->token = $token;
@@ -103,19 +92,11 @@ class Cart
         return $this;
     }
 
-    /**
-     * @return DateTimeImmutable|null
-     */
     public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param DateTimeImmutable $createdAt
-     *
-     * @return $this
-     */
     public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
@@ -123,19 +104,11 @@ class Cart
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getCartProducts(): Collection
     {
         return $this->cartProducts;
     }
 
-    /**
-     * @param CartProduct $cartProduct
-     *
-     * @return $this
-     */
     public function addCartProduct(CartProduct $cartProduct): static
     {
         if (!$this->cartProducts->contains($cartProduct)) {
@@ -146,11 +119,6 @@ class Cart
         return $this;
     }
 
-    /**
-     * @param CartProduct $cartProduct
-     *
-     * @return $this
-     */
     public function removeCartProduct(CartProduct $cartProduct): static
     {
         if ($this->cartProducts->removeElement($cartProduct)) {
