@@ -6,21 +6,15 @@ namespace App\Utils\Manager;
 
 use App\Entity\Category;
 use App\Entity\Product;
-use Doctrine\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 
 final class CategoryManager extends AbstractBaseManager
 {
-    /**
-     * @return ObjectRepository
-     */
-    public function getRepository(): ObjectRepository
+    public function getRepository(): EntityRepository
     {
         return $this->em->getRepository(Category::class);
     }
 
-    /**
-     * @param object $entity
-     */
     public function remove(object $entity): void
     {
         /** @var Category $category */

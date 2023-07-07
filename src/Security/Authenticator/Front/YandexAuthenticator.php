@@ -17,6 +17,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -30,32 +31,18 @@ class YandexAuthenticator extends OAuth2Authenticator
 {
     use CheckingUserSocialNetworkBeforeAuthorization;
 
-    /** @var ClientRegistry */
-    private $clientRegistry;
+    private ClientRegistry $clientRegistry;
 
-    /** @var RouterInterface */
-    private $router;
+    private RouterInterface $router;
 
-    /** @var UserManager */
     private UserManager $userManager;
 
-    /** @var EventDispatcherInterface */
     private EventDispatcherInterface $eventDispatcher;
 
-    /** @var VerifyEmailHelperInterface */
     private VerifyEmailHelperInterface $verifyEmailHelper;
 
-    /** @var TranslatorInterface */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @param ClientRegistry             $clientRegistry
-     * @param UserManager                $userManager
-     * @param RouterInterface            $router
-     * @param EventDispatcherInterface   $eventDispatcher
-     * @param VerifyEmailHelperInterface $helper
-     * @param TranslatorInterface        $translator
-     */
     public function __construct(
         ClientRegistry $clientRegistry,
         UserManager $userManager,
@@ -72,22 +59,12 @@ class YandexAuthenticator extends OAuth2Authenticator
         $this->translator = $translator;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return bool|null
-     */
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
         return 'connect_yandex_check' === $request->attributes->get('_route');
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Passport
-     */
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('yandex_main');
@@ -95,6 +72,8 @@ class YandexAuthenticator extends OAuth2Authenticator
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
+                /** @var Session $session */
+                $session = $request->getSession();
                 /** @var YandexResourceOwner $yandexUser */
                 $yandexUser = $client->fetchUserFromToken($accessToken);
                 $email = $yandexUser->getEmail();
@@ -102,7 +81,12 @@ class YandexAuthenticator extends OAuth2Authenticator
                 $existingUser = $this->userManager->getRepository()->findOneBy(['yandexId' => $yandexUser->getId()]);
 
                 if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
-                    $request->getSession()->getFlashBag()->add('danger', $this->translator->trans('You have already logged in to the site under the username of this social network'));
+                    $session
+                        ->getFlashBag()
+                        ->add(
+                            'danger',
+                            $this->translator->trans('You have already logged in to the site under the username of this social network')
+                        );
 
                     return $this->security->getUser();
                 }
@@ -125,12 +109,22 @@ class YandexAuthenticator extends OAuth2Authenticator
                     $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword, $verifyEmail);
                     $this->eventDispatcher->dispatch($event);
 
-                    $request->getSession()->getFlashBag()->add('success', $this->translator->trans('An email has been sent. Please check inbox to find password and verified your email'));
+                    $session
+                        ->getFlashBag()
+                        ->add(
+                            'success',
+                            $this->translator->trans('An email has been sent. Please check inbox to find password and verified your email')
+                        );
                 }
 
                 // 3) Maybe you just want to "register" them by creating
                 // a User object
-                $request->getSession()->getFlashBag()->add('success', $this->translator->trans('The social network has been successfully linked.'));
+                $session
+                    ->getFlashBag()
+                    ->add(
+                        'success',
+                        $this->translator->trans('The social network has been successfully linked.')
+                    );
                 $user->setYandexId($yandexUser->getId());
                 $this->userManager->flush();
 
@@ -139,13 +133,6 @@ class YandexAuthenticator extends OAuth2Authenticator
         );
     }
 
-    /**
-     * @param Request        $request
-     * @param TokenInterface $token
-     * @param string         $firewallName
-     *
-     * @return RedirectResponse
-     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
         // change "app_homepage" to some route in your app
@@ -157,12 +144,6 @@ class YandexAuthenticator extends OAuth2Authenticator
         // return null;
     }
 
-    /**
-     * @param Request                 $request
-     * @param AuthenticationException $exception
-     *
-     * @return Response
-     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());
@@ -170,11 +151,6 @@ class YandexAuthenticator extends OAuth2Authenticator
         return new Response($message, Response::HTTP_FORBIDDEN);
     }
 
-    /**
-     * @param User $user
-     *
-     * @return array
-     */
     private function getDataForVerifyEmail(User $user): array
     {
         $signatureComponents = $this->verifyEmailHelper->generateSignature(

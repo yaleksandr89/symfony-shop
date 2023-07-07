@@ -11,23 +11,15 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ObjectRepository;
 
 final class OrderManager extends AbstractBaseManager
 {
-    // >>> Autowiring
-    /**
-     * @var CartManager
-     */
     private CartManager $cartManager;
 
     /**
      * @required
-     *
-     * @param CartManager $cartManager
-     *
-     * @return OrderManager
      */
     public function setCartManager(CartManager $cartManager): OrderManager
     {
@@ -35,33 +27,18 @@ final class OrderManager extends AbstractBaseManager
 
         return $this;
     }
-    // Autowiring <<<
 
-    /**
-     * @return ObjectRepository
-     */
-    public function getRepository(): ObjectRepository
+    public function getRepository(): EntityRepository
     {
         return $this->em->getRepository(Order::class);
     }
 
-    /**
-     * alias: 'o'.
-     *
-     * @return QueryBuilder
-     */
     public function getQueryBuilder(): QueryBuilder
     {
         return $this->getRepository()
             ->createQueryBuilder('o');
     }
 
-    /**
-     * @param string $cartToken
-     * @param User   $user
-     *
-     * @return void
-     */
     public function createOrderFromCartByToken(string $cartToken, User $user): void
     {
         $cart = $this->cartManager
@@ -73,12 +50,6 @@ final class OrderManager extends AbstractBaseManager
         }
     }
 
-    /**
-     * @param Cart $cart
-     * @param User $user
-     *
-     * @return void
-     */
     public function createOrderFromCart(Cart $cart, User $user): void
     {
         $order = new Order();
@@ -94,15 +65,9 @@ final class OrderManager extends AbstractBaseManager
         $this->cartManager->remove($cart);
     }
 
-    /**
-     * @param Order $order
-     * @param int   $cartId
-     *
-     * @return void
-     */
     public function addOrdersProductsFromCart(Order $order, int $cartId): void
     {
-        /** @var Cart $cart */
+        /** @var Cart|null $cart */
         $cart = $this->cartManager->find($cartId);
 
         if ($cart) {
@@ -123,11 +88,6 @@ final class OrderManager extends AbstractBaseManager
         }
     }
 
-    /**
-     * @param Order $order
-     *
-     * @return void
-     */
     public function calculationOrderTotalPrice(Order $order): void
     {
         $orderTotalPrice = 0;
@@ -140,9 +100,6 @@ final class OrderManager extends AbstractBaseManager
         $order->setTotalPrice($orderTotalPrice);
     }
 
-    /**
-     * @param object $entity
-     */
     public function remove(object $entity): void
     {
         /** @var Order $order */

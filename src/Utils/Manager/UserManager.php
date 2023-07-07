@@ -6,23 +6,15 @@ namespace App\Utils\Manager;
 
 use App\Entity\User;
 use App\Exception\Security\EmptyUserPlainPasswordException;
-use Doctrine\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserManager extends AbstractBaseManager
 {
-    // >>> Autowiring
-    /**
-     * @var UserPasswordHasherInterface
-     */
-    private $userPasswordHasher;
+    private UserPasswordHasherInterface $userPasswordHasher;
 
     /**
      * @required
-     *
-     * @param UserPasswordHasherInterface $userPasswordHasher
-     *
-     * @return UserManager
      */
     public function setUserPasswordHasher(UserPasswordHasherInterface $userPasswordHasher): UserManager
     {
@@ -30,20 +22,12 @@ final class UserManager extends AbstractBaseManager
 
         return $this;
     }
-    // Autowiring <<<
 
-    /**
-     * @return ObjectRepository
-     */
-    public function getRepository(): ObjectRepository
+    public function getRepository(): EntityRepository
     {
         return $this->em->getRepository(User::class);
     }
 
-    /**
-     * @param User   $user
-     * @param string $plainPassword
-     */
     public function encodePassword(User $user, string $plainPassword): void
     {
         $preparedPassword = trim($plainPassword);
@@ -56,9 +40,6 @@ final class UserManager extends AbstractBaseManager
         $user->setPassword($hashPassword);
     }
 
-    /**
-     * @param object $entity
-     */
     public function remove(object $entity): void
     {
         /** @var User $user */

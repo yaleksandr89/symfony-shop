@@ -25,14 +25,8 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     public const LOGIN_ROUTE = 'main_login';
 
-    /**
-     * @var UserRepository
-     */
     protected UserRepository $userRepository;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
     private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
@@ -41,21 +35,11 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return bool|null
-     */
     public function supports(Request $request): ?bool
     {
         return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Passport
-     */
     public function authenticate(Request $request): Passport
     {
         $email = $request->request->get('email');
@@ -72,13 +56,6 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         );
     }
 
-    /**
-     * @param Request        $request
-     * @param TokenInterface $token
-     * @param string         $firewallName
-     *
-     * @return Response|null
-     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         $urlReferer = $request->getSession()->get('HTTP_REFERER') ?? '';
@@ -99,12 +76,6 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));
     }
 
-    /**
-     * @param Request                 $request
-     * @param AuthenticationException $exception
-     *
-     * @return Response|null
-     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         if ($request->hasSession()) {

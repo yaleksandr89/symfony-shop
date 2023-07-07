@@ -17,28 +17,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductFormHandler
 {
-    /** @var FileSaver */
     private FileSaver $fileSaver;
 
-    /** @var ProductManager */
     private ProductManager $productManager;
 
-    /** @var FilesystemWorker */
     private FilesystemWorker $filesystemWorker;
 
-    /** @var PaginatorInterface */
     private PaginatorInterface $paginator;
 
-    /** @var FilterBuilderUpdater */
     private FilterBuilderUpdater $filterBuilderUpdater;
 
-    /**
-     * @param ProductManager       $productManager
-     * @param FileSaver            $fileSaver
-     * @param FilesystemWorker     $filesystemWorker
-     * @param PaginatorInterface   $paginator
-     * @param FilterBuilderUpdater $filterBuilderUpdater
-     */
     public function __construct(
         ProductManager $productManager,
         FileSaver $fileSaver,
@@ -53,12 +41,6 @@ class ProductFormHandler
         $this->filterBuilderUpdater = $filterBuilderUpdater;
     }
 
-    /**
-     * @param FormInterface    $form
-     * @param EditProductModel $editProductModel
-     *
-     * @return Product
-     */
     public function processEditForm(FormInterface $form, EditProductModel $editProductModel): Product
     {
         $product = new Product();
@@ -90,12 +72,6 @@ class ProductFormHandler
         return $product;
     }
 
-    /**
-     * @param Request $request
-     * @param $filterForm
-     *
-     * @return PaginationInterface
-     */
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
         $queryBuilder = $this->productManager
@@ -114,12 +90,6 @@ class ProductFormHandler
         );
     }
 
-    /**
-     * @param Product          $product
-     * @param EditProductModel $editProductModel
-     *
-     * @return Product
-     */
     private function fillingProductData(Product $product, EditProductModel $editProductModel): Product
     {
         $title = (!is_string($editProductModel->title))
