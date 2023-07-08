@@ -6,7 +6,7 @@ namespace App\Form\DTO;
 
 use App\Entity\Order;
 use App\Entity\User;
-use DateTime;
+use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class EditOrderModel
@@ -31,12 +31,12 @@ class EditOrderModel
     public $status;
 
     /**
-     * @var string
+     * @var float
      */
     public $totalPrice;
 
     /**
-     * @var DateTime
+     * @var DateTimeImmutable
      */
     public $createdAt;
 
@@ -45,14 +45,9 @@ class EditOrderModel
      */
     public $isDeleted;
 
-    /**
-     * @param Order|null $order
-     *
-     * @return static
-     */
-    public static function makeFromOrder(?Order $order = null): static
+    public static function makeFromOrder(?Order $order = null): self
     {
-        $model = new static();
+        $model = new self();
 
         if (!$order) {
             return $model;
