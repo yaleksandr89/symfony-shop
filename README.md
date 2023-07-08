@@ -2,8 +2,9 @@
 
 ```
 Используется:
-* PHP 8.1
-* Composer 2.3.5
+* PHP 8.2.7
+* Composer 2.5.8
+* Postgresql: 15.3
 ```
 
 Реализация интернет магазина с использованием `Symfony 6`. Часть функционала сделана на `Vue 2.6` (реализация корзины, 
@@ -28,7 +29,7 @@
 
 ## Процесс установки проекта
 
-1. Клонировать репоизторий: `git clone git@github.com:yaleksandr89/symfony-shop.git`.
+1. Клонировать репозиторий: `git clone git@github.com:yaleksandr89/symfony-shop.git`.
 2. Переименовать: `.env-example` в `.env`.
 3. Настроить БД.
 4. Настройте `ADMIN_EMAIL` / `MAILER_DSN` иначе не будет работать функционал восстановления пароля, а также процесс регистрации пользователя будет отрабатывать не до конца.
@@ -95,3 +96,4 @@ process_name=%(program_name)s_%(process_num)02d
 ## UPD
 
 * 08.07.2023 - удален конфиг `.circleci`. Перестал работать в России: https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country
+* 08.07.2023 - Symfony обновлена до последней, на текущую дату, версию `6.3.1`
