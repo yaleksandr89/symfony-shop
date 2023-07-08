@@ -91,3 +91,7 @@ process_name=%(program_name)s_%(process_num)02d
 * Как установить движок в системе (linux) глобально: https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
 
 После этого, перед началом тестирования, предварительно, нужно запустить selenium командой `java -jar bin/selenium-server-4.1.0.jar standalone`
+
+## UPD
+
+* 08.07.2023 - удален конфиг `.circleci`. Перестал работать в России: https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country
