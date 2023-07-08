@@ -53,7 +53,7 @@ class EditUserModel
     public $address;
 
     /**
-     * @var string
+     * @var int
      */
     public $zipCode;
 
@@ -70,12 +70,7 @@ class EditUserModel
      */
     public $email;
 
-    /**
-     * @param User|null $user
-     *
-     * @return static
-     */
-    public static function makeFromUser(?User $user): static
+    public static function makeFromUser(?User $user): self
     {
         $model = new self();
 
@@ -96,11 +91,6 @@ class EditUserModel
         return $model;
     }
 
-    /**
-     * @param ExecutionContextInterface $context
-     *
-     * @return void
-     */
     public function validate(ExecutionContextInterface $context): void
     {
         /** @var Form $form */

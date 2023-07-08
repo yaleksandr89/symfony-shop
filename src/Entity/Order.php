@@ -41,49 +41,49 @@ class Order
      *
      * @Groups({"order:item"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private $updatedAt;
+    protected $updatedAt;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="orders")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $owner;
+    protected $owner;
 
     /**
      * @ORM\Column(type="integer")
      *
      * @Groups({"order:item"})
      */
-    private $status;
+    protected $status;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      *
      * @Groups({"order:item"})
      */
-    private $totalPrice;
+    protected $totalPrice;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isDeleted;
+    protected $isDeleted;
 
     /**
      * @ORM\OneToMany(targetEntity=OrderProduct::class, mappedBy="appOrder")
      *
      * @Groups({"order:item"})
      */
-    private $orderProducts;
+    protected $orderProducts;
 
     public function __construct()
     {
@@ -93,27 +93,16 @@ class Order
         $this->orderProducts = new ArrayCollection();
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return DateTimeImmutable|null
-     */
     public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param DateTimeImmutable $createdAt
-     *
-     * @return $this
-     */
     public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
@@ -121,19 +110,11 @@ class Order
         return $this;
     }
 
-    /**
-     * @return User|null
-     */
     public function getOwner(): ?User
     {
         return $this->owner;
     }
 
-    /**
-     * @param User|null $owner
-     *
-     * @return $this
-     */
     public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
@@ -141,19 +122,11 @@ class Order
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getStatus(): ?int
     {
         return $this->status;
     }
 
-    /**
-     * @param int $status
-     *
-     * @return $this
-     */
     public function setStatus(int $status): static
     {
         $this->status = $status;
@@ -161,19 +134,11 @@ class Order
         return $this;
     }
 
-    /**
-     * @return float|null
-     */
     public function getTotalPrice(): ?float
     {
         return $this->totalPrice;
     }
 
-    /**
-     * @param float|null $totalPrice
-     *
-     * @return $this
-     */
     public function setTotalPrice(?float $totalPrice): static
     {
         $this->totalPrice = $totalPrice;
@@ -181,19 +146,11 @@ class Order
         return $this;
     }
 
-    /**
-     * @return DateTimeImmutable|null
-     */
     public function getUpdatedAt(): ?DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    /**
-     * @param DateTimeImmutable|null $updatedAt
-     *
-     * @return $this
-     */
     public function setUpdatedAt(?DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
@@ -201,19 +158,11 @@ class Order
         return $this;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getIsDeleted(): ?bool
     {
         return $this->isDeleted;
     }
 
-    /**
-     * @param bool $isDeleted
-     *
-     * @return $this
-     */
     public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
@@ -221,9 +170,6 @@ class Order
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getOrderProducts(): Collection
     {
         return $this->orderProducts;

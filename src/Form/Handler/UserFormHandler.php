@@ -6,36 +6,21 @@ namespace App\Form\Handler;
 
 use App\Entity\User;
 use App\Form\DTO\EditUserModel;
-use App\Repository\UserRepository;
 use App\Utils\Manager\UserManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFormHandler
 {
-    /**
-     * @var UserManager
-     */
     private UserManager $userManager;
 
-    /**
-     * @var UserPasswordHasherInterface
-     */
     private UserPasswordHasherInterface $hasher;
 
-    private UserRepository $userRepository;
-
-    public function __construct(UserManager $userManager, UserPasswordHasherInterface $hasher, UserRepository $userRepository)
+    public function __construct(UserManager $userManager, UserPasswordHasherInterface $hasher)
     {
         $this->userManager = $userManager;
         $this->hasher = $hasher;
-        $this->userRepository = $userRepository;
     }
 
-    /**
-     * @param EditUserModel $editUserModel
-     *
-     * @return User
-     */
     public function processEditForm(EditUserModel $editUserModel): User
     {
         $user = new User();
@@ -51,12 +36,6 @@ class UserFormHandler
         return $user;
     }
 
-    /**
-     * @param User          $user
-     * @param EditUserModel $editUserModel
-     *
-     * @return User
-     */
     private function fillingCategoryData(User $user, EditUserModel $editUserModel): User
     {
         $plainPassword = (!is_string($editUserModel->plainPassword))

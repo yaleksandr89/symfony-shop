@@ -7,19 +7,13 @@ namespace App\Utils\Manager;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ObjectRepository;
 
 final class ProductManager extends AbstractBaseManager
 {
-    /**
-     * @var string
-     */
     private string $productImagesDir;
 
-    /**
-     * @var ProductImageManager
-     */
     private ProductImageManager $productImagesManager;
 
     public function __construct(
@@ -33,30 +27,17 @@ final class ProductManager extends AbstractBaseManager
         $this->productImagesManager = $productImagesManager;
     }
 
-    /**
-     * @return ObjectRepository
-     */
-    public function getRepository(): ObjectRepository
+    public function getRepository(): EntityRepository
     {
         return $this->em->getRepository(Product::class);
     }
 
-    /**
-     * alias: 'p'.
-     *
-     * @return QueryBuilder
-     */
     public function getQueryBuilder(): QueryBuilder
     {
         return $this->getRepository()
             ->createQueryBuilder('p');
     }
 
-    /**
-     * @param object $entity
-     *
-     * @return void
-     */
     public function softRemove(object $entity): void
     {
         /** @var Product $product */
@@ -68,11 +49,6 @@ final class ProductManager extends AbstractBaseManager
         $this->flush();
     }
 
-    /**
-     * @param Product $product
-     *
-     * @return string
-     */
     public function getProductImagesDir(Product $product): string
     {
         return sprintf('%s/%s', $this->productImagesDir, $product->getId());

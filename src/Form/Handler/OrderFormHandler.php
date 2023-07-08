@@ -16,20 +16,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OrderFormHandler
 {
-    /** @var OrderManager */
     private OrderManager $orderManager;
 
-    /** @var PaginatorInterface */
     private PaginatorInterface $paginator;
 
-    /** @var FilterBuilderUpdater */
     private FilterBuilderUpdater $filterBuilderUpdater;
 
-    /**
-     * @param OrderManager         $orderManager
-     * @param PaginatorInterface   $paginator
-     * @param FilterBuilderUpdater $filterBuilderUpdater
-     */
     public function __construct(OrderManager $orderManager, PaginatorInterface $paginator, FilterBuilderUpdater $filterBuilderUpdater)
     {
         $this->orderManager = $orderManager;
@@ -37,11 +29,6 @@ class OrderFormHandler
         $this->filterBuilderUpdater = $filterBuilderUpdater;
     }
 
-    /**
-     * @param EditOrderModel $editOrderModel
-     *
-     * @return Order
-     */
     public function processEditForm(EditOrderModel $editOrderModel): Order
     {
         $order = new Order();
@@ -59,12 +46,6 @@ class OrderFormHandler
         return $order;
     }
 
-    /**
-     * @param Request       $request
-     * @param FormInterface $filterForm
-     *
-     * @return PaginationInterface
-     */
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
         $queryBuilder = $this->orderManager
@@ -83,25 +64,11 @@ class OrderFormHandler
         );
     }
 
-    /**
-     * @param Order          $order
-     * @param EditOrderModel $editCategoryModel
-     *
-     * @return Order
-     */
     private function fillingCategoryData(Order $order, EditOrderModel $editCategoryModel): Order
     {
-        $status = (!is_string($editCategoryModel->status))
-            ? (int) $editCategoryModel->status
-            : $editCategoryModel->status;
-
-        $isDeleted = (!is_bool($editCategoryModel->isDeleted))
-            ? (bool) $editCategoryModel->isDeleted
-            : $editCategoryModel->isDeleted;
-
-        $order->setStatus($status);
+        $order->setStatus($editCategoryModel->status);
         $order->setOwner($editCategoryModel->owner);
-        $order->setIsDeleted($isDeleted);
+        $order->setIsDeleted($editCategoryModel->isDeleted);
         $order->setUpdatedAt(new DateTimeImmutable());
 
         return $order;

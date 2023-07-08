@@ -19,20 +19,13 @@ class ProductImageController extends BaseAdminController
 {
     /**
      * @Route("/delete/{id}", name="delete")
-     *
-     * @param Request             $request
-     * @param ProductImage        $productImage
-     * @param ProductManager      $productManager
-     * @param ProductImageManager $productImageManager
-     *
-     * @return Response
      */
-    public function delete(Request $request, ProductImage $productImage, ProductManager $productManager, ProductImageManager $productImageManager): Response
-    {
-        if (!isset($productImage)) {
-            return $this->redirectToRoute('admin_product_list');
-        }
-
+    public function delete(
+        Request $request,
+        ProductImage $productImage,
+        ProductManager $productManager,
+        ProductImageManager $productImageManager
+    ): Response {
         /** @var Product $product */
         $product = $productImage->getProduct();
 

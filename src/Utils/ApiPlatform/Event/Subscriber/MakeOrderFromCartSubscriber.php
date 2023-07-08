@@ -20,18 +20,10 @@ use Symfony\Component\Security\Core\Security;
 
 class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 {
-    // >>> Autowiring
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     /**
      * @required
-     *
-     * @param Security $security
-     *
-     * @return MakeOrderFromCartSubscriber
      */
     public function setSecurity(Security $security): MakeOrderFromCartSubscriber
     {
@@ -40,17 +32,10 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         return $this;
     }
 
-    /**
-     * @var OrderManager
-     */
     private OrderManager $orderManager;
 
     /**
      * @required
-     *
-     * @param OrderManager $orderManager
-     *
-     * @return MakeOrderFromCartSubscriber
      */
     public function setOrderManager(OrderManager $orderManager): MakeOrderFromCartSubscriber
     {
@@ -59,17 +44,10 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         return $this;
     }
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @required
-     *
-     * @param EventDispatcherInterface $eventDispatcher
-     *
-     * @return MakeOrderFromCartSubscriber
      */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): MakeOrderFromCartSubscriber
     {
@@ -77,11 +55,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
         return $this;
     }
-    // Autowiring <<<
 
-    /**
-     * @return array
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -99,11 +73,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param ViewEvent $viewEvent
-     *
      * @throws JsonException
-     *
-     * @return void
      */
     public function makeOrder(ViewEvent $viewEvent): void
     {
@@ -115,7 +85,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->security->getUser();
         if (!$user) {
             return;
@@ -140,11 +110,6 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         $order->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
     }
 
-    /**
-     * @param ViewEvent $viewEvent
-     *
-     * @return void
-     */
     public function sendNotificationsAboutNewOrder(ViewEvent $viewEvent): void
     {
         /** @var Order $order */
@@ -159,11 +124,6 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
         $this->eventDispatcher->dispatch($event);
     }
 
-    /**
-     * @param ViewEvent $viewEvent
-     *
-     * @return Request
-     */
     private function getRequest(ViewEvent $viewEvent): Request
     {
         return $viewEvent->getRequest();

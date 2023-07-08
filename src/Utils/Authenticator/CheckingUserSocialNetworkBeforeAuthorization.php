@@ -9,15 +9,10 @@ use Symfony\Component\Security\Core\Security;
 
 trait CheckingUserSocialNetworkBeforeAuthorization
 {
-    /** @var Security */
-    private $security;
+    private Security $security;
 
     /**
      * @required
-     *
-     * @param Security $security
-     *
-     * @return self
      */
     public function setSecurity(Security $security): self
     {
@@ -26,15 +21,12 @@ trait CheckingUserSocialNetworkBeforeAuthorization
         return $this;
     }
 
-    /**
-     * @param string $socialNetworkUserEmail
-     *
-     * @return bool
-     */
     protected function checkingUserSocialNetworkBeforeAuthorization(string $socialNetworkUserEmail): bool
     {
-        /** @var User $activeUser */
-        if ($activeUser = $this->security->getUser()) {
+        /** @var User|null $activeUser */
+        $activeUser = $this->security->getUser();
+
+        if ($activeUser) {
             $activeUserEmail = $activeUser->getEmail();
 
             if ($activeUserEmail !== $socialNetworkUserEmail) {

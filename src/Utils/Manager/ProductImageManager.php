@@ -9,31 +9,16 @@ use App\Entity\ProductImage;
 use App\Utils\File\ImageResizer;
 use App\Utils\FileSystem\FilesystemWorker;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 
 final class ProductImageManager extends AbstractBaseManager
 {
-    /**
-     * @var FilesystemWorker
-     */
     private FilesystemWorker $filesystemWorker;
 
-    /**
-     * @var string
-     */
     private string $uploadsTempDir;
 
-    /**
-     * @var ImageResizer
-     */
     private ImageResizer $imageResizer;
 
-    /**
-     * @param EntityManagerInterface $em
-     * @param FilesystemWorker       $filesystemWorker
-     * @param string                 $uploadsTempDir
-     * @param ImageResizer           $imageResizer
-     */
     public function __construct(
         EntityManagerInterface $em,
         FilesystemWorker $filesystemWorker,
@@ -47,20 +32,11 @@ final class ProductImageManager extends AbstractBaseManager
         $this->imageResizer = $imageResizer;
     }
 
-    /**
-     * @return ObjectRepository
-     */
-    public function getRepository(): ObjectRepository
+    public function getRepository(): EntityRepository
     {
         return $this->em->getRepository(ProductImage::class);
     }
 
-    /**
-     * @param string      $productDir
-     * @param string|null $tempImageFilename
-     *
-     * @return ProductImage|null
-     */
     public function saveImageForProduct(string $productDir, string $tempImageFilename = null): ?ProductImage
     {
         if (!$tempImageFilename) {
@@ -103,12 +79,6 @@ final class ProductImageManager extends AbstractBaseManager
         return $productImage;
     }
 
-    /**
-     * @param ProductImage $productImage
-     * @param string       $productImageDir
-     *
-     * @return void
-     */
     public function removeImageFromProduct(ProductImage $productImage, string $productImageDir): void
     {
         $smallFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameSmall());

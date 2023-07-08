@@ -21,12 +21,7 @@ class EditCategoryModel
      */
     public $title;
 
-    /**
-     * @param Category|null $category
-     *
-     * @return static
-     */
-    public static function makeFromCategory(?Category $category): static
+    public static function makeFromCategory(?Category $category): self
     {
         $model = new self();
 

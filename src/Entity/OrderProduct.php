@@ -40,13 +40,13 @@ class OrderProduct
      *
      * @Groups({"order_product:list", "order:item"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="orderProducts", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
-    private $appOrder;
+    protected $appOrder;
 
     /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="orderProducts")
@@ -54,43 +54,32 @@ class OrderProduct
      *
      * @Groups({"order:item"})
      */
-    private $product;
+    protected $product;
 
     /**
      * @ORM\Column(type="integer")
      *
      * @Groups({"order:item"})
      */
-    private $quantity;
+    protected $quantity;
 
     /**
      * @ORM\Column(type="decimal", precision=15, scale=2)
      *
      * @Groups({"order:item"})
      */
-    private $pricePerOne;
+    protected $pricePerOne;
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return Order|null
-     */
     public function getAppOrder(): ?Order
     {
         return $this->appOrder;
     }
 
-    /**
-     * @param Order|null $appOrder
-     *
-     * @return $this
-     */
     public function setAppOrder(?Order $appOrder): static
     {
         $this->appOrder = $appOrder;
@@ -98,19 +87,11 @@ class OrderProduct
         return $this;
     }
 
-    /**
-     * @return Product|null
-     */
     public function getProduct(): ?Product
     {
         return $this->product;
     }
 
-    /**
-     * @param Product|null $product
-     *
-     * @return $this
-     */
     public function setProduct(?Product $product): static
     {
         $this->product = $product;
@@ -118,19 +99,11 @@ class OrderProduct
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getQuantity(): ?int
     {
         return $this->quantity;
     }
 
-    /**
-     * @param int $quantity
-     *
-     * @return $this
-     */
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
@@ -138,19 +111,11 @@ class OrderProduct
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPricePerOne(): ?string
     {
         return $this->pricePerOne;
     }
 
-    /**
-     * @param string $pricePerOne
-     *
-     * @return $this
-     */
     public function setPricePerOne(string $pricePerOne): static
     {
         $this->pricePerOne = $pricePerOne;

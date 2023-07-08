@@ -13,20 +13,12 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class UserRegisteredHandler implements MessageHandlerInterface
 {
-    /** @var EmailVerifier */
     private EmailVerifier $emailVerifier;
 
-    /** @var UserManager */
     private UserManager $userManager;
 
-    /** @var UserRegisteredEmailSender */
     private UserRegisteredEmailSender $emailSender;
 
-    /**
-     * @param EmailVerifier             $emailVerifier
-     * @param UserManager               $userManager
-     * @param UserRegisteredEmailSender $emailSender
-     */
     public function __construct(EmailVerifier $emailVerifier, UserManager $userManager, UserRegisteredEmailSender $emailSender)
     {
         $this->emailVerifier = $emailVerifier;
@@ -34,14 +26,11 @@ class UserRegisteredHandler implements MessageHandlerInterface
         $this->emailSender = $emailSender;
     }
 
-    /**
-     * @param EventUserRegisteredEvent $event
-     */
-    public function __invoke(EventUserRegisteredEvent $event)
+    public function __invoke(EventUserRegisteredEvent $event): void
     {
         $userId = $event->getUserId();
 
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->userManager->find($userId);
 
         if (!$user) {

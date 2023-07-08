@@ -14,20 +14,12 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 class ResetUserPasswordHandler implements MessageHandlerInterface
 {
-    /** @var UserManager */
-    private $userManager;
+    private UserManager $userManager;
 
-    /** @var ResetPasswordHelperInterface */
-    private $resetPasswordHelper;
+    private ResetPasswordHelperInterface $resetPasswordHelper;
 
-    /** @var ResetUserPasswordEmailSender */
-    private $userPasswordEmailSender;
+    private ResetUserPasswordEmailSender $userPasswordEmailSender;
 
-    /**
-     * @param UserManager                  $userManager
-     * @param ResetPasswordHelperInterface $resetPasswordHelper
-     * @param ResetUserPasswordEmailSender $userPasswordEmailSender
-     */
     public function __construct(
         UserManager $userManager,
         ResetPasswordHelperInterface $resetPasswordHelper,
@@ -38,12 +30,11 @@ class ResetUserPasswordHandler implements MessageHandlerInterface
         $this->userPasswordEmailSender = $userPasswordEmailSender;
     }
 
-    public function __invoke(ResetUserPasswordCommand $resetUserPasswordCommand)
+    public function __invoke(ResetUserPasswordCommand $resetUserPasswordCommand): void
     {
         $email = $resetUserPasswordCommand->getEmail();
-        $resetToken = null;
 
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
 
         if (!$user) {

@@ -21,18 +21,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CartApiController extends AbstractController
 {
-    // >>> Autowiring
-    /**
-     * @var Doctrine
-     */
     private Doctrine $doctrine;
 
     /**
      * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return self
      */
     public function setDoctrine(Doctrine $doctrine): CartApiController
     {
@@ -41,16 +33,8 @@ class CartApiController extends AbstractController
         return $this;
     }
 
-    // Autowiring <<<
     /**
      * @Route("/cart", methods="POST", name="cart_save")
-     *
-     * @param Request               $request
-     * @param CartRepository        $cartRepository
-     * @param CartProductRepository $cartProductRepository
-     * @param ProductRepository     $productRepository
-     *
-     * @return JsonResponse
      */
     public function saveCart(
         Request $request,
@@ -65,14 +49,14 @@ class CartApiController extends AbstractController
         /** @var Product $product */
         $product = $productRepository->findById($productUuid);
 
-        /** @var Cart $cart */
+        /** @var Cart|null $cart */
         $cart = $cartRepository->findOneBy(['token' => $cartToken]);
         if (!$cart) {
             $cart = new Cart();
             $cart->setToken($cartToken);
         }
 
-        /** @var CartProduct $cartProduct */
+        /** @var CartProduct|null $cartProduct */
         $cartProduct = $cartProductRepository->findOneBy(['cart' => $cart, 'product' => $product]);
         if (!$cartProduct) {
             $cartProduct = new CartProduct();

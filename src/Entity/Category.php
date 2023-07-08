@@ -36,30 +36,30 @@ class Category
      *
      * @Groups({"category:list", "category:item", "product:list", "product:item", "order:item"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
      *
      * @Groups({"category:list", "category:item", "product:list", "product:item", "order:item"})
      */
-    private $title;
+    protected $title;
 
     /**
      * @Gedmo\Slug(fields={"title"})
      * @ORM\Column(type="string", length=120, unique=true)
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @ORM\OneToMany(targetEntity=Product::class, mappedBy="category")
      */
-    private $products;
+    protected $products;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $isDeleted;
+    protected $isDeleted;
 
     public function __construct()
     {
@@ -67,27 +67,16 @@ class Category
         $this->products = new ArrayCollection();
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @param string|null $title
-     *
-     * @return $this
-     */
     public function setTitle(?string $title): static
     {
         // $this->title = $title;
@@ -96,19 +85,11 @@ class Category
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSlug(): ?string
     {
         return $this->slug;
     }
 
-    /**
-     * @param string $slug
-     *
-     * @return $this
-     */
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
@@ -116,19 +97,11 @@ class Category
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getProducts(): Collection
     {
         return $this->products;
     }
 
-    /**
-     * @param Product $product
-     *
-     * @return $this
-     */
     public function addProduct(Product $product): static
     {
         if (!$this->products->contains($product)) {
@@ -139,11 +112,6 @@ class Category
         return $this;
     }
 
-    /**
-     * @param Product $product
-     *
-     * @return $this
-     */
     public function removeProduct(Product $product): static
     {
         if ($this->products->removeElement($product)) {
@@ -156,19 +124,11 @@ class Category
         return $this;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getIsDeleted(): ?bool
     {
         return $this->isDeleted;
     }
 
-    /**
-     * @param bool|null $isDeleted
-     *
-     * @return $this
-     */
     public function setIsDeleted(?bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;

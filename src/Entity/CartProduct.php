@@ -44,7 +44,7 @@ class CartProduct
      *
      * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=Cart::class, inversedBy="cartProducts")
@@ -52,7 +52,7 @@ class CartProduct
      *
      * @Groups({"cart_product:list", "cart_product:item"})
      */
-    private $cart;
+    protected $cart;
 
     /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="cartProducts")
@@ -60,36 +60,25 @@ class CartProduct
      *
      * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $product;
+    protected $product;
 
     /**
      * @ORM\Column(type="integer")
      *
      * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    private $quantity;
+    protected $quantity;
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return Cart|null
-     */
     public function getCart(): ?Cart
     {
         return $this->cart;
     }
 
-    /**
-     * @param Cart|null $cart
-     *
-     * @return $this
-     */
     public function setCart(?Cart $cart): static
     {
         $this->cart = $cart;
@@ -97,19 +86,11 @@ class CartProduct
         return $this;
     }
 
-    /**
-     * @return Product|null
-     */
     public function getProduct(): ?Product
     {
         return $this->product;
     }
 
-    /**
-     * @param Product|null $product
-     *
-     * @return $this
-     */
     public function setProduct(?Product $product): static
     {
         $this->product = $product;
@@ -117,19 +98,11 @@ class CartProduct
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getQuantity(): ?int
     {
         return $this->quantity;
     }
 
-    /**
-     * @param int $quantity
-     *
-     * @return $this
-     */
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
