@@ -14,7 +14,7 @@ watch:
 	npm run watch
 
 deploy:
-	dep deploy production
+	deployer deploy
 
 ##
 ## REFACTORING
