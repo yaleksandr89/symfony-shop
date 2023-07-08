@@ -17,17 +17,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class DefaultController extends AbstractController
 {
     // >>> Autowiring
-    /**
-     * @var UrlGeneratorInterface
-     */
+
     private UrlGeneratorInterface $urlGenerator;
 
     /**
      * @required
-     *
-     * @param UrlGeneratorInterface $urlGenerator
-     *
-     * @return DefaultController
      */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): DefaultController
     {
@@ -39,11 +33,6 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/", name="main_homepage")
-     *
-     * @param Request            $request
-     * @param CategoryRepository $categoryRepository
-     *
-     * @return Response
      */
     public function index(Request $request, CategoryRepository $categoryRepository): Response
     {

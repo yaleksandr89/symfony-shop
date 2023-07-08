@@ -16,17 +16,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class ProductController extends AbstractController
 {
     // >>> Autowiring
-    /**
-     * @var Doctrine
-     */
+
     private Doctrine $doctrine;
 
     /**
      * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return self
      */
     public function setDoctrine(Doctrine $doctrine): ProductController
     {
@@ -39,10 +33,6 @@ class ProductController extends AbstractController
     /**
      * @Route("/product/{identifier}", name="main_product_show")
      * @Route("/product", name="main_product_show_blank")
-     *
-     * @param string $identifier
-     *
-     * @return Response
      */
     public function show(string $identifier): Response
     {

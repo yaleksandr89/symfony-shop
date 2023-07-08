@@ -21,20 +21,11 @@ class CartProductVoter extends Voter
     /** @var RequestStack */
     private $requestStack;
 
-    /**
-     * @param RequestStack $requestStack
-     */
     public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
     }
 
-    /**
-     * @param string $attribute
-     * @param mixed  $subject
-     *
-     * @return bool
-     */
     protected function supports(string $attribute, $subject): bool
     {
         // if the attribute isn't one we support, return false
@@ -50,13 +41,6 @@ class CartProductVoter extends Voter
         return true;
     }
 
-    /**
-     * @param string         $attribute
-     * @param mixed          $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
-     */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
@@ -88,20 +72,12 @@ class CartProductVoter extends Voter
         throw new LogicException('This code should not be reached!');
     }
 
-    /**
-     * @return bool
-     */
     private function canRead(): bool
     {
         // так как отрабатывает проверка в FilterCartQueryExtension.php
         return true;
     }
 
-    /**
-     * @param Cart $cart
-     *
-     * @return bool
-     */
     private function canEdit(Cart $cart): bool
     {
         // если корзина еще не существует
@@ -119,11 +95,6 @@ class CartProductVoter extends Voter
         return $cart->getToken() === $cartToken;
     }
 
-    /**
-     * @param Cart $cart
-     *
-     * @return bool
-     */
     private function canDelete(Cart $cart): bool
     {
         $cartToken = $this->getCartToken();
@@ -136,9 +107,6 @@ class CartProductVoter extends Voter
         return $cart->getToken() === $cartToken;
     }
 
-    /**
-     * @return string|null
-     */
     private function getCartToken(): ?string
     {
         return $this->requestStack

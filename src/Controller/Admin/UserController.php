@@ -20,17 +20,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseAdminController
 {
     // >>> Autowiring
-    /**
-     * @var UserRepository
-     */
+
     private UserRepository $userRepository;
 
     /**
      * @required
-     *
-     * @param UserRepository $userRepository
-     *
-     * @return UserController
      */
     public function setCategoryRepository(UserRepository $userRepository): UserController
     {
@@ -56,12 +50,6 @@ class UserController extends BaseAdminController
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
-     *
-     * @param Request         $request
-     * @param UserFormHandler $userFormHandler
-     * @param User|null       $user
-     *
-     * @return Response
      */
     public function edit(Request $request, UserFormHandler $userFormHandler, User $user = null): Response
     {
@@ -93,12 +81,6 @@ class UserController extends BaseAdminController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     *
-     * @param Request     $request
-     * @param User        $user
-     * @param UserManager $userManager
-     *
-     * @return Response
      */
     public function delete(Request $request, User $user, UserManager $userManager): Response
     {

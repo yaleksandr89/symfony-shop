@@ -15,17 +15,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class RobotsTxtController extends AbstractController
 {
     // >>> Autowiring
-    /**
-     * @var Doctrine
-     */
+
     private Doctrine $doctrine;
 
     /**
      * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return self
      */
     public function setDoctrine(Doctrine $doctrine): RobotsTxtController
     {
@@ -37,8 +31,6 @@ class RobotsTxtController extends AbstractController
 
     /**
      * @Route("/robots.txt", name="main_robots.txt")
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -49,9 +41,6 @@ class RobotsTxtController extends AbstractController
         ]);
     }
 
-    /**
-     * @return array
-     */
     private function getActiveCategories(): array
     {
         $activeCategory = [];
@@ -72,9 +61,6 @@ class RobotsTxtController extends AbstractController
         return $activeCategory;
     }
 
-    /**
-     * @return array
-     */
     private function getActiveProducts(): array
     {
         $activeProduct = [];

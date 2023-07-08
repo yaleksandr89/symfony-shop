@@ -17,21 +17,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class AddUserCommand extends Command
 {
-    // >> Autowiring
-    /**
-     * @var EntityManagerInterface
-     */
     private EntityManagerInterface $em;
 
     /**
      * @required
-     *
-     * @param EntityManagerInterface $em
-     *
-     * @return AddUserCommand
      */
     public function setEm(EntityManagerInterface $em): AddUserCommand
     {
@@ -40,18 +33,12 @@ class AddUserCommand extends Command
         return $this;
     }
 
-    /**
-     * @var UserPasswordHasherInterface
-     */
     private UserPasswordHasherInterface $hasher;
 
     /**
      * @required
-     *
-     * @param UserPasswordHasherInterface $hasher
-     *
-     * @return AddUserCommand
      */
+    #[Required]
     public function setEncoder(UserPasswordHasherInterface $hasher): AddUserCommand
     {
         $this->hasher = $hasher;
@@ -59,17 +46,10 @@ class AddUserCommand extends Command
         return $this;
     }
 
-    /**
-     * @var UserRepository
-     */
     private UserRepository $userRepository;
 
     /**
      * @required
-     *
-     * @param UserRepository $userRepository
-     *
-     * @return AddUserCommand
      */
     public function setUserRepository(UserRepository $userRepository): AddUserCommand
     {
@@ -77,36 +57,17 @@ class AddUserCommand extends Command
 
         return $this;
     }
-    // Autowiring <<<
 
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:add-user';
-
-    /**
-     * @var string
-     */
-    protected static $defaultDescription = 'Create user';
-
-    /**
-     * @return void
-     */
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
+            ->setName('app:add-user')
+            ->setDescription('Create user')
             ->addOption('email', 'email', InputArgument::REQUIRED, 'Enter email')
             ->addOption('password', 'password', InputArgument::REQUIRED, 'Enter password')
             ->addOption('role', '', InputArgument::REQUIRED, 'Set role');
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return int
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$output instanceof ConsoleOutputInterface) {
@@ -156,13 +117,6 @@ class AddUserCommand extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * @param string $email
-     * @param string $password
-     * @param string $role
-     *
-     * @return User
-     */
     private function createUser(string $email, string $password, string $role): User
     {
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
@@ -186,12 +140,6 @@ class AddUserCommand extends Command
         return $user;
     }
 
-    /**
-     * @param bool         $email
-     * @param SymfonyStyle $io
-     *
-     * @return string|null
-     */
     private function checkingEmail(bool $email, SymfonyStyle $io): ?string
     {
         if (!$email) {
@@ -212,12 +160,6 @@ class AddUserCommand extends Command
         return null;
     }
 
-    /**
-     * @param bool         $password
-     * @param SymfonyStyle $io
-     *
-     * @return string|null
-     */
     private function checkingPassword(bool $password, SymfonyStyle $io): ?string
     {
         if (!$password) {
@@ -238,12 +180,6 @@ class AddUserCommand extends Command
         return null;
     }
 
-    /**
-     * @param bool         $role
-     * @param SymfonyStyle $io
-     *
-     * @return string|null
-     */
     private function checkingRole(bool $role, SymfonyStyle $io): ?string
     {
         if (!$role) {

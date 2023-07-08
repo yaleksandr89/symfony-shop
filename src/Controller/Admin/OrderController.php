@@ -23,11 +23,6 @@ class OrderController extends BaseAdminController
 {
     /**
      * @Route("/list", name="list")
-     *
-     * @param Request          $request
-     * @param OrderFormHandler $orderFormHandler
-     *
-     * @return Response
      */
     public function list(Request $request, OrderFormHandler $orderFormHandler): Response
     {
@@ -46,12 +41,6 @@ class OrderController extends BaseAdminController
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
-     *
-     * @param Request          $request
-     * @param OrderFormHandler $orderFormHandler
-     * @param Order|null       $order
-     *
-     * @return Response
      */
     public function edit(Request $request, OrderFormHandler $orderFormHandler, Order $order = null): Response
     {
@@ -90,12 +79,6 @@ class OrderController extends BaseAdminController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     *
-     * @param Request      $request
-     * @param Order        $order
-     * @param OrderManager $orderManager
-     *
-     * @return Response
      */
     public function delete(Request $request, Order $order, OrderManager $orderManager): Response
     {

@@ -9,8 +9,6 @@ use Exception;
 class TokenGenerator
 {
     /**
-     * @return string
-     *
      * @throws Exception
      */
     public static function generateToken(): string

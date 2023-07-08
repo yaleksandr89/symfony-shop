@@ -17,10 +17,6 @@ abstract class BaseSender
 
     /**
      * @required
-     *
-     * @param MailerSender $mailerSender
-     *
-     * @return self
      */
     public function setMailerSender(MailerSender $mailerSender): BaseSender
     {
@@ -36,10 +32,6 @@ abstract class BaseSender
 
     /**
      * @required
-     *
-     * @param UrlGeneratorInterface $urlGenerator
-     *
-     * @return self
      */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): BaseSender
     {
@@ -57,9 +49,6 @@ abstract class BaseSender
         $this->parameterBag = $parameterBag;
     }
 
-    /**
-     * @return MailerOptionModel
-     */
     protected function getMailerOptions(): MailerOptionModel
     {
         return new MailerOptionModel();

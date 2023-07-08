@@ -12,11 +12,6 @@ use League\OAuth2\Client\Provider\GoogleUser;
 
 class UserFactory
 {
-    /**
-     * @param GoogleUser $googleUser
-     *
-     * @return User
-     */
     public static function createUserFromGoogle(GoogleUser $googleUser): User
     {
         $user = new User();
@@ -28,11 +23,6 @@ class UserFactory
         return $user;
     }
 
-    /**
-     * @param YandexResourceOwner $yandexUser
-     *
-     * @return User
-     */
     public static function createUserFromYandex(YandexResourceOwner $yandexUser): User
     {
         $user = new User();
@@ -44,11 +34,6 @@ class UserFactory
         return $user;
     }
 
-    /**
-     * @param VkUser $vkontakteUser
-     *
-     * @return User
-     */
     public static function createUserFromVk(VkUser $vkontakteUser): User
     {
         $user = new User();
@@ -60,11 +45,6 @@ class UserFactory
         return $user;
     }
 
-    /**
-     * @param GithubResourceOwner $githubUser
-     *
-     * @return User
-     */
     public static function createUserFromGithub(GithubResourceOwner $githubUser): User
     {
         $user = new User();

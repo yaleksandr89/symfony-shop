@@ -20,15 +20,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ProfileController extends AbstractController
 {
     // >>> Autowiring
-    /** @var Doctrine */
+
     private Doctrine $doctrine;
 
     /**
      * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return ProfileController
      */
     public function setDoctrine(Doctrine $doctrine): ProfileController
     {
@@ -37,15 +33,10 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /** @var EmailVerifier */
     private EmailVerifier $emailVerifier;
 
     /**
      * @required
-     *
-     * @param EmailVerifier $emailVerifier
-     *
-     * @return ProfileController
      */
     public function setEmailVerifier(EmailVerifier $emailVerifier): ProfileController
     {
@@ -54,15 +45,10 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /** @var UserRegisteredEmailSender */
     private UserRegisteredEmailSender $emailSender;
 
     /**
      * @required
-     *
-     * @param UserRegisteredEmailSender $emailSender
-     *
-     * @return ProfileController
      */
     public function setEmailSender(UserRegisteredEmailSender $emailSender): ProfileController
     {
@@ -76,10 +62,6 @@ class ProfileController extends AbstractController
 
     /**
      * @required
-     *
-     * @param TranslatorInterface $translator
-     *
-     * @return ProfileController
      */
     public function setTranslator(TranslatorInterface $translator): ProfileController
     {
@@ -91,10 +73,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile", name="main_profile_index")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function index(Request $request): Response
     {
@@ -112,10 +90,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/edit", name="main_profile_edit")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function edit(Request $request): Response
     {
@@ -139,10 +113,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/resending-verify-email-link", name="main_profile_resending_verify_email_link")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function resendingVerifyEmailLink(Request $request): Response
     {
@@ -164,10 +134,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/unlink_social_network/{socialName}", name="main_profile_unlink_social_network")
-     *
-     * @param string $socialName
-     *
-     * @return RedirectResponse
      */
     public function unlinkSocialNetwork(string $socialName): RedirectResponse
     {

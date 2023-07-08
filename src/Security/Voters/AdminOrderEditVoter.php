@@ -12,25 +12,12 @@ class AdminOrderEditVoter extends Voter
 {
     private const CAN_ADMIN_EDIT = 'CAN_ADMIN_EDIT';
 
-    /**
-     * @param string $attribute
-     * @param mixed  $subject
-     *
-     * @return bool
-     */
     protected function supports(string $attribute, $subject): bool
     {
         // if the attribute isn't one we support, return false
         return self::CAN_ADMIN_EDIT === $attribute;
     }
 
-    /**
-     * @param string         $attribute
-     * @param mixed          $subject
-     * @param TokenInterface $token
-     *
-     * @return bool
-     */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         /** @var User $user */

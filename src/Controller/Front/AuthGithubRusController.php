@@ -13,10 +13,6 @@ class AuthGithubRusController extends AbstractController
 {
     /**
      * @Route("/connect/github-ru", name="connect_github_ru_start")
-     *
-     * @param ClientRegistry $clientRegistry
-     *
-     * @return RedirectResponse
      */
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
@@ -27,8 +23,6 @@ class AuthGithubRusController extends AbstractController
 
     /**
      * @Route("/connect/github-ru/check", name="connect_github_ru_check")
-     *
-     * @return void
      */
     public function connectCheckAction(): void
     {

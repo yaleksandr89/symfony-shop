@@ -19,8 +19,6 @@ class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSub
     /**
      * @required
      *
-     * @param UserLoggedInViaSocialNetworkEmailSender $mailerSender
-     *
      * @return $this
      */
     public function setOrderCreatedFromCartEmailSender(UserLoggedInViaSocialNetworkEmailSender $mailerSender): static
@@ -31,11 +29,6 @@ class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSub
     }
     // Autowiring <<<
 
-    /**
-     * @param UserLoggedInViaSocialNetworkEvent $event
-     *
-     * @return void
-     */
     public function onUserLoggedInViaSocialNetworkEvent(UserLoggedInViaSocialNetworkEvent $event): void
     {
         $user = $event->getUser();
@@ -45,9 +38,6 @@ class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSub
         $this->mailerSender->sendEmailToClient($user, $plainPassword, $verifyEmail);
     }
 
-    /**
-     * @return array
-     */
     public static function getSubscribedEvents(): array
     {
         return [

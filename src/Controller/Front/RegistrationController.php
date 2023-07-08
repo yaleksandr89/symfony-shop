@@ -25,11 +25,6 @@ class RegistrationController extends AbstractController
     private Doctrine $doctrine;
     private TranslatorInterface $translator;
 
-    /**
-     * @param EmailVerifier       $emailVerifier
-     * @param Doctrine            $doctrine
-     * @param TranslatorInterface $translator
-     */
     public function __construct(EmailVerifier $emailVerifier, Doctrine $doctrine, TranslatorInterface $translator)
     {
         $this->emailVerifier = $emailVerifier;
@@ -39,12 +34,6 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/registration", name="main_registration")
-     *
-     * @param Request                     $request
-     * @param UserPasswordHasherInterface $passwordEncoder
-     * @param MessageBusInterface         $messageBus
-     *
-     * @return Response
      */
     public function registration(Request $request, UserPasswordHasherInterface $passwordEncoder, MessageBusInterface $messageBus): Response
     {
@@ -85,11 +74,6 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/verify/email", name="main_verify_email")
-     *
-     * @param Request        $request
-     * @param UserRepository $userRepository
-     *
-     * @return Response
      */
     public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
     {

@@ -15,11 +15,6 @@ class CategoryController extends AbstractController
 {
     /**
      * @Route("/category/{slug}", name="main_category_show")
-     *
-     * @param ProductRepository $productRepository
-     * @param Category|null     $category
-     *
-     * @return Response
      */
     public function show(ProductRepository $productRepository, Category $category = null): Response
     {

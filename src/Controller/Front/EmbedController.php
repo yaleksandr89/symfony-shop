@@ -14,17 +14,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class EmbedController extends AbstractController
 {
     // >>> Autowiring
-    /**
-     * @var UrlGeneratorInterface
-     */
+
     private UrlGeneratorInterface $urlGenerator;
 
     /**
      * @required
-     *
-     * @param UrlGeneratorInterface $urlGenerator
-     *
-     * @return EmbedController
      */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): EmbedController
     {
@@ -43,12 +37,6 @@ class EmbedController extends AbstractController
         ]);
     }
 
-    /**
-     * @param CategoryRepository $categoryRepository
-     * @param string|null        $isActiveItemMenu
-     *
-     * @return Response
-     */
     public function showHeaderMenu(CategoryRepository $categoryRepository, ?string $isActiveItemMenu): Response
     {
         $preparedListCategory = [];

@@ -23,10 +23,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     /**
      * @required
-     *
-     * @param Security $security
-     *
-     * @return FilterCartQueryExtension
      */
     public function setSecurity(Security $security): FilterCartQueryExtension
     {
@@ -42,10 +38,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     /**
      * @required
-     *
-     * @param RequestStack $request
-     *
-     * @return FilterCartQueryExtension
      */
     public function setRequest(RequestStack $request): FilterCartQueryExtension
     {
@@ -55,12 +47,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
     }
     // Autowiring <<<
 
-    /**
-     * @param QueryBuilder                $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string                      $resourceClass
-     * @param string|null                 $operationName
-     */
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
@@ -70,14 +56,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         $this->andWhere($queryBuilder, $resourceClass);
     }
 
-    /**
-     * @param QueryBuilder                $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string                      $resourceClass
-     * @param array                       $identifiers
-     * @param string|null                 $operationName
-     * @param array                       $context
-     */
     public function applyToItem(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
@@ -89,12 +67,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         $this->andWhere($queryBuilder, $resourceClass);
     }
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     * @param string       $resourceClass
-     *
-     * @return void
-     */
     private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (Cart::class !== $resourceClass) {
@@ -127,10 +99,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
      * Add query param "context = admin".
      *
      * Ex.: https://127.0.0.1:8000/api/carts?page=1&context=admin
-     *
-     * @param UserInterface|null $user
-     *
-     * @return bool
      */
     private function displayAllForAdmin(?UserInterface $user): bool
     {

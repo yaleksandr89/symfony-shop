@@ -50,7 +50,7 @@ use Symfony\Component\Uid\UuidV4;
  * )
  * @ApiFilter(BooleanFilter::class, properties={"isPublished"})
  * @ApiFilter(SearchFilter::class, properties={
-        "category": "exact"
+ * "category": "exact"
  * })
  * @ORM\Entity(repositoryClass=ProductRepository::class)
  */

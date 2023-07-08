@@ -81,9 +81,6 @@ class OrderFilterFormType extends AbstractType
             ]);
     }
 
-    /**
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'order_filter_form';

@@ -31,10 +31,6 @@ class ResetPasswordController extends AbstractController
 
     private $doctrine;
 
-    /**
-     * @param ResetPasswordHelperInterface $resetPasswordHelper
-     * @param Doctrine                     $doctrine
-     */
     public function __construct(ResetPasswordHelperInterface $resetPasswordHelper, Doctrine $doctrine)
     {
         $this->resetPasswordHelper = $resetPasswordHelper;
@@ -45,12 +41,6 @@ class ResetPasswordController extends AbstractController
      * Display & process form to request a password reset.
      *
      * @Route("", name="main_forgot_password_request")
-     *
-     * @param Request             $request
-     * @param MailerInterface     $mailer
-     * @param MessageBusInterface $messageBus
-     *
-     * @return Response
      */
     public function request(Request $request, MailerInterface $mailer, MessageBusInterface $messageBus): Response
     {
@@ -75,8 +65,6 @@ class ResetPasswordController extends AbstractController
      * Confirmation page after a user has requested a password reset.
      *
      * @Route("/check-email", name="main_check_email")
-     *
-     * @return Response
      */
     public function checkEmail(): Response
     {
@@ -95,12 +83,6 @@ class ResetPasswordController extends AbstractController
      * Validates and process the reset URL that the user clicked in their email.
      *
      * @Route("/reset/{token}", name="main_reset_password")
-     *
-     * @param Request                     $request
-     * @param UserPasswordHasherInterface $userPasswordHasherInterface
-     * @param string|null                 $token
-     *
-     * @return Response
      */
     public function reset(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface, string $token = null): Response
     {

@@ -11,26 +11,12 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class FileSaver
 {
-    /**
-     * @var SluggerInterface
-     */
     private SluggerInterface $slugger;
 
-    /**
-     * @var string
-     */
     private string $uploadsTempDir;
 
-    /**
-     * @var FilesystemWorker
-     */
     private FilesystemWorker $filesystemWorker;
 
-    /**
-     * @param SluggerInterface $slugger
-     * @param FilesystemWorker $filesystemWorker
-     * @param string           $uploadsTempDir
-     */
     public function __construct(SluggerInterface $slugger, FilesystemWorker $filesystemWorker, string $uploadsTempDir)
     {
         $this->slugger = $slugger;
@@ -38,11 +24,6 @@ final class FileSaver
         $this->filesystemWorker = $filesystemWorker;
     }
 
-    /**
-     * @param UploadedFile|null $uploadedFile
-     *
-     * @return string|null
-     */
     public function saveUploadedFileIntoTemp(?UploadedFile $uploadedFile): ?string
     {
         if (!$uploadedFile) {
@@ -63,9 +44,6 @@ final class FileSaver
         return $filename;
     }
 
-    /**
-     * @return string
-     */
     public function getUploadsTempDir(): string
     {
         return $this->uploadsTempDir;

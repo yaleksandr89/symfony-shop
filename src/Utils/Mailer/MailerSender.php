@@ -22,10 +22,6 @@ class MailerSender
 
     /**
      * @required
-     *
-     * @param MailerInterface $mailer
-     *
-     * @return MailerSender
      */
     public function setMailer(MailerInterface $mailer): MailerSender
     {
@@ -41,10 +37,6 @@ class MailerSender
 
     /**
      * @required
-     *
-     * @param LoggerInterface $logger
-     *
-     * @return MailerSender
      */
     public function setLogger(LoggerInterface $logger): MailerSender
     {
@@ -62,11 +54,6 @@ class MailerSender
         $this->parameterBag = $parameterBag;
     }
 
-    /**
-     * @param MailerOptionModel $mailerOptionModel
-     *
-     * @return TemplatedEmail
-     */
     public function sendTemplatedEmail(MailerOptionModel $mailerOptionModel): TemplatedEmail
     {
         $email = $this->getTemplatedEmail()
@@ -95,11 +82,6 @@ class MailerSender
         return $email;
     }
 
-    /**
-     * @param MailerOptionModel $mailerOptionModel
-     *
-     * @return Email
-     */
     private function sendSystemEmail(MailerOptionModel $mailerOptionModel): Email
     {
         $mailerOptionModel
@@ -122,25 +104,16 @@ class MailerSender
         return $email;
     }
 
-    /**
-     * @return TemplatedEmail
-     */
     private function getTemplatedEmail(): TemplatedEmail
     {
         return new TemplatedEmail();
     }
 
-    /**
-     * @return MailerOptionModel
-     */
     private function getMailerOptions(): MailerOptionModel
     {
         return new MailerOptionModel();
     }
 
-    /**
-     * @return Email
-     */
     private function getEmail(): Email
     {
         return new Email();

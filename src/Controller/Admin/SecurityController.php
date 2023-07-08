@@ -17,10 +17,6 @@ class SecurityController extends BaseAdminController
 {
     /**
      * @Route("/login", name="admin_security_login")
-     *
-     * @param AuthenticationUtils $authenticationUtils
-     *
-     * @return Response
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -34,8 +30,6 @@ class SecurityController extends BaseAdminController
 
     /**
      * @Route("/logout", name="admin_security_logout")
-     *
-     * @return RedirectResponse
      */
     public function logout(): RedirectResponse
     {

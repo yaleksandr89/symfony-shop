@@ -110,9 +110,6 @@ class ProductFilterFormType extends AbstractType
             ]);
     }
 
-    /**
-     * @return string
-     */
     public function getBlockPrefix(): string
     {
         return 'order_filter_form';

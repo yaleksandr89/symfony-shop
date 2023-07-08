@@ -18,10 +18,6 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
 
     /**
      * @required
-     *
-     * @param OrderCreatedFromCartEmailSender $orderCreatedFromCartEmailSender
-     *
-     * @return OrderCreatedFromCartSendNotificationSubscriber
      */
     public function setOrderCreatedFromCartEmailSender(OrderCreatedFromCartEmailSender $orderCreatedFromCartEmailSender): OrderCreatedFromCartSendNotificationSubscriber
     {
@@ -31,11 +27,6 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
     }
     // Autowiring <<<
 
-    /**
-     * @param OrderCreatedFromCartEvent $event
-     *
-     * @return void
-     */
     public function onOrderCreatedFromCartEvent(OrderCreatedFromCartEvent $event): void
     {
         $order = $event->getOrder();
@@ -44,9 +35,6 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
         $this->orderCreatedFromCartEmailSender->sendEmailToManager($order);
     }
 
-    /**
-     * @return array
-     */
     public static function getSubscribedEvents(): array
     {
         return [

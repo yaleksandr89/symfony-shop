@@ -14,8 +14,6 @@ class SitemapController extends AbstractController
 {
     /**
      * @Route("/sitemap.xml", name="main_sitemap")
-     *
-     * @return Response
      */
     public function index(): Response
     {
