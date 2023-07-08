@@ -11,12 +11,12 @@ use App\Entity\User;
 use App\Event\OrderCreatedFromCartEvent;
 use App\Utils\Manager\OrderManager;
 use JsonException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class MakeOrderFromCartSubscriber implements EventSubscriberInterface
