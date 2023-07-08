@@ -59,22 +59,12 @@ class GithubEnAuthenticator extends OAuth2Authenticator
         $this->translator = $translator;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return bool|null
-     */
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
         return 'connect_github_en_check' === $request->attributes->get('_route');
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Passport
-     */
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('github_en');
@@ -139,11 +129,6 @@ class GithubEnAuthenticator extends OAuth2Authenticator
         );
     }
 
-    /**
-     * @param User $user
-     *
-     * @return array
-     */
     private function getDataForVerifyEmail(User $user): array
     {
         $signatureComponents = $this->verifyEmailHelper->generateSignature(
@@ -160,13 +145,6 @@ class GithubEnAuthenticator extends OAuth2Authenticator
         ];
     }
 
-    /**
-     * @param Request        $request
-     * @param TokenInterface $token
-     * @param string         $firewallName
-     *
-     * @return RedirectResponse
-     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
         // change "app_homepage" to some route in your app
@@ -178,12 +156,6 @@ class GithubEnAuthenticator extends OAuth2Authenticator
         // return null;
     }
 
-    /**
-     * @param Request                 $request
-     * @param AuthenticationException $exception
-     *
-     * @return Response
-     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $message = strtr($exception->getMessageKey(), $exception->getMessageData());

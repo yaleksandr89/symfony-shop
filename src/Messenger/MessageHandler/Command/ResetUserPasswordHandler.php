@@ -8,11 +8,12 @@ use App\Entity\User;
 use App\Messenger\Message\Command\ResetUserPasswordCommand;
 use App\Utils\Mailer\Sender\ResetUserPasswordEmailSender;
 use App\Utils\Manager\UserManager;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-class ResetUserPasswordHandler implements MessageHandlerInterface
+#[AsMessageHandler(fromTransport: 'async')]
+class ResetUserPasswordHandler
 {
     private UserManager $userManager;
 

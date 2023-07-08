@@ -13,10 +13,6 @@ class AuthVkontakteController extends AbstractController
 {
     /**
      * @Route("/connect/vkontakte", name="connect_vkontakte_start")
-     *
-     * @param ClientRegistry $clientRegistry
-     *
-     * @return RedirectResponse
      */
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
@@ -27,8 +23,6 @@ class AuthVkontakteController extends AbstractController
 
     /**
      * @Route("/connect/vkontakte/check", name="connect_vkontakte_check")
-     *
-     * @return void
      */
     public function connectCheckAction(): void
     {

@@ -15,13 +15,10 @@ class Vk extends AbstractProvider
 {
     use BearerAuthorizationTrait;
 
-    /** @var string */
     protected string $version = '5.131';
 
-    /** @var string|null */
     protected ?string $lang = '1';
 
-    /** @var array */
     protected array $fields = ['id'];
 
     /**
@@ -32,11 +29,6 @@ class Vk extends AbstractProvider
         return 'https://oauth.vk.com/authorize';
     }
 
-    /**
-     * @param array $params
-     *
-     * @return string
-     */
     public function getBaseAccessTokenUrl(array $params): string
     {
         return 'https://oauth.vk.com/access_token';

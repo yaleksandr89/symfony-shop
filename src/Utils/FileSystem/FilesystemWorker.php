@@ -9,9 +9,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class FilesystemWorker
 {
-    /**
-     * @var Filesystem
-     */
     private Filesystem $filesystem;
 
     public function __construct(Filesystem $filesystem)
@@ -19,11 +16,6 @@ final class FilesystemWorker
         $this->filesystem = $filesystem;
     }
 
-    /**
-     * @param string $folder
-     *
-     * @return void
-     */
     public function createFolderIfNotExist(string $folder): void
     {
         if (!$this->filesystem->exists($folder)) {
@@ -31,11 +23,6 @@ final class FilesystemWorker
         }
     }
 
-    /**
-     * @param string $item
-     *
-     * @return void
-     */
     public function remove(string $item): void
     {
         if ($this->filesystem->exists($item)) {
@@ -43,9 +30,6 @@ final class FilesystemWorker
         }
     }
 
-    /**
-     * @param string $pathToDir
-     */
     public function removeFolderIfEmpty(string $pathToDir): void
     {
         if (is_dir($pathToDir)) {
@@ -56,12 +40,6 @@ final class FilesystemWorker
         }
     }
 
-    /**
-     * @param string $dir
-     * @param string $filename
-     *
-     * @return string
-     */
     public function generatePathToFile(string $dir, string $filename): string
     {
         return $dir.DIRECTORY_SEPARATOR.$filename;

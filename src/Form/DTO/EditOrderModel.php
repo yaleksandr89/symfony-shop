@@ -45,7 +45,7 @@ class EditOrderModel
      */
     public $isDeleted;
 
-    public static function makeFromOrder(?Order $order = null): self
+    public static function makeFromOrder(Order $order = null): self
     {
         $model = new self();
 

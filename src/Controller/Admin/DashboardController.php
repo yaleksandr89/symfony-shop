@@ -14,8 +14,6 @@ class DashboardController extends BaseAdminController
 {
     /**
      * @Route("/dashboard", name="admin_dashboard_show")
-     *
-     * @return Response
      */
     public function dashboard(): Response
     {

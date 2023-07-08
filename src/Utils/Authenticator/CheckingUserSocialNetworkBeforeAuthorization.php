@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace App\Utils\Authenticator;
 
 use App\Entity\User;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait CheckingUserSocialNetworkBeforeAuthorization
 {
     private Security $security;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setSecurity(Security $security): self
     {
         $this->security = $security;

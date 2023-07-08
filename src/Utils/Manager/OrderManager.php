@@ -13,14 +13,13 @@ use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Contracts\Service\Attribute\Required;
 
 final class OrderManager extends AbstractBaseManager
 {
     private CartManager $cartManager;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setCartManager(CartManager $cartManager): OrderManager
     {
         $this->cartManager = $cartManager;

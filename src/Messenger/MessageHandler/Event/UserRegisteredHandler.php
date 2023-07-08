@@ -9,9 +9,10 @@ use App\Messenger\Message\Event\EventUserRegisteredEvent;
 use App\Security\Verifier\EmailVerifier;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use App\Utils\Manager\UserManager;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class UserRegisteredHandler implements MessageHandlerInterface
+#[AsMessageHandler(fromTransport: 'async')]
+class UserRegisteredHandler
 {
     private EmailVerifier $emailVerifier;
 

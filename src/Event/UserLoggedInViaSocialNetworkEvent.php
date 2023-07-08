@@ -24,11 +24,6 @@ class UserLoggedInViaSocialNetworkEvent extends Event
      */
     private $verifyEmail;
 
-    /**
-     * @param User   $user
-     * @param string $plainPassword
-     * @param array  $verifyEmail
-     */
     public function __construct(User $user, string $plainPassword, array $verifyEmail)
     {
         $this->user = $user;
@@ -36,17 +31,11 @@ class UserLoggedInViaSocialNetworkEvent extends Event
         $this->verifyEmail = $verifyEmail;
     }
 
-    /**
-     * @return User
-     */
     public function getUser(): User
     {
         return $this->user;
     }
 
-    /**
-     * @return string
-     */
     public function getPlainPassword(): string
     {
         return $this->plainPassword;

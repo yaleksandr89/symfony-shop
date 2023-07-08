@@ -11,20 +11,19 @@ use App\Entity\User;
 use App\Event\OrderCreatedFromCartEvent;
 use App\Utils\Manager\OrderManager;
 use JsonException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 {
     private Security $security;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setSecurity(Security $security): MakeOrderFromCartSubscriber
     {
         $this->security = $security;
@@ -34,9 +33,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     private OrderManager $orderManager;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setOrderManager(OrderManager $orderManager): MakeOrderFromCartSubscriber
     {
         $this->orderManager = $orderManager;
@@ -46,9 +43,7 @@ class MakeOrderFromCartSubscriber implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): MakeOrderFromCartSubscriber
     {
         $this->eventDispatcher = $eventDispatcher;

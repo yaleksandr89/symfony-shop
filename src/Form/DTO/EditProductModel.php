@@ -77,7 +77,7 @@ class EditProductModel
      */
     public $createdAt;
 
-    public static function makeFromProduct(?Product $product = null): self
+    public static function makeFromProduct(Product $product = null): self
     {
         $model = new self();
 

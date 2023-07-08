@@ -10,10 +10,6 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
 class ResetUserPasswordEmailSender extends BaseSender
 {
-    /**
-     * @param User               $user
-     * @param ResetPasswordToken $resetPasswordToken
-     */
     public function sendEmailToClient(User $user, ResetPasswordToken $resetPasswordToken): void
     {
         $emailContext = [];

@@ -13,32 +13,22 @@ use App\Utils\Manager\UserManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * @Route("/admin/user", name="admin_user_")
  */
 class UserController extends BaseAdminController
 {
-    // >>> Autowiring
-    /**
-     * @var UserRepository
-     */
     private UserRepository $userRepository;
 
-    /**
-     * @required
-     *
-     * @param UserRepository $userRepository
-     *
-     * @return UserController
-     */
+    #[Required]
     public function setCategoryRepository(UserRepository $userRepository): UserController
     {
         $this->userRepository = $userRepository;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/list", name="list")
@@ -56,12 +46,6 @@ class UserController extends BaseAdminController
     /**
      * @Route("/edit/{id}", name="edit")
      * @Route("/add", name="add")
-     *
-     * @param Request         $request
-     * @param UserFormHandler $userFormHandler
-     * @param User|null       $user
-     *
-     * @return Response
      */
     public function edit(Request $request, UserFormHandler $userFormHandler, User $user = null): Response
     {
@@ -93,12 +77,6 @@ class UserController extends BaseAdminController
 
     /**
      * @Route("/delete/{id}", name="delete")
-     *
-     * @param Request     $request
-     * @param User        $user
-     * @param UserManager $userManager
-     *
-     * @return Response
      */
     public function delete(Request $request, User $user, UserManager $userManager): Response
     {

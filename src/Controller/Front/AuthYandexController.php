@@ -13,10 +13,6 @@ class AuthYandexController extends AbstractController
 {
     /**
      * @Route("/connect/yandex", name="connect_yandex_start")
-     *
-     * @param ClientRegistry $clientRegistry
-     *
-     * @return RedirectResponse
      */
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
@@ -27,8 +23,6 @@ class AuthYandexController extends AbstractController
 
     /**
      * @Route("/connect/yandex/check", name="connect_yandex_check")
-     *
-     * @return void
      */
     public function connectCheckAction(): void
     {

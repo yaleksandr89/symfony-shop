@@ -8,14 +8,13 @@ use App\Entity\User;
 use App\Exception\Security\EmptyUserPlainPasswordException;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 final class UserManager extends AbstractBaseManager
 {
     private UserPasswordHasherInterface $userPasswordHasher;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUserPasswordHasher(UserPasswordHasherInterface $userPasswordHasher): UserManager
     {
         $this->userPasswordHasher = $userPasswordHasher;

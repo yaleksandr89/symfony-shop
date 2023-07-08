@@ -9,11 +9,6 @@ use Exception;
 /** @see https://thisinterestsme.com/php-random-password/ */
 class PasswordGenerator
 {
-    /**
-     * @param int $length
-     *
-     * @return string
-     */
     public static function generatePassword(int $length = 8): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!-.[]?*()';

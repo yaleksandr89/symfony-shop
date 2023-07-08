@@ -10,11 +10,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OrderCreatedFromCartEmailSender extends BaseSender
 {
-    /**
-     * @param Order $order
-     *
-     * @return void
-     */
     public function sendEmailToClient(Order $order): void
     {
         /** @var User $user */
@@ -32,11 +27,6 @@ class OrderCreatedFromCartEmailSender extends BaseSender
         $this->mailerSender->sendTemplatedEmail($mailerOptions);
     }
 
-    /**
-     * @param Order $order
-     *
-     * @return void
-     */
     public function sendEmailToManager(Order $order): void
     {
         /** @var User $user */

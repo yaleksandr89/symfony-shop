@@ -11,22 +11,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class MailerSender
 {
-    // >>> Autowiring
-    /**
-     * @var MailerInterface
-     */
-    private $mailer;
+    private MailerInterface $mailer;
 
-    /**
-     * @required
-     *
-     * @param MailerInterface $mailer
-     *
-     * @return MailerSender
-     */
+    #[Required]
     public function setMailer(MailerInterface $mailer): MailerSender
     {
         $this->mailer = $mailer;
@@ -34,18 +25,9 @@ class MailerSender
         return $this;
     }
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @required
-     *
-     * @param LoggerInterface $logger
-     *
-     * @return MailerSender
-     */
+    #[Required]
     public function setLogger(LoggerInterface $logger): MailerSender
     {
         $this->logger = $logger;
@@ -53,20 +35,13 @@ class MailerSender
         return $this;
     }
 
-    // Autowiring <<<
-
-    protected $parameterBag;
+    protected ParameterBagInterface $parameterBag;
 
     public function __construct(ParameterBagInterface $parameterBag)
     {
         $this->parameterBag = $parameterBag;
     }
 
-    /**
-     * @param MailerOptionModel $mailerOptionModel
-     *
-     * @return TemplatedEmail
-     */
     public function sendTemplatedEmail(MailerOptionModel $mailerOptionModel): TemplatedEmail
     {
         $email = $this->getTemplatedEmail()
@@ -95,11 +70,6 @@ class MailerSender
         return $email;
     }
 
-    /**
-     * @param MailerOptionModel $mailerOptionModel
-     *
-     * @return Email
-     */
     private function sendSystemEmail(MailerOptionModel $mailerOptionModel): Email
     {
         $mailerOptionModel
@@ -122,25 +92,16 @@ class MailerSender
         return $email;
     }
 
-    /**
-     * @return TemplatedEmail
-     */
     private function getTemplatedEmail(): TemplatedEmail
     {
         return new TemplatedEmail();
     }
 
-    /**
-     * @return MailerOptionModel
-     */
     private function getMailerOptions(): MailerOptionModel
     {
         return new MailerOptionModel();
     }
 
-    /**
-     * @return Email
-     */
     private function getEmail(): Email
     {
         return new Email();

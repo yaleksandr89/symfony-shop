@@ -15,56 +15,28 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class UpdateSlugProduct extends Command
 {
-    // >> Autowiring
-    /**
-     * @var Doctrine
-     */
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return UpdateSlugProduct
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): UpdateSlugProduct
     {
         $this->doctrine = $doctrine;
 
         return $this;
     }
-    // Autowiring <<<
 
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:update-slug-product';
-
-    /**
-     * @var string
-     */
-    protected static $defaultDescription = 'Update slug product';
-
-    /**
-     * @return void
-     */
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
+            ->setName('app:update-slug-product')
+            ->setDescription('Update slug product')
             ->addOption('all', 'a', InputArgument::OPTIONAL, 'Updated slug for all product, not just products where slug=null', '0');
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return int
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$output instanceof ConsoleOutputInterface) {
@@ -105,11 +77,6 @@ class UpdateSlugProduct extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * @param bool $all
-     *
-     * @return int
-     */
     private function updateSlugProduct(bool $all): int
     {
         $productRepository = $this->doctrine->getRepository(Product::class);

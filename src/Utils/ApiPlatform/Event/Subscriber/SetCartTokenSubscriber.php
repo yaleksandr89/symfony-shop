@@ -15,9 +15,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class SetCartTokenSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @return array
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -28,8 +25,6 @@ class SetCartTokenSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param ViewEvent $event
-     *
      * @throws Exception
      */
     public function setCartTokenToCart(ViewEvent $event): void

@@ -12,37 +12,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class ProductController extends AbstractController
 {
-    // >>> Autowiring
-    /**
-     * @var Doctrine
-     */
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return self
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): ProductController
     {
         $this->doctrine = $doctrine;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/product/{identifier}", name="main_product_show")
      * @Route("/product", name="main_product_show_blank")
-     *
-     * @param string $identifier
-     *
-     * @return Response
      */
     public function show(string $identifier): Response
     {

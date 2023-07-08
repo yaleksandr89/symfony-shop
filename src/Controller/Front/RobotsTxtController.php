@@ -11,34 +11,22 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class RobotsTxtController extends AbstractController
 {
-    // >>> Autowiring
-    /**
-     * @var Doctrine
-     */
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return self
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): RobotsTxtController
     {
         $this->doctrine = $doctrine;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/robots.txt", name="main_robots.txt")
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -49,9 +37,6 @@ class RobotsTxtController extends AbstractController
         ]);
     }
 
-    /**
-     * @return array
-     */
     private function getActiveCategories(): array
     {
         $activeCategory = [];
@@ -72,9 +57,6 @@ class RobotsTxtController extends AbstractController
         return $activeCategory;
     }
 
-    /**
-     * @return array
-     */
     private function getActiveProducts(): array
     {
         $activeProduct = [];

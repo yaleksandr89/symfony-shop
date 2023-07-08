@@ -15,21 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProfileController extends AbstractController
 {
-    // >>> Autowiring
-    /** @var Doctrine */
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     *
-     * @param Doctrine $doctrine
-     *
-     * @return ProfileController
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): ProfileController
     {
         $this->doctrine = $doctrine;
@@ -37,16 +30,9 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /** @var EmailVerifier */
     private EmailVerifier $emailVerifier;
 
-    /**
-     * @required
-     *
-     * @param EmailVerifier $emailVerifier
-     *
-     * @return ProfileController
-     */
+    #[Required]
     public function setEmailVerifier(EmailVerifier $emailVerifier): ProfileController
     {
         $this->emailVerifier = $emailVerifier;
@@ -54,16 +40,9 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /** @var UserRegisteredEmailSender */
     private UserRegisteredEmailSender $emailSender;
 
-    /**
-     * @required
-     *
-     * @param UserRegisteredEmailSender $emailSender
-     *
-     * @return ProfileController
-     */
+    #[Required]
     public function setEmailSender(UserRegisteredEmailSender $emailSender): ProfileController
     {
         $this->emailSender = $emailSender;
@@ -71,30 +50,18 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /** @var TranslatorInterface */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @required
-     *
-     * @param TranslatorInterface $translator
-     *
-     * @return ProfileController
-     */
+    #[Required]
     public function setTranslator(TranslatorInterface $translator): ProfileController
     {
         $this->translator = $translator;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/profile", name="main_profile_index")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function index(Request $request): Response
     {
@@ -112,10 +79,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/edit", name="main_profile_edit")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function edit(Request $request): Response
     {
@@ -139,10 +102,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/resending-verify-email-link", name="main_profile_resending_verify_email_link")
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
     public function resendingVerifyEmailLink(Request $request): Response
     {
@@ -164,10 +123,6 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/unlink_social_network/{socialName}", name="main_profile_unlink_social_network")
-     *
-     * @param string $socialName
-     *
-     * @return RedirectResponse
      */
     public function unlinkSocialNetwork(string $socialName): RedirectResponse
     {

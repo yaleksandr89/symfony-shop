@@ -6,13 +6,13 @@ namespace App\Security\Authenticator\Admin;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -26,14 +26,8 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     public const LOGIN_ROUTE = 'admin_security_login';
 
-    /**
-     * @var UserRepository
-     */
     private UserRepository $userRepository;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
     private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
@@ -42,21 +36,11 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return bool|null
-     */
     public function supports(Request $request): ?bool
     {
         return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Passport
-     */
     public function authenticate(Request $request): Passport
     {
         $email = $request->request->get('email');
@@ -80,13 +64,6 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         );
     }
 
-    /**
-     * @param Request        $request
-     * @param TokenInterface $token
-     * @param string         $firewallName
-     *
-     * @return Response|null
-     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
@@ -96,12 +73,6 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         return new RedirectResponse($this->urlGenerator->generate('admin_dashboard_show'));
     }
 
-    /**
-     * @param Request                 $request
-     * @param AuthenticationException $exception
-     *
-     * @return Response|null
-     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         if ($request->hasSession()) {

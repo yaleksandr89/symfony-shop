@@ -50,7 +50,7 @@ use Symfony\Component\Uid\UuidV4;
  * )
  * @ApiFilter(BooleanFilter::class, properties={"isPublished"})
  * @ApiFilter(SearchFilter::class, properties={
-        "category": "exact"
+ * "category": "exact"
  * })
  * @ORM\Entity(repositoryClass=ProductRepository::class)
  */
@@ -178,12 +178,12 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): float|string|null
     {
         return $this->price;
     }
 
-    public function setPrice(string $price): static
+    public function setPrice(float|string $price): static
     {
         $this->price = $price;
 

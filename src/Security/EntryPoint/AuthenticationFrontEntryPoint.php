@@ -13,25 +13,13 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class AuthenticationFrontEntryPoint implements AuthenticationEntryPointInterface
 {
-    /**
-     * @var UrlGeneratorInterface
-     */
     private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @param UrlGeneratorInterface $urlGenerator
-     */
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @param Request                      $request
-     * @param AuthenticationException|null $authException
-     *
-     * @return RedirectResponse
-     */
     public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
     {
         /** @var Session $session */

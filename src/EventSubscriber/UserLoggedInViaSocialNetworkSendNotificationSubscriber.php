@@ -7,35 +7,20 @@ namespace App\EventSubscriber;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
 use App\Utils\Mailer\Sender\UserLoggedInViaSocialNetworkEmailSender;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSubscriberInterface
 {
-    // >>> Autowiring
-    /**
-     * @var UserLoggedInViaSocialNetworkEmailSender
-     */
-    private $mailerSender;
+    private UserLoggedInViaSocialNetworkEmailSender $mailerSender;
 
-    /**
-     * @required
-     *
-     * @param UserLoggedInViaSocialNetworkEmailSender $mailerSender
-     *
-     * @return $this
-     */
+    #[Required]
     public function setOrderCreatedFromCartEmailSender(UserLoggedInViaSocialNetworkEmailSender $mailerSender): static
     {
         $this->mailerSender = $mailerSender;
 
         return $this;
     }
-    // Autowiring <<<
 
-    /**
-     * @param UserLoggedInViaSocialNetworkEvent $event
-     *
-     * @return void
-     */
     public function onUserLoggedInViaSocialNetworkEvent(UserLoggedInViaSocialNetworkEvent $event): void
     {
         $user = $event->getUser();
@@ -45,9 +30,6 @@ class UserLoggedInViaSocialNetworkSendNotificationSubscriber implements EventSub
         $this->mailerSender->sendEmailToClient($user, $plainPassword, $verifyEmail);
     }
 
-    /**
-     * @return array
-     */
     public static function getSubscribedEvents(): array
     {
         return [

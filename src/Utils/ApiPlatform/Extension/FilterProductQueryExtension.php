@@ -32,12 +32,6 @@ class FilterProductQueryExtension implements QueryCollectionExtensionInterface, 
         $this->andWhere($queryBuilder, $resourceClass);
     }
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     * @param string       $resourceClass
-     *
-     * @return void
-     */
     private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (Product::class !== $resourceClass) {

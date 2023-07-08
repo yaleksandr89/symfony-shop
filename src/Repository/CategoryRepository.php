@@ -22,9 +22,6 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
-    /**
-     * @return array|null
-     */
     public function findActiveCategory(): ?array
     {
         return $this->createQueryBuilder('c')
@@ -33,18 +30,12 @@ class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * @return QueryBuilder
-     */
     public function forFormQueryBuilderFindActiveCategory(): QueryBuilder
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.isDeleted = FALSE');
     }
 
-    /**
-     * @return array|null
-     */
     public function findActiveCategoryWithJoinProduct(): ?array
     {
         return $this->createQueryBuilder('c')
