@@ -70,3 +70,24 @@ process_name=%(program_name)s_%(process_num)02d
 Остальные опции можно оставить без изменений
 
 >  [Перейти на сайт](https://s-shop.alexanderyurchenko.ru/ "Перейти на сайт")
+
+## FAQ по теста реализованным на проекте
+
+На проекте были реализованны различные типы тестирования (разбиты по группам `@group {name}`):
+
+1. unit
+2. integration
+3. functional
+4. functional-panther
+5. functional-selenium
+
+Группы тестов 1. - 3. должны запускать без каких либо проблем `php ./vendor/bin/phpunit --testdox --group unit,integration,functional`. По последним двум группам
+в процессе тестирования могут возникнуть проблемы из-за отсутствия установленного `chromedriver`. 
+
+![chromedriver-not-found.png](chromedriver-not-found.png)
+
+Исправить данный баг достаточно легко, для этого нужно:
+* скачать движок: https://chromedriver.chromium.org/downloads (выбирать в зависимости от версии хрома)
+* Как установить движок в системе (linux) глобально: https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
+
+После этого, перед началом тестирования, предварительно, нужно запустить selenium командой `java -jar bin/selenium-server-4.1.0.jar standalone`
