@@ -1,108 +1,112 @@
 <?php
 
-// Testing - Symfony 5.3
-
 namespace Deployer;
 
+use Deployer\Exception\Exception as DeployerException;
+
 require 'recipe/symfony.php';
+require 'contrib/npm.php'; // если фронт собирается на сервере, в противном случае закомментировать или удалить
 
-set('ssh_type', 'native');
-set('ssh_multiplexing', true);
-set('allow_anonymous_stats', false);
-set('env', []); // Run command environment (for example, SYMFONY_ENV=prod)
-set('shared_dirs', []);
-set('shared_files', []);
-set('writable_dirs', []);
-set('bin_dir', 'bin');
-set('var_dir', 'var');
+try {
+    // Project name
+    set('application', 'Pet project - Symfony shop');
+    // Project repository
+    set('repository', 'git@github.com:yaleksandr89/symfony-shop.git');
 
-// Project name
-set('application', 'Pet project - Symfony shop');
+    // >>> Добавлены из-за возникающей ошибки "Can't set writable dirs with ACL."
+    set('writable_mode', 'chmod');
+    set('writable_recursive', true);
+    // <<<
 
-// Project repository
-set('repository', '......');
+    set('ssh_type', 'native');
+    set('ssh_multiplexing', true);
+    set('allow_anonymous_stats', false);
+    set('shared_dirs', []);
+    set('shared_files', []);
+    set('writable_dirs', []);
+    set('bin_dir', 'bin');
+    set('var_dir', 'var');
+    set('env', []);
 
-set(
-    'composer_options',
-    '{{composer_action}}  --verbose --prefer-dist --no-progress --no-interaction --optimize-autoloader --no-scripts'
-);
+    // >>> Если npm установлен через nvm, в противном случае закомментировать или удалить
+    // если опция удаляется, необходимо удалить её из tasks: 'deploy:npm:install', 'deploy:npm:build'
+    set('nvm', 'source $HOME/.nvm/nvm.sh &&');
+    // <<<
 
-set('keep_releases', 3);
+    set('keep_releases', 3);
+} catch (DeployerException $e) {
+    exit($e->getMessage());
+}
 
-// Shared files/dirs between deploys
+// Файлы, которы будут перекидываться между релизами (т.юе. будут создаваться симлинки)
 add('shared_files', [
     '.env',
 ]);
-
+// Директории, которы будут перекидываться между релизами (т.юе. будут создаваться симлинки)
 add('shared_dirs', [
     'var/log',
     'public/uploads',
 ]);
 
-// Writable dirs by web server
+// Директории доступные для записи
 add('writable_dirs', [
     'var',
     'public/uploads',
 ]);
 
 // Предварительно сгенерировать файл: "composer dump-env prod"
+// Предварительно создать '.env.prod' с настройками, которые будут использовать на проде
 task('upload:env', function () {
     upload('.env.prod', '{{deploy_path}}/shared/.env');
 })->desc('Environment setup');
 
 // Hosts
-host('......')
-    ->stage('production')
-    ->user('......')
-    ->set('deploy_path', '......');
+host('...')
+    ->setHostname('...')
+    ->setPort('...')
+    ->setRemoteUser('...')
+    ->setIdentityFile('~/.ssh/....pub')
+    ->set('labels', ['stage' => 'prod'])
+    ->set('branch', '...')
+    ->set('deploy_path', '...');
 
 // Tasks
 task('deploy:assets:install', function () {
     run('{{bin/console}} assets:install {{console_options}} {{release_path}}/public');
 })->desc('Install bundle assets');
 
+// >>> Если оперативная память на сервере позволяет - используем эти таски (выполняет npm i и билд), если
+// такой возможности нет - делаем все локально, и переносим уже на сервер (в таком случае эти таски не нужны)
 task('deploy:npm:install', function () {
-    run('cd {{release_path}} && npm install');
+    run('cd {{release_path}} && {{nvm}} npm install');
 });
-
 task('deploy:npm:build', function () {
-    run('cd {{release_path}} && npm run build');
+    run('cd {{release_path}} && {{nvm}} npm run build');
 });
-
-task('deploy:database:migrate', function () {
-    run('{{bin/console}} doctrine:migrations:migrate');
-});
+// <<<
+// >>> См коммент выше
+// task('deploy:build_local_assets', function () {
+//    upload('./public/build', '{{release_path}}/public/.');
+//    upload('./public/bundles', '{{release_path}}/public/.');
+//    upload('./public/uploads', '{{release_path}}/public/.');
+//    upload('./node_modules', '{{release_path}}/.');
+// });
+// after('deploy:update_code', 'deploy:build_local_assets');
+// <<<
 
 // [Optional] if deploy fails automatically unlock.
 after('deploy:failed', 'deploy:unlock');
 
-// Migrate database before symlink new release.
-before('deploy:symlink', 'database:migrate');
-
-/*
- * Main task
- */
+/* All tasks */
 task('deploy', [
-    'deploy:info',
     'deploy:prepare',
-    'deploy:lock',
-    'deploy:release',
     'upload:env',
-    'deploy:update_code',
-    'deploy:clear_paths',
-    'deploy:create_cache_dir',
-    'deploy:shared',
-    'deploy:assets',
     'deploy:vendors',
+    'database:migrate',
+    'deploy:cache:clear',
+    'deploy:clear_paths',
     'deploy:assets:install',
     'deploy:npm:install',
     'deploy:npm:build',
-    'deploy:assetic:dump',
-    'deploy:cache:clear',
-    'deploy:cache:warmup',
-    'deploy:database:migrate',
-    'deploy:writable',
-    'deploy:symlink',
-    'deploy:unlock',
-    'cleanup',
-])->desc('Deploy your project');
+    'deploy:publish',
+])->desc('Fine! Deploy completed.');
