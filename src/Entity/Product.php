@@ -178,12 +178,12 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): float|string|null
     {
         return $this->price;
     }
 
-    public function setPrice(string $price): static
+    public function setPrice(float|string $price): static
     {
         $this->price = $price;
 

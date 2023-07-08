@@ -111,12 +111,12 @@ class OrderProduct
         return $this;
     }
 
-    public function getPricePerOne(): ?string
+    public function getPricePerOne(): float|string|null
     {
         return $this->pricePerOne;
     }
 
-    public function setPricePerOne(string $pricePerOne): static
+    public function setPricePerOne(float|string $pricePerOne): static
     {
         $this->pricePerOne = $pricePerOne;
 
