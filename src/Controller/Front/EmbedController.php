@@ -10,23 +10,19 @@ use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class EmbedController extends AbstractController
 {
-    // >>> Autowiring
-
     private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): EmbedController
     {
         $this->urlGenerator = $urlGenerator;
 
         return $this;
     }
-    // Autowiring <<<
 
     public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, int $categoryId = null): Response
     {

@@ -6,18 +6,13 @@ use App\Utils\Mailer\DTO\MailerOptionModel;
 use App\Utils\Mailer\MailerSender;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class BaseSender
 {
-    // >>> Autowiring
-    /**
-     * @var MailerSender
-     */
-    protected $mailerSender;
+    protected MailerSender $mailerSender;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setMailerSender(MailerSender $mailerSender): BaseSender
     {
         $this->mailerSender = $mailerSender;
@@ -25,14 +20,9 @@ abstract class BaseSender
         return $this;
     }
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    protected $urlGenerator;
+    protected UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): BaseSender
     {
         $this->urlGenerator = $urlGenerator;
@@ -40,9 +30,7 @@ abstract class BaseSender
         return $this;
     }
 
-    // Autowiring <<<
-
-    protected $parameterBag;
+    protected ParameterBagInterface $parameterBag;
 
     public function __construct(ParameterBagInterface $parameterBag)
     {

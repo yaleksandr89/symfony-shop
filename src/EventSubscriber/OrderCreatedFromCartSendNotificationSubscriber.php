@@ -7,25 +7,19 @@ namespace App\EventSubscriber;
 use App\Event\OrderCreatedFromCartEvent;
 use App\Utils\Mailer\Sender\OrderCreatedFromCartEmailSender;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberInterface
 {
-    // >>> Autowiring
-    /**
-     * @var OrderCreatedFromCartEmailSender
-     */
-    private $orderCreatedFromCartEmailSender;
+    private OrderCreatedFromCartEmailSender $orderCreatedFromCartEmailSender;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setOrderCreatedFromCartEmailSender(OrderCreatedFromCartEmailSender $orderCreatedFromCartEmailSender): OrderCreatedFromCartSendNotificationSubscriber
     {
         $this->orderCreatedFromCartEmailSender = $orderCreatedFromCartEmailSender;
 
         return $this;
     }
-    // Autowiring <<<
 
     public function onOrderCreatedFromCartEvent(OrderCreatedFromCartEvent $event): void
     {

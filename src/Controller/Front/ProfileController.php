@@ -15,17 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProfileController extends AbstractController
 {
-    // >>> Autowiring
-
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): ProfileController
     {
         $this->doctrine = $doctrine;
@@ -35,9 +32,7 @@ class ProfileController extends AbstractController
 
     private EmailVerifier $emailVerifier;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEmailVerifier(EmailVerifier $emailVerifier): ProfileController
     {
         $this->emailVerifier = $emailVerifier;
@@ -47,9 +42,7 @@ class ProfileController extends AbstractController
 
     private UserRegisteredEmailSender $emailSender;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEmailSender(UserRegisteredEmailSender $emailSender): ProfileController
     {
         $this->emailSender = $emailSender;
@@ -57,19 +50,15 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /** @var TranslatorInterface */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setTranslator(TranslatorInterface $translator): ProfileController
     {
         $this->translator = $translator;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/profile", name="main_profile_index")

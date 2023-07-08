@@ -15,14 +15,13 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class UpdateSlugProduct extends Command
 {
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): UpdateSlugProduct
     {
         $this->doctrine = $doctrine;

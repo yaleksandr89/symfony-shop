@@ -11,18 +11,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class MailerSender
 {
-    // >>> Autowiring
-    /**
-     * @var MailerInterface
-     */
-    private $mailer;
+    private MailerInterface $mailer;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setMailer(MailerInterface $mailer): MailerSender
     {
         $this->mailer = $mailer;
@@ -30,14 +25,9 @@ class MailerSender
         return $this;
     }
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setLogger(LoggerInterface $logger): MailerSender
     {
         $this->logger = $logger;
@@ -45,9 +35,7 @@ class MailerSender
         return $this;
     }
 
-    // Autowiring <<<
-
-    protected $parameterBag;
+    protected ParameterBagInterface $parameterBag;
 
     public function __construct(ParameterBagInterface $parameterBag)
     {

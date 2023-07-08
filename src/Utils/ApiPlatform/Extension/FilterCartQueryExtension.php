@@ -14,16 +14,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class FilterCartQueryExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-    // >>> Autowiring
-    /** @var Security */
-    private $security;
+    private Security $security;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setSecurity(Security $security): FilterCartQueryExtension
     {
         $this->security = $security;
@@ -31,21 +28,15 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         return $this;
     }
 
-    /**
-     * @var RequestStack
-     */
-    private $request;
+    private RequestStack $request;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setRequest(RequestStack $request): FilterCartQueryExtension
     {
         $this->request = $request;
 
         return $this;
     }
-    // Autowiring <<<
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,

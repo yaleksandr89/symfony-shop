@@ -11,23 +11,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class RobotsTxtController extends AbstractController
 {
-    // >>> Autowiring
-
     private Doctrine $doctrine;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setDoctrine(Doctrine $doctrine): RobotsTxtController
     {
         $this->doctrine = $doctrine;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/robots.txt", name="main_robots.txt")

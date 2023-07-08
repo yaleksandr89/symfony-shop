@@ -23,9 +23,7 @@ class AddUserCommand extends Command
 {
     private EntityManagerInterface $em;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEm(EntityManagerInterface $em): AddUserCommand
     {
         $this->em = $em;
@@ -35,9 +33,6 @@ class AddUserCommand extends Command
 
     private UserPasswordHasherInterface $hasher;
 
-    /**
-     * @required
-     */
     #[Required]
     public function setEncoder(UserPasswordHasherInterface $hasher): AddUserCommand
     {
@@ -48,9 +43,7 @@ class AddUserCommand extends Command
 
     private UserRepository $userRepository;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUserRepository(UserRepository $userRepository): AddUserCommand
     {
         $this->userRepository = $userRepository;

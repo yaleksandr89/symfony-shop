@@ -13,26 +13,22 @@ use App\Utils\Manager\CategoryManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * @Route("/admin/category", name="admin_category_")
  */
 class CategoryController extends BaseAdminController
 {
-    // >>> Autowiring
-
     private CategoryRepository $categoryRepository;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setCategoryRepository(CategoryRepository $categoryRepository): CategoryController
     {
         $this->categoryRepository = $categoryRepository;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/list", name="list")

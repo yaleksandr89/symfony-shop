@@ -13,23 +13,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class DefaultController extends AbstractController
 {
-    // >>> Autowiring
-
     private UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): DefaultController
     {
         $this->urlGenerator = $urlGenerator;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/", name="main_homepage")

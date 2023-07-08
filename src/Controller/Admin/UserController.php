@@ -13,26 +13,22 @@ use App\Utils\Manager\UserManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * @Route("/admin/user", name="admin_user_")
  */
 class UserController extends BaseAdminController
 {
-    // >>> Autowiring
-
     private UserRepository $userRepository;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setCategoryRepository(UserRepository $userRepository): UserController
     {
         $this->userRepository = $userRepository;
 
         return $this;
     }
-    // Autowiring <<<
 
     /**
      * @Route("/list", name="list")
