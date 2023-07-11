@@ -88,7 +88,6 @@ task('deploy:npm:build', function () {
 // task('deploy:build_local_assets', function () {
 //    upload('./public/build', '{{release_path}}/public/.');
 //    upload('./public/bundles', '{{release_path}}/public/.');
-//    upload('./public/uploads', '{{release_path}}/public/.');
 //    upload('./node_modules', '{{release_path}}/.');
 // });
 // after('deploy:update_code', 'deploy:build_local_assets');
