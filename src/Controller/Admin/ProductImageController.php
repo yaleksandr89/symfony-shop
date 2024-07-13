@@ -12,14 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/admin/product-image", name="admin_product_image_")
- */
+#[Route('/admin/product-image', name: 'admin_product_image_')]
 class ProductImageController extends BaseAdminController
 {
-    /**
-     * @Route("/delete/{id}", name="delete")
-     */
+    #[Route('/delete/{id}', name: 'delete')]
     public function delete(
         Request $request,
         ProductImage $productImage,

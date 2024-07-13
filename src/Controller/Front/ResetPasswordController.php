@@ -20,28 +20,18 @@ use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-/**
- * @Route("/reset-password")
- */
+#[Route('/reset-password')]
 class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
-    private $resetPasswordHelper;
-
-    private $doctrine;
-
-    public function __construct(ResetPasswordHelperInterface $resetPasswordHelper, Doctrine $doctrine)
-    {
-        $this->resetPasswordHelper = $resetPasswordHelper;
-        $this->doctrine = $doctrine;
+    public function __construct(
+        private ResetPasswordHelperInterface $resetPasswordHelper,
+        private Doctrine $doctrine
+    ) {
     }
 
-    /**
-     * Display & process form to request a password reset.
-     *
-     * @Route("", name="main_forgot_password_request")
-     */
+    #[Route('', name: 'main_forgot_password_request')]
     public function request(Request $request, MailerInterface $mailer, MessageBusInterface $messageBus): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
@@ -61,11 +51,7 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    /**
-     * Confirmation page after a user has requested a password reset.
-     *
-     * @Route("/check-email", name="main_check_email")
-     */
+    #[Route('/check-email', name: 'main_check_email')]
     public function checkEmail(): Response
     {
         // Generate a fake token if the user does not exist or someone hit this page directly.
@@ -79,12 +65,8 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    /**
-     * Validates and process the reset URL that the user clicked in their email.
-     *
-     * @Route("/reset/{token}", name="main_reset_password")
-     */
-    public function reset(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface, string $token = null): Response
+    #[Route('/reset/{token}', name: 'main_reset_password')]
+    public function reset(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface, ?string $token = null): Response
     {
         if ($token) {
             // We store the token in session and remove it from the URL, to avoid the URL being

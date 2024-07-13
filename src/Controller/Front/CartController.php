@@ -15,9 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CartController extends AbstractController
 {
-    /**
-     * @Route("/cart", name="main_cart_show")
-     */
+    #[Route('/cart', name: 'main_cart_show')]
     public function show(Request $request, CartRepository $cartRepository): Response
     {
         $cartToken = $request->cookies->get('CART_TOKEN');
@@ -28,9 +26,7 @@ class CartController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/cart/create", name="main_cart_create")
-     */
+    #[Route('/cart/create', name: 'main_cart_create')]
     public function create(Request $request, OrderManager $orderManager): Response
     {
         $cartToken = $request->cookies->get('CART_TOKEN');

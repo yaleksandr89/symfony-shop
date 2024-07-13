@@ -11,9 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AuthGoogleController extends AbstractController
 {
-    /**
-     * @Route("/connect/google", name="connect_google_start")
-     */
+    #[Route('/connect/google', name: 'connect_google_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         return $clientRegistry
@@ -21,9 +19,7 @@ class AuthGoogleController extends AbstractController
             ->redirect([], []);
     }
 
-    /**
-     * @Route("/connect/google/check", name="connect_google_check")
-     */
+    #[Route('/connect/google/check', name: 'connect_google_check')]
     public function connectCheckAction(): void
     {
     }

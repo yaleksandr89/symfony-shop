@@ -11,9 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AuthYandexController extends AbstractController
 {
-    /**
-     * @Route("/connect/yandex", name="connect_yandex_start")
-     */
+    #[Route('/connect/yandex', name: 'connect_yandex_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         return $clientRegistry
@@ -21,9 +19,7 @@ class AuthYandexController extends AbstractController
             ->redirect([], []);
     }
 
-    /**
-     * @Route("/connect/yandex/check", name="connect_yandex_check")
-     */
+    #[Route('/connect/yandex/check', name: 'connect_yandex_check')]
     public function connectCheckAction(): void
     {
     }

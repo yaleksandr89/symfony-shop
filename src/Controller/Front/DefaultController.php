@@ -27,9 +27,7 @@ class DefaultController extends AbstractController
         return $this;
     }
 
-    /**
-     * @Route("/", name="main_homepage")
-     */
+    #[Route('/', name: 'main_homepage')]
     public function index(Request $request, CategoryRepository $categoryRepository): Response
     {
         $preparedListCategory = [];

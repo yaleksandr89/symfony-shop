@@ -13,9 +13,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @Route("/login", name="main_login")
-     */
+    #[Route('/login', name: 'main_login')]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
         $request->getSession()->set('HTTP_REFERER', $request->server->get('HTTP_REFERER'));
@@ -32,9 +30,7 @@ class SecurityController extends AbstractController
         return $this->render('front/security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
-    /**
-     * @Route("/logout", name="main_logout")
-     */
+    #[Route('/logout', name: 'main_logout')]
     public function logout(): RedirectResponse
     {
         return $this->redirectToRoute('main_profile_index');
