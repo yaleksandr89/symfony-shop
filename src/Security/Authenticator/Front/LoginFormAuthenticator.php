@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Authenticator\Front;
 
-use App\Repository\UserRepository;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,10 +24,8 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     public const LOGIN_ROUTE = 'main_login';
 
-    public function __construct(
-        private UserRepository $userRepository,
-        private UrlGeneratorInterface $urlGenerator
-    ) {
+    public function __construct(private UrlGeneratorInterface $urlGenerator)
+    {
     }
 
     public function supports(Request $request): ?bool
@@ -42,7 +38,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $email = $request->request->get('email');
         $plaintextPassword = $request->request->get('password');
 
-        $request->getSession()->set(Security::LAST_USERNAME, $email);
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
             new UserBadge($email),

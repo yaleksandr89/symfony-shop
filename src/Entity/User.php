@@ -250,11 +250,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return null;
         }
 
-        if (!is_int($this->zipCode)) {
-            return (int) $this->zipCode;
-        }
-
-        return $this->zipCode;
+        return (int) $this->zipCode;
     }
 
     public function setZipCode(?int $zipCode): static
