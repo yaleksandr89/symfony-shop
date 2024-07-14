@@ -1,6 +1,7 @@
 controllers_admin:
   resource: ../../src/Controller/Admin
-  type: annotation
+  type: attribute
+  #type: annotation
   prefix: /{_locale}
   requirements:
     _locale: '%app_locales%'
@@ -9,7 +10,7 @@ controllers_admin:
 
 controllers_front:
   resource: ../../src/Controller/Front
-  type: annotation
+  type: attribute
   prefix: /{_locale}
   requirements:
     _locale: '%app_locales%'
@@ -18,18 +19,18 @@ controllers_front:
 
 controllers_robots_txt:
   resource: ../../src/Controller/Front/RobotsTxtController.php
-  type: annotation
+  type: attribute
   format: txt
   requirements:
     _format: txt
 
 controllers_sitemap:
   resource: ../../src/Controller/Front/SitemapController.php
-  type: annotation
+  type: attribute
   format: xml
   requirements:
     _format: xml
 
 kernel:
   resource: ../../src/Kernel.php
-  type: annotation
+  type: attribute
