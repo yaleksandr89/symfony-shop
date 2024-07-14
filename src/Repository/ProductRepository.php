@@ -33,7 +33,7 @@ class ProductRepository extends ServiceEntityRepository
             ->orderBy('p.id', 'DESC');
     }
 
-    public function findByCategoryAndCount(?int $categoryId, int $productCount = null): array
+    public function findByCategoryAndCount(?int $categoryId, ?int $productCount = null): array
     {
         $queryBuilder = $this->findActiveProduct();
 

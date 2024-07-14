@@ -9,10 +9,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class FilesystemWorker
 {
-
     public function __construct(private Filesystem $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     public function createFolderIfNotExist(string $folder): void
