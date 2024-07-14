@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+  timezone: '%env(APP_TIMEZONE)%'
   uploads_dir: '%kernel.project_dir%/public/uploads'
   uploads_temp_dir: '%kernel.project_dir%/var/temp'
   uploads_images_dir: '%uploads_dir%/images'
@@ -41,5 +42,7 @@ services:
     tags:
       - { name: doctrine.event_subscriber, connection: default }
 
+  Imagine\Gd\Imagine:
+    class: Imagine\Gd\Imagine
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

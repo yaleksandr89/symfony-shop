@@ -14,6 +14,9 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class EditUserFormType extends AbstractType
 {
@@ -25,6 +28,10 @@ class EditUserFormType extends AbstractType
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
+                ],
+                'constraints' => [
+                    new Email(),
+                    new Length(max: 180),
                 ],
             ])
             ->add('plainPassword', TextType::class, [
@@ -49,6 +56,9 @@ class EditUserFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                 ],
+                'constraints' => [
+                    new Length(max: 255),
+                ],
             ])
             ->add('phone', TextType::class, [
                 'label' => 'Phone',
@@ -56,12 +66,19 @@ class EditUserFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                 ],
+                'constraints' => [
+                    new Length(max: 30),
+                    new Regex(pattern: '/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/'),
+                ],
             ])
             ->add('address', TextType::class, [
                 'label' => 'Address',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
+                ],
+                'constraints' => [
+                    new Length(max: 180),
                 ],
             ])
             ->add('zipCode', TextType::class, [

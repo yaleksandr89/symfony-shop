@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Utils\ApiPlatform\Event\Subscriber;
 
-use ApiPlatform\Core\EventListener\EventPriorities;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Entity\Order;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;

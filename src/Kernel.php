@@ -13,6 +13,12 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+    public function boot(): void
+    {
+        parent::boot();
+        date_default_timezone_set($this->getContainer()->getParameter('timezone'));
+    }
+
     protected function configureContainer(ContainerConfigurator $container): void
     {
         $container->import('../config/{packages}/*.yaml');

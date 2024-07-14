@@ -31,32 +31,14 @@ class VkontakteAuthenticator extends OAuth2Authenticator
 {
     use CheckingUserSocialNetworkBeforeAuthorization;
 
-    private ClientRegistry $clientRegistry;
-
-    private RouterInterface $router;
-
-    private UserManager $userManager;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private VerifyEmailHelperInterface $verifyEmailHelper;
-
-    private TranslatorInterface $translator;
-
     public function __construct(
-        ClientRegistry $clientRegistry,
-        UserManager $userManager,
-        RouterInterface $router,
-        EventDispatcherInterface $eventDispatcher,
-        VerifyEmailHelperInterface $helper,
-        TranslatorInterface $translator
+        private ClientRegistry $clientRegistry,
+        private UserManager $userManager,
+        private RouterInterface $router,
+        private EventDispatcherInterface $eventDispatcher,
+        private VerifyEmailHelperInterface $verifyEmailHelper,
+        private TranslatorInterface $translator
     ) {
-        $this->clientRegistry = $clientRegistry;
-        $this->router = $router;
-        $this->userManager = $userManager;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->verifyEmailHelper = $helper;
-        $this->translator = $translator;
     }
 
     public function supports(Request $request): ?bool

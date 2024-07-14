@@ -5,21 +5,14 @@ declare(strict_types=1);
 namespace App\Form\DTO;
 
 use App\Entity\Category;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class EditCategoryModel
 {
-    /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @Assert\NotBlank(message="Please enter a title")
-     *
-     * @var string
-     */
-    public $title;
+    public function __construct(
+        public ?int $id = null,
+        public ?string $title = null
+    ) {
+    }
 
     public static function makeFromCategory(?Category $category): self
     {

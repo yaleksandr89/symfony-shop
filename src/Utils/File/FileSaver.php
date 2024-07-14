@@ -11,17 +11,11 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class FileSaver
 {
-    private SluggerInterface $slugger;
-
-    private string $uploadsTempDir;
-
-    private FilesystemWorker $filesystemWorker;
-
-    public function __construct(SluggerInterface $slugger, FilesystemWorker $filesystemWorker, string $uploadsTempDir)
-    {
-        $this->slugger = $slugger;
-        $this->uploadsTempDir = $uploadsTempDir;
-        $this->filesystemWorker = $filesystemWorker;
+    public function __construct(
+        private SluggerInterface $slugger,
+        private FilesystemWorker $filesystemWorker,
+        private string $uploadsTempDir
+    ) {
     }
 
     public function saveUploadedFileIntoTemp(?UploadedFile $uploadedFile): ?string

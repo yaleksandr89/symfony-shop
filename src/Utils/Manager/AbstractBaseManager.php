@@ -9,11 +9,8 @@ use Doctrine\ORM\EntityRepository;
 
 abstract class AbstractBaseManager
 {
-    protected EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(protected EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     abstract public function getRepository(): EntityRepository;

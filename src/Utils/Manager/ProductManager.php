@@ -54,7 +54,7 @@ final class ProductManager extends AbstractBaseManager
         return sprintf('%s/%s', $this->productImagesDir, $product->getId());
     }
 
-    public function updateProductImages(Product $product, string $tempImageFilename = null): Product
+    public function updateProductImages(Product $product, ?string $tempImageFilename = null): Product
     {
         if (!$tempImageFilename) {
             return $product;

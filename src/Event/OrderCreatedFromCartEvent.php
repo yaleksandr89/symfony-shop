@@ -9,14 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class OrderCreatedFromCartEvent extends Event
 {
-    /**
-     * @var Order
-     */
-    private $order;
-
-    public function __construct(Order $order)
+    public function __construct(private Order $order)
     {
-        $this->order = $order;
     }
 
     public function getOrder(): Order

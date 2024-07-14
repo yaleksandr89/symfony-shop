@@ -6,11 +6,8 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 class VkUser implements ResourceOwnerInterface
 {
-    protected array $response;
-
-    public function __construct(array $response)
+    public function __construct(protected array $response)
     {
-        $this->response = $response;
     }
 
     public function getId(): string

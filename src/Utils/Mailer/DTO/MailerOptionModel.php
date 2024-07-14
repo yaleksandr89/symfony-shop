@@ -6,35 +6,15 @@ namespace App\Utils\Mailer\DTO;
 
 class MailerOptionModel
 {
-    /**
-     * @var string
-     */
-    private $recipient;
-
-    /**
-     * @var string|null
-     */
-    private $cc;
-
-    /**
-     * @var string
-     */
-    private $subject;
-
-    /**
-     * @var string
-     */
-    private $htmlTemplate;
-
-    /**
-     * @var array
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $text;
+    public function __construct(
+        private string $recipient = '',
+        private ?string $cc = null,
+        private string $subject = '',
+        private string $htmlTemplate = '',
+        private array $context = [],
+        private string $text = ''
+    ) {
+    }
 
     public function getRecipient(): string
     {

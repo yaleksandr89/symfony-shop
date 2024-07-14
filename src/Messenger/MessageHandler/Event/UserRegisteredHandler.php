@@ -14,17 +14,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler(fromTransport: 'async')]
 class UserRegisteredHandler
 {
-    private EmailVerifier $emailVerifier;
-
-    private UserManager $userManager;
-
-    private UserRegisteredEmailSender $emailSender;
-
-    public function __construct(EmailVerifier $emailVerifier, UserManager $userManager, UserRegisteredEmailSender $emailSender)
-    {
-        $this->emailVerifier = $emailVerifier;
-        $this->userManager = $userManager;
-        $this->emailSender = $emailSender;
+    public function __construct(
+        private EmailVerifier $emailVerifier,
+        private UserManager $userManager,
+        private UserRegisteredEmailSender $emailSender
+    ) {
     }
 
     public function __invoke(EventUserRegisteredEvent $event): void

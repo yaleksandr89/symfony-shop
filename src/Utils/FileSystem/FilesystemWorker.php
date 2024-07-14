@@ -9,9 +9,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class FilesystemWorker
 {
-    private Filesystem $filesystem;
 
-    public function __construct(Filesystem $filesystem)
+    public function __construct(private Filesystem $filesystem)
     {
         $this->filesystem = $filesystem;
     }

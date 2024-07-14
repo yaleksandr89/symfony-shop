@@ -13,23 +13,13 @@ use Doctrine\ORM\EntityRepository;
 
 final class ProductImageManager extends AbstractBaseManager
 {
-    private FilesystemWorker $filesystemWorker;
-
-    private string $uploadsTempDir;
-
-    private ImageResizer $imageResizer;
-
     public function __construct(
-        EntityManagerInterface $em,
-        FilesystemWorker $filesystemWorker,
-        string $uploadsTempDir,
-        ImageResizer $imageResizer
+        protected EntityManagerInterface $em,
+        private FilesystemWorker $filesystemWorker,
+        private string $uploadsTempDir,
+        private ImageResizer $imageResizer
     ) {
         parent::__construct($em);
-
-        $this->filesystemWorker = $filesystemWorker;
-        $this->uploadsTempDir = $uploadsTempDir;
-        $this->imageResizer = $imageResizer;
     }
 
     public function getRepository(): EntityRepository
@@ -37,7 +27,7 @@ final class ProductImageManager extends AbstractBaseManager
         return $this->em->getRepository(ProductImage::class);
     }
 
-    public function saveImageForProduct(string $productDir, string $tempImageFilename = null): ?ProductImage
+    public function saveImageForProduct(string $productDir, ?string $tempImageFilename = null): ?ProductImage
     {
         if (!$tempImageFilename) {
             return null;

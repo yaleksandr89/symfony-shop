@@ -20,7 +20,7 @@ class AuthenticationFrontEntryPoint implements AuthenticationEntryPointInterface
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
+    public function start(Request $request, ?AuthenticationException $authException = null): RedirectResponse
     {
         /** @var Session $session */
         $session = $request->getSession();

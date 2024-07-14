@@ -1210,5 +1210,11 @@
         <target>Социальная сеть успешно привязана.</target>
       </segment>
     </unit>
+    <unit id="90WFztC" name="You have already logged in to the site under the username of this social network">
+      <segment>
+        <source>You have already logged in to the site under the username of this social network</source>
+        <target>Под логином этой социальной сети уже авторизовались на сайте</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

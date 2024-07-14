@@ -7,45 +7,20 @@ namespace App\Form\DTO;
 use App\Entity\Order;
 use App\Entity\User;
 use DateTimeImmutable;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class EditOrderModel
 {
-    /**
-     * @var int
-     */
-    public $id;
+    public function __construct(
+        public ?int $id = null,
+        public ?User $owner = null,
+        public ?int $status = null,
+        public ?float $totalPrice = null,
+        public ?DateTimeImmutable $createdAt = null,
+        public ?bool $isDeleted = null
+    ) {
+    }
 
-    /**
-     * @Assert\NotBlank(message="Please select user")
-     *
-     * @var User
-     */
-    public $owner;
-
-    /**
-     * @Assert\NotBlank(message="Please select status")
-     *
-     * @var int
-     */
-    public $status;
-
-    /**
-     * @var float
-     */
-    public $totalPrice;
-
-    /**
-     * @var DateTimeImmutable
-     */
-    public $createdAt;
-
-    /**
-     * @var bool
-     */
-    public $isDeleted;
-
-    public static function makeFromOrder(Order $order = null): self
+    public static function makeFromOrder(?Order $order = null): self
     {
         $model = new self();
 

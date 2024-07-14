@@ -18,6 +18,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class LoginFormAuthenticator extends AbstractAuthenticator
@@ -26,14 +27,10 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     public const LOGIN_ROUTE = 'admin_security_login';
 
-    private UserRepository $userRepository;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(UserRepository $userRepository, UrlGeneratorInterface $urlGenerator)
-    {
-        $this->userRepository = $userRepository;
-        $this->urlGenerator = $urlGenerator;
+    public function __construct(
+        private UserRepository $userRepository,
+        private UrlGeneratorInterface $urlGenerator
+    ) {
     }
 
     public function supports(Request $request): ?bool
@@ -76,7 +73,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         if ($request->hasSession()) {
-            $request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
+            $request->getSession()->set(SecurityRequestAttributes::AUTHENTICATION_ERROR, $exception);
         }
 
         return null;
