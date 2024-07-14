@@ -4,17 +4,27 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\OrderRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\DBAL\Types\Types;
 
+#[
+    Table(name: '`order`'),
+    Entity(repositoryClass: OrderRepository::class)
+]
 /**
- * @ORM\Entity(repositoryClass=OrderRepository::class)
- * @ORM\Table(name="`order`")
  * @ApiResource(
  *     collectionOperations={
  *       "get"={
@@ -34,59 +44,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Order
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"order:item"})
-     */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[Groups(['order:item'])]
+    protected ?int $id;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
-    protected $createdAt;
+    #[Column(type: Types::DATETIME_IMMUTABLE)]
+    protected DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
-    protected $updatedAt;
+    #[Column(type: Types::DATETIME_IMMUTABLE)]
+    protected DateTimeImmutable $updatedAt;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    protected $owner;
+    #[ManyToOne(targetEntity: User::class, inversedBy: 'orders'), JoinColumn(nullable: false)]
+    protected ?User $owner;
 
-    /**
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"order:item"})
-     */
-    protected $status;
+    #[Column(type: Types::INTEGER)]
+    #[Groups(['order:item'])]
+    protected ?int $status;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     *
-     * @Groups({"order:item"})
-     */
-    protected $totalPrice;
+    #[Column(type: Types::FLOAT, nullable: true)]
+    #[Groups(['order:item'])]
+    protected ?float $totalPrice;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isDeleted;
+    #[Column(type: Types::BOOLEAN)]
+    protected bool $isDeleted;
 
-    /**
-     * @ORM\OneToMany(targetEntity=OrderProduct::class, mappedBy="appOrder")
-     *
-     * @Groups({"order:item"})
-     */
-    protected $orderProducts;
+    #[OneToMany(mappedBy: 'appOrder', targetEntity: OrderProduct::class)]
+    #[Groups(['order:item'])]
+    protected Collection $orderProducts;
 
     public function __construct()
     {
+        $this->id = null;
         $this->isDeleted = false;
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();

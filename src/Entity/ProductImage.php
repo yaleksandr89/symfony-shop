@@ -4,13 +4,23 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProductImageRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\DBAL\Types\Types;
 
+#[
+    Table(name: '`product_image`'),
+    Entity(repositoryClass: ProductImageRepository::class)
+]
 /**
- * @ORM\Entity(repositoryClass=ProductImageRepository::class)
  * @ApiResource(
  *     collectionOperations={
  *       "get"={
@@ -26,37 +36,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class ProductImage
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="productImages")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    protected $product;
+    #[ManyToOne(targetEntity: Product::class, inversedBy: 'productImages'), JoinColumn(nullable: false)]
+    protected ?Product $product;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[Column(type: Types::STRING, length: 255)]
     protected ?string $filenameBig;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    protected $filenameMiddle;
+    #[Column(type: Types::STRING, length: 255)]
+    protected ?string $filenameMiddle;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     *
-     * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $filenameSmall;
+    #[Column(type: Types::STRING, length: 255)]
+    #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?string $filenameSmall;
+
+    public function __construct()
+    {
+        $this->id = null;
+    }
 
     public function getId(): ?int
     {

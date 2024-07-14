@@ -4,14 +4,24 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
+use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\DBAL\Types\Types;
 
+#[
+    Table(name: '`category`'),
+    Entity(repositoryClass: CategoryRepository::class)
+]
 /**
  * @ApiResource(
  *     collectionOperations={
@@ -25,44 +35,30 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *       },
  *     }
  * )
- * @ORM\Entity(repositoryClass=CategoryRepository::class)
  */
 class Category
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"category:list", "category:item", "product:list", "product:item", "order:item"})
-     */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[Groups(['category:list', 'category:item', 'product:list', 'product:item', 'order:item'])]
+    protected ?int $id;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     *
-     * @Groups({"category:list", "category:item", "product:list", "product:item", "order:item"})
-     */
-    protected $title;
+    #[Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Groups(['category:list', 'category:item', 'product:list', 'product:item', 'order:item'])]
+    protected ?string $title;
 
-    /**
-     * @Gedmo\Slug(fields={"title"})
-     * @ORM\Column(type="string", length=120, unique=true)
-     */
-    protected $slug;
+    #[Slug(fields: ['title'])]
+    #[Column(type: Types::STRING, length: 120, unique: true)]
+    protected ?string $slug;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="category")
-     */
-    protected $products;
+    #[OneToMany(mappedBy: 'category', targetEntity: Product::class)]
+    protected Collection $products;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    protected $isDeleted;
+    #[Column(type: Types::BOOLEAN, nullable: true)]
+    protected bool $isDeleted;
 
     public function __construct()
     {
+        $this->id = null;
         $this->isDeleted = false;
         $this->products = new ArrayCollection();
     }
