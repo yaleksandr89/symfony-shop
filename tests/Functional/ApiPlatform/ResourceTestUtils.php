@@ -7,8 +7,7 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
 
 class ResourceTestUtils extends WebTestCase
 {
-    /** @var string */
-    protected $uriKey = '';
+    protected string $uriKey = '';
 
     protected const REQUEST_HEADERS = [
         'HTTP_ACCEPT' => 'application/ld+json',

@@ -3,12 +3,12 @@
 namespace App\Tests\Functional\Controller\Front;
 
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @group functional
- */
+#[Group(name: 'functional')]
 class DefaultControllerTest extends WebTestCase
 {
     public function testRedirectEmptyUrlToLocale(): void
@@ -23,12 +23,7 @@ class DefaultControllerTest extends WebTestCase
         );
     }
 
-    /**
-     * @param string $url
-     * @return void
-     *
-     * @dataProvider getPublicUrls
-     */
+    #[DataProvider(methodName: 'getPublicUrls')]
     public function testPublicUrl(string $url): void
     {
         $client = static::createClient();
@@ -39,12 +34,7 @@ class DefaultControllerTest extends WebTestCase
         );
     }
 
-    /**
-     * @param string $url
-     * @return void
-     *
-     * @dataProvider getSecureUrls
-     */
+    #[DataProvider(methodName: 'getSecureUrls')]
     public function testSecureUrl(string $url): void
     {
         $client = static::createClient();
@@ -57,7 +47,7 @@ class DefaultControllerTest extends WebTestCase
         );
     }
 
-    public function getPublicUrls(): ?Generator
+    public static function getPublicUrls(): ?Generator
     {
         yield ['/ru/'];
         yield ['/ru/login'];
@@ -65,7 +55,7 @@ class DefaultControllerTest extends WebTestCase
         yield ['/ru/reset-password'];
     }
 
-    public function getSecureUrls(): ?Generator
+    public static function getSecureUrls(): ?Generator
     {
         yield ['/ru/profile'];
         yield ['/ru/profile/edit'];

@@ -7,23 +7,17 @@ use App\Repository\UserRepository;
 use App\Security\Verifier\EmailVerifier;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use Symfony\Component\HttpFoundation\Request;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 
-/**
- * @group integration
- */
+#[Group(name: 'integration')]
 class EmailVerifierTest extends KernelTestCase
 {
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var EmailVerifier
-     */
-    private $emailVerifier;
+    private UserRepository $userRepository;
+
+    private EmailVerifier $emailVerifier;
 
     protected function setUp(): void
     {
@@ -36,7 +30,9 @@ class EmailVerifierTest extends KernelTestCase
 
     public function testGenerateEmailSignature(): void
     {
-        $user = $this->userRepository->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        $user = $this->userRepository->findOneBy([
+            'email' => UserFixtures::USER_1_EMAIL,
+        ]);
         $user->setIsVerified(false);
 
         $currentDateTime = new DateTimeImmutable();
@@ -45,28 +41,25 @@ class EmailVerifierTest extends KernelTestCase
         $this->assertGreaterThan($currentDateTime, $emailSignature->getExpiresAt());
     }
 
-    /**
-     * @throws VerifyEmailExceptionInterface
-     */
     public function testHandleEmailConfirmation(): void
     {
         $user = $this->userRepository->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         $user->setIsVerified(false);
 
-        $currentDateTime = new DateTimeImmutable();
         $emailSignature = $this->emailVerifier->generateEmailSignature('main_verify_email', $user);
 
-        $this->emailVerifier->handleEmailConfirmation($emailSignature->getSignedUrl(), $user);
+        $this->emailVerifier->handleEmailConfirmation(
+            self::getRequest($emailSignature->getSignedUrl()),
+            $user
+        );
         $this->assertTrue($user->isVerified());
     }
 
-    /**
-     * @return void
-     * @throws VerifyEmailExceptionInterface
-     */
     public function testGenerateEmailSignatureAndHandleEmailConfirmation(): void
     {
-        $user = $this->userRepository->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        $user = $this->userRepository->findOneBy([
+            'email' => UserFixtures::USER_1_EMAIL,
+        ]);
         $user->setIsVerified(false);
 
         $emailSignature = $this->checkGenerateEmailSignature($user);
@@ -74,10 +67,6 @@ class EmailVerifierTest extends KernelTestCase
         $this->checkHandleEmailConfirmation($emailSignature, $user);
     }
 
-    /**
-     * @param User $user
-     * @return VerifyEmailSignatureComponents
-     */
     private function checkGenerateEmailSignature(User $user): VerifyEmailSignatureComponents
     {
         $currentDateTime = new DateTimeImmutable();
@@ -88,18 +77,20 @@ class EmailVerifierTest extends KernelTestCase
         return $emailSignature;
     }
 
-    /**
-     * @param VerifyEmailSignatureComponents $signatureComponents
-     * @param User $user
-     * @return void
-     * @throws VerifyEmailExceptionInterface
-     */
     private function checkHandleEmailConfirmation(VerifyEmailSignatureComponents $signatureComponents, User $user): void
     {
         $this->assertFalse($user->isVerified());
 
-        $this->emailVerifier->handleEmailConfirmation($signatureComponents->getSignedUrl(), $user);
+        $this->emailVerifier->handleEmailConfirmation(
+            self::getRequest($signatureComponents->getSignedUrl()),
+            $user
+        );
 
         $this->assertTrue($user->isVerified());
+    }
+
+    private static function getRequest(string $signedUrl): Request
+    {
+        return Request::create($signedUrl);
     }
 }

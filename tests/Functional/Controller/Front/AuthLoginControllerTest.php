@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Controller\Front;
 
 use App\Tests\SymfonyPanther\BasePantherTestCase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthLoginControllerTest extends BasePantherTestCase
@@ -26,9 +27,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
         self::assertResponseIsSuccessful();
     }
 
-    /**
-     * @group functional-panther
-     */
+    #[Group(name: 'functional-panther')]
     public function testLoginWithPantherClient(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
@@ -44,9 +43,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
         self::assertSelectorTextContains('#page_header_title', 'Добро пожаловать в ЛК!');
     }
 
-    /**
-     * @group functional-selenium
-     */
+    #[Group(name: 'functional-selenium')]
     public function testLoginWithSeleniumClient(): void
     {
         $client = $this->initSeleniumClient();

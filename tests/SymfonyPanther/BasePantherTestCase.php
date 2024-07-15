@@ -9,15 +9,13 @@ use Symfony\Component\Panther\PantherTestCase;
 
 class BasePantherTestCase extends PantherTestCase
 {
-    /**
-     * @return Client
-     */
     protected function initSeleniumClient(): Client
     {
         static::createPantherClient();
         static::startWebServer();
 
         $capabilities = $this->getChromeCapabilities();
+
         return Client::createSeleniumClient('http://127.0.0.1:4444/wd/hub', $capabilities, 'http://127.0.0.1:9080');
     }
 

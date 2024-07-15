@@ -1,7 +1,6 @@
 controllers_admin:
   resource: ../../src/Controller/Admin
   type: attribute
-  #type: annotation
   prefix: /{_locale}
   requirements:
     _locale: '%app_locales%'

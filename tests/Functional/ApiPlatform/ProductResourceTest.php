@@ -7,15 +7,14 @@ use App\Entity\User;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @group functional
- */
+#[Group(name: 'functional')]
 class ProductResourceTest extends ResourceTestUtils
 {
     /** @var string */
-    protected $uriKey = '/api/products';
+    protected string $uriKey = '/api/products';
 
     public function testGetProducts(): void
     {
@@ -40,7 +39,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(200);
     }
 
-    public function testCreatedProductWithAccess()
+    public function testCreatedProductWithAccess(): void
     {
         $client = self::createClient();
 
@@ -58,7 +57,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(201);
     }
 
-    public function testCreatedProductWithoutAccess()
+    public function testCreatedProductWithoutAccess(): void
     {
         $client = self::createClient();
 
@@ -78,7 +77,7 @@ class ProductResourceTest extends ResourceTestUtils
         $client->followRedirect();
     }
 
-    public function testPathProductWithAccess()
+    public function testPathProductWithAccess(): void
     {
         $client = self::createClient();
 
@@ -100,7 +99,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(200);
     }
 
-    public function testPathProductWithoutAccess()
+    public function testPathProductWithoutAccess(): void
     {
         $client = self::createClient();
 
