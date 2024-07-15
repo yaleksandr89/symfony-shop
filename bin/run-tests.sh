@@ -6,10 +6,12 @@ echo APP_ENV:'['$APP_ENV']'
 php bin/console doctrine:database:drop --force
 php bin/console doctrine:database:create
 
-php bin/console doctrine:schema:update --dump-sql
+#php bin/console doctrine:schema:update --dump-sql # выводит на экран сгенерированный sql запрос
 php bin/console doctrine:schema:update --complete --force
 
 php bin/console hautelook:fixtures:load -n
 
-php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional
-# --group functional-panther --group functional-selenium
+php ./vendor/bin/phpunit --testdox --group functional-panther
+# --log-events-verbose-text results.txt
+# --group unit --group integration --group functional
+#  --group functional-selenium

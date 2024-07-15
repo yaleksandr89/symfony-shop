@@ -11,6 +11,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
     private string $email = 'test2@test.com';
     private string $password = 'test2test2';
 
+    #[Group(name: 'functional')]
     public function testLogin(): void
     {
         $client = static::createClient();
