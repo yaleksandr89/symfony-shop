@@ -5,13 +5,12 @@ namespace App\Tests\Functional\Controller\Front;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
-/**
- * @group functional
- */
+#[Group(name: 'functional')]
 class RegistrationControllerTest extends WebTestCase
 {
     private static string $uniqueEmail = 'new_test_user_1@gmail.com';

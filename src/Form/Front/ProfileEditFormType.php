@@ -23,6 +23,7 @@ class ProfileEditFormType extends AbstractType
             ->add('phone', TextType::class, [
                 'label' => 'personal_account.edit.labels.phone',
                 'trim' => true,
+                'required' => false,
             ])
             ->add('address', TextType::class, [
                 'label' => 'personal_account.edit.labels.address',
@@ -30,6 +31,7 @@ class ProfileEditFormType extends AbstractType
             ])
             ->add('zipCode', IntegerType::class, [
                 'label' => 'personal_account.edit.labels.zipcode',
+                'required' => false,
                 'trim' => true,
             ]);
     }

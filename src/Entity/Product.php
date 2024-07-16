@@ -13,12 +13,23 @@ use App\Repository\ProductRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
+use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV4;
 
+#[
+    Table(name: '`product`'),
+    Entity(repositoryClass: ProductRepository::class)
+]
 /**
  * @ApiResource(
  *     collectionOperations={
@@ -52,101 +63,68 @@ use Symfony\Component\Uid\UuidV4;
  * @ApiFilter(SearchFilter::class, properties={
  * "category": "exact"
  * })
- * @ORM\Entity(repositoryClass=ProductRepository::class)
  */
 class Product
 {
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     *
      * @ApiProperty(identifier=false)
-     * @Groups({"product:list", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[Groups(['product:list', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?int $id;
 
     /**
-     * @ORM\Column(type="uuid")
-     *
      * @ApiProperty(identifier=true)
-     * @Groups({"product:list", "product:item", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
      */
-    protected $uuid;
+    #[Column(type: 'uuid')]
+    #[Groups(['product:list', 'product:item', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected UuidV4 $uuid;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $title;
+    #[Column(type: Types::STRING, length: 255)]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?string $title;
 
-    /**
-     * @ORM\Column(type="decimal", precision=15, scale=2)
-     *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $price;
+    #[Column(type: Types::DECIMAL, precision: 15, scale: 2)]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?string $price;
 
-    /**
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $quantity;
+    #[Column(type: Types::INTEGER)]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?int $quantity;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
-    protected $createdAt;
+    #[Column(type: Types::DATETIME_IMMUTABLE)]
+    protected DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    protected $description;
+    #[Column(type: Types::TEXT, nullable: true)]
+    protected ?string $description;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isPublished;
+    #[Column(type: Types::BOOLEAN)]
+    protected bool $isPublished;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isDeleted;
+    #[Column(type: Types::BOOLEAN)]
+    protected bool $isDeleted;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ProductImage::class, mappedBy="product", cascade={"persist"}, orphanRemoval=true)
-     *
-     * @Groups({"cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $productImages;
+    #[OneToMany(mappedBy: 'product', targetEntity: ProductImage::class, cascade: ['persist'], orphanRemoval: true)]
+    #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected Collection $productImages;
 
-    /**
-     * @Gedmo\Slug(fields={"title"})
-     * @ORM\Column(type="string", length=128, unique=true, nullable=true)
-     */
-    protected $slug;
+    #[Slug(fields: ['title'])]
+    #[Column(type: Types::STRING, length: 128, unique: true, nullable: true)]
+    protected ?string $slug;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="products")
-     *
-     * @Groups({"product:list", "product:list:write", "product:item", "product:item:write", "order:item", "cart_product:list", "cart_product:item", "cart:list", "cart:item"})
-     */
-    protected $category;
+    #[ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    protected ?Category $category;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CartProduct::class, mappedBy="product", orphanRemoval=true)
-     */
-    protected $cartProducts;
+    #[OneToMany(mappedBy: 'product', targetEntity: CartProduct::class, orphanRemoval: true)]
+    protected Collection $cartProducts;
 
-    /**
-     * @ORM\OneToMany(targetEntity=OrderProduct::class, mappedBy="product")
-     */
-    protected $orderProducts;
+    #[OneToMany(mappedBy: 'product', targetEntity: OrderProduct::class)]
+    protected Collection $orderProducts;
 
     public function __construct()
     {
+        $this->id = null;
         $this->uuid = Uuid::v4();
         $this->isDeleted = false;
         $this->isPublished = false;
@@ -178,12 +156,12 @@ class Product
         return $this;
     }
 
-    public function getPrice(): float|string|null
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(float|string $price): static
+    public function setPrice(?string $price): static
     {
         $this->price = $price;
 

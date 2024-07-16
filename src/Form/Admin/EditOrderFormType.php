@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class EditOrderFormType extends AbstractType
 {
@@ -22,10 +23,13 @@ class EditOrderFormType extends AbstractType
         $builder
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
-                'required' => true,
+                'required' => false,
                 'choices' => array_flip(OrderStaticStorage::getOrderStatusChoices()),
                 'attr' => [
                     'class' => 'form-control',
+                ],
+                'constraints' => [
+                    new NotBlank(message: 'Please select status'),
                 ],
             ])
             ->add('owner', EntityType::class, [
@@ -42,6 +46,9 @@ class EditOrderFormType extends AbstractType
                 },
                 'attr' => [
                     'class' => 'form-control',
+                ],
+                'constraints' => [
+                    new NotBlank(message: 'Please select user'),
                 ],
             ])
             ->add('isDeleted', CheckboxType::class, [

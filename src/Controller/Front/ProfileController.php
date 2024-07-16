@@ -60,9 +60,7 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    /**
-     * @Route("/profile", name="main_profile_index")
-     */
+    #[Route('/profile', name: 'main_profile_index')]
     public function index(Request $request): Response
     {
         $sendEmail = false;
@@ -77,9 +75,7 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/profile/edit", name="main_profile_edit")
-     */
+    #[Route('/profile/edit', name: 'main_profile_edit')]
     public function edit(Request $request): Response
     {
         $user = $this->getUser();
@@ -100,9 +96,7 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/profile/resending-verify-email-link", name="main_profile_resending_verify_email_link")
-     */
+    #[Route('/profile/resending-verify-email-link', name: 'main_profile_resending_verify_email_link')]
     public function resendingVerifyEmailLink(Request $request): Response
     {
         /** @var User $user */
@@ -121,9 +115,7 @@ class ProfileController extends AbstractController
         return $this->redirectToRoute('main_profile_index');
     }
 
-    /**
-     * @Route("/profile/unlink_social_network/{socialName}", name="main_profile_unlink_social_network")
-     */
+    #[Route('/profile/unlink_social_network/{socialName}', name: 'main_profile_unlink_social_network')]
     public function unlinkSocialNetwork(string $socialName): RedirectResponse
     {
         /** @var User|null $user */

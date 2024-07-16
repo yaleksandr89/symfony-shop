@@ -10,14 +10,8 @@ use Imagine\Image\Box;
 
 final class ImageResizer
 {
-    private Imagine $imagine;
-
-    private FilesystemWorker $filesystemWorker;
-
-    public function __construct(FilesystemWorker $filesystemWorker)
+    public function __construct(private Imagine $imagine, private FilesystemWorker $filesystemWorker)
     {
-        $this->imagine = new Imagine();
-        $this->filesystemWorker = $filesystemWorker;
     }
 
     public function resizeImageAndSave(string $originalFileFolder, string $originalFilename, array $targetParams): string

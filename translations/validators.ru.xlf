@@ -1253,5 +1253,11 @@
         <target>Пожалуйста, выберите категорию</target>
       </segment>
     </unit>
+    <unit id="hJfP9Gp" name="Price cannot be less than or equal to zero.">
+      <segment>
+        <source>Price cannot be less than or equal to zero.</source>
+        <target>Цена не может быть меньше или равна нулю.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

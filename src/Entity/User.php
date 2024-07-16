@@ -8,98 +8,72 @@ use App\Entity\StaticStorage\UserStaticStorage;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="`user`")
- * @UniqueEntity(fields={"email"}, message="У данной электронной почты уже зарегистрирована учетная запись")
- */
+#[
+    Table(name: '`user`'),
+    Entity(repositoryClass: UserRepository::class),
+    UniqueEntity(fields: ['email'], message: 'У данной электронной почты уже зарегистрирована учетная запись')
+]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    protected ?int $id;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
-    protected $email;
+    #[Column(type: Types::STRING, length: 180, unique: true)]
+    protected ?string $email;
 
-    /**
-     * @ORM\Column(type="json")
-     */
-    protected $roles = [];
+    #[Column(type: Types::JSON)]
+    protected array $roles = [];
 
-    /**
-     * @var string The hashed password
-     * @ORM\Column(type="string")
-     */
-    protected $password;
+    #[Column(type: Types::STRING)]
+    protected string $password;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isVerified;
+    #[Column(type: Types::BOOLEAN)]
+    protected bool $isVerified;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    protected $fullName;
+    #[Column(type: Types::STRING, length: 255, nullable: true)]
+    protected ?string $fullName;
 
-    /**
-     * @ORM\Column(type="string", length=30, nullable=true)
-     */
-    protected $phone;
+    #[Column(type: Types::STRING, length: 30, nullable: true)]
+    protected ?string $phone;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    protected $address;
+    #[Column(type: Types::STRING, length: 255, nullable: true)]
+    protected ?string $address;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
-    protected $zipCode;
+    #[Column(type: Types::INTEGER, nullable: true)]
+    protected ?int $zipCode;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isDeleted;
+    #[Column(type: Types::BOOLEAN)]
+    protected bool $isDeleted;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="owner")
-     */
-    protected $orders;
+    #[OneToMany(mappedBy: 'owner', targetEntity: Order::class)]
+    protected Collection $orders;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
-    protected $googleId;
+    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    protected ?string $googleId;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
-    protected $yandexId;
+    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    protected ?string $yandexId;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
-    protected $vkontakteId;
+    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    protected ?string $vkontakteId;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
-    protected $githubId;
+    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    protected ?string $githubId;
 
     public function __construct()
     {
+        $this->id = null;
         $this->isVerified = false;
         $this->isDeleted = false;
         $this->orders = new ArrayCollection();
@@ -272,9 +246,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getZipCode(): ?int
     {
-        return (!is_int($this->zipCode))
-            ? (int) $this->zipCode
-            : $this->zipCode;
+        if (null === $this->zipCode) {
+            return null;
+        }
+
+        return (int) $this->zipCode;
     }
 
     public function setZipCode(?int $zipCode): static

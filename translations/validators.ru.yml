@@ -41,7 +41,7 @@
 'The image width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.': 'Ширина изображения слишком мала ({{ width }}px). Минимально допустимая ширина {{ min_width }}px.'
 'The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.': 'Высота изображения слишком велика ({{ height }}px). Максимально допустимая высота {{ max_height }}px.'
 'The image height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.': 'Высота изображения слишком мала ({{ height }}px). Минимально допустимая высота {{ min_height }}px.'
-'This value should be the user''s current password.': 'Значение должно быть текущим паролем пользователя.'
+"This value should be the user's current password.": 'Значение должно быть текущим паролем пользователя.'
 'This value should have exactly {{ limit }} character.|This value should have exactly {{ limit }} characters.': 'Значение должно быть равно {{ limit }} символу.|Значение должно быть равно {{ limit }} символам.|Значение должно быть равно {{ limit }} символам.'
 'The file was only partially uploaded.': 'Файл был загружен только частично.'
 'No file was uploaded.': 'Файл не был загружен.'
@@ -137,3 +137,4 @@ Error: Ошибка
 'Please upload a valid image (*.jpg or *.png)': 'Пожалуйста, загрузите валидное изображение (*.jpg или *.png)'
 'Please indicate a quantity': 'Пожалуйста, укажите количество'
 'Please select a category': 'Пожалуйста, выберите категорию'
+'Price cannot be less than or equal to zero.': 'Цена не может быть меньше или равна нулю.'

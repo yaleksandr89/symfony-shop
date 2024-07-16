@@ -70,7 +70,7 @@ class MailerSender
         return $email;
     }
 
-    private function sendSystemEmail(MailerOptionModel $mailerOptionModel): Email
+    private function sendSystemEmail(MailerOptionModel $mailerOptionModel): void
     {
         $mailerOptionModel
             ->setSubject('[Exception] An error occurred while sending the letter')
@@ -88,8 +88,6 @@ class MailerSender
                 'errorText' => $ex->getTraceAsString(),
             ]);
         }
-
-        return $email;
     }
 
     private function getTemplatedEmail(): TemplatedEmail

@@ -12,9 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class SitemapController extends AbstractController
 {
-    /**
-     * @Route("/sitemap.xml", name="main_sitemap")
-     */
+    #[Route('/sitemap.xml', name: 'main_sitemap')]
     public function index(): Response
     {
         $mainPageInfo = [

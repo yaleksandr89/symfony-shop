@@ -8,76 +8,24 @@ use App\Entity\Category;
 use App\Entity\Product;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class EditProductModel
 {
-    /**
-     * @var int
-     */
-    public $id;
+    public function __construct(
+        public ?int $id = null,
+        public ?string $title = null,
+        public ?string $price = null,
+        public ?UploadedFile $newImage = null,
+        public ?int $quantity = null,
+        public ?string $description = null,
+        public ?Category $category = null,
+        public ?bool $isPublished = null,
+        public ?bool $isDeleted = null,
+        public ?DateTimeImmutable $createdAt = null
+    ) {
+    }
 
-    /**
-     * @Assert\NotBlank(message="Please enter a title")
-     *
-     * @var string
-     */
-    public $title;
-
-    /**
-     * @Assert\NotBlank(message="Please enter a price")
-     * @Assert\GreaterThanOrEqual(value="0")
-     *
-     * @var string
-     */
-    public $price;
-
-    /**
-     * @Assert\File(
-     *     maxSize = "10M",
-     *     mimeTypes = {"image/jpeg","image/png"},
-     *     mimeTypesMessage = "Please upload a valid image (*.jpg or *.png)"
-     * )
-     *
-     * @var UploadedFile|null
-     */
-    public $newImage;
-
-    /**
-     * @Assert\NotBlank(message="Please indicate a quantity")
-     *
-     * @var int
-     */
-    public $quantity;
-
-    /**
-     * @var string
-     */
-    public $description;
-
-    /**
-     * @Assert\NotBlank(message="Please select a category")
-     *
-     * @var Category
-     */
-    public $category;
-
-    /**
-     * @var bool
-     */
-    public $isPublished;
-
-    /**
-     * @var bool
-     */
-    public $isDeleted;
-
-    /**
-     * @var DateTimeImmutable
-     */
-    public $createdAt;
-
-    public static function makeFromProduct(Product $product = null): self
+    public static function makeFromProduct(?Product $product = null): self
     {
         $model = new self();
 

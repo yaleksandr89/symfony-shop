@@ -3,11 +3,10 @@
 namespace App\Tests\Unit\Utils\Generator;
 
 use App\Utils\Generator\PasswordGenerator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
+#[Group(name: 'unit')]
 class PasswordGeneratorTest extends TestCase
 {
     public function testGeneratorPassword(): void

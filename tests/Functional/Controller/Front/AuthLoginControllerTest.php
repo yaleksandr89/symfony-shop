@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Controller\Front;
 
 use App\Tests\SymfonyPanther\BasePantherTestCase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthLoginControllerTest extends BasePantherTestCase
@@ -10,10 +11,10 @@ class AuthLoginControllerTest extends BasePantherTestCase
     private string $email = 'test2@test.com';
     private string $password = 'test2test2';
 
+    #[Group(name: 'functional')]
     public function testLogin(): void
     {
         $client = static::createClient();
-
         $client->request('GET', '/ru/login');
         $client->submitForm('Авторизоваться', [
             'email' => $this->email,
@@ -21,19 +22,15 @@ class AuthLoginControllerTest extends BasePantherTestCase
         ]);
 
         self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
-
         $client->followRedirect();
         self::assertResponseIsSuccessful();
     }
 
-    /**
-     * @group functional-panther
-     */
+    #[Group(name: 'functional-panther')]
     public function testLoginWithPantherClient(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
         $client->request('GET', '/ru/login');
-
         $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
@@ -44,9 +41,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
         self::assertSelectorTextContains('#page_header_title', 'Добро пожаловать в ЛК!');
     }
 
-    /**
-     * @group functional-selenium
-     */
+    #[Group(name: 'functional-selenium')]
     public function testLoginWithSeleniumClient(): void
     {
         $client = $this->initSeleniumClient();
@@ -57,7 +52,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
             'password' => $this->password,
         ]);
 
-        // sleep(3);
+        // sleep(10); // раскомментировать, если нужно увидеть, что отображается на экране
         $this->takeScreenshot($client, ' App\Tests\Functional\Controller\Front ');
 
         self::assertSame(

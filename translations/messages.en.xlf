@@ -1192,5 +1192,11 @@
         <target>The social network has been successfully linked.</target>
       </segment>
     </unit>
+    <unit id="90WFztC" name="You have already logged in to the site under the username of this social network">
+      <segment>
+        <source>You have already logged in to the site under the username of this social network</source>
+        <target>You have already logged in to the site under the username of this social network</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

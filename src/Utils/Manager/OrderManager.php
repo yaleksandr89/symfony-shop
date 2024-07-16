@@ -93,7 +93,10 @@ final class OrderManager extends AbstractBaseManager
 
         /** @var OrderProduct $orderProduct */
         foreach ($order->getOrderProducts()->getValues() as $orderProduct) {
-            $orderTotalPrice += $orderProduct->getQuantity() * $orderProduct->getPricePerOne();
+            $quantity = (int) $orderProduct->getQuantity();
+            $pricePerOne = (float) $orderProduct->getPricePerOne();
+
+            $orderTotalPrice += $quantity * $pricePerOne;
         }
 
         $order->setTotalPrice($orderTotalPrice);

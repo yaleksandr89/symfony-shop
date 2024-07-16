@@ -16,17 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OrderFormHandler
 {
-    private OrderManager $orderManager;
-
-    private PaginatorInterface $paginator;
-
-    private FilterBuilderUpdater $filterBuilderUpdater;
-
-    public function __construct(OrderManager $orderManager, PaginatorInterface $paginator, FilterBuilderUpdater $filterBuilderUpdater)
-    {
-        $this->orderManager = $orderManager;
-        $this->paginator = $paginator;
-        $this->filterBuilderUpdater = $filterBuilderUpdater;
+    public function __construct(
+        private OrderManager $orderManager,
+        private PaginatorInterface $paginator,
+        private FilterBuilderUpdater $filterBuilderUpdater
+    ) {
     }
 
     public function processEditForm(EditOrderModel $editOrderModel): Order

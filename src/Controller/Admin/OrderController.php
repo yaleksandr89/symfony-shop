@@ -16,14 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/admin/order", name="admin_order_")
- */
+#[Route('/admin/order', name: 'admin_order_')]
 class OrderController extends BaseAdminController
 {
-    /**
-     * @Route("/list", name="list")
-     */
+    #[Route('/list', name: 'list')]
     public function list(Request $request, OrderFormHandler $orderFormHandler): Response
     {
         $filterForm = $this->createForm(OrderFilterFormType::class, EditOrderModel::makeFromOrder());
@@ -38,11 +34,9 @@ class OrderController extends BaseAdminController
         ]);
     }
 
-    /**
-     * @Route("/edit/{id}", name="edit")
-     * @Route("/add", name="add")
-     */
-    public function edit(Request $request, OrderFormHandler $orderFormHandler, Order $order = null): Response
+    #[Route('/edit/{id}', name: 'edit')]
+    #[Route('/add', name: 'add')]
+    public function edit(Request $request, OrderFormHandler $orderFormHandler, ?Order $order = null): Response
     {
         $editOrderModel = EditOrderModel::makeFromOrder($order);
 
@@ -77,9 +71,7 @@ class OrderController extends BaseAdminController
         ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="delete")
-     */
+    #[Route('/delete/{id}', name: 'delete')]
     public function delete(Request $request, Order $order, OrderManager $orderManager): Response
     {
         $id = $order->getId();

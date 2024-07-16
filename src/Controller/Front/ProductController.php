@@ -26,10 +26,8 @@ class ProductController extends AbstractController
         return $this;
     }
 
-    /**
-     * @Route("/product/{identifier}", name="main_product_show")
-     * @Route("/product", name="main_product_show_blank")
-     */
+    #[Route('/product/{identifier}', name: 'main_product_show')]
+    #[Route('/product', name: 'main_product_show_blank')]
     public function show(string $identifier): Response
     {
         try {

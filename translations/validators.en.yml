@@ -7,3 +7,4 @@
 'Please upload a valid image (*.jpg or *.png)': 'Please upload a valid image (*.jpg or *.png)'
 'Please indicate a quantity': 'Please indicate a quantity'
 'Please select a category': 'Please select a category'
+'Price cannot be less than or equal to zero.': 'Price cannot be less than or equal to zero.'

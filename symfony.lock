@@ -300,9 +300,6 @@
     "phpdocumentor/type-resolver": {
         "version": "1.5.0"
     },
-    "phpspec/prophecy": {
-        "version": "1.14.0"
-    },
     "phpstan/phpstan": {
         "version": "1.2.0"
     },
@@ -400,9 +397,6 @@
     },
     "sebastian/recursion-context": {
         "version": "4.0.4"
-    },
-    "sebastian/resource-operations": {
-        "version": "3.0.3"
     },
     "sebastian/type": {
         "version": "2.3.4"

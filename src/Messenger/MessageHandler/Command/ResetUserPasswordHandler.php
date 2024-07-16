@@ -15,20 +15,11 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 #[AsMessageHandler(fromTransport: 'async')]
 class ResetUserPasswordHandler
 {
-    private UserManager $userManager;
-
-    private ResetPasswordHelperInterface $resetPasswordHelper;
-
-    private ResetUserPasswordEmailSender $userPasswordEmailSender;
-
     public function __construct(
-        UserManager $userManager,
-        ResetPasswordHelperInterface $resetPasswordHelper,
-        ResetUserPasswordEmailSender $userPasswordEmailSender
+        private UserManager $userManager,
+        private ResetPasswordHelperInterface $resetPasswordHelper,
+        private ResetUserPasswordEmailSender $userPasswordEmailSender
     ) {
-        $this->userManager = $userManager;
-        $this->resetPasswordHelper = $resetPasswordHelper;
-        $this->userPasswordEmailSender = $userPasswordEmailSender;
     }
 
     public function __invoke(ResetUserPasswordCommand $resetUserPasswordCommand): void

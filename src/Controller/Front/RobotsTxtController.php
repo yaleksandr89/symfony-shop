@@ -25,9 +25,7 @@ class RobotsTxtController extends AbstractController
         return $this;
     }
 
-    /**
-     * @Route("/robots.txt", name="main_robots.txt")
-     */
+    #[Route('/robots.txt', name: 'main_robots.txt')]
     public function index(): Response
     {
         return $this->render('front/robots.txt.twig', [

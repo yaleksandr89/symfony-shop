@@ -21,20 +21,14 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    private EmailVerifier $emailVerifier;
-    private Doctrine $doctrine;
-    private TranslatorInterface $translator;
-
-    public function __construct(EmailVerifier $emailVerifier, Doctrine $doctrine, TranslatorInterface $translator)
-    {
-        $this->emailVerifier = $emailVerifier;
-        $this->doctrine = $doctrine;
-        $this->translator = $translator;
+    public function __construct(
+        private EmailVerifier $emailVerifier,
+        private Doctrine $doctrine,
+        private TranslatorInterface $translator
+    ) {
     }
 
-    /**
-     * @Route("/registration", name="main_registration")
-     */
+    #[Route('/registration', name: 'main_registration')]
     public function registration(Request $request, UserPasswordHasherInterface $passwordEncoder, MessageBusInterface $messageBus): Response
     {
         if ($this->getUser()) {
@@ -72,9 +66,7 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/verify/email", name="main_verify_email")
-     */
+    #[Route('/verify/email', name: 'main_verify_email')]
     public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
     {
         $id = $request->get('id');
@@ -91,7 +83,7 @@ class RegistrationController extends AbstractController
 
         // validate email confirmation link, sets User::isVerified=true and persists
         try {
-            $this->emailVerifier->handleEmailConfirmation($request->getUri(), $user);
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('warning', $exception->getReason());
 

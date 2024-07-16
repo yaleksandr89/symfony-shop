@@ -83,5 +83,11 @@
         <target>Please select a category</target>
       </segment>
     </unit>
+    <unit id="hJfP9Gp" name="Price cannot be less than or equal to zero.">
+      <segment>
+        <source>Price cannot be less than or equal to zero.</source>
+        <target>Price cannot be less than or equal to zero.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

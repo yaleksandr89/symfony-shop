@@ -7,68 +7,24 @@ namespace App\Form\DTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\Form\Form;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @Assert\Callback(callback="validate")
- */
+#[Callback(callback: 'validate')]
 class EditUserModel
 {
-    /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @var string
-     */
-    public $plainPassword;
-
-    /**
-     * @var array
-     */
-    public $roles;
-
-    /**
-     * @Assert\Length(max="255")
-     *
-     * @var string
-     */
-    public $fullName;
-
-    /**
-     * @Assert\Length(max="30")
-     * @Assert\Regex(pattern="/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/")
-     *
-     * @var string
-     */
-    public $phone;
-
-    /**
-     * @Assert\Length(max="255")
-     *
-     * @var string
-     */
-    public $address;
-
-    /**
-     * @var int
-     */
-    public $zipCode;
-
-    /**
-     * @var bool
-     */
-    public $isDeleted;
-
-    /**
-     * @Assert\Email
-     * @Assert\Length(max="180")
-     *
-     * @var string
-     */
-    public $email;
+    public function __construct(
+        public ?int $id = null,
+        public ?string $plainPassword = null,
+        public ?array $roles = null,
+        public ?string $fullName = null,
+        public ?string $phone = null,
+        public ?string $address = null,
+        public ?int $zipCode = null,
+        public ?bool $isDeleted = null,
+        public ?string $email = null
+    ) {
+    }
 
     public static function makeFromUser(?User $user): self
     {
@@ -103,13 +59,6 @@ class EditUserModel
         if ($userRepository->findOneBy(['email' => $this->email])) {
             $context->buildViolation('This email is already registered')
                 ->atPath('email')
-                ->addViolation();
-        }
-
-        // Валидация пароля
-        if (!$this->plainPassword) {
-            $context->buildViolation('The password can\'t be empty')
-                ->atPath('plainPassword')
                 ->addViolation();
         }
     }

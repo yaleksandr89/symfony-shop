@@ -17,12 +17,8 @@ class CartVoter extends Voter
     private const CART_EDIT = 'CART_EDIT';
     private const CART_DELETE = 'CART_DELETE';
 
-    /** @var RequestStack */
-    private $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
     protected function supports(string $attribute, $subject): bool

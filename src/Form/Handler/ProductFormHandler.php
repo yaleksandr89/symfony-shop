@@ -17,28 +17,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductFormHandler
 {
-    private FileSaver $fileSaver;
-
-    private ProductManager $productManager;
-
-    private FilesystemWorker $filesystemWorker;
-
-    private PaginatorInterface $paginator;
-
-    private FilterBuilderUpdater $filterBuilderUpdater;
-
     public function __construct(
-        ProductManager $productManager,
-        FileSaver $fileSaver,
-        FilesystemWorker $filesystemWorker,
-        PaginatorInterface $paginator,
-        FilterBuilderUpdater $filterBuilderUpdater
+        private ProductManager $productManager,
+        private FileSaver $fileSaver,
+        private FilesystemWorker $filesystemWorker,
+        private PaginatorInterface $paginator,
+        private FilterBuilderUpdater $filterBuilderUpdater
     ) {
-        $this->fileSaver = $fileSaver;
-        $this->productManager = $productManager;
-        $this->filesystemWorker = $filesystemWorker;
-        $this->paginator = $paginator;
-        $this->filterBuilderUpdater = $filterBuilderUpdater;
     }
 
     public function processEditForm(FormInterface $form, EditProductModel $editProductModel): Product

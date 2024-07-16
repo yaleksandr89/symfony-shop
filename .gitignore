@@ -1,4 +1,6 @@
 ###> Custom Rules ###
+log-execute-phpunit.txt
+.phpunit.cache/
 uploads/
 uploads
 deploy.php

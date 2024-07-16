@@ -17,9 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
-/**
- * @Route("/api", name="main_api_")
- */
+#[Route('/api', name: 'main_api_')]
 class CartApiController extends AbstractController
 {
     private Doctrine $doctrine;
@@ -32,9 +30,7 @@ class CartApiController extends AbstractController
         return $this;
     }
 
-    /**
-     * @Route("/cart", methods="POST", name="cart_save")
-     */
+    #[Route('/cart', name: 'cart_save', methods: ['POST'])]
     public function saveCart(
         Request $request,
         CartRepository $cartRepository,

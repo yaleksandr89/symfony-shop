@@ -9,26 +9,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class UserLoggedInViaSocialNetworkEvent extends Event
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @var string
-     */
-    private $plainPassword;
-
-    /**
-     * @var array
-     */
-    private $verifyEmail;
-
-    public function __construct(User $user, string $plainPassword, array $verifyEmail)
-    {
-        $this->user = $user;
-        $this->plainPassword = $plainPassword;
-        $this->verifyEmail = $verifyEmail;
+    public function __construct(
+        private User $user,
+        private string $plainPassword,
+        private array $verifyEmail
+    ) {
     }
 
     public function getUser(): User

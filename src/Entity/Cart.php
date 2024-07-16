@@ -9,11 +9,20 @@ use App\Repository\CartRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[
+    Table(name: '`cart`'),
+    Entity(repositoryClass: CartRepository::class)
+]
 /**
- * @ORM\Entity(repositoryClass=CartRepository::class)
  * @ApiResource(
  *     collectionOperations={
  *       "get"={
@@ -41,36 +50,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Cart
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"cart:list", "cart:item"})
-     */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[Groups(['cart:list', 'cart:item'])]
+    protected ?int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @Groups({"cart:list", "cart:item", "cart:list:write"})
-     */
-    protected $token;
+    #[Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups(['cart:list', 'cart:item', 'cart:list:write'])]
+    protected ?string $token;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
-    protected $createdAt;
+    #[Column(type: 'datetime_immutable')]
+    protected DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CartProduct::class, mappedBy="cart", orphanRemoval=true)
-     *
-     * @Groups({"cart:list", "cart:item"})
-     */
-    protected $cartProducts;
+    #[OneToMany(mappedBy: 'cart', targetEntity: CartProduct::class, orphanRemoval: true)]
+    #[Groups(['cart:list', 'cart:item'])]
+    protected Collection $cartProducts;
 
     public function __construct()
     {
+        $this->id = null;
         $this->createdAt = new DateTimeImmutable();
         $this->cartProducts = new ArrayCollection();
     }

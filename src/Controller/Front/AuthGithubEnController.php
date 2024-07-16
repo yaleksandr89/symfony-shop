@@ -11,9 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AuthGithubEnController extends AbstractController
 {
-    /**
-     * @Route("/connect/github-en", name="connect_github_en_start")
-     */
+    #[Route('/connect/github-en', name: 'connect_github_en_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         return $clientRegistry
@@ -21,9 +19,7 @@ class AuthGithubEnController extends AbstractController
             ->redirect([], []);
     }
 
-    /**
-     * @Route("/connect/github-en/check", name="connect_github_en_check")
-     */
+    #[Route('/connect/github-en/check', name: 'connect_github_en_check')]
     public function connectCheckAction(): void
     {
     }

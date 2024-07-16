@@ -11,14 +11,10 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFormHandler
 {
-    private UserManager $userManager;
-
-    private UserPasswordHasherInterface $hasher;
-
-    public function __construct(UserManager $userManager, UserPasswordHasherInterface $hasher)
-    {
-        $this->userManager = $userManager;
-        $this->hasher = $hasher;
+    public function __construct(
+        private UserManager $userManager,
+        private UserPasswordHasherInterface $hasher
+    ) {
     }
 
     public function processEditForm(EditUserModel $editUserModel): User
@@ -68,7 +64,7 @@ class UserFormHandler
 
         $email = $editUserModel->email;
 
-        if ($plainPassword) {
+        if (!empty($plainPassword)) {
             $encodedPassword = $this->hasher->hashPassword($user, $plainPassword);
             $user->setPassword($encodedPassword);
         }

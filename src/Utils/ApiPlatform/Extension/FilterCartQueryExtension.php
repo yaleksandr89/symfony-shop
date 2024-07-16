@@ -6,7 +6,10 @@ namespace App\Utils\ApiPlatform\Extension;
 
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+// >>> see vendor/api-platform/core/src/Core/Bridge/Doctrine/Orm/Extension/QueryItemExtensionInterface.php (14.07.2024)
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface as LegacyQueryNameGeneratorInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+// see vendor/api-platform/core/src/Core/Bridge/Doctrine/Orm/Extension/QueryItemExtensionInterface.php (14.07.2024) <<<
 use App\Entity\Cart;
 use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
@@ -40,19 +43,19 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
+        QueryNameGeneratorInterface|LegacyQueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null
+        ?string $operationName = null
     ): void {
         $this->andWhere($queryBuilder, $resourceClass);
     }
 
     public function applyToItem(
         QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface $queryNameGenerator,
+        QueryNameGeneratorInterface|LegacyQueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         array $identifiers,
-        string $operationName = null,
+        ?string $operationName = null,
         array $context = []
     ): void {
         $this->andWhere($queryBuilder, $resourceClass);
@@ -96,7 +99,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         return
             $user instanceof User
             && $user->isAdminRole()
-            && 'admin' === $this->request->getCurrentRequest()->get('context')
+            && 'admin' === $this->request->getCurrentRequest()?->get('context')
         ;
     }
 }

@@ -6,9 +6,20 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\OrderProductRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[
+    Table(name: '`order_product`'),
+    Entity(repositoryClass: OrderProductRepository::class)
+]
 /**
  * @ApiResource(
  *     collectionOperations={
@@ -29,46 +40,33 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *       },
  *     },
  * )
- * @ORM\Entity(repositoryClass=OrderProductRepository::class)
  */
 class OrderProduct
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"order_product:list", "order:item"})
-     */
-    protected $id;
+    #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[Groups(['order_product:list', 'order:item'])]
+    protected ?int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="orderProducts", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    protected $appOrder;
+    #[ManyToOne(targetEntity: Order::class, cascade: ['persist'], inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
+    #[Groups(['order:item'])]
+    protected ?Order $appOrder;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="orderProducts")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"order:item"})
-     */
-    protected $product;
+    #[ManyToOne(targetEntity: Product::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
+    #[Groups(['order:item'])]
+    protected ?Product $product;
 
-    /**
-     * @ORM\Column(type="integer")
-     *
-     * @Groups({"order:item"})
-     */
-    protected $quantity;
+    #[Column(type: Types::INTEGER)]
+    #[Groups(['order:item'])]
+    protected ?int $quantity;
 
-    /**
-     * @ORM\Column(type="decimal", precision=15, scale=2)
-     *
-     * @Groups({"order:item"})
-     */
-    protected $pricePerOne;
+    #[Column(type: Types::DECIMAL, precision: 15, scale: 2)]
+    #[Groups(['order:item'])]
+    protected ?string $pricePerOne;
+
+    public function __construct()
+    {
+        $this->id = null;
+    }
 
     public function getId(): ?int
     {
@@ -111,12 +109,12 @@ class OrderProduct
         return $this;
     }
 
-    public function getPricePerOne(): float|string|null
+    public function getPricePerOne(): ?string
     {
         return $this->pricePerOne;
     }
 
-    public function setPricePerOne(float|string $pricePerOne): static
+    public function setPricePerOne(?string $pricePerOne): static
     {
         $this->pricePerOne = $pricePerOne;
 

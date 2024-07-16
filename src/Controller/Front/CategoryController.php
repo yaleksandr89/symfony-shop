@@ -13,10 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CategoryController extends AbstractController
 {
-    /**
-     * @Route("/category/{slug}", name="main_category_show")
-     */
-    public function show(ProductRepository $productRepository, Category $category = null): Response
+    #[Route('/category/{slug}', name: 'main_category_show')]
+    public function show(ProductRepository $productRepository, ?Category $category = null): Response
     {
         if (!$category) {
             throw new NotFoundHttpException();

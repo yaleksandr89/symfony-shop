@@ -24,7 +24,7 @@ class EmbedController extends AbstractController
         return $this;
     }
 
-    public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, int $categoryId = null): Response
+    public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, ?int $categoryId = null): Response
     {
         $products = $productRepository->findByCategoryAndCount($categoryId, $productCount);
 

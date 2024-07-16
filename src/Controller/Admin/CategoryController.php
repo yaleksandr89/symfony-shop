@@ -15,9 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
-/**
- * @Route("/admin/category", name="admin_category_")
- */
+#[Route('/admin/category', name: 'admin_category_')]
 class CategoryController extends BaseAdminController
 {
     private CategoryRepository $categoryRepository;
@@ -30,9 +28,7 @@ class CategoryController extends BaseAdminController
         return $this;
     }
 
-    /**
-     * @Route("/list", name="list")
-     */
+    #[Route('/list', name: 'list')]
     public function list(): Response
     {
         $categories = $this->categoryRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
@@ -43,12 +39,12 @@ class CategoryController extends BaseAdminController
     }
 
     /**
-     * @Route("/edit/{id}", name="edit")
-     * @Route("/add", name="add")
      * @{убрать}IsGranted("CAN_ADMIN_EDIT", subject="category") - если требуется редирект в случае если пользователь isVerified = false
      * Используется избиратель src/Security/Voters/AdminOrderEditVoter
      */
-    public function edit(Request $request, CategoryFormHandler $categoryFormHandler, Category $category = null): Response
+    #[Route('/edit/{id}', name: 'edit')]
+    #[Route('/add', name: 'add')]
+    public function edit(Request $request, CategoryFormHandler $categoryFormHandler, ?Category $category = null): Response
     {
         $editCategoryModel = EditCategoryModel::makeFromCategory($category);
 
@@ -76,9 +72,7 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="delete")
-     */
+    #[Route('/delete/{id}', name: 'delete')]
     public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
     {
         $id = $category->getId();
