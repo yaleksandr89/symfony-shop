@@ -11,7 +11,5 @@ php bin/console doctrine:schema:update --complete --force
 
 php bin/console hautelook:fixtures:load -n
 
-php ./vendor/bin/phpunit --testdox --group functional-panther
-# --log-events-verbose-text results.txt
-# --group unit --group integration --group functional
-#  --group functional-selenium
+php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional  --group functional-selenium --group functional-panther
+# --log-events-verbose-text log-execute-phpunit.txt #если нужно посмотреть логи выполнения тестов (сохраняется в корень проекта)

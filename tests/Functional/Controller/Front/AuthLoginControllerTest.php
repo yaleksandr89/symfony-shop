@@ -15,7 +15,6 @@ class AuthLoginControllerTest extends BasePantherTestCase
     public function testLogin(): void
     {
         $client = static::createClient();
-
         $client->request('GET', '/ru/login');
         $client->submitForm('Авторизоваться', [
             'email' => $this->email,
@@ -23,7 +22,6 @@ class AuthLoginControllerTest extends BasePantherTestCase
         ]);
 
         self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
-
         $client->followRedirect();
         self::assertResponseIsSuccessful();
     }
@@ -33,7 +31,6 @@ class AuthLoginControllerTest extends BasePantherTestCase
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
         $client->request('GET', '/ru/login');
-
         $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
@@ -55,7 +52,7 @@ class AuthLoginControllerTest extends BasePantherTestCase
             'password' => $this->password,
         ]);
 
-        // sleep(3);
+        // sleep(10); // раскомментировать, если нужно увидеть, что отображается на экране
         $this->takeScreenshot($client, ' App\Tests\Functional\Controller\Front ');
 
         self::assertSame(
