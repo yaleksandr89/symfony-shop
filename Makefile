@@ -14,7 +14,7 @@ watch:
 	npm run watch
 
 deploy:
-	deployer deploy
+	php deployer7 deploy
 
 ##
 ## REFACTORING

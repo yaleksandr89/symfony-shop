@@ -124,6 +124,32 @@ Nécessite la présence de Java, qui peut être installé sur Ubuntu avec la com
 
 ![install-openjdk-21-jdk](../img/install-openjdk-21-jdk.png)
 
+## Deployment mit Deployer 7
+
+[Deployer 7](https://deployer.org/docs/7.x/getting-started) ist ein Tool zur Automatisierung des Bereitstellungsprozesses von Anwendungen. Es ermöglicht das Definieren von Aufgaben und Sequenzen von Aktionen zum Bereitstellen von Code auf entfernten Servern. Dieses Repository verwendet Deployer 7 zur Automatisierung von Bereitstellungen.
+
+### Konfiguration
+
+Um Deployer 7 zu verwenden, müssen Sie die Datei `deploy.php` konfigurieren. Benennen Sie [deploy-example.php](deploy-example.php) in `deploy.php` um, überprüfen Sie die bereitgestellten Kommentare und füllen Sie die Datei gemäß Ihren Anforderungen aus. Es ist **zwingend erforderlich**, den Abschnitt `// Hosts` auszufüllen:
+
+```php
+// Hosts
+host('...')
+    ->setHostname('...')
+    ->setPort('...')
+    ->setRemoteUser('...')
+    ->setIdentityFile('~/.ssh/....pub')
+    ->set('labels', ['stage' => 'prod'])
+    ->set('branch', '...')
+    ->set('deploy_path', '...');
+```
+
+Verwendung
+
+Zum Bereitstellen führen Sie `php deployer7.phar` deploy in der Konsole aus. Ein erfolgreicher Bereitstellungsprozess sieht etwa so aus:
+
+![success-deploy](../img/deployer7-deploy.png)
+
 ## Mises à jour
 
 * 08.07.2023 - fichier de configuration `.circleci` supprimé. Cessation de fonctionnement en Russie : https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country

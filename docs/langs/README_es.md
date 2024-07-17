@@ -123,6 +123,31 @@ Requiere tener Java, en Ubuntu puede instalarlo con el comando: `sudo apt instal
 
 ![install-openjdk-21-jdk](../img/install-openjdk-21-jdk.png)
 
+## Despliegue con Deployer 7
+
+[Deployer 7](https://deployer.org/docs/7.x/getting-started) es una herramienta para automatizar el proceso de despliegue de aplicaciones. Permite definir tareas y secuencias de acciones para desplegar código en servidores remotos. Este repositorio utiliza Deployer 7 para automatizar los despliegues.
+
+### Configuración
+
+Para usar Deployer 7, es necesario configurar el archivo `deploy.php`. Renombra [deploy-example.php](deploy-example.php) a `deploy.php`, revisa los comentarios proporcionados y completa el archivo según tus necesidades. Es **obligatorio** completar la sección `// Hosts`:
+
+```php
+// Hosts
+host('...')
+    ->setHostname('...')
+    ->setPort('...')
+    ->setRemoteUser('...')
+    ->setIdentityFile('~/.ssh/....pub')
+    ->set('labels', ['stage' => 'prod'])
+    ->set('branch', '...')
+    ->set('deploy_path', '...');
+```
+### Uso
+
+Para desplegar, ejecuta `php deployer7.phar deploy` en la consola. Un resultado exitoso del despliegue se verá algo así:
+
+![success-deploy](../img/deployer7-deploy.png)
+
 ## UPD
 
 * 08.07.2023 - eliminado el archivo de configuración `.circleci`. Dejó de funcionar en Rusia: https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country

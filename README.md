@@ -126,6 +126,32 @@ process_name=%(program_name)s_%(process_num)02d
 
 ![install-openjdk-21-jdk](docs/img/install-openjdk-21-jdk.png)
 
+## Деплой с использованием Deployer 7
+
+[Deployer 7](https://deployer.org/docs/7.x/getting-started) - это инструмент для автоматизации процесса деплоя приложений. Он позволяет определить задачи и последовательности действий для развертывания кода на удаленных серверах. В данном репозитории используется Deployer 7 для автоматизации деплоя.
+
+### Настройка
+
+Для использования Deployer 7 вам потребуется настроить файл `deploy.php`. Для этого переименуйте [deploy-example.php](deploy-example.php) в `deploy.php`, посмотрите оставленные комментарии и заполните файл согласно вашим потребностям. К **обязательному заполнению** относится раздел `//hosts`
+
+```php
+// Hosts
+host('...')
+    ->setHostname('...')
+    ->setPort('...')
+    ->setRemoteUser('...')
+    ->setIdentityFile('~/.ssh/....pub')
+    ->set('labels', ['stage' => 'prod'])
+    ->set('branch', '...')
+    ->set('deploy_path', '...');
+```
+
+### Использование
+
+Для запуска в консоли выполните `php deployer7.phar deploy`, результат успешного деплоя будет выглядеть примерно так:
+
+![success-deploy](docs/img/deployer7-deploy.png)
+
 ## UPD
 
 * 08.07.2023 - удален конфиг `.circleci`. Перестал работать в России: https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country

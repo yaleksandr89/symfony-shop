@@ -123,6 +123,32 @@ process_name=%(program_name)s_%(process_num)02d
 
 ![install-openjdk-21-jdk](../img/install-openjdk-21-jdk.png)
 
+## 使用 Deployer 7 进行部署
+
+[Deployer 7](https://deployer.org/docs/7.x/getting-started) 是一个用于自动化应用部署流程的工具。它允许定义任务和动作序列，以便将代码部署到远程服务器上。此存储库使用 Deployer 7 来自动化部署过程。
+
+### 配置
+
+要使用 Deployer 7，您需要配置 `deploy.php` 文件。将 [deploy-example.php](deploy-example.php) 重命名为 `deploy.php`，查看提供的注释，并根据需要填写文件。**必须**填写 `// Hosts` 部分：
+
+```php
+// Hosts
+host('...')
+    ->setHostname('...')
+    ->setPort('...')
+    ->setRemoteUser('...')
+    ->setIdentityFile('~/.ssh/....pub')
+    ->set('labels', ['stage' => 'prod'])
+    ->set('branch', '...')
+    ->set('deploy_path', '...');
+```
+
+### 使用方法
+
+要部署，请在控制台中运行 `php deployer7.phar deploy`。成功部署的结果将如下所示：
+
+![success-deploy](../img/deployer7-deploy.png)
+
 ## 更新日志
 
 * 2023-07-08 - 删除了 `.circleci` 配置。由于在俄罗斯不再可用：https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country
