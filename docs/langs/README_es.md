@@ -6,7 +6,7 @@
 
 | Русский                              | English                              | Español                              | 中文                              | Français                              | Deutsch                              |
 |--------------------------------------|--------------------------------------|--------------------------------------|---------------------------------|---------------------------------------|--------------------------------------|
-| [Русский](../../README.md) | [English](./docs/langs/README_en.md) | **Seleccionado** | [中文](./docs/langs/README_zh.md) | [Français](./docs/langs/README_fr.md) | [Deutsch](./docs/langs/README_de.md) |
+| [Русский](../../README.md) | [English](./README_en.md) | **Seleccionado** | [中文](./README_zh.md) | [Français](./README_fr.md) | [Deutsch](./README_de.md) |
 
 ## Tecnologías utilizadas
 

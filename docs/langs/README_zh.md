@@ -6,7 +6,7 @@
 
 | Русский  | English                              | Español                              | 中文                              | Français                              | Deutsch                              |
 |----------|--------------------------------------|--------------------------------------|---------------------------------|---------------------------------------|--------------------------------------|
-| [Русский](../../README.md) | [English](./docs/langs/README_en.md) | [Español](./docs/langs/README_es.md) | 已选择 | [Français](./docs/langs/README_fr.md) | [Deutsch](./docs/langs/README_de.md) |
+| [Русский](../../README.md) | [English](./README_en.md) | [Español](./README_es.md) | 已选择 | [Français](./README_fr.md) | [Deutsch](./README_de.md) |
 
 ## 使用技术
 

@@ -6,7 +6,7 @@
 
 | Русский  | English                              | Español                              | 中文                              | Français                              | Deutsch                              |
 |----------|--------------------------------------|--------------------------------------|---------------------------------|---------------------------------------|--------------------------------------|
-| [Русский](../../README.md) | [English](./docs/langs/README_en.md) | [Español](./docs/langs/README_es.md) | [中文](./docs/langs/README_zh.md) | [Français](./docs/langs/README_fr.md) | **Ausgewählt** |
+| [Русский](../../README.md) | [English](./README_en.md) | [Español](./README_es.md) | [中文](./README_zh.md) | [Français](./README_fr.md) | **Ausgewählt** |
 
 ## Verwendete Technologien
 
