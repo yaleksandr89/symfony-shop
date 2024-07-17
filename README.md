@@ -2,6 +2,12 @@
 
 >  [Перейти на сайт](https://s-shop.alexanderyurchenko.ru/ "Перейти на сайт")
 
+## Выберите язык
+
+| Русский  | English                              | Español                              | 中文                              | Français                              | Deutsch                              |
+|----------|--------------------------------------|--------------------------------------|---------------------------------|---------------------------------------|--------------------------------------|
+| **Выбран** | [English](./docs/langs/README_en.md) | [Español](./docs/langs/README_es.md) | [中文](./docs/langs/README_zh.md) | [Français](./docs/langs/README_fr.md) | [Deutsch](./docs/langs/README_de.md) |
+
 ## Используемые технологии
 
 * Nginx 1.26.1
