@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Odm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Odm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\ProductRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,57 +29,42 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV4;
 
-#[
-    Table(name: '`product`'),
-    Entity(repositoryClass: ProductRepository::class)
-]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="product:list"}
- *       },
- *       "post"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "normalization_context"={"groups"="product:list:write"}
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="product:item"}
- *       },
- *     "patch"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "normalization_context"={"groups"="product:item:write"}
- *       }
- *     },
- *     order={
- *          "id"="DESC"
- *     },
- *     attributes={
- *          "pagination_client_items_per_page"=true,
- *          "formats"={"jsonld", "json"}
- *     },
- *     paginationEnabled=true
- * )
- * @ApiFilter(BooleanFilter::class, properties={"isPublished"})
- * @ApiFilter(SearchFilter::class, properties={
- * "category": "exact"
- * })
- */
+#[Table(name: '`product`')]
+#[Entity(repositoryClass: ProductRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(
+            normalizationContext: ['groups' => 'product:list']
+        ),
+        new Post(
+            normalizationContext: ['groups' => 'product:list:write'],
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Get(
+            normalizationContext: ['groups' => 'product:item']
+        ),
+        new Patch(
+            normalizationContext: ['groups' => 'product:item:write'],
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+    ],
+    formats: ['jsonld', 'json'],
+    order: ['id' => 'DESC'],
+    paginationClientItemsPerPage: true,
+    paginationEnabled: true,
+    paginationUseOutputWalkers: true
+)]
+#[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
+#[ApiFilter(SearchFilter::class, properties: ['category' => 'exact'])]
 class Product
 {
-    /**
-     * @ApiProperty(identifier=false)
-     */
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
+    #[ApiProperty(identifier: false)]
     #[Groups(['product:list', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?int $id;
 
-    /**
-     * @ApiProperty(identifier=true)
-     */
     #[Column(type: 'uuid')]
+    #[ApiProperty(identifier: true)]
     #[Groups(['product:list', 'product:item', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected UuidV4 $uuid;
 
