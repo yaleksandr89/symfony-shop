@@ -32,6 +32,8 @@ RUN apt-get update \
 
 COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
 
+COPY docker/php/conf.d/*.ini /usr/local/etc/php/conf.d/
+
 RUN groupadd --gid "${APP_GID}" app \
     && useradd --uid "${APP_UID}" --gid app --create-home --shell /bin/bash app \
     && mkdir -p /var/www/html /home/app/.composer \
