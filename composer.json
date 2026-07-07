@@ -1,4 +1,6 @@
 {
+    "name": "yaleksandr89/symfony-shop",
+    "description": "Symfony e-commerce application.",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",

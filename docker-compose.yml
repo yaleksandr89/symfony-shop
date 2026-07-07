@@ -1,0 +1,60 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        APP_UID: ${HOST_UID}
+        APP_GID: ${HOST_GID}
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/var/www/html
+      - composer-home:/home/app/.composer
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.30.3-alpine3.23
+    ports:
+      - "${APP_PORT}:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      php:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:18.4-alpine3.24
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  node:
+    image: node:24.18.0-bookworm-slim
+    profiles:
+      - tools
+    working_dir: /var/www/html
+    user: "${HOST_UID}:${HOST_GID}"
+    environment:
+      NPM_CONFIG_CACHE: /tmp/.npm
+    volumes:
+      - .:/var/www/html
+
+volumes:
+  postgres-data:
+  composer-home:

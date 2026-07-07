@@ -1,6 +1,111 @@
 NODE_MODULES = ./node_modules
 VENDOR = ./vendor
 
+COMPOSE = docker compose -p symfony-shop --env-file .env.docker
+CMD ?=
+
+.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate postgres-reinit del-log del-cache deploy check refactoring eslint php-cs-fixer phpstan run-test
+
+help:
+	@printf '%s\n' 'Docker local development:'
+	@printf '%s\n' '  make init              Create .env.docker and writable local directories'
+	@printf '%s\n' '  make config            Validate and print Docker Compose config'
+	@printf '%s\n' '  make build             Build PHP development image'
+	@printf '%s\n' '  make up                Start php, nginx and postgres'
+	@printf '%s\n' '  make down              Stop containers'
+	@printf '%s\n' '  make logs [SERVICE=x]  Follow logs for all services or one service'
+	@printf '%s\n' '  make shell [SERVICE=x] Open a shell in a running service'
+	@printf '%s\n' '  make console CMD=about Run Symfony console in php as app'
+	@printf '%s\n' '  make composer CMD=...  Run Composer in php as app'
+	@printf '%s\n' '  make npm CMD=...       Run npm command in one-off Node container'
+	@printf '%s\n' '  make postgres-reinit CONFIRM=postgres18  destructive: stop stack and remove local PostgreSQL volume'
+	@printf '%s\n' ''
+	@printf '%s\n' 'First run:'
+	@printf '%s\n' '  make init'
+	@printf '%s\n' '  make build'
+	@printf '%s\n' '  make up'
+	@printf '%s\n' '  make composer-install'
+	@printf '%s\n' '  make npm-install'
+	@printf '%s\n' '  make assets-build'
+	@printf '%s\n' '  make migrate'
+
+init:
+	@if [ ! -f .env.docker ]; then \
+		cp .env.docker.example .env.docker; \
+		sed -i "s/^HOST_UID=.*/HOST_UID=$$(id -u)/" .env.docker; \
+		sed -i "s/^HOST_GID=.*/HOST_GID=$$(id -g)/" .env.docker; \
+		printf '%s\n' 'Created .env.docker from .env.docker.example'; \
+	else \
+		printf '%s\n' '.env.docker already exists; leaving it unchanged'; \
+	fi
+	@mkdir -p var/cache var/log public/uploads
+
+check-env:
+	@if [ ! -f .env.docker ]; then \
+		printf '%s\n' 'Missing .env.docker. Run: make init'; \
+		exit 1; \
+	fi
+
+config: check-env
+	$(COMPOSE) --profile tools config
+
+build: check-env
+	$(COMPOSE) build
+
+up: check-env
+	$(COMPOSE) up -d php nginx postgres
+
+down: check-env
+	$(COMPOSE) down
+
+restart: check-env
+	$(COMPOSE) restart $(SERVICE)
+
+ps: check-env
+	$(COMPOSE) ps
+
+logs: check-env
+	$(COMPOSE) logs -f $(SERVICE)
+
+shell: check-env
+	$(COMPOSE) exec $(if $(SERVICE),$(SERVICE),php) sh
+
+console: check-env
+	$(COMPOSE) exec --user app php php bin/console $(CMD)
+
+composer: check-env
+	$(COMPOSE) exec --user app php composer $(CMD)
+
+composer-install: check-env
+	$(MAKE) composer CMD='install'
+
+npm: check-env
+	$(COMPOSE) run --rm --no-deps node $(CMD)
+
+npm-install: check-env
+	$(MAKE) npm CMD='npm ci'
+
+assets-build: check-env
+	$(MAKE) npm CMD='npm run build'
+
+watch: check-env
+	$(MAKE) npm CMD='npm run watch'
+
+migrate: check-env
+	$(COMPOSE) exec --user app php php bin/console doctrine:migrations:migrate --no-interaction
+
+postgres-reinit: check-env
+	@if [ "$(CONFIRM)" != "postgres18" ]; then \
+		printf '%s\n' 'Refusing to reinitialize PostgreSQL volume. Re-run with: make postgres-reinit CONFIRM=postgres18'; \
+		exit 1; \
+	fi
+	$(COMPOSE) down
+	@if docker volume inspect symfony-shop_postgres-data >/dev/null 2>&1; then \
+		docker volume rm symfony-shop_postgres-data; \
+	else \
+		printf '%s\n' 'PostgreSQL volume symfony-shop_postgres-data does not exist; nothing to remove'; \
+	fi
+
 ##
 ## UTILS
 ## ----------
@@ -9,9 +114,6 @@ del-log:
 
 del-cache:
 	rm -rf ./var/cache
-
-watch:
-	npm run watch
 
 deploy:
 	php deployer7 deploy
