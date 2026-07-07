@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Entity\StaticStorage\UserStaticStorage;
+
+return [
+    'users' => [
+        [
+            'email' => 'super-admin@example.test',
+            'password' => 'DemoSuperAdmin123!',
+            'roles' => [UserStaticStorage::USER_ROLE_SUPER_ADMIN],
+            'full_name' => 'Demo Super Admin',
+            'phone' => '+70000000001',
+            'address' => 'Demo Admin Street, 1',
+            'zip_code' => 101000,
+        ],
+        [
+            'email' => 'admin@example.test',
+            'password' => 'DemoAdmin123!',
+            'roles' => [UserStaticStorage::USER_ROLE_ADMIN],
+            'full_name' => 'Demo Administrator',
+            'phone' => '+70000000002',
+            'address' => 'Demo Admin Street, 2',
+            'zip_code' => 190000,
+        ],
+        [
+            'email' => 'user@example.test',
+            'password' => 'DemoUser123!',
+            'roles' => [UserStaticStorage::USER_ROLE_USER],
+            'full_name' => 'Demo Customer',
+            'phone' => '+70000000003',
+            'address' => 'Demo Customer Street, 3',
+            'zip_code' => 630000,
+        ],
+    ],
+    'categories' => [
+        ['slug' => 'demo-sneakers', 'title' => 'Sneakers'],
+        ['slug' => 'demo-boots', 'title' => 'Boots'],
+        ['slug' => 'demo-accessories', 'title' => 'Accessories'],
+        ['slug' => 'demo-sale', 'title' => 'Sale'],
+    ],
+    'products' => [
+        [
+            'slug' => 'demo-runner-one',
+            'category_slug' => 'demo-sneakers',
+            'title' => 'Demo Runner One',
+            'price' => '59.90',
+            'quantity' => 24,
+            'description' => 'A lightweight demo running shoe for local development catalog pages.',
+            'image_key' => 'demo-runner-one',
+        ],
+        [
+            'slug' => 'demo-runner-two',
+            'category_slug' => 'demo-sneakers',
+            'title' => 'Demo Runner Two',
+            'price' => '64.50',
+            'quantity' => 18,
+            'description' => 'A cushioned demo runner with stable fixture images.',
+            'image_key' => 'demo-runner-two',
+        ],
+        [
+            'slug' => 'demo-runner-three',
+            'category_slug' => 'demo-sneakers',
+            'title' => 'Demo Runner Three',
+            'price' => '72.00',
+            'quantity' => 15,
+            'description' => 'A bright demo sneaker used for repeatable storefront previews.',
+            'image_key' => 'demo-runner-three',
+        ],
+        [
+            'slug' => 'demo-trail-boot',
+            'category_slug' => 'demo-boots',
+            'title' => 'Demo Trail Boot',
+            'price' => '89.99',
+            'quantity' => 12,
+            'description' => 'A durable demo boot for catalog and admin workflows.',
+            'image_key' => 'demo-trail-boot',
+        ],
+        [
+            'slug' => 'demo-city-boot',
+            'category_slug' => 'demo-boots',
+            'title' => 'Demo City Boot',
+            'price' => '94.90',
+            'quantity' => 10,
+            'description' => 'A clean demo city boot with versioned image assets.',
+            'image_key' => 'demo-city-boot',
+        ],
+        [
+            'slug' => 'demo-lightweight-sock',
+            'category_slug' => 'demo-accessories',
+            'title' => 'Demo Lightweight Sock',
+            'price' => '12.90',
+            'quantity' => 50,
+            'description' => 'A small accessory demo product for mixed catalog categories.',
+            'image_key' => 'demo-lightweight-sock',
+        ],
+        [
+            'slug' => 'demo-sport-bag',
+            'category_slug' => 'demo-accessories',
+            'title' => 'Demo Sport Bag',
+            'price' => '39.00',
+            'quantity' => 20,
+            'description' => 'A practical demo sport bag for storefront listing examples.',
+            'image_key' => 'demo-sport-bag',
+        ],
+        [
+            'slug' => 'demo-classic-sneaker',
+            'category_slug' => 'demo-sale',
+            'title' => 'Demo Classic Sneaker',
+            'price' => '49.90',
+            'quantity' => 30,
+            'description' => 'A sale category demo sneaker with deterministic image filenames.',
+            'image_key' => 'demo-classic-sneaker',
+        ],
+    ],
+];

@@ -4,7 +4,7 @@ VENDOR = ./vendor
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate postgres-reinit del-log del-cache deploy check refactoring eslint php-cs-fixer phpstan run-test
+.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint php-cs-fixer phpstan run-test
 
 help:
 	@printf '%s\n' 'Docker local development:'
@@ -18,6 +18,7 @@ help:
 	@printf '%s\n' '  make console CMD=about Run Symfony console in php as app'
 	@printf '%s\n' '  make composer CMD=...  Run Composer in php as app'
 	@printf '%s\n' '  make npm CMD=...       Run npm command in one-off Node container'
+	@printf '%s\n' '  make demo-init         Initialize reproducible dev/test demo data'
 	@printf '%s\n' '  make postgres-reinit CONFIRM=postgres18  destructive: stop stack and remove local PostgreSQL volume'
 	@printf '%s\n' ''
 	@printf '%s\n' 'First run:'
@@ -28,6 +29,7 @@ help:
 	@printf '%s\n' '  make npm-install'
 	@printf '%s\n' '  make assets-build'
 	@printf '%s\n' '  make migrate'
+	@printf '%s\n' '  make demo-init'
 
 init:
 	@if [ ! -f .env.docker ]; then \
@@ -93,6 +95,9 @@ watch: check-env
 
 migrate: check-env
 	$(COMPOSE) exec --user app php php bin/console doctrine:migrations:migrate --no-interaction
+
+demo-init: check-env
+	$(MAKE) console CMD='app:demo:init'
 
 postgres-reinit: check-env
 	@if [ "$(CONFIRM)" != "postgres18" ]; then \
