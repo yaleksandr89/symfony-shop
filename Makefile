@@ -4,7 +4,7 @@ VENDOR = ./vendor
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint php-cs-fixer phpstan run-test
+.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-groups test-list test-unit
 
 help:
 	@printf '%s\n' 'Docker local development:'
@@ -18,6 +18,12 @@ help:
 	@printf '%s\n' '  make console CMD=about Run Symfony console in php as app'
 	@printf '%s\n' '  make composer CMD=...  Run Composer in php as app'
 	@printf '%s\n' '  make npm CMD=...       Run npm command in one-off Node container'
+	@printf '%s\n' '  make test-groups       List available PHPUnit groups'
+	@printf '%s\n' '  make test-list         List available PHPUnit tests'
+	@printf '%s\n' '  make test-unit         Run PHPUnit unit group without result cache'
+	@printf '%s\n' '  make phpstan-check     Run PHPStan read-only analysis'
+	@printf '%s\n' '  make php-cs-fixer-check Check PHP-CS-Fixer rules without writing files'
+	@printf '%s\n' '  make eslint-check      Run ESLint without --fix'
 	@printf '%s\n' '  make demo-init         Initialize reproducible dev/test demo data'
 	@printf '%s\n' '  make postgres-reinit CONFIRM=postgres18  destructive: stop stack and remove local PostgreSQL volume'
 	@printf '%s\n' ''
@@ -135,11 +141,20 @@ refactoring: eslint php-cs-fixer
 eslint:
 	${NODE_MODULES}/.bin/eslint assets/js/ --ext .js,.vue --fix
 
+eslint-check:
+	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue'
+
 php-cs-fixer:
 	${VENDOR}/bin/php-cs-fixer fix src/  --verbose
 
+php-cs-fixer-check:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --dry-run --diff --using-cache=no --verbose
+
 phpstan:
 	${VENDOR}/bin/phpstan analyse src --level 4
+
+phpstan-check:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src --level 4
 
 ##
 ## TESTING
@@ -147,3 +162,12 @@ phpstan:
 
 run-test:
 	sh ./bin/run-tests.sh
+
+test-groups:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --list-groups
+
+test-list:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --list-tests
+
+test-unit:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group unit --do-not-cache-result --no-coverage
