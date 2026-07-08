@@ -169,32 +169,32 @@ run-test:
 	sh ./bin/run-tests.sh
 
 test-groups:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --list-groups
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-groups
 
 test-list:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --list-tests
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-tests
 
 test-unit:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group unit --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group unit --do-not-cache-result --no-coverage
 
 test-db-reset:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
 		printf '%s\n' 'Refusing to reset APP_ENV=test SQLite DB var/db_for_test.db. Re-run with: make test-db-reset CONFIRM=testdb'; \
 		exit 1; \
 	fi
-	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:database:drop --force --if-exists
+	$(COMPOSE) exec --user app -e APP_ENV=test php rm -f var/db_for_test.db
 	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:database:create
 	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:schema:update --complete --force
-	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:fixtures:load --no-interaction
+	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console hautelook:fixtures:load --no-interaction
 
 test-integration:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group integration --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group integration --do-not-cache-result --no-coverage
 
 test-functional:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group functional --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional --do-not-cache-result --no-coverage
 
 test-functional-panther:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-cache-result --no-coverage
 
 test-functional-selenium:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group functional-selenium --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-selenium --do-not-cache-result --no-coverage
