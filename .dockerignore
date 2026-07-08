@@ -1,0 +1,10 @@
+.git
+.idea
+.env
+.env.*
+vendor
+node_modules
+var
+public/build
+public/uploads
+*.dump

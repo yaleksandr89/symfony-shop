@@ -1,4 +1,6 @@
 ###> Custom Rules ###
+/.env.docker
+/*.dump
 log-execute-phpunit.txt
 .phpunit.cache/
 uploads/
