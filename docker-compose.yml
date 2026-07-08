@@ -30,6 +30,8 @@ services:
 
   postgres:
     image: postgres:18.4-alpine3.24
+    ports:
+      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}

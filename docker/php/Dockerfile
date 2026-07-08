@@ -28,6 +28,10 @@ RUN apt-get update \
         pdo_pgsql \
         xsl \
         zip \
+    && pecl install xdebug-3.5.3 \
+    && pecl clear-cache \
+    && pecl install apcu-5.1.28 \
+    && docker-php-ext-enable xdebug apcu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
