@@ -4,7 +4,7 @@ VENDOR = ./vendor
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-groups test-list test-unit
+.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther test-functional-selenium
 
 help:
 	@printf '%s\n' 'Docker local development:'
@@ -21,6 +21,11 @@ help:
 	@printf '%s\n' '  make test-groups       List available PHPUnit groups'
 	@printf '%s\n' '  make test-list         List available PHPUnit tests'
 	@printf '%s\n' '  make test-unit         Run PHPUnit unit group without result cache'
+	@printf '%s\n' '  make test-db-reset CONFIRM=testdb  destructive: reset APP_ENV=test SQLite DB var/db_for_test.db'
+	@printf '%s\n' '  make test-integration  Run PHPUnit integration group without result cache'
+	@printf '%s\n' '  make test-functional   Run PHPUnit functional group without result cache'
+	@printf '%s\n' '  make test-functional-panther  Run PHPUnit functional-panther group without result cache'
+	@printf '%s\n' '  make test-functional-selenium Run PHPUnit functional-selenium group without result cache'
 	@printf '%s\n' '  make phpstan-check     Run PHPStan read-only analysis'
 	@printf '%s\n' '  make php-cs-fixer-check Check PHP-CS-Fixer rules without writing files'
 	@printf '%s\n' '  make eslint-check      Run ESLint without --fix'
@@ -171,3 +176,25 @@ test-list:
 
 test-unit:
 	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group unit --do-not-cache-result --no-coverage
+
+test-db-reset:
+	@if [ "$(CONFIRM)" != "testdb" ]; then \
+		printf '%s\n' 'Refusing to reset APP_ENV=test SQLite DB var/db_for_test.db. Re-run with: make test-db-reset CONFIRM=testdb'; \
+		exit 1; \
+	fi
+	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:database:drop --force --if-exists
+	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:database:create
+	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:schema:update --complete --force
+	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:fixtures:load --no-interaction
+
+test-integration:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group integration --do-not-cache-result --no-coverage
+
+test-functional:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group functional --do-not-cache-result --no-coverage
+
+test-functional-panther:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-cache-result --no-coverage
+
+test-functional-selenium:
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpunit --group functional-selenium --do-not-cache-result --no-coverage
