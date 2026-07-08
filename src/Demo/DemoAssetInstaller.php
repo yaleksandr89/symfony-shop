@@ -28,11 +28,7 @@ final class DemoAssetInstaller
         foreach ($products as $productData) {
             foreach ($this->getSourcePaths($productData['image_key']) as $path) {
                 if (!is_file($path)) {
-                    throw new \RuntimeException(sprintf(
-                        'Missing demo image fixture for product "%s": %s',
-                        $productData['slug'],
-                        $path
-                    ));
+                    throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $productData['slug'], $path));
                 }
             }
         }
@@ -50,11 +46,7 @@ final class DemoAssetInstaller
 
         foreach ($this->getSourcePaths($imageKey) as $path) {
             if (!is_file($path)) {
-                throw new \RuntimeException(sprintf(
-                    'Missing demo image fixture for product "%s": %s',
-                    $product->getSlug(),
-                    $path
-                ));
+                throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product->getSlug(), $path));
             }
         }
 
@@ -67,12 +59,7 @@ final class DemoAssetInstaller
         foreach ($this->getSourcePaths($imageKey) as $variant => $sourcePath) {
             $targetPath = sprintf('%s/%s', $targetDir, $this->getFilename($imageKey, $variant));
             if (!copy($sourcePath, $targetPath)) {
-                throw new \RuntimeException(sprintf(
-                    'Unable to copy demo image for product "%s": %s -> %s',
-                    $product->getSlug(),
-                    $sourcePath,
-                    $targetPath
-                ));
+                throw new \RuntimeException(sprintf('Unable to copy demo image for product "%s": %s -> %s', $product->getSlug(), $sourcePath, $targetPath));
             }
 
             ++$copied;
