@@ -63,14 +63,14 @@ export default {
   },
   methods: {
     ...mapActions("products", ["removeOrderProduct"]),
-    viewDetails(event) {
+    viewDetails() {
       const url = getUrlViewProduct(
         this.staticStore.url.viewProduct,
         this.orderProduct.product.id
       );
       window.open(url, "_blank").focus();
     },
-    remove(event) {
+    remove() {
       this.removeOrderProduct(this.orderProduct.id);
     },
   },

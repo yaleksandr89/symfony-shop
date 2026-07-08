@@ -78,7 +78,7 @@ const actions = {
     }
     await window.vueMenuCartInstance.setCart();
   },
-  async removeCartProduct({ state, commit, dispatch }, cartProductId) {
+  async removeCartProduct({ state, dispatch }, cartProductId) {
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
       cartProductId
