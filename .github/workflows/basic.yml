@@ -26,7 +26,7 @@ jobs:
           test -s bin/selenium-server.jar
 
       - name: Prepare Docker environment
-        run: cp .env.docker.example .env.docker
+        run: make init
 
       - name: Docker baseline checks
         run: |
