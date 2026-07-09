@@ -41,6 +41,7 @@ jobs:
           make assets-build
           make eslint-check
           make test-unit
+          make test-db-reset CONFIRM=testdb
           make test-integration
           make test-functional
           make test-functional-panther
