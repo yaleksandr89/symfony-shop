@@ -105,19 +105,29 @@ process_name=%(program_name)s_%(process_num)02d
 * 功能测试-潘多拉
 * 功能测试-Selenium
 
-组 1 到 3 的测试应该没有问题 `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`。对于最后两个组，测试过程中可能会因为缺少 [chromedriver](../../drivers/chromedriver) - Chrome 驱动程序或 [geckodriver](../../drivers/geckodriver) - Firefox 驱动程序而出现问题。
+组 1 到 3 的测试应该没有问题 `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`。对于最后两个组，测试过程中可能会因为缺少 [chromedriver](../../bin/drivers/chromedriver) - Chrome 驱动程序或 [geckodriver](../../bin/drivers/geckodriver) - Firefox 驱动程序而出现问题。
 
 ![chromedriver-not-found](../img/chromedriver-not-found.png)
 
 ![selenium-server-not-work](../img/selenium-server-not-work.png)
 
-这些错误很容易修复，只需下载驱动程序：https://chromedriver.chromium.org/downloads（根据 Chrome 版本选择）。您也可以尝试使用我在项目中的 **drivers/** 目录中放置的驱动程序，但如果驱动程序版本与安装的浏览器版本不同，可能会出现错误。
+这些错误很容易修复，只需下载驱动程序：https://chromedriver.chromium.org/downloads（根据 Chrome 版本选择）。您也可以尝试使用我在项目中的 **bin/drivers/** 目录中放置的驱动程序，但如果驱动程序版本与安装的浏览器版本不同，可能会出现错误。
 在系统中（Linux）全局安装驱动程序的方法：https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
 
-之后，在开始测试之前，需要使用以下命令启动 selenium：
+在 Docker 场景中，Selenium 作为 Docker Compose service 运行。使用以下命令运行 functional-selenium 测试：
 
-* `java -jar bin/selenium-server-4.22.0.jar standalone`
-* `java -jar bin/selenium-server-standalone-3.141.59.jar`（不需要指定 standalone 参数，但版本较旧）
+* `make test-functional-selenium`
+
+在 Docker 中，Selenium 测试使用 compose service `selenium` 和 `SELENIUM_SERVER_URL=http://selenium:4444/wd/hub`；Panther web server 在 compose network 内以 `php:9080` 暴露。
+
+如有需要，可以单独检查 Selenium service：
+
+* `docker compose -p symfony-shop --env-file .env.docker up -d selenium`
+* `curl -fsS http://127.0.0.1:4444/status`
+
+Docker 场景不需要主机上的 Java。本地 JAR 启动只作为 Docker 之外的可选手动 fallback：
+
+* `java -jar bin/selenium-server.jar standalone`
 
 需要安装 Java，在 Ubuntu 上可以使用命令安装：`sudo apt install openjdk-21-jdk`，版本可能会有所不同 - 我总是安装最新版本。
 

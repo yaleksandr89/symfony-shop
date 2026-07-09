@@ -47,17 +47,16 @@ class AuthLoginControllerTest extends BasePantherTestCase
         $client = $this->initSeleniumClient();
         $client->request('GET', '/ru/login');
 
-        $crawler = $client->submitForm('Авторизоваться', [
+        $client->submitForm('Авторизоваться', [
             'email' => $this->email,
             'password' => $this->password,
         ]);
 
+        $crawler = $client->waitFor('#page_header_title');
+
         // sleep(10); // раскомментировать, если нужно увидеть, что отображается на экране
         $this->takeScreenshot($client, ' App\Tests\Functional\Controller\Front ');
 
-        self::assertSame(
-            $crawler->filter('#page_header_title')->text(),
-            'Добро пожаловать в ЛК!'
-        );
+        self::assertSame('Добро пожаловать в ЛК!', $crawler->filter('#page_header_title')->text());
     }
 }

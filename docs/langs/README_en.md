@@ -108,19 +108,29 @@ The project is covered with various types of tests (grouped into `#[Group(name: 
 * Functional Panther tests
 * Functional Selenium tests
 
-Groups of tests 1 - 3 should run without any problems `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`. For the last two groups, problems may occur due to the absence of installed [chromedriver](../../drivers/chromedriver) - Chrome engine or [geckodriver](../../drivers/geckodriver) - Firefox engine.
+Groups of tests 1 - 3 should run without any problems `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`. For the last two groups, problems may occur due to the absence of installed [chromedriver](../../bin/drivers/chromedriver) - Chrome engine or [geckodriver](../../bin/drivers/geckodriver) - Firefox engine.
 
 ![chromedriver-not-found](../img/chromedriver-not-found.png)
 
 ![selenium-server-not-work](../img/selenium-server-not-work.png)
 
-These bugs are easy to fix by downloading the driver: https://chromedriver.chromium.org/downloads (choose depending on the Chrome version). You can try using the drivers I placed in the project directory **drivers/**, but if the driver version and the installed browser version differ, errors may occur.
+These bugs are easy to fix by downloading the driver: https://chromedriver.chromium.org/downloads (choose depending on the Chrome version). You can try using the drivers I placed in the project directory **bin/drivers/**, but if the driver version and the installed browser version differ, errors may occur.
 How to install the driver globally in the system (Linux): https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
 
-After this, before starting testing, you need to start selenium with the command:
+In the Docker scenario, Selenium runs as a Docker Compose service. Run the functional-selenium tests with:
 
-* `java -jar bin/selenium-server-4.22.0.jar standalone`
-* `java -jar bin/selenium-server-standalone-3.141.59.jar` (does not require specifying the standalone parameter, but the version is older)
+* `make test-functional-selenium`
+
+For Docker, Selenium tests use the compose service `selenium` and `SELENIUM_SERVER_URL=http://selenium:4444/wd/hub`; the Panther web server is exposed inside the compose network as `php:9080`.
+
+If needed, you can check the Selenium service separately:
+
+* `docker compose -p symfony-shop --env-file .env.docker up -d selenium`
+* `curl -fsS http://127.0.0.1:4444/status`
+
+Host Java is not required for the Docker scenario. Starting the local JAR is only an optional manual fallback outside Docker:
+
+* `java -jar bin/selenium-server.jar standalone`
 
 Requires Java, which can be installed on Ubuntu with the command: `sudo apt install openjdk-21-jdk`, the version may vary - I always install the latest version.
 

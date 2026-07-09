@@ -197,4 +197,14 @@ test-functional-panther:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-cache-result --no-coverage
 
 test-functional-selenium:
+	@set -e; \
+	cleanup() { $(COMPOSE) rm -sf selenium >/dev/null 2>&1 || true; }; \
+	trap 'status=$$?; cleanup; exit $$status' EXIT INT TERM; \
+	$(COMPOSE) up -d selenium; \
+	i=0; \
+	until $(COMPOSE) exec -T --user app php php -r '$$json = @file_get_contents("http://selenium:4444/status"); if (!$$json) exit(1); $$data = json_decode($$json, true); exit(($$data["value"]["ready"] ?? false) ? 0 : 1);'; do \
+		i=$$((i + 1)); \
+		if [ "$$i" -ge 60 ]; then printf '%s\n' 'Selenium did not become ready'; exit 1; fi; \
+		sleep 1; \
+	done; \
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-selenium --do-not-cache-result --no-coverage
