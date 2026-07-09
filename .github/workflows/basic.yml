@@ -1,4 +1,4 @@
-name: Basic CI
+name: Docker Baseline CI
 
 on:
   pull_request:
@@ -34,6 +34,9 @@ jobs:
           make build
           make up
           make ps
+          make composer-install
+          make npm-install
+          make assets-build
           make eslint-check
           make test-unit
           make test-integration
