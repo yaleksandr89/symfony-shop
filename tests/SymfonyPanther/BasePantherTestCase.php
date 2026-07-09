@@ -6,19 +6,30 @@ use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
+use Symfony\Component\Panther\ProcessManager\SeleniumManager;
+use Symfony\Component\Panther\ServerExtension;
 
 class BasePantherTestCase extends PantherTestCase
 {
     protected function initSeleniumClient(): Client
     {
-        static::createPantherClient();
-        static::startWebServer();
+        $seleniumServerUrl = getenv('SELENIUM_SERVER_URL') ?: 'http://127.0.0.1:4444/wd/hub';
+        $seleniumServerHost = preg_replace('#/wd/hub/?$#', '', $seleniumServerUrl) ?? $seleniumServerUrl;
 
-        return Client::createSeleniumClient(
-            'http://127.0.0.1:4444/wd/hub',
-            $this->getChromeCapabilities(),
-            'http://127.0.0.1:9080'
+        static::startWebServer([
+            'hostname' => getenv('PANTHER_WEB_SERVER_HOST') ?: '127.0.0.1',
+            'port' => (int) (getenv('PANTHER_WEB_SERVER_PORT') ?: 9080),
+        ]);
+
+        $client = new Client(
+            new SeleniumManager($seleniumServerHost, $this->getChromeCapabilities()),
+            static::$baseUri
         );
+
+        static::$pantherClients[0] = static::$pantherClient = $client;
+        ServerExtension::registerClient($client);
+
+        return $client;
     }
 
     private function getChromeCapabilities(): DesiredCapabilities

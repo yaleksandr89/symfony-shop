@@ -106,7 +106,7 @@ process_name=%(program_name)s_%(process_num)02d
 * functional-selenium
 
 Группы тестов 1. - 3. должны запускать без каких либо проблем `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`. По последним двум группам
-в процессе тестирования могут возникнуть проблемы из-за отсутствия установленного [chromedriver](drivers/chromedriver) - движок chrome или [geckodriver](drivers/geckodriver) - движок firefox. 
+в процессе тестирования могут возникнуть проблемы из-за отсутствия установленного [chromedriver](bin/drivers/chromedriver) - движок chrome или [geckodriver](bin/drivers/geckodriver) - движок firefox.
 
 ![chromedriver-not-found](docs/img/chromedriver-not-found.png)
 
@@ -114,13 +114,23 @@ process_name=%(program_name)s_%(process_num)02d
 
 Исправить данные баги легко, для этого нужно:
 
-* скачать движок: https://chromedriver.chromium.org/downloads (выбирать в зависимости от версии хрома). Можно попробовать воспользоваться движками, которые я разместил в проект в директории **drivers/**, но если версии движка и установленного браузера различаются - могут быть ошибки.
+* скачать движок: https://chromedriver.chromium.org/downloads (выбирать в зависимости от версии хрома). Можно попробовать воспользоваться движками, которые я разместил в проект в директории **bin/drivers/**, но если версии движка и установленного браузера различаются - могут быть ошибки.
 * Как установить движок в системе (linux) глобально: https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
 
-После этого, перед началом тестирования, предварительно, нужно запустить selenium командой:
+В Docker-сценарии Selenium запускается как Docker Compose service. Для запуска functional-selenium тестов используйте:
 
-* `java -jar bin/selenium-server-4.22.0.jar standalone`
-* `java -jar bin/selenium-server-standalone-3.141.59.jar` (не требует указания параметра standalone, но версия более старая)
+* `make test-functional-selenium`
+
+Для Docker Selenium tests используют compose service `selenium` и `SELENIUM_SERVER_URL=http://selenium:4444/wd/hub`; Panther web server доступен внутри compose network как `php:9080`.
+
+При необходимости Selenium service можно проверить отдельно:
+
+* `docker compose -p symfony-shop --env-file .env.docker up -d selenium`
+* `curl -fsS http://127.0.0.1:4444/status`
+
+Для Docker-сценария Java на хосте не нужна. Ручной запуск через локальный JAR можно использовать только как fallback вне Docker:
+
+* `java -jar bin/selenium-server.jar standalone`
 
 Требует наличия java, в Ubuntu можно установить командой: `sudo apt install openjdk-21-jdk`, версия может отличаться - ставлю всегда последнюю
 

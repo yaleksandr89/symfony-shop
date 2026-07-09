@@ -2,19 +2,41 @@ FROM php:8.3-fpm-bookworm
 
 ARG APP_UID=1000
 ARG APP_GID=1000
+ARG CHROME_FOR_TESTING_VERSION=150.0.7871.46
 
 WORKDIR /var/www/html
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash \
+        ca-certificates \
         git \
+        libasound2 \
+        libatk-bridge2.0-0 \
+        libatk1.0-0 \
+        libatspi2.0-0 \
+        libcairo2 \
+        libcups2 \
+        libdbus-1-3 \
+        libdrm2 \
         libfreetype6-dev \
+        libgbm1 \
+        libglib2.0-0 \
+        libnss3 \
+        libpango-1.0-0 \
+        libx11-6 \
+        libxcb1 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxext6 \
+        libxfixes3 \
         libicu-dev \
         libjpeg62-turbo-dev \
+        libxkbcommon0 \
         libonig-dev \
         libpng-dev \
         libpq-dev \
+        libxrandr2 \
         libxml2-dev \
         libzip-dev \
         libxslt1-dev \
@@ -34,7 +56,19 @@ RUN apt-get update \
     && docker-php-ext-enable xdebug apcu \
     && rm -rf /var/lib/apt/lists/*
 
+COPY bin/chrome-linux64-${CHROME_FOR_TESTING_VERSION}.zip /tmp/chrome-linux64.zip
+
+RUN mkdir -p /opt/chrome-for-testing \
+    && unzip -q /tmp/chrome-linux64.zip -d /opt/chrome-for-testing \
+    && rm /tmp/chrome-linux64.zip
+
 COPY --from=composer:2.10.2 /usr/bin/composer /usr/local/bin/composer
+
+ENV PANTHER_CHROME_BINARY=/opt/chrome-for-testing/chrome-linux64/chrome
+ENV PANTHER_CHROME_DRIVER_BINARY=/var/www/html/bin/drivers/chromedriver
+ENV PANTHER_NO_SANDBOX=1
+ENV PANTHER_CHROME_ARGUMENTS="--disable-dev-shm-usage"
+ENV PATH="/var/www/html/bin/drivers:${PATH}"
 
 COPY docker/php/conf.d/*.ini /usr/local/etc/php/conf.d/
 

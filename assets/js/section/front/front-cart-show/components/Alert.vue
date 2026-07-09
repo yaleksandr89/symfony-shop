@@ -8,7 +8,7 @@
 import { mapState } from "vuex";
 
 export default {
-  name: "Alert",
+  name: "CartAlert",
   computed: {
     ...mapState("cart", ["alert"]),
     alertClass() {

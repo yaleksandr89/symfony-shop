@@ -159,7 +159,7 @@ final class DemoDataInitializer
 
     /**
      * @param array<int, array{slug: string, category_slug: string, title: string, price: string, quantity: int, description: string, image_key: string}> $products
-     * @param array<string, Category> $categoriesBySlug
+     * @param array<string, Category>                                                                                                                     $categoriesBySlug
      *
      * @return array{0: array{created: int, updated: int}, 1: array<string, Product>}
      */
@@ -203,7 +203,7 @@ final class DemoDataInitializer
 
     /**
      * @param array<int, array{slug: string, image_key: string}> $products
-     * @param array<string, Product> $productsBySlug
+     * @param array<string, Product>                             $productsBySlug
      *
      * @return array{created: int, existing: int, files_copied: int}
      */

@@ -36,7 +36,7 @@ const getters = {
 };
 
 const actions = {
-  async getCart({ state, commit, dispatch }) {
+  async getCart({ state, commit }) {
     const url = state.staticStore.url.apiCart;
     const result = await axios.get(url, apiConfig);
 
@@ -57,7 +57,7 @@ const actions = {
       commit("setCart", {});
     }
   },
-  async removeCartProduct({ state, commit, dispatch }, cartProductId) {
+  async removeCartProduct({ state, dispatch }, cartProductId) {
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
       cartProductId
