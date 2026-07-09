@@ -15,28 +15,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          coverage: none
+          lfs: true
 
-      - name: Validate Composer configuration
-        run: composer validate --strict --no-check-publish
-
-      - name: Lint PHP files
+      - name: Check Git LFS artifacts
         run: |
-          find . \
-            -path './vendor' -prune -o \
-            -path './var' -prune -o \
-            -name '*.php' -type f -print0 \
-            | xargs -0 -r -n1 php -l
+          git lfs ls-files
+          test -s bin/chrome-linux64-150.0.7871.46.zip
+          unzip -tq bin/chrome-linux64-150.0.7871.46.zip
+          test -s bin/selenium-server.jar
 
-      - name: Check required files
+      - name: Prepare Docker environment
+        run: cp .env.docker.example .env.docker
+
+      - name: Docker baseline checks
         run: |
-          test -f Makefile
-          test -f docker-compose.yml
-          test -f .env.docker.example
-          test -f docker/php/Dockerfile
-          test -f docker/nginx/default.conf
+          make config
+          make build
+          make up
+          make ps
+          make eslint-check
+          make test-unit
+          make test-integration
+          make test-functional
+          make test-functional-panther
+          make test-functional-selenium
+          make phpstan-check
+
+      - name: Cleanup Docker
+        if: always()
+        run: docker compose -p symfony-shop --env-file .env.docker --profile tools down --remove-orphans
