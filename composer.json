@@ -28,7 +28,7 @@
         "knpuniversity/oauth2-client-bundle": "^2.0",
         "league/oauth2-github": "^3.0",
         "league/oauth2-google": "^4.0",
-        "lexik/form-filter-bundle": "^8.0",
+        "spiriitlabs/form-filter-bundle": "~10.0.2",
         "nelmio/cors-bundle": "^2.0",
         "phpdocumentor/reflection-docblock": "^5.0",
         "stof/doctrine-extensions-bundle": "^1.0",

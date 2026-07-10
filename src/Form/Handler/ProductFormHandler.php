@@ -11,7 +11,7 @@ use App\Utils\FileSystem\FilesystemWorker;
 use App\Utils\Manager\ProductManager;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
+use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 

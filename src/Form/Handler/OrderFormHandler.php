@@ -10,7 +10,7 @@ use App\Utils\Manager\OrderManager;
 use DateTimeImmutable;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
+use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 

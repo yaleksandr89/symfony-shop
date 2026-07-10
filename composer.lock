@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a3eb575aa9f5173df8d13a132504704f",
+    "content-hash": "b4838ea78836700966b2513a0da671ff",
     "packages": [
         {
             "name": "aego/oauth2-yandex",
@@ -2877,71 +2877,6 @@
             "time": "2023-03-17T15:20:52+00:00"
         },
         {
-            "name": "lexik/form-filter-bundle",
-            "version": "v8.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lexik/LexikFormFilterBundle.git",
-                "reference": "6ea14ef782f956fc6acf78bbe423be8a4ac057a6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lexik/LexikFormFilterBundle/zipball/6ea14ef782f956fc6acf78bbe423be8a4ac057a6",
-                "reference": "6ea14ef782f956fc6acf78bbe423be8a4ac057a6",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/orm": "^2.10",
-                "php": ">=7.4",
-                "symfony/form": "^5.3|^6.0",
-                "symfony/framework-bundle": "^5.3|^6.0"
-            },
-            "require-dev": {
-                "doctrine/doctrine-bundle": "^1.8 || ^2.0",
-                "doctrine/mongodb-odm-bundle": "^4.4",
-                "symfony/phpunit-bridge": "^5.3|^6.0",
-                "symfony/var-dumper": "^5.3|^6.0"
-            },
-            "suggest": {
-                "alcaeus/mongo-php-adapter": "Install this package if using the PHP 7 MongoDB Driver"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Lexik\\Bundle\\FormFilterBundle\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Cedric Girard",
-                    "email": "c.girard@lexik.fr"
-                },
-                {
-                    "name": "Dev Lexik",
-                    "email": "dev@lexik.fr"
-                }
-            ],
-            "description": "This bundle aim to provide classes to build some form filters and then build a doctrine query from this form filter.",
-            "homepage": "https://github.com/lexik/LexikFormFilterBundle",
-            "keywords": [
-                "bundle",
-                "doctrine",
-                "filter",
-                "form",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/lexik/LexikFormFilterBundle/issues",
-                "source": "https://github.com/lexik/LexikFormFilterBundle/tree/v8.0.1"
-            },
-            "abandoned": "spiriitlabs/form-filter-bundle",
-            "time": "2023-05-19T06:37:47+00:00"
-        },
-        {
             "name": "lorenzo/pinky",
             "version": "1.1.0",
             "source": {
@@ -3938,6 +3873,58 @@
                 "source": "https://github.com/ralouphie/getallheaders/tree/develop"
             },
             "time": "2019-03-08T08:55:37+00:00"
+        },
+        {
+            "name": "spiriitlabs/form-filter-bundle",
+            "version": "v10.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SpiriitLabs/form-filter-bundle.git",
+                "reference": "78a8aaaf4f0e51d1ba6ffd59e371e137f9517123"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SpiriitLabs/form-filter-bundle/zipball/78a8aaaf4f0e51d1ba6ffd59e371e137f9517123",
+                "reference": "78a8aaaf4f0e51d1ba6ffd59e371e137f9517123",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/orm": "^2.10",
+                "php": ">=7.4",
+                "symfony/form": "^5.3|^6.0|^7.0",
+                "symfony/framework-bundle": "^5.3|^6.0|^7.0"
+            },
+            "require-dev": {
+                "doctrine/annotations": "^2.0",
+                "doctrine/doctrine-bundle": "^1.8 || ^2.0",
+                "rector/rector": "^0.17.1",
+                "symfony/phpunit-bridge": "^5.3|^6.0|^7.0",
+                "symfony/var-dumper": "^5.3|^6.0|^7.0",
+                "symplify/easy-coding-standard": "^11.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Spiriit\\Bundle\\FormFilterBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "This bundle aim to provide classes to build some form filters and then build a doctrine query from this form filter.",
+            "homepage": "https://github.com/SpiriitLabs/form-filter-bundle",
+            "keywords": [
+                "bundle",
+                "doctrine",
+                "filter",
+                "form",
+                "symfony"
+            ],
+            "support": {
+                "source": "https://github.com/SpiriitLabs/form-filter-bundle/tree/v10.0.2"
+            },
+            "time": "2024-08-23T08:46:41+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
