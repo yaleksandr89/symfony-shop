@@ -32,7 +32,6 @@
         "nelmio/cors-bundle": "^2.0",
         "php-translation/symfony-bundle": "^0.14.3",
         "phpdocumentor/reflection-docblock": "^5.0",
-        "sensio/framework-extra-bundle": "^6.0",
         "stof/doctrine-extensions-bundle": "^1.0",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
