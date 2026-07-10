@@ -30,7 +30,6 @@
         "league/oauth2-google": "^4.0",
         "lexik/form-filter-bundle": "^8.0",
         "nelmio/cors-bundle": "^2.0",
-        "php-translation/symfony-bundle": "^0.14.3",
         "phpdocumentor/reflection-docblock": "^5.0",
         "stof/doctrine-extensions-bundle": "^1.0",
         "symfony/asset": "6.4.*",
