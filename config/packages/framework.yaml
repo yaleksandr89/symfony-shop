@@ -5,6 +5,9 @@ framework:
   http_method_override: false
   csrf_protection: true
   handle_all_throwables: true
+  uid:
+    default_uuid_version: 6
+    time_based_uuid_version: 6
   # Enables session support. Note that the session will ONLY be started if you read or write from it.
   # Remove or comment this section to explicitly disable session support.
   session:
