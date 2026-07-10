@@ -6,7 +6,7 @@ namespace App\Form\Admin\FilterType;
 
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
-use App\Form\DTO\EditOrderModel;
+use App\Form\DTO\OrderFilterModel;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterOperands;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\ChoiceFilterType;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\DateTimeRangeFilterType;
@@ -89,7 +89,7 @@ class OrderFilterFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => EditOrderModel::class,
+            'data_class' => OrderFilterModel::class,
             'method' => 'GET',
             'validation_groups' => ['filtering'],
         ]);

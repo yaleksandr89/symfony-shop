@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Form\Admin\EditOrderFormType;
 use App\Form\Admin\FilterType\OrderFilterFormType;
 use App\Form\DTO\EditOrderModel;
+use App\Form\DTO\OrderFilterModel;
 use App\Form\Handler\OrderFormHandler;
 use App\Utils\Manager\OrderManager;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,7 @@ class OrderController extends BaseAdminController
     #[Route('/list', name: 'list')]
     public function list(Request $request, OrderFormHandler $orderFormHandler): Response
     {
-        $filterForm = $this->createForm(OrderFilterFormType::class, EditOrderModel::makeFromOrder());
+        $filterForm = $this->createForm(OrderFilterFormType::class, new OrderFilterModel());
         $filterForm->handleRequest($request);
 
         $pagination = $orderFormHandler->processOrderFiltersForm($request, $filterForm);

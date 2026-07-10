@@ -8,6 +8,7 @@ use App\Entity\Product;
 use App\Form\Admin\EditProductFormType;
 use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\EditProductModel;
+use App\Form\DTO\ProductFilterModel;
 use App\Form\Handler\ProductFormHandler;
 use App\Utils\Manager\ProductManager;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +21,7 @@ class ProductController extends BaseAdminController
     #[Route('/list', name: 'list')]
     public function list(Request $request, ProductFormHandler $productFormHandler): Response
     {
-        $filterForm = $this->createForm(ProductFilterFormType::class, EditProductModel::makeFromProduct());
+        $filterForm = $this->createForm(ProductFilterFormType::class, new ProductFilterModel());
         $filterForm->handleRequest($request);
 
         $pagination = $productFormHandler->processOrderFiltersForm($request, $filterForm);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Form\Admin\FilterType;
 
 use App\Entity\Category;
-use App\Form\DTO\EditProductModel;
+use App\Form\DTO\ProductFilterModel;
 use App\Repository\CategoryRepository;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterOperands;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\BooleanFilterType;
@@ -118,7 +118,7 @@ class ProductFilterFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => EditProductModel::class,
+            'data_class' => ProductFilterModel::class,
             'method' => 'GET',
             'validation_groups' => ['filtering'],
         ]);
