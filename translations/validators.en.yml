@@ -8,3 +8,4 @@
 'Please indicate a quantity': 'Please indicate a quantity'
 'Please select a category': 'Please select a category'
 'Price cannot be less than or equal to zero.': 'Price cannot be less than or equal to zero.'
+admin.filter.date_range.invalid_order: 'The "From" date cannot be later than the "To" date.'

@@ -10,8 +10,8 @@
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <td>Filters</td>
-                    <td>Value</td>
+                    <td>{{ 'filter.heading.filters'|trans({}, 'admin') }}</td>
+                    <td>{{ 'filter.heading.value'|trans({}, 'admin') }}</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -75,7 +75,7 @@
                         {{ form_widget(form.createdAt) }}
                         {% if form.createdAt.vars.errors|length > 0 %}
                             <div class="alert alert-danger mt-2 mb-0" role="alert">
-                                <strong class="d-block">Ошибка диапазона дат</strong>
+                                <strong class="d-block">{{ 'filter.error.date_range_title'|trans({}, 'admin') }}</strong>
                                 {{ form_errors(form.createdAt) }}
                             </div>
                         {% endif %}

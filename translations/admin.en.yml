@@ -1,0 +1,22 @@
+filter.heading.filters: Filters
+filter.heading.value: Value
+filter.action.toggle: Show/Hide filters
+filter.action.apply: Apply
+filter.action.reset: Reset filters
+filter.range.from: From
+filter.range.to: To
+filter.error.date_range_title: Date range error
+
+product.filter.field.id: ID
+product.filter.field.category: Category
+product.filter.field.title: Title
+product.filter.field.price: Price
+product.filter.field.quantity: Quantity
+product.filter.field.created_at: Created at
+product.filter.field.is_published: Published
+
+order.filter.field.id: ID
+order.filter.field.owner: Owner
+order.filter.field.status: Status
+order.filter.field.total_price: Total price
+order.filter.field.created_at: Created at

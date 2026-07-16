@@ -138,3 +138,4 @@ Error: Ошибка
 'Please indicate a quantity': 'Пожалуйста, укажите количество'
 'Please select a category': 'Пожалуйста, выберите категорию'
 'Price cannot be less than or equal to zero.': 'Цена не может быть меньше или равна нулю.'
+admin.filter.date_range.invalid_order: 'Дата «От» не может быть позднее даты «До».'

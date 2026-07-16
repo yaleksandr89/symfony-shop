@@ -31,13 +31,13 @@ class OrderFilterFormType extends AbstractType
     {
         $builder
             ->add('id', NumberFilterType::class, [
-                'label' => 'Id',
+                'label' => 'order.filter.field.id',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('owner', EntityFilterType::class, [
-                'label' => 'Owner',
+                'label' => 'order.filter.field.owner',
                 'class' => User::class,
                 'choice_label' => function ($user) {
                     return sprintf('#%s %s', $user->getId(), $user->getEmail());
@@ -47,23 +47,24 @@ class OrderFilterFormType extends AbstractType
                 ],
             ])
             ->add('status', ChoiceFilterType::class, [
-                'label' => 'Status',
+                'label' => 'order.filter.field.status',
                 'choices' => array_flip(OrderStaticStorage::getOrderStatusChoices()),
+                'choice_translation_domain' => 'messages',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('totalPrice', NumberRangeFilterType::class, [
-                'label' => 'Total price',
+                'label' => 'order.filter.field.total_price',
                 'left_number_options' => [
-                    'label' => 'From',
+                    'label' => 'filter.range.from',
                     'condition_operator' => FilterOperands::OPERATOR_GREATER_THAN_EQUAL,
                     'attr' => [
                         'class' => 'form-control',
                     ],
                 ],
                 'right_number_options' => [
-                    'label' => 'To',
+                    'label' => 'filter.range.to',
                     'condition_operator' => FilterOperands::OPERATOR_LOWER_THAN_EQUAL,
                     'attr' => [
                         'class' => 'form-control',
@@ -71,10 +72,10 @@ class OrderFilterFormType extends AbstractType
                 ],
             ])
             ->add('createdAt', DateRangeFilterType::class, [
-                'label' => 'Created at',
+                'label' => 'order.filter.field.created_at',
                 'error_bubbling' => false,
                 'left_date_options' => [
-                    'label' => 'From',
+                    'label' => 'filter.range.from',
                     'widget' => 'single_text',
                     'input' => 'datetime_immutable',
                     'attr' => [
@@ -82,7 +83,7 @@ class OrderFilterFormType extends AbstractType
                     ],
                 ],
                 'right_date_options' => [
-                    'label' => 'To',
+                    'label' => 'filter.range.to',
                     'widget' => 'single_text',
                     'input' => 'datetime_immutable',
                     'attr' => [
@@ -103,7 +104,8 @@ class OrderFilterFormType extends AbstractType
                                 && $rightDate instanceof DateTimeImmutable
                                 && $leftDate > $rightDate
                             ) {
-                                $context->buildViolation('Дата «От» не может быть позднее даты «До».')
+                                $context->buildViolation('admin.filter.date_range.invalid_order')
+                                    ->setTranslationDomain('validators')
                                     ->addViolation();
                             }
                         },
@@ -124,6 +126,7 @@ class OrderFilterFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => OrderFilterModel::class,
             'method' => 'GET',
+            'translation_domain' => 'admin',
             'validation_groups' => ['filtering'],
         ]);
     }

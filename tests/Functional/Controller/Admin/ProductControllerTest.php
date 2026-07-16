@@ -12,13 +12,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 #[Group(name: 'functional')]
 class ProductControllerTest extends WebTestCase
 {
-    private const DATE_RANGE_ERROR_TITLE = 'Ошибка диапазона дат';
-    private const DATE_RANGE_ERROR = 'Дата «От» не может быть позднее даты «До».';
-
     public function testListLoads(): void
     {
         $client = $this->createAdminClient();
@@ -31,7 +29,7 @@ class ProductControllerTest extends WebTestCase
     {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/ru/admin/product/list');
-        $client->submit($crawler->selectButton('Apply')->form());
+        $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form());
 
         self::assertResponseIsSuccessful();
     }
@@ -40,7 +38,7 @@ class ProductControllerTest extends WebTestCase
     {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/ru/admin/product/list');
-        $form = $crawler->selectButton('Apply')->form([
+        $form = $crawler->filter('#product_list_filters_block form button[type="submit"]')->form([
             'order_filter_form[price][left_number]' => '10',
             'order_filter_form[price][right_number]' => '100',
         ]);
@@ -64,7 +62,7 @@ class ProductControllerTest extends WebTestCase
     {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/ru/admin/product/list');
-        $crawler = $client->submit($crawler->selectButton('Apply')->form($submitted));
+        $crawler = $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form($submitted));
 
         self::assertResponseIsSuccessful();
         self::assertCount(
@@ -83,14 +81,83 @@ class ProductControllerTest extends WebTestCase
         ]];
     }
 
-    public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(): void
+    #[DataProvider(methodName: 'provideFilterLocales')]
+    public function testFilterUiIsLocalized(
+        string $locale,
+        string $heading,
+        string $toggle,
+        array $expected,
+        array $unexpected,
+        array $booleanOptions,
+    ): void {
+        $client = $this->createAdminClient();
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/list', $locale));
+
+        self::assertResponseIsSuccessful();
+        $filters = $crawler->filter('#product_list_filters_block');
+        self::assertCount(1, $filters);
+        self::assertStringContainsString(
+            $heading,
+            $crawler->filterXPath('//*[@id="product_list_filters_btn"]/preceding-sibling::h6')->text(),
+        );
+        self::assertStringContainsString($toggle, $crawler->filter('#product_list_filters_btn')->text());
+
+        foreach ($expected as $text) {
+            self::assertStringContainsString($text, $filters->text());
+        }
+
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $filters->text());
+        }
+
+        self::assertSame(
+            $booleanOptions,
+            $filters->filter('select[name="order_filter_form[isPublished]"] option')->each(
+                static fn (Crawler $option): string => trim($option->text()),
+            ),
+        );
+    }
+
+    public static function provideFilterLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru',
+            'Фильтры',
+            'Показать/скрыть фильтры',
+            [
+                'Фильтры', 'Значение', 'Применить', 'Сбросить фильтры', 'ID', 'Категория',
+                'Заголовок', 'Цена', 'Количество', 'Дата создания', 'От', 'До', 'Опубликован',
+            ],
+            ['Is Published', 'Show/Hide filters'],
+            ['Да или Нет', 'Да', 'Нет'],
+        ];
+
+        yield 'English' => [
+            'en',
+            'Filters',
+            'Show/Hide filters',
+            [
+                'Filters', 'Value', 'Apply', 'Reset filters', 'ID', 'Category', 'Title', 'Price',
+                'Quantity', 'Created at', 'From', 'To', 'Published',
+            ],
+            ['Опубликован', 'Ошибка диапазона дат', 'Дата «От» не может быть позднее даты «До».'],
+            ['Yes or No', 'Yes', 'No'],
+        ];
+    }
+
+    #[DataProvider(methodName: 'provideReversedDateRangeLocales')]
+    public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(
+        string $locale,
+        string $title,
+        string $message,
+    ): void
     {
         $client = $this->createAdminClient();
-        $crawler = $client->request('GET', '/ru/admin/product/list');
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/list', $locale));
         $unfilteredRows = $crawler->filter('#main_table tbody tr')->count();
         self::assertGreaterThan(0, $unfilteredRows);
 
-        $crawler = $client->submit($crawler->selectButton('Apply')->form([
+        $crawler = $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form([
             'order_filter_form[createdAt][left_date]' => '2026-07-15',
             'order_filter_form[createdAt][right_date]' => '2026-07-01',
         ]));
@@ -98,9 +165,9 @@ class ProductControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $alert = $crawler->filter('#product_list_filters_block .alert.alert-danger[role="alert"]');
         self::assertCount(1, $alert);
-        self::assertStringContainsString(self::DATE_RANGE_ERROR_TITLE, $alert->text());
+        self::assertStringContainsString($title, $alert->text());
         self::assertStringContainsString(
-            self::DATE_RANGE_ERROR,
+            $message,
             $alert->text(),
         );
         self::assertSame(
@@ -112,6 +179,12 @@ class ProductControllerTest extends WebTestCase
             $crawler->filter('input[name="order_filter_form[createdAt][right_date]"]')->attr('value'),
         );
         self::assertSame($unfilteredRows, $crawler->filter('#main_table tbody tr')->count());
+    }
+
+    public static function provideReversedDateRangeLocales(): Generator
+    {
+        yield 'Russian' => ['ru', 'Ошибка диапазона дат', 'Дата «От» не может быть позднее даты «До».'];
+        yield 'English' => ['en', 'Date range error', 'The "From" date cannot be later than the "To" date.'];
     }
 
     private function createAdminClient(): KernelBrowser

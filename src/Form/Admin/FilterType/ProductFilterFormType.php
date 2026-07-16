@@ -19,6 +19,7 @@ use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\TextFilterType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -32,13 +33,13 @@ class ProductFilterFormType extends AbstractType
     {
         $builder
             ->add('id', NumberFilterType::class, [
-                'label' => 'Id',
+                'label' => 'product.filter.field.id',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('category', EntityFilterType::class, [
-                'label' => 'Category',
+                'label' => 'product.filter.field.category',
                 'class' => Category::class,
                 'query_builder' => function ($category) {
                     /** @var CategoryRepository $categoryRep */
@@ -54,22 +55,22 @@ class ProductFilterFormType extends AbstractType
                 ],
             ])
             ->add('title', TextFilterType::class, [
-                'label' => 'Title',
+                'label' => 'product.filter.field.title',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('price', NumberRangeFilterType::class, [
-                'label' => 'Price',
+                'label' => 'product.filter.field.price',
                 'left_number_options' => [
-                    'label' => 'From',
+                    'label' => 'filter.range.from',
                     'condition_operator' => FilterOperands::OPERATOR_GREATER_THAN_EQUAL,
                     'attr' => [
                         'class' => 'form-control',
                     ],
                 ],
                 'right_number_options' => [
-                    'label' => 'To',
+                    'label' => 'filter.range.to',
                     'condition_operator' => FilterOperands::OPERATOR_LOWER_THAN_EQUAL,
                     'attr' => [
                         'class' => 'form-control',
@@ -77,16 +78,16 @@ class ProductFilterFormType extends AbstractType
                 ],
             ])
             ->add('quantity', NumberRangeFilterType::class, [
-                'label' => 'Quantity',
+                'label' => 'product.filter.field.quantity',
                 'left_number_options' => [
-                    'label' => 'From',
+                    'label' => 'filter.range.from',
                     'condition_operator' => FilterOperands::OPERATOR_GREATER_THAN_EQUAL,
                     'attr' => [
                         'class' => 'form-control',
                     ],
                 ],
                 'right_number_options' => [
-                    'label' => 'To',
+                    'label' => 'filter.range.to',
                     'condition_operator' => FilterOperands::OPERATOR_LOWER_THAN_EQUAL,
                     'attr' => [
                         'class' => 'form-control',
@@ -94,10 +95,10 @@ class ProductFilterFormType extends AbstractType
                 ],
             ])
             ->add('createdAt', DateRangeFilterType::class, [
-                'label' => 'Created at',
+                'label' => 'product.filter.field.created_at',
                 'error_bubbling' => false,
                 'left_date_options' => [
-                    'label' => 'From',
+                    'label' => 'filter.range.from',
                     'widget' => 'single_text',
                     'input' => 'datetime_immutable',
                     'attr' => [
@@ -105,7 +106,7 @@ class ProductFilterFormType extends AbstractType
                     ],
                 ],
                 'right_date_options' => [
-                    'label' => 'To',
+                    'label' => 'filter.range.to',
                     'widget' => 'single_text',
                     'input' => 'datetime_immutable',
                     'attr' => [
@@ -126,7 +127,8 @@ class ProductFilterFormType extends AbstractType
                                 && $rightDate instanceof DateTimeImmutable
                                 && $leftDate > $rightDate
                             ) {
-                                $context->buildViolation('Дата «От» не может быть позднее даты «До».')
+                                $context->buildViolation('admin.filter.date_range.invalid_order')
+                                    ->setTranslationDomain('validators')
                                     ->addViolation();
                             }
                         },
@@ -136,7 +138,10 @@ class ProductFilterFormType extends AbstractType
                 'apply_filter' => $this->exclusiveDateRangeFilter,
             ])
             ->add('isPublished', BooleanFilterType::class, [
-                'label' => 'Is Published',
+                'label' => 'product.filter.field.is_published',
+                'translation_domain' => 'admin',
+                'choice_translation_domain' => 'SpiriitFormFilterBundle',
+                'placeholder' => new TranslatableMessage('boolean.yes_or_no', [], 'SpiriitFormFilterBundle'),
                 'attr' => [
                     'class' => 'form-control',
                 ],
@@ -153,6 +158,7 @@ class ProductFilterFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => ProductFilterModel::class,
             'method' => 'GET',
+            'translation_domain' => 'admin',
             'validation_groups' => ['filtering'],
         ]);
     }

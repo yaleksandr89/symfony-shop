@@ -16,6 +16,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 #[Group(name: 'integration')]
 class OrderFilterFormTypeTest extends KernelTestCase
 {
+    private const DATE_RANGE_ERROR_KEY = 'admin.filter.date_range.invalid_order';
     private const DATE_RANGE_ERROR = 'Дата «От» не может быть позднее даты «До».';
 
     private FormFactoryInterface $formFactory;
@@ -102,6 +103,7 @@ class OrderFilterFormTypeTest extends KernelTestCase
         }
 
         self::assertCount(1, $errors);
+        self::assertSame(self::DATE_RANGE_ERROR_KEY, $errors[0]->getMessageTemplate());
         self::assertSame(self::DATE_RANGE_ERROR, $errors[0]->getMessage());
     }
 
@@ -126,6 +128,23 @@ class OrderFilterFormTypeTest extends KernelTestCase
         self::assertSame('single_text', $dateRange->get('right_date')->getConfig()->getOption('widget'));
         self::assertSame('datetime_immutable', $dateRange->get('left_date')->getConfig()->getOption('input'));
         self::assertSame('datetime_immutable', $dateRange->get('right_date')->getConfig()->getOption('input'));
+    }
+
+    public function testTranslationDomains(): void
+    {
+        $form = $this->formFactory->create(
+            OrderFilterFormType::class,
+            new OrderFilterModel(),
+            ['csrf_protection' => false],
+        );
+        $view = $form->createView();
+
+        self::assertSame('admin', $form->getConfig()->getOption('translation_domain'));
+        self::assertSame('admin', $view['id']->vars['translation_domain']);
+        self::assertSame('admin', $view['createdAt']->vars['translation_domain']);
+        self::assertSame('admin', $view['createdAt']['right_date']->vars['translation_domain']);
+        self::assertSame('admin', $view['status']->vars['translation_domain']);
+        self::assertSame('messages', $view['status']->vars['choice_translation_domain']);
     }
 
     public function testScalarMapping(): void

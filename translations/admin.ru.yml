@@ -1,0 +1,22 @@
+filter.heading.filters: Фильтры
+filter.heading.value: Значение
+filter.action.toggle: Показать/скрыть фильтры
+filter.action.apply: Применить
+filter.action.reset: Сбросить фильтры
+filter.range.from: От
+filter.range.to: До
+filter.error.date_range_title: Ошибка диапазона дат
+
+product.filter.field.id: ID
+product.filter.field.category: Категория
+product.filter.field.title: Заголовок
+product.filter.field.price: Цена
+product.filter.field.quantity: Количество
+product.filter.field.created_at: Дата создания
+product.filter.field.is_published: Опубликован
+
+order.filter.field.id: ID
+order.filter.field.owner: Владелец
+order.filter.field.status: Статус
+order.filter.field.total_price: Общая стоимость
+order.filter.field.created_at: Дата создания
