@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Form\DTO;
 
 use App\Entity\User;
-use DateTimeInterface;
+use DateTimeImmutable;
 
 class OrderFilterModel
 {
@@ -21,9 +21,9 @@ class OrderFilterModel
         'right_number' => null,
     ];
 
-    /** @var array{left_datetime: DateTimeInterface|null, right_datetime: DateTimeInterface|null} */
+    /** @var array{left_date: DateTimeImmutable|null, right_date: DateTimeImmutable|null} */
     public array $createdAt = [
-        'left_datetime' => null,
-        'right_datetime' => null,
+        'left_date' => null,
+        'right_date' => null,
     ];
 }

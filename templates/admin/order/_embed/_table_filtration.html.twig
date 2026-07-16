@@ -55,9 +55,12 @@
                         <td>{{ form_label(form.createdAt) }}</td>
                         <td>
                             {{ form_widget(form.createdAt) }}
-                            <div class="form-error">
-                                {{ form_errors(form.createdAt) }}
-                            </div>
+                            {% if form.createdAt.vars.errors|length > 0 %}
+                                <div class="alert alert-danger mt-2 mb-0" role="alert">
+                                    <strong class="d-block">Ошибка диапазона дат</strong>
+                                    {{ form_errors(form.createdAt) }}
+                                </div>
+                            {% endif %}
                         </td>
                     </tr>
                 </tbody>

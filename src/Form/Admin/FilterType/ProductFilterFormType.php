@@ -6,10 +6,12 @@ namespace App\Form\Admin\FilterType;
 
 use App\Entity\Category;
 use App\Form\DTO\ProductFilterModel;
+use App\Form\Filter\ExclusiveDateRangeFilter;
 use App\Repository\CategoryRepository;
+use DateTimeImmutable;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterOperands;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\BooleanFilterType;
-use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\DateTimeRangeFilterType;
+use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\DateRangeFilterType;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\EntityFilterType;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\NumberFilterType;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\NumberRangeFilterType;
@@ -17,9 +19,15 @@ use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\TextFilterType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ProductFilterFormType extends AbstractType
 {
+    public function __construct(private ExclusiveDateRangeFilter $exclusiveDateRangeFilter)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -85,22 +93,47 @@ class ProductFilterFormType extends AbstractType
                     ],
                 ],
             ])
-            ->add('createdAt', DateTimeRangeFilterType::class, [
+            ->add('createdAt', DateRangeFilterType::class, [
                 'label' => 'Created at',
-                'left_datetime_options' => [
+                'error_bubbling' => false,
+                'left_date_options' => [
                     'label' => 'From',
                     'widget' => 'single_text',
+                    'input' => 'datetime_immutable',
                     'attr' => [
                         'class' => 'form-control',
                     ],
                 ],
-                'right_datetime_options' => [
+                'right_date_options' => [
                     'label' => 'To',
                     'widget' => 'single_text',
+                    'input' => 'datetime_immutable',
                     'attr' => [
                         'class' => 'form-control',
                     ],
                 ],
+                'constraints' => [
+                    new Callback(
+                        static function (mixed $range, ExecutionContextInterface $context): void {
+                            if (!is_array($range)) {
+                                return;
+                            }
+
+                            $leftDate = $range['left_date'] ?? null;
+                            $rightDate = $range['right_date'] ?? null;
+
+                            if ($leftDate instanceof DateTimeImmutable
+                                && $rightDate instanceof DateTimeImmutable
+                                && $leftDate > $rightDate
+                            ) {
+                                $context->buildViolation('Дата «От» не может быть позднее даты «До».')
+                                    ->addViolation();
+                            }
+                        },
+                        groups: ['filtering'],
+                    ),
+                ],
+                'apply_filter' => $this->exclusiveDateRangeFilter,
             ])
             ->add('isPublished', BooleanFilterType::class, [
                 'label' => 'Is Published',

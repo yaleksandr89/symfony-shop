@@ -48,7 +48,7 @@ class OrderFormHandler
             ->where('o.isDeleted = :isDeleted')
             ->setParameter('isDeleted', false);
 
-        if ($filterForm->isSubmitted()) {
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             $this->filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
         }
 
