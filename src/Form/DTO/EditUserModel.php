@@ -57,7 +57,7 @@ class EditUserModel
 
         // Валидация email
         if ($userRepository->findOneBy(['email' => $this->email])) {
-            $context->buildViolation('This email is already registered')
+            $context->buildViolation('user.validation.email.already_registered')
                 ->atPath('email')
                 ->addViolation();
         }

@@ -18,18 +18,18 @@ class EditCategoryFormType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Title',
+                'label' => 'category.form.field.title',
                 'required' => true,
                 'trim' => true,
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Please enter a title'),
+                    new NotBlank(message: 'category.validation.title.required'),
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Save changes',
+                'label' => 'action.save_changes',
             ]);
     }
 
@@ -37,6 +37,7 @@ class EditCategoryFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EditCategoryModel::class,
+            'translation_domain' => 'admin',
         ]);
     }
 }

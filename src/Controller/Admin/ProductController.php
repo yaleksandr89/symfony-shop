@@ -48,13 +48,13 @@ class ProductController extends BaseAdminController
             }
 
             $product = $productFormHandler->processEditForm($form, $editProductModel);
-            $this->addFlash('success', 'Your changes were saved!');
+            $this->addTranslatedFlash('success', 'flash.save_success');
 
             return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('warning', 'Something went wrong. Please check!');
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
         }
 
         $images = $product
@@ -79,7 +79,10 @@ class ProductController extends BaseAdminController
         }
 
         $productManager->softRemove($product);
-        $this->addFlash('warning', "[Soft delete] The product (title: $title / ID: $id) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.product.deleted', [
+            '%title%' => $title,
+            '%id%' => $id,
+        ]);
 
         return $this->redirectToRoute('admin_product_list');
     }

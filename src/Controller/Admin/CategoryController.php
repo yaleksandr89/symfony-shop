@@ -57,13 +57,13 @@ class CategoryController extends BaseAdminController
             }
 
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
-            $this->addFlash('success', 'Your changes were saved!');
+            $this->addTranslatedFlash('success', 'flash.save_success');
 
             return $this->redirectToRoute('admin_category_edit', ['id' => $category->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('warning', 'Something went wrong. Please check!');
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
         }
 
         return $this->render('admin/category/edit.html.twig', [
@@ -83,7 +83,10 @@ class CategoryController extends BaseAdminController
         }
 
         $categoryManager->remove($category);
-        $this->addFlash('warning', "[Soft delete] The category (title: $title / ID: $id) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.category.deleted', [
+            '%title%' => $title,
+            '%id%' => $id,
+        ]);
 
         return $this->redirectToRoute('admin_category_list');
     }

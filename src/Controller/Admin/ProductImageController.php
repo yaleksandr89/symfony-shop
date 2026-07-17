@@ -33,7 +33,7 @@ class ProductImageController extends BaseAdminController
         $imgId = $productImage->getId();
 
         $productImageManager->removeImageFromProduct($productImage, $productImageDir);
-        $this->addFlash('warning', "The image (ID: $imgId) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.product_image.deleted', ['%id%' => $imgId]);
 
         return $this->redirectToRoute('admin_product_edit', [
             'id' => $product->getId(),

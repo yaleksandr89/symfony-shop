@@ -30,15 +30,81 @@ navigation.products: Товары
 navigation.categories: Категории
 navigation.all_list: Все записи
 navigation.go_to_main_site: Перейти на сайт
+navigation.general: Общее
+navigation.users: Пользователи
 
 action.add_new: Добавить
 action.edit: Редактировать
 action.save_changes: Сохранить изменения
+action.logout: Выйти
+
+layout.page_title: Панель администратора
+layout.copyright: 'Copyright © RankedChoice'
+
+dashboard.page_title: Панель управления
+dashboard.heading: Панель управления
 
 modal.confirm_delete: Вы уверены?
 modal.delete_row: Удалить запись
 modal.cancel: Отмена
 modal.close: Закрыть
+
+login.page_title: Вход
+login.heading: Вход в панель администратора
+login.email_placeholder: Введите электронную почту...
+login.password_placeholder: Пароль
+login.remember_me: Запомнить меня
+login.submit: Войти
+
+category.list.page_title: Все категории
+category.list.heading: Категории
+category.list.column.id: ID
+category.list.column.title: Название
+category.list.column.slug: Алиас
+category.edit.page_title: Редактирование категории
+category.form.field.title: Название
+category.form.field.slug: Алиас
+category.modal.delete_text: Категория будет удалена.
+
+user.list.page_title: Все пользователи
+user.list.heading: Пользователи
+user.list.column.id: ID
+user.list.column.email: Электронная почта
+user.list.column.role: Роль
+user.list.column.profile_info: Данные профиля
+user.list.column.is_verified_email: Электронная почта подтверждена
+user.list.column.from_google: Из Google
+user.list.column.from_yandex: Из Яндекса
+user.list.column.from_vk: Из VK
+user.list.column.from_github: Из GitHub
+user.role.user: Пользователь
+user.role.admin: Администратор
+user.role.super_admin: Суперадминистратор
+user.profile.full_name: ФИО
+user.profile.phone: Телефон
+user.profile.address: Адрес
+user.profile.zip_code: Почтовый индекс
+user.state.verified: Подтверждено
+user.state.not_verified: Не подтверждено
+user.edit.page_title: Редактирование пользователя
+user.form.field.email: Электронная почта
+user.form.field.plain_password: Новый пароль
+user.form.field.roles: Роли
+user.form.field.full_name: ФИО
+user.form.field.phone: Телефон
+user.form.field.address: Адрес
+user.form.field.zip_code: Почтовый индекс
+user.form.field.is_deleted: Удалён
+user.modal.delete_text: Пользователь будет удалён.
+
+flash.access_denied: Недостаточно прав. Обратитесь к администратору.
+flash.save_success: Изменения сохранены!
+flash.form_invalid: Что-то пошло не так. Проверьте введённые данные!
+flash.product.deleted: '[Мягкое удаление] Товар (название: %title% / ID: %id%) успешно удалён!'
+flash.product_image.deleted: 'Изображение (ID: %id%) успешно удалено!'
+flash.order.deleted: '[Мягкое удаление] Заказ (ID: %id%) успешно удалён!'
+flash.category.deleted: '[Мягкое удаление] Категория (название: %title% / ID: %id%) успешно удалена!'
+flash.user.deleted: '[Мягкое удаление] Пользователь (ФИО: %full_name% / ID: %id%) успешно удалён!'
 
 product.list.page_title: Все товары
 product.list.heading: Товары

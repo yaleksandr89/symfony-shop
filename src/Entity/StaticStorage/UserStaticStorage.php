@@ -16,9 +16,9 @@ final class UserStaticStorage
     public static function getUserRolesChoices(): array
     {
         return [
-            self::USER_ROLE_USER => 'User',
-            self::USER_ROLE_ADMIN => 'Admin',
-            self::USER_ROLE_SUPER_ADMIN => 'Super Admin',
+            self::USER_ROLE_USER => 'user.role.user',
+            self::USER_ROLE_ADMIN => 'user.role.admin',
+            self::USER_ROLE_SUPER_ADMIN => 'user.role.super_admin',
         ];
     }
 

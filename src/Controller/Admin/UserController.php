@@ -54,13 +54,13 @@ class UserController extends BaseAdminController
                 return $this->redirect($request->server->get('HTTP_REFERER'));
             }
             $user = $userFormHandler->processEditForm($editUserModel);
-            $this->addFlash('success', 'Your changes were saved!');
+            $this->addTranslatedFlash('success', 'flash.save_success');
 
             return $this->redirectToRoute('admin_user_edit', ['id' => $user->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('warning', 'Something went wrong. Please check!');
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
         }
 
         return $this->render('admin/user/edit.html.twig', [
@@ -80,7 +80,10 @@ class UserController extends BaseAdminController
         }
 
         $userManager->remove($user);
-        $this->addFlash('warning', "[Soft delete] The user (Full name: $fullName / ID: $id) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.user.deleted', [
+            '%full_name%' => (string) $fullName,
+            '%id%' => $id,
+        ]);
 
         return $this->redirectToRoute('admin_user_list');
     }

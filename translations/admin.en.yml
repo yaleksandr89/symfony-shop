@@ -30,15 +30,81 @@ navigation.products: Products
 navigation.categories: Categories
 navigation.all_list: All list
 navigation.go_to_main_site: Go to main site
+navigation.general: General
+navigation.users: Users
 
 action.add_new: Add new
 action.edit: Edit
 action.save_changes: Save changes
+action.logout: Logout
+
+layout.page_title: Admin Panel
+layout.copyright: 'Copyright © RankedChoice'
+
+dashboard.page_title: Dashboard
+dashboard.heading: Dashboard
 
 modal.confirm_delete: Are you sure?
 modal.delete_row: Delete row
 modal.cancel: Cancel
 modal.close: Close
+
+login.page_title: Log In
+login.heading: Auth Form
+login.email_placeholder: Enter Email Address...
+login.password_placeholder: Password
+login.remember_me: Remember Me
+login.submit: Login
+
+category.list.page_title: All categories
+category.list.heading: Categories
+category.list.column.id: ID
+category.list.column.title: Title
+category.list.column.slug: Slug
+category.edit.page_title: Edit category
+category.form.field.title: Title
+category.form.field.slug: Slug
+category.modal.delete_text: Category will be deleted.
+
+user.list.page_title: All users
+user.list.heading: Users
+user.list.column.id: ID
+user.list.column.email: Email
+user.list.column.role: Role
+user.list.column.profile_info: Profile info
+user.list.column.is_verified_email: Verified email
+user.list.column.from_google: From Google
+user.list.column.from_yandex: From Yandex
+user.list.column.from_vk: From VK
+user.list.column.from_github: From GitHub
+user.role.user: User
+user.role.admin: Administrator
+user.role.super_admin: Super Administrator
+user.profile.full_name: Full name
+user.profile.phone: Phone
+user.profile.address: Address
+user.profile.zip_code: Zip code
+user.state.verified: Verified
+user.state.not_verified: Not verified
+user.edit.page_title: Edit user
+user.form.field.email: Email
+user.form.field.plain_password: New password
+user.form.field.roles: Roles
+user.form.field.full_name: Full name
+user.form.field.phone: Phone
+user.form.field.address: Address
+user.form.field.zip_code: Zip code
+user.form.field.is_deleted: Deleted
+user.modal.delete_text: User will be deleted.
+
+flash.access_denied: You don't have enough rights! Contact the administrator.
+flash.save_success: Your changes were saved!
+flash.form_invalid: Something went wrong. Please check!
+flash.product.deleted: '[Soft delete] The product (title: %title% / ID: %id%) was successfully deleted!'
+flash.product_image.deleted: 'The image (ID: %id%) was successfully deleted!'
+flash.order.deleted: '[Soft delete] The order (ID: %id%) was successfully deleted!'
+flash.category.deleted: '[Soft delete] The category (title: %title% / ID: %id%) was successfully deleted!'
+flash.user.deleted: '[Soft delete] The user (Full name: %full_name% / ID: %id%) was successfully deleted!'
 
 product.list.page_title: All products
 product.list.heading: Products

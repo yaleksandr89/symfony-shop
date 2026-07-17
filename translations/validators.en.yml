@@ -17,3 +17,5 @@ product.validation.category.required: Please select a category.
 product.validation.image.invalid_type: Please upload a valid image (*.jpg or *.png).
 order.validation.status.required: Please select a status.
 order.validation.owner.required: Please select an owner.
+category.validation.title.required: Title is required.
+user.validation.email.already_registered: This email is already registered.

@@ -50,13 +50,13 @@ class OrderController extends BaseAdminController
             }
 
             $order = $orderFormHandler->processEditForm($editOrderModel);
-            $this->addFlash('success', 'Your changes were saved!');
+            $this->addTranslatedFlash('success', 'flash.save_success');
 
             return $this->redirectToRoute('admin_order_edit', ['id' => $order->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('warning', 'Something went wrong. Please check!');
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
         }
 
         /** @var User $user */
@@ -82,7 +82,7 @@ class OrderController extends BaseAdminController
         }
 
         $orderManager->remove($order);
-        $this->addFlash('warning', "[Soft delete] The order (ID: $id) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.order.deleted', ['%id%' => $id]);
 
         return $this->redirectToRoute('admin_order_list');
     }

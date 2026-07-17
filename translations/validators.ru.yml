@@ -147,3 +147,5 @@ product.validation.image.invalid_type: Загрузите изображение
 admin.filter.date_range.invalid_order: 'Дата «От» не может быть позднее даты «До».'
 order.validation.status.required: Выберите статус.
 order.validation.owner.required: Выберите владельца.
+category.validation.title.required: Укажите название.
+user.validation.email.already_registered: Эта электронная почта уже зарегистрирована.
