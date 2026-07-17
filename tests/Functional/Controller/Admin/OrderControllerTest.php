@@ -447,6 +447,92 @@ class OrderControllerTest extends WebTestCase
         ];
     }
 
+    #[DataProvider(methodName: 'provideOrderProductTranslationLocales')]
+    public function testOrderProductVueTranslationsAreLocalized(
+        string $locale,
+        array $expectedTranslations,
+        array $oppositeLanguageTranslations,
+    ): void {
+        $client = $this->createAdminClient();
+        $order = $this->getEditableOrder();
+        $crawler = $client->request('GET', sprintf('/%s/admin/order/edit/%d', $locale, $order->getId()));
+
+        self::assertResponseIsSuccessful();
+        $staticStoreScript = '';
+        foreach ($crawler->filter('script')->each(static fn (Crawler $script): string => $script->text()) as $script) {
+            if (str_contains($script, 'window.staticStore.translations')) {
+                $staticStoreScript = $script;
+                break;
+            }
+        }
+
+        self::assertNotSame('', $staticStoreScript);
+        foreach ([
+            'window.staticStore.orderId =',
+            'window.staticStore.urlViewProduct =',
+            'window.staticStore.urlApiCategory =',
+            'window.staticStore.urlApiProduct =',
+            'window.staticStore.urlApiOrder =',
+            'window.staticStore.urlApiOrderProduct =',
+            'window.staticStore.userIsVerified =',
+        ] as $assignment) {
+            self::assertStringContainsString($assignment, $staticStoreScript);
+        }
+
+        self::assertMatchesRegularExpression(
+            '/window\\.staticStore\\.translations = (?<translations>\\{.+\\});/u',
+            $staticStoreScript,
+        );
+        preg_match('/window\\.staticStore\\.translations = (?<translations>\\{.+\\});/u', $staticStoreScript, $matches);
+        $translations = json_decode($matches['translations'], true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertSame($expectedTranslations, $translations);
+        foreach ($oppositeLanguageTranslations as $translation) {
+            self::assertNotContains($translation, $translations);
+        }
+    }
+
+    public static function provideOrderProductTranslationLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru',
+            [
+                'chooseCategory' => 'Выберите категорию',
+                'chooseProduct' => 'Выберите товар',
+                'quantityPlaceholder' => 'Количество',
+                'pricePerItemPlaceholder' => 'Цена за единицу',
+                'details' => 'Подробнее',
+                'add' => 'Добавить',
+                'remove' => 'Удалить',
+                'totalPrice' => 'Общая стоимость',
+                'insufficientRights' => 'Недостаточно прав. Обратитесь к администратору.',
+            ],
+            [
+                'Choose a category', 'Choose a product', 'Quantity', 'Price per item', 'Details', 'Add', 'Remove',
+                'Total price', 'You do not have enough permissions. Contact the administrator.',
+            ],
+        ];
+
+        yield 'English' => [
+            'en',
+            [
+                'chooseCategory' => 'Choose a category',
+                'chooseProduct' => 'Choose a product',
+                'quantityPlaceholder' => 'Quantity',
+                'pricePerItemPlaceholder' => 'Price per item',
+                'details' => 'Details',
+                'add' => 'Add',
+                'remove' => 'Remove',
+                'totalPrice' => 'Total price',
+                'insufficientRights' => 'You do not have enough permissions. Contact the administrator.',
+            ],
+            [
+                'Выберите категорию', 'Выберите товар', 'Количество', 'Цена за единицу', 'Подробнее', 'Добавить',
+                'Удалить', 'Общая стоимость', 'Недостаточно прав. Обратитесь к администратору.',
+            ],
+        ];
+    }
+
     private function getEditableOrder(): Order
     {
         $order = self::getContainer()->get(OrderRepository::class)->findOneBy(['isDeleted' => false]);

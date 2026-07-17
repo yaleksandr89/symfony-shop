@@ -17,10 +17,10 @@
     </div>
     <div class="col-md-2">
       <button class="btn btn-sm btn-outline-info" @click.prevent="viewDetails">
-        Details
+        {{ staticStore.translations.details }}
       </button>
       <button class="btn btn-sm btn-outline-danger" @click.prevent="remove">
-        Remove
+        {{ staticStore.translations.remove }}
       </button>
     </div>
   </div>

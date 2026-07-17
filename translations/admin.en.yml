@@ -89,4 +89,12 @@ order.form.field.is_deleted: Deleted
 order.products.heading: Products
 order.products.save_before_adding: 'To add products, first click "Save changes".'
 order.products.total_price: Total price
+order.products.choose_category: Choose a category
+order.products.choose_product: Choose a product
+order.products.quantity_placeholder: Quantity
+order.products.price_per_item_placeholder: Price per item
+order.products.action.details: Details
+order.products.action.add: Add
+order.products.action.remove: Remove
+order.products.insufficient_rights: You do not have enough permissions. Contact the administrator.
 order.modal.delete_text: Order will be deleted.

@@ -89,4 +89,12 @@ order.form.field.is_deleted: Удалён
 order.products.heading: Товары
 order.products.save_before_adding: 'Чтобы добавить товары, сначала нажмите «Сохранить изменения».'
 order.products.total_price: Общая стоимость
+order.products.choose_category: Выберите категорию
+order.products.choose_product: Выберите товар
+order.products.quantity_placeholder: Количество
+order.products.price_per_item_placeholder: Цена за единицу
+order.products.action.details: Подробнее
+order.products.action.add: Добавить
+order.products.action.remove: Удалить
+order.products.insufficient_rights: Недостаточно прав. Обратитесь к администратору.
 order.modal.delete_text: Заказ будет удалён.

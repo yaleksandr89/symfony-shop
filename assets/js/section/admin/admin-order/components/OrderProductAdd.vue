@@ -7,7 +7,9 @@
         class="form-control"
         @change="getProducts()"
       >
-        <option value="" disabled>- choose options-</option>
+        <option value="" disabled>
+          {{ staticStore.translations.chooseCategory }}
+        </option>
         <option
           v-for="category in categories"
           :key="category.id"
@@ -25,7 +27,9 @@
         class="form-control"
         @change="changeProduct()"
       >
-        <option value="" disabled>- choose options-</option>
+        <option value="" disabled>
+          {{ staticStore.translations.chooseProduct }}
+        </option>
         <option
           v-for="categoryProduct in freeCategoryProducts"
           :key="categoryProduct.id"
@@ -41,7 +45,7 @@
         v-model="form.quantity"
         type="number"
         class="form-control"
-        placeholder="quantity"
+        :placeholder="staticStore.translations.quantityPlaceholder"
         min="1"
         :max="productQuantityMax"
         @change="updateMaxValue($event, 'quantity', productQuantityMax)"
@@ -53,7 +57,7 @@
         v-model="form.pricePerOne"
         type="number"
         class="form-control"
-        placeholder="price per one"
+        :placeholder="staticStore.translations.pricePerItemPlaceholder"
         step="0.01"
         min="1"
         :max="productPriceMax"
@@ -63,10 +67,10 @@
 
     <div v-if="showProductOptions" class="col-md-3">
       <button class="btn btn-sm btn-outline-info" @click.prevent="viewDetails">
-        Details
+        {{ staticStore.translations.details }}
       </button>
       <button class="btn btn-sm btn-outline-success" @click.prevent="submit">
-        Add
+        {{ staticStore.translations.add }}
       </button>
     </div>
   </div>

@@ -21,6 +21,7 @@ const state = () => ({
   staticStore: {
     orderId: window.staticStore.orderId,
     userIsVerified: JSON.parse(window.staticStore.userIsVerified),
+    translations: window.staticStore.translations,
 
     url: {
       viewProduct: window.staticStore.urlViewProduct,
@@ -77,7 +78,7 @@ const actions = {
   },
   async addNewOrderProduct({ state, dispatch }) {
     if (false === state.staticStore.userIsVerified) {
-      alert("You don't have enough rights! Contact the administrator.");
+      alert(state.staticStore.translations.insufficientRights);
       return;
     }
 
@@ -101,7 +102,7 @@ const actions = {
     );
 
     if (false === state.staticStore.userIsVerified) {
-      alert("You don't have enough rights! Contact the administrator.");
+      alert(state.staticStore.translations.insufficientRights);
       return;
     }
 
