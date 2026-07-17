@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller\Admin;
 
+use App\Entity\Order;
 use App\Entity\User;
+use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Generator;
@@ -249,6 +251,219 @@ class OrderControllerTest extends WebTestCase
     {
         yield 'Russian' => ['ru', 'Ошибка диапазона дат', 'Дата «От» не может быть позднее даты «До».'];
         yield 'English' => ['en', 'Date range error', 'The "From" date cannot be later than the "To" date.'];
+    }
+
+    #[DataProvider(methodName: 'provideOrderEditLocales')]
+    public function testAddUiIsLocalized(
+        string $locale,
+        string $pageTitle,
+        string $sectionTitle,
+        string $addLabel,
+        array $labels,
+        array $statusChoices,
+        string $saveLabel,
+        array $unexpected,
+    ): void {
+        $client = $this->createAdminClient();
+        $crawler = $client->request('GET', sprintf('/%s/admin/order/add', $locale));
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($pageTitle, $crawler->filter('title')->text());
+
+        $card = $crawler->filter('.card.shadow.mb-4');
+        $form = $card->filter('form[name="edit_order_form"]');
+        self::assertCount(1, $card);
+        self::assertCount(1, $form);
+        self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
+        self::assertSame($addLabel, trim($card->filter('.card-header h6')->text()));
+        self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
+        self::assertSame(
+            $labels,
+            $form->filter('label')->each(static fn (Crawler $label): string => trim($label->text())),
+        );
+        self::assertSame(
+            $statusChoices,
+            array_values(array_filter(
+                $form->filter('select[name="edit_order_form[status]"] option')->each(
+                    static fn (Crawler $option): string => trim($option->text()),
+                ),
+            )),
+        );
+        $this->assertOwnerOptionIsApplicationData($form);
+        self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
+
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $card->text());
+        }
+    }
+
+    #[DataProvider(methodName: 'provideOrderEditLocales')]
+    public function testEditUiIsLocalized(
+        string $locale,
+        string $pageTitle,
+        string $sectionTitle,
+        string $addLabel,
+        array $labels,
+        array $statusChoices,
+        string $saveLabel,
+        array $unexpected,
+        string $productsHeading,
+        string $totalPrice,
+        string $deleteRow,
+        string $modalTitle,
+        string $modalText,
+        string $cancel,
+        string $close,
+    ): void {
+        $client = $this->createAdminClient();
+        $order = $this->getEditableOrder();
+        $crawler = $client->request('GET', sprintf('/%s/admin/order/edit/%d', $locale, $order->getId()));
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($pageTitle, $crawler->filter('title')->text());
+
+        $card = $crawler->filter('.card.shadow.mb-4');
+        $form = $card->filter('form[name="edit_order_form"]');
+        $modal = $crawler->filter('#approveDeleteModal');
+        self::assertCount(1, $card);
+        self::assertCount(1, $form);
+        self::assertCount(1, $modal);
+        self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
+        self::assertSame($addLabel === 'Добавить' ? 'Редактировать' : 'Edit', trim($card->filter('.card-header h6')->text()));
+        self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
+        self::assertStringContainsString('ID:', $card->text());
+        self::assertStringContainsString(
+            $locale === 'ru' ? 'Дата создания:' : 'Created at:',
+            $card->text(),
+        );
+        self::assertStringContainsString(
+            $locale === 'ru' ? 'Дата обновления:' : 'Updated at:',
+            $card->text(),
+        );
+        self::assertSame(
+            $labels,
+            $form->filter('label')->each(static fn (Crawler $label): string => trim($label->text())),
+        );
+        self::assertSame(
+            $statusChoices,
+            array_values(array_filter(
+                $form->filter('select[name="edit_order_form[status]"] option')->each(
+                    static fn (Crawler $option): string => trim($option->text()),
+                ),
+            )),
+        );
+        $this->assertOwnerOptionIsApplicationData($form);
+        self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
+        self::assertStringContainsString($productsHeading, $card->text());
+        self::assertStringContainsString($totalPrice, $card->text());
+        self::assertSame($deleteRow, trim($card->filter('[data-target="#approveDeleteModal"]')->text()));
+        self::assertSame($modalTitle, trim($modal->filter('.modal-title')->text()));
+        self::assertSame($modalText, trim($modal->filter('.modal-body')->text()));
+        self::assertSame($cancel, trim($modal->filter('.btn-secondary')->text()));
+        self::assertSame($deleteRow, trim($modal->filter('.btn-primary')->text()));
+        self::assertSame($close, $modal->filter('button.close')->attr('aria-label'));
+
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $card->text().' '.$modal->text());
+        }
+    }
+
+    #[DataProvider(methodName: 'provideOrderValidationLocales')]
+    public function testValidationMessagesAreLocalized(
+        string $locale,
+        array $messages,
+        array $unexpected,
+    ): void {
+        $client = $this->createAdminClient();
+        $crawler = $client->request('GET', sprintf('/%s/admin/order/add', $locale));
+        $form = $crawler->filter('form[name="edit_order_form"]')->form([
+            'edit_order_form[status]' => '',
+            'edit_order_form[owner]' => '',
+        ]);
+        $crawler = $client->submit($form);
+
+        self::assertResponseIsSuccessful();
+        $invalidForm = $crawler->filter('form[name="edit_order_form"]');
+        self::assertCount(1, $invalidForm);
+        foreach ($messages as $message) {
+            self::assertStringContainsString($message, $invalidForm->text());
+        }
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $invalidForm->text());
+        }
+    }
+
+    public static function provideOrderEditLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru',
+            'Редактирование заказа',
+            'Заказы',
+            'Добавить',
+            ['Владелец', 'Статус', 'Удалён'],
+            ['Создан', 'Обработан', 'Укомплектован', 'Доставлен', 'Отклонен'],
+            'Сохранить изменения',
+            ['Edit order', 'Orders', 'Add new', 'Owner', 'Status', 'Deleted', 'Save changes', 'Products', 'Total price', 'Delete row', 'Are you sure?', 'Order will be deleted.', 'Cancel', 'Close'],
+            'Товары',
+            'Общая стоимость',
+            'Удалить запись',
+            'Вы уверены?',
+            'Заказ будет удалён.',
+            'Отмена',
+            'Закрыть',
+        ];
+
+        yield 'English' => [
+            'en',
+            'Edit order',
+            'Orders',
+            'Add new',
+            ['Owner', 'Status', 'Deleted'],
+            ['Created', 'Processed', 'Complected', 'Delivered', 'Denied'],
+            'Save changes',
+            ['Редактирование заказа', 'Заказы', 'Добавить', 'Владелец', 'Статус', 'Удалён', 'Сохранить изменения', 'Товары', 'Общая стоимость', 'Удалить запись', 'Вы уверены?', 'Заказ будет удалён.', 'Отмена', 'Закрыть'],
+            'Products',
+            'Total price',
+            'Delete row',
+            'Are you sure?',
+            'Order will be deleted.',
+            'Cancel',
+            'Close',
+        ];
+    }
+
+    public static function provideOrderValidationLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru',
+            ['Выберите статус.', 'Выберите владельца.'],
+            ['Please select a status.', 'Please select an owner.', 'Please select status', 'Please select user'],
+        ];
+
+        yield 'English' => [
+            'en',
+            ['Please select a status.', 'Please select an owner.'],
+            ['Выберите статус.', 'Выберите владельца.', 'Please select status', 'Please select user'],
+        ];
+    }
+
+    private function getEditableOrder(): Order
+    {
+        $order = self::getContainer()->get(OrderRepository::class)->findOneBy(['isDeleted' => false]);
+        self::assertInstanceOf(Order::class, $order);
+
+        return $order;
+    }
+
+    private function assertOwnerOptionIsApplicationData(Crawler $form): void
+    {
+        $option = $form->filter('select[name="edit_order_form[owner]"] option')->eq(1);
+        $owner = self::getContainer()->get(UserRepository::class)->find($option->attr('value'));
+        self::assertInstanceOf(User::class, $owner);
+        self::assertSame(
+            preg_replace('/\s+/', ' ', sprintf('#%s / %s / %s', $owner->getId(), $owner->getFullName(), $owner->getEmail())),
+            trim($option->text()),
+        );
     }
 
     private function createAdminClient(): KernelBrowser

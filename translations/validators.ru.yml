@@ -145,3 +145,5 @@ product.validation.quantity.required: Укажите количество.
 product.validation.category.required: Выберите категорию.
 product.validation.image.invalid_type: Загрузите изображение в формате JPG или PNG.
 admin.filter.date_range.invalid_order: 'Дата «От» не может быть позднее даты «До».'
+order.validation.status.required: Выберите статус.
+order.validation.owner.required: Выберите владельца.

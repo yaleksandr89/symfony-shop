@@ -78,3 +78,15 @@ order.list.column.total_price: Общая стоимость
 order.list.column.status: Статус
 order.list.missing_full_name: ФИО не указано
 order.list.missing_phone: Телефон не указан
+
+order.edit.page_title: Редактирование заказа
+order.form.field.id: ID
+order.form.field.created_at: Дата создания
+order.form.field.updated_at: Дата обновления
+order.form.field.owner: Владелец
+order.form.field.status: Статус
+order.form.field.is_deleted: Удалён
+order.products.heading: Товары
+order.products.save_before_adding: 'Чтобы добавить товары, сначала нажмите «Сохранить изменения».'
+order.products.total_price: Общая стоимость
+order.modal.delete_text: Заказ будет удалён.

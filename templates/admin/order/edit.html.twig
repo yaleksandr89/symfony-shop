@@ -1,6 +1,6 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}Edit order{% endblock %}
+{% block title_detailed %}{{ 'order.edit.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block stylesheets %}
     {{ encore_entry_link_tags('appAdminOrder') }}
@@ -10,10 +10,13 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
-                'sectionTitle': 'Orders',
+                'sectionTitle': 'navigation.orders'|trans({}, 'admin'),
                 'entity': order,
                 'actionUrl': path('admin_order_list'),
                 'addActionUrl': path('admin_order_add'),
+                'editLabel': 'action.edit'|trans({}, 'admin'),
+                'addLabel': 'action.add_new'|trans({}, 'admin'),
+                'addButtonLabel': 'action.add_new'|trans({}, 'admin'),
             } %}
         </div>
 
@@ -22,7 +25,7 @@
             {% if order %}
                 <div class="form-group row">
                     <div class="col-md-1">
-                        Id:
+                        {{ 'order.form.field.id'|trans({}, 'admin') }}:
                     </div>
                     <div class="col-md-11">
                         {{ order.id }}
@@ -33,7 +36,7 @@
             {% if order %}
                 <div class="form-group row">
                     <div class="col-md-1">
-                        Created at:
+                        {{ 'order.form.field.created_at'|trans({}, 'admin') }}:
                     </div>
                     <div class="col-md-11">
                         {{ order.createdAt|format_datetime('full', 'medium') }}
@@ -43,7 +46,7 @@
             {% if order %}
                 <div class="form-group row">
                     <div class="col-md-1">
-                        Updated at:
+                        {{ 'order.form.field.updated_at'|trans({}, 'admin') }}:
                     </div>
                     <div class="col-md-11">
                         {{ order.updatedAt|format_datetime('full', 'medium') }}
@@ -90,14 +93,14 @@
             {% if order %}
                 <div class="form-group row">
                     <div class="col-md-1">
-                        Products:
+                        {{ 'order.products.heading'|trans({}, 'admin') }}:
                     </div>
                     <div class="col-md-11">
                         {% if order.id %}
                             <div id="app"></div>
                         {% else %}
                             <div class="alert alert-info">
-                                To add products, first click "Save Changes".
+                                {{ 'order.products.save_before_adding'|trans({}, 'admin') }}
                             </div>
                         {% endif %}
                     </div>
@@ -107,7 +110,7 @@
             {% if order %}
                 <div class="form-group row">
                     <div class="col-md-1">
-                        Total price:
+                        {{ 'order.products.total_price'|trans({}, 'admin') }}:
                     </div>
                     <div class="col-md-11">
                         {{ order.totalPrice|format_currency('USD') }}
@@ -120,6 +123,7 @@
                 'entity':order,
                 'catalogUrl':path('admin_order_list'),
                 'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+                'deleteLabel': 'modal.delete_row'|trans({}, 'admin'),
             } %}
 
             {{ form_rest(form) }}
@@ -130,10 +134,12 @@
     {% if order and order.id %}
         {% include 'admin/_embed/_utils/_modal.html.twig' with {
             'modalId': 'approveDeleteModal',
-            'modalTitle': 'Are you sure?',
-            'modalText': 'Order will be deleted.',
-            'modalBtnText': 'Delete row',
+            'modalTitle': 'modal.confirm_delete'|trans({}, 'admin'),
+            'modalText': 'order.modal.delete_text'|trans({}, 'admin'),
+            'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_order_delete', {'id': order.id}),
+            'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
+            'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}
     {% endif %}
 

@@ -78,3 +78,15 @@ order.list.column.total_price: Total price
 order.list.column.status: Status
 order.list.missing_full_name: Full name is not specified
 order.list.missing_phone: Phone is not specified
+
+order.edit.page_title: Edit order
+order.form.field.id: ID
+order.form.field.created_at: Created at
+order.form.field.updated_at: Updated at
+order.form.field.owner: Owner
+order.form.field.status: Status
+order.form.field.is_deleted: Deleted
+order.products.heading: Products
+order.products.save_before_adding: 'To add products, first click "Save changes".'
+order.products.total_price: Total price
+order.modal.delete_text: Order will be deleted.
