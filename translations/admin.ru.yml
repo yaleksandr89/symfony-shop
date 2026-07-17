@@ -33,6 +33,12 @@ navigation.go_to_main_site: Перейти на сайт
 
 action.add_new: Добавить
 action.edit: Редактировать
+action.save_changes: Сохранить изменения
+
+modal.confirm_delete: Вы уверены?
+modal.delete_row: Удалить запись
+modal.cancel: Отмена
+modal.close: Закрыть
 
 product.list.page_title: Все товары
 product.list.heading: Товары
@@ -44,6 +50,21 @@ product.list.column.quantity: Количество
 product.list.column.cover: Обложка
 product.list.column.created_at: Дата создания
 product.list.column.is_published: Опубликован
+
+product.edit.page_title: Редактирование товара
+product.form.slug: Алиас
+product.form.field.title: Заголовок
+product.form.field.price: Цена
+product.form.field.quantity: Количество
+product.form.field.description: Описание
+product.form.field.category: Категория
+product.form.field.new_image: Выберите новое изображение
+product.form.field.is_published: Опубликован
+product.form.field.is_deleted: Удалён
+product.form.category_placeholder: Выберите категорию
+product.image.current: Текущие изображения
+product.image.delete: Удалить
+product.modal.delete_text: Товар будет удалён.
 
 order.list.page_title: Все заказы
 order.list.heading: Заказы

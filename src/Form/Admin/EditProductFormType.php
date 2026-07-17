@@ -28,18 +28,18 @@ class EditProductFormType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Title',
+                'label' => 'product.form.field.title',
                 'required' => true,
                 'trim' => true,
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Should be filled'),
+                    new NotBlank(message: 'product.validation.title.required'),
                 ],
             ])
             ->add('price', NumberType::class, [
-                'label' => 'Price',
+                'label' => 'product.form.field.price',
                 'required' => true,
                 'scale' => 2,
                 'html5' => true,
@@ -48,23 +48,23 @@ class EditProductFormType extends AbstractType
                     'min' => 0,
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Please enter a price'),
+                    new NotBlank(message: 'product.validation.price.required'),
                     new GreaterThanOrEqualPrice(),
                 ],
             ])
             ->add('quantity', IntegerType::class, [
-                'label' => 'Quantity',
+                'label' => 'product.form.field.quantity',
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
                     'min' => 0,
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Please indicate a quantity'),
+                    new NotBlank(message: 'product.validation.quantity.required'),
                 ],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description',
+                'label' => 'product.form.field.description',
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
@@ -72,7 +72,7 @@ class EditProductFormType extends AbstractType
                 ],
             ])
             ->add('newImage', FileType::class, [
-                'label' => 'Choose new image',
+                'label' => 'product.form.field.new_image',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control-file',
@@ -81,12 +81,12 @@ class EditProductFormType extends AbstractType
                     new File(
                         maxSize: '10M',
                         mimeTypes: ['image/jpeg', 'image/png'],
-                        mimeTypesMessage: 'Please upload a valid image (*.jpg or *.png)'
+                        mimeTypesMessage: 'product.validation.image.invalid_type'
                     ),
                 ],
             ])
             ->add('isPublished', CheckboxType::class, [
-                'label' => 'Is Published',
+                'label' => 'product.form.field.is_published',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
@@ -96,7 +96,7 @@ class EditProductFormType extends AbstractType
                 ],
             ])
             ->add('category', EntityType::class, [
-                'label' => 'Category',
+                'label' => 'product.form.field.category',
                 'required' => true,
                 'class' => Category::class,
                 'query_builder' => function (EntityRepository $er) {
@@ -105,16 +105,17 @@ class EditProductFormType extends AbstractType
                         ->where('c.isDeleted != true');
                 },
                 'choice_label' => 'title',
-                'placeholder' => 'Please select a category',
+                'placeholder' => 'product.form.category_placeholder',
+                'choice_translation_domain' => false,
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Please enter a title'),
+                    new NotBlank(message: 'product.validation.category.required'),
                 ],
             ])
             ->add('isDeleted', CheckboxType::class, [
-                'label' => 'Is Deleted',
+                'label' => 'product.form.field.is_deleted',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
@@ -124,7 +125,7 @@ class EditProductFormType extends AbstractType
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Save changes',
+                'label' => 'action.save_changes',
             ]);
     }
 
@@ -132,6 +133,7 @@ class EditProductFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EditProductModel::class,
+            'translation_domain' => 'admin',
         ]);
     }
 }

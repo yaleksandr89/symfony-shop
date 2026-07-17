@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller\Admin;
 
+use App\Entity\Product;
+use App\Entity\ProductImage;
 use App\Entity\User;
+use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -249,6 +253,231 @@ class ProductControllerTest extends WebTestCase
     {
         yield 'Russian' => ['ru', 'Ошибка диапазона дат', 'Дата «От» не может быть позднее даты «До».'];
         yield 'English' => ['en', 'Date range error', 'The "From" date cannot be later than the "To" date.'];
+    }
+
+    #[DataProvider(methodName: 'provideProductEditLocales')]
+    public function testAddUiIsLocalized(
+        string $locale,
+        string $pageTitle,
+        string $sectionTitle,
+        string $addLabel,
+        string $slugLabel,
+        array $labels,
+        string $categoryPlaceholder,
+        string $saveLabel,
+        array $unexpected,
+    ): void {
+        $client = $this->createAdminClient();
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/add', $locale));
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($pageTitle, $crawler->filter('title')->text());
+
+        $card = $crawler->filter('.card.shadow.mb-4');
+        $form = $card->filter('form[name="edit_product_form"]');
+        self::assertCount(1, $card);
+        self::assertCount(1, $form);
+        self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
+        self::assertSame($addLabel, trim($card->filter('.card-header h6')->text()));
+        self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
+        self::assertStringContainsString($slugLabel, $card->text());
+        self::assertSame(
+            $labels,
+            $form->filter('label')->each(static fn (Crawler $label): string => trim($label->text())),
+        );
+        self::assertSame(
+            $categoryPlaceholder,
+            trim($form->filter('select[name="edit_product_form[category]"] option')->first()->text()),
+        );
+        self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
+
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $card->text());
+        }
+    }
+
+    #[DataProvider(methodName: 'provideProductEditLocales')]
+    public function testEditUiIsLocalized(
+        string $locale,
+        string $pageTitle,
+        string $sectionTitle,
+        string $addLabel,
+        string $slugLabel,
+        array $labels,
+        string $categoryPlaceholder,
+        string $saveLabel,
+        array $unexpected,
+        string $currentImages,
+        string $imageDelete,
+        string $deleteRow,
+        string $modalTitle,
+        string $modalText,
+        string $cancel,
+        string $close,
+    ): void {
+        $client = $this->createAdminClient();
+        $product = $this->getEditableProductWithImage();
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/edit/%d', $locale, $product->getId()));
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($pageTitle, $crawler->filter('title')->text());
+
+        $card = $crawler->filter('.card.shadow.mb-4');
+        $form = $card->filter('form[name="edit_product_form"]');
+        $modal = $crawler->filter('#approveDeleteModal');
+        self::assertCount(1, $card);
+        self::assertCount(1, $form);
+        self::assertCount(1, $modal);
+        self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
+        self::assertSame($product->getTitle(), trim($card->filter('.card-header h6')->text()));
+        self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
+        self::assertStringContainsString($slugLabel, $card->text());
+        self::assertStringContainsString($currentImages, $card->text());
+        self::assertSame($imageDelete, trim($card->filter('a.btn-outline-info')->text()));
+        self::assertSame(
+            $labels,
+            $form->filter('label')->each(static fn (Crawler $label): string => trim($label->text())),
+        );
+        self::assertSame(
+            $categoryPlaceholder,
+            trim($form->filter('select[name="edit_product_form[category]"] option')->first()->text()),
+        );
+        self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
+        self::assertSame($deleteRow, trim($card->filter('[data-target="#approveDeleteModal"]')->text()));
+        self::assertSame($modalTitle, trim($modal->filter('.modal-title')->text()));
+        self::assertSame($modalText, trim($modal->filter('.modal-body')->text()));
+        self::assertSame($cancel, trim($modal->filter('.btn-secondary')->text()));
+        self::assertSame($deleteRow, trim($modal->filter('.btn-primary')->text()));
+        self::assertSame($close, $modal->filter('button.close')->attr('aria-label'));
+
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $card->text().' '.$modal->text());
+        }
+    }
+
+    #[DataProvider(methodName: 'provideProductValidationLocales')]
+    public function testValidationMessagesAreLocalized(
+        string $locale,
+        array $requiredMessages,
+        string $priceMessage,
+        array $unexpected,
+    ): void {
+        $client = $this->createAdminClient();
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/add', $locale));
+        $form = $crawler->filter('form[name="edit_product_form"]')->form([
+            'edit_product_form[title]' => '',
+            'edit_product_form[price]' => '',
+            'edit_product_form[quantity]' => '',
+            'edit_product_form[description]' => 'Description',
+            'edit_product_form[category]' => '',
+        ]);
+        $crawler = $client->submit($form);
+
+        self::assertResponseIsSuccessful();
+        $requiredInvalidForm = $crawler->filter('form[name="edit_product_form"]');
+        self::assertCount(1, $requiredInvalidForm);
+        foreach ($requiredMessages as $message) {
+            self::assertStringContainsString($message, $requiredInvalidForm->text());
+        }
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $requiredInvalidForm->text());
+        }
+
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/add', $locale));
+        $categoryValue = $crawler->filter('select[name="edit_product_form[category]"] option')->eq(1)->attr('value');
+        self::assertNotSame('', $categoryValue);
+        $form = $crawler->filter('form[name="edit_product_form"]')->form([
+            'edit_product_form[title]' => 'Valid title',
+            'edit_product_form[price]' => '0',
+            'edit_product_form[quantity]' => '1',
+            'edit_product_form[description]' => 'Description',
+            'edit_product_form[category]' => $categoryValue,
+        ]);
+        $crawler = $client->submit($form);
+
+        self::assertResponseIsSuccessful();
+        $priceInvalidForm = $crawler->filter('form[name="edit_product_form"]');
+        self::assertCount(1, $priceInvalidForm);
+        self::assertStringContainsString($priceMessage, $priceInvalidForm->text());
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $priceInvalidForm->text());
+        }
+    }
+
+    public static function provideProductEditLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru',
+            'Редактирование товара',
+            'Товары',
+            'Добавить',
+            'Алиас',
+            ['Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Удалён'],
+            'Выберите категорию',
+            'Сохранить изменения',
+            ['Edit Product', 'Products', 'Add new', 'Slug', 'Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Is Published', 'Is Deleted', 'Save changes', 'Please select a category'],
+            'Текущие изображения',
+            'Удалить',
+            'Удалить запись',
+            'Вы уверены?',
+            'Товар будет удалён.',
+            'Отмена',
+            'Закрыть',
+        ];
+
+        yield 'English' => [
+            'en',
+            'Edit product',
+            'Products',
+            'Add new',
+            'Slug',
+            ['Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Published', 'Deleted'],
+            'Please select a category',
+            'Save changes',
+            ['Редактирование товара', 'Товары', 'Добавить', 'Алиас', 'Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Удалён', 'Сохранить изменения', 'Выберите категорию'],
+            'Current images',
+            'Delete',
+            'Delete row',
+            'Are you sure?',
+            'Product will be deleted.',
+            'Cancel',
+            'Close',
+        ];
+    }
+
+    public static function provideProductValidationLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru',
+            ['Укажите заголовок.', 'Укажите цену.', 'Укажите количество.', 'Выберите категорию.'],
+            'Цена должна быть больше нуля.',
+            ['Title is required.', 'Please enter a price.', 'Please indicate a quantity.', 'Please select a category.', 'Price must be greater than zero.'],
+        ];
+
+        yield 'English' => [
+            'en',
+            ['Title is required.', 'Please enter a price.', 'Please indicate a quantity.', 'Please select a category.'],
+            'Price must be greater than zero.',
+            ['Укажите заголовок.', 'Укажите цену.', 'Укажите количество.', 'Выберите категорию.', 'Цена должна быть больше нуля.'],
+        ];
+    }
+
+    private function getEditableProductWithImage(): Product
+    {
+        $product = self::getContainer()->get(ProductRepository::class)->findOneBy(['isDeleted' => false]);
+        self::assertInstanceOf(Product::class, $product);
+
+        $image = (new ProductImage())
+            ->setFilenameBig('functional-test_big.jpg')
+            ->setFilenameMiddle('functional-test_middle.jpg')
+            ->setFilenameSmall('functional-test_small.jpg');
+        $product->addProductImage($image);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($image);
+        $entityManager->flush();
+
+        return $product;
     }
 
     private function createAdminClient(): KernelBrowser

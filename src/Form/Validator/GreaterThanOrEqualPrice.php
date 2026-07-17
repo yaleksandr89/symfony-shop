@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraint;
 
 class GreaterThanOrEqualPrice extends Constraint
 {
-    public string $message = 'Price cannot be less than or equal to zero.';
+    public string $message = 'product.validation.price.greater_than_zero';
 
     public function getTargets(): array|string
     {

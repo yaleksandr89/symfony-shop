@@ -33,6 +33,12 @@ navigation.go_to_main_site: Go to main site
 
 action.add_new: Add new
 action.edit: Edit
+action.save_changes: Save changes
+
+modal.confirm_delete: Are you sure?
+modal.delete_row: Delete row
+modal.cancel: Cancel
+modal.close: Close
 
 product.list.page_title: All products
 product.list.heading: Products
@@ -44,6 +50,21 @@ product.list.column.quantity: Quantity
 product.list.column.cover: Cover
 product.list.column.created_at: Created at
 product.list.column.is_published: Published
+
+product.edit.page_title: Edit product
+product.form.slug: Slug
+product.form.field.title: Title
+product.form.field.price: Price
+product.form.field.quantity: Quantity
+product.form.field.description: Description
+product.form.field.category: Category
+product.form.field.new_image: Choose new image
+product.form.field.is_published: Published
+product.form.field.is_deleted: Deleted
+product.form.category_placeholder: Please select a category
+product.image.current: Current images
+product.image.delete: Delete
+product.modal.delete_text: Product will be deleted.
 
 order.list.page_title: All orders
 order.list.heading: Orders

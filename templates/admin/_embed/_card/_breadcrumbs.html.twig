@@ -4,13 +4,13 @@
         <div class="ml-2 mr-2">/</div>
         <h6 class="m-0 font-weight-bold text-primary">
             {% if entity and entity.id %}
-                {{ entity.title|default('Edit') }}
+                {{ entity.title|default(editLabel|default('Edit')) }}
             {% else %}
-                Add new
+                {{ addLabel|default('Add new') }}
             {% endif %}
         </h6>
     </div>
     <a href="{{ addActionUrl }}" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Add new
+        <i class="fas fa-plus fa-sm text-white-50"></i> {{ addButtonLabel|default('Add new') }}
     </a>
 </div>
