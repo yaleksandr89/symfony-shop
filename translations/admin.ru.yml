@@ -20,3 +20,40 @@ order.filter.field.owner: Владелец
 order.filter.field.status: Статус
 order.filter.field.total_price: Общая стоимость
 order.filter.field.created_at: Дата создания
+
+navigation.admin_panel: Панель администратора
+navigation.dashboard: Панель управления
+navigation.sales: Продажи
+navigation.products_section: Товары
+navigation.orders: Заказы
+navigation.products: Товары
+navigation.categories: Категории
+navigation.all_list: Все записи
+navigation.go_to_main_site: Перейти на сайт
+
+action.add_new: Добавить
+action.edit: Редактировать
+
+product.list.page_title: Все товары
+product.list.heading: Товары
+product.list.column.id: ID
+product.list.column.category: Категория
+product.list.column.title: Название
+product.list.column.price: Цена
+product.list.column.quantity: Количество
+product.list.column.cover: Обложка
+product.list.column.created_at: Дата создания
+product.list.column.is_published: Опубликован
+
+order.list.page_title: Все заказы
+order.list.heading: Заказы
+order.list.column.id: ID
+order.list.column.full_name: ФИО
+order.list.column.email: Электронная почта
+order.list.column.phone: Телефон
+order.list.column.created_at: Дата создания
+order.list.column.product_count: Количество товаров
+order.list.column.total_price: Общая стоимость
+order.list.column.status: Статус
+order.list.missing_full_name: ФИО не указано
+order.list.missing_phone: Телефон не указан

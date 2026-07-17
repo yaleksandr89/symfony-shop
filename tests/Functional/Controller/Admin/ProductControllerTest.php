@@ -145,6 +145,70 @@ class ProductControllerTest extends WebTestCase
         ];
     }
 
+    #[DataProvider(methodName: 'provideListLocales')]
+    public function testListUiIsLocalized(
+        string $locale,
+        string $title,
+        string $heading,
+        string $addNew,
+        string $edit,
+        array $headers,
+        array $sidebarLabels,
+        array $unexpected,
+    ): void {
+        $client = $this->createAdminClient();
+        $crawler = $client->request('GET', sprintf('/%s/admin/product/list', $locale));
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($title, $crawler->filter('title')->text());
+        self::assertSame($heading, trim($crawler->filter('.card.shadow.mb-4 .card-header h6')->text()));
+        self::assertSame($addNew, trim($crawler->filter('.card.shadow.mb-4 .card-header a.btn')->text()));
+        self::assertSame(
+            $headers,
+            $crawler->filter('#main_table thead th')->each(static fn (Crawler $header): string => trim($header->text())),
+        );
+        self::assertSame($edit, trim($crawler->filter('#main_table tbody a.btn-outline-info')->first()->text()));
+
+        $sidebar = $crawler->filter('#accordionSidebar');
+        self::assertCount(1, $sidebar);
+        foreach (array_slice($sidebarLabels, 0, -1) as $label) {
+            self::assertStringContainsString($label, $sidebar->text());
+        }
+        self::assertSame($sidebarLabels[0], trim($crawler->filter('.sidebar-brand-text')->text()));
+        self::assertSame($sidebarLabels[1], trim($crawler->filter('a[href$="/admin/dashboard"] span')->text()));
+        self::assertSame($sidebarLabels[2], trim($crawler->filter('.sidebar-heading')->first()->text()));
+        self::assertSame($sidebarLabels[3], trim($crawler->filter('a[data-target="#collapseOrders"] span')->text()));
+        self::assertSame($sidebarLabels[4], trim($crawler->filter('a[data-target="#collapseProducts"] span')->text()));
+        self::assertSame($sidebarLabels[5], trim($crawler->filter('a[data-target="#collapseCategories"] span')->text()));
+        self::assertSame($sidebarLabels[6], trim($crawler->filter('a[href$="/admin/product/list"]')->text()));
+        self::assertSame($sidebarLabels[7], trim($crawler->filter('a[href$="/admin/product/add"]')->text()));
+        self::assertSame($sidebarLabels[8], trim($crawler->filter('.topbar a[target="_blank"]')->text()));
+
+        $scopedText = implode(' ', $crawler->filter('#main_table, .card-header, #accordionSidebar, .topbar')->each(
+            static fn (Crawler $node): string => $node->text(),
+        ));
+        foreach ($unexpected as $text) {
+            self::assertStringNotContainsString($text, $scopedText);
+        }
+    }
+
+    public static function provideListLocales(): Generator
+    {
+        yield 'Russian' => [
+            'ru', 'Все товары', 'Товары', 'Добавить', 'Редактировать',
+            ['ID', 'Категория', 'Название', 'Цена', 'Количество', 'Обложка', 'Дата создания', 'Опубликован', ''],
+            ['Панель администратора', 'Панель управления', 'Продажи', 'Заказы', 'Товары', 'Категории', 'Все записи', 'Добавить', 'Перейти на сайт'],
+            ['All products', 'Products', 'Add new', 'Edit', 'Go to main site'],
+        ];
+
+        yield 'English' => [
+            'en', 'All products', 'Products', 'Add new', 'Edit',
+            ['ID', 'Category', 'Title', 'Price', 'Quantity', 'Cover', 'Created at', 'Published', ''],
+            ['Admin panel', 'Dashboard', 'Sales', 'Orders', 'Products', 'Categories', 'All list', 'Add new', 'Go to main site'],
+            ['Все товары', 'Товары', 'Добавить', 'Редактировать', 'Перейти на сайт'],
+        ];
+    }
+
     #[DataProvider(methodName: 'provideReversedDateRangeLocales')]
     public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(
         string $locale,

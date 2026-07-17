@@ -1,31 +1,31 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('admin_dashboard_show') }}">
-        <div class="sidebar-brand-text mx-3">Admin panel</div>
+        <div class="sidebar-brand-text mx-3">{{ 'navigation.admin_panel'|trans({}, 'admin') }}</div>
     </a>
     <hr class="sidebar-divider my-0">
 
     <li class="nav-item active">
         <a class="nav-link" href="{{ path('admin_dashboard_show') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span>{{ 'navigation.dashboard'|trans({}, 'admin') }}</span></a>
     </li>
     <hr class="sidebar-divider">
 
     {# >>>>>> Sale block #}
     <div class="sidebar-heading">
-        Sales
+        {{ 'navigation.sales'|trans({}, 'admin') }}
     </div>
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrders"
            aria-expanded="true" aria-controls="collapseOrders">
             <i class="fas fa-fw fa-credit-card"></i>
-            <span>Orders</span>
+            <span>{{ 'navigation.orders'|trans({}, 'admin') }}</span>
         </a>
         <div id="collapseOrders" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_order_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_order_add') }}">Add new</a>
+                <a class="collapse-item" href="{{ path('admin_order_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                <a class="collapse-item" href="{{ path('admin_order_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
             </div>
         </div>
     </li>
@@ -34,18 +34,18 @@
 
     {# >>>>>> Products block #}
     <div class="sidebar-heading">
-        Products
+        {{ 'navigation.products_section'|trans({}, 'admin') }}
     </div>
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
            aria-expanded="true" aria-controls="collapseProducts">
             <i class="fas fa-fw fa-cubes"></i>
-            <span>Products</span>
+            <span>{{ 'navigation.products'|trans({}, 'admin') }}</span>
         </a>
         <div id="collapseProducts" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_product_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_product_add') }}">Add new</a>
+                <a class="collapse-item" href="{{ path('admin_product_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                <a class="collapse-item" href="{{ path('admin_product_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
             </div>
         </div>
     </li>
@@ -53,12 +53,12 @@
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCategories"
            aria-expanded="true" aria-controls="collapseCategories">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Categories</span>
+            <span>{{ 'navigation.categories'|trans({}, 'admin') }}</span>
         </a>
         <div id="collapseCategories" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_category_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_category_add') }}">Add new</a>
+                <a class="collapse-item" href="{{ path('admin_category_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                <a class="collapse-item" href="{{ path('admin_category_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
             </div>
         </div>
     </li>

@@ -20,3 +20,40 @@ order.filter.field.owner: Owner
 order.filter.field.status: Status
 order.filter.field.total_price: Total price
 order.filter.field.created_at: Created at
+
+navigation.admin_panel: Admin panel
+navigation.dashboard: Dashboard
+navigation.sales: Sales
+navigation.products_section: Products
+navigation.orders: Orders
+navigation.products: Products
+navigation.categories: Categories
+navigation.all_list: All list
+navigation.go_to_main_site: Go to main site
+
+action.add_new: Add new
+action.edit: Edit
+
+product.list.page_title: All products
+product.list.heading: Products
+product.list.column.id: ID
+product.list.column.category: Category
+product.list.column.title: Title
+product.list.column.price: Price
+product.list.column.quantity: Quantity
+product.list.column.cover: Cover
+product.list.column.created_at: Created at
+product.list.column.is_published: Published
+
+order.list.page_title: All orders
+order.list.heading: Orders
+order.list.column.id: ID
+order.list.column.full_name: Full name
+order.list.column.email: Email
+order.list.column.phone: Phone
+order.list.column.created_at: Created at
+order.list.column.product_count: Product count
+order.list.column.total_price: Total price
+order.list.column.status: Status
+order.list.missing_full_name: Full name is not specified
+order.list.missing_phone: Phone is not specified

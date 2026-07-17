@@ -1,6 +1,6 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}All Products{% endblock %}
+{% block title_detailed %}{{ 'product.list.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block body %}
     {% include 'admin/product/_embed/_table_filtration.html.twig' with {
@@ -10,7 +10,7 @@
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_header_action.html.twig' with
                 {
-                    'sectionTitle': 'Products',
+                    'sectionTitle': 'product.list.heading'|trans({}, 'admin'),
                     'actionUrl': path('admin_product_add')
                 } %}
         </div>
@@ -19,14 +19,14 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>{{ knp_pagination_sortable(pagination, 'Id', 'p.id') }}</th>
-                        <th>{{ knp_pagination_sortable(pagination, 'Category', 'c.id') }}</th>
-                        <th>Title</th>
-                        <th>{{ knp_pagination_sortable(pagination, 'Price', 'p.price') }}</th>
-                        <th>{{ knp_pagination_sortable(pagination, 'Quantity', 'p.quantity') }}</th>
-                        <th>Cover</th>
-                        <th>Created At</th>
-                        <th>Is published</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.id'|trans({}, 'admin'), 'p.id') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.category'|trans({}, 'admin'), 'c.id') }}</th>
+                        <th>{{ 'product.list.column.title'|trans({}, 'admin') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.price'|trans({}, 'admin'), 'p.price') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.quantity'|trans({}, 'admin'), 'p.quantity') }}</th>
+                        <th>{{ 'product.list.column.cover'|trans({}, 'admin') }}</th>
+                        <th>{{ 'product.list.column.created_at'|trans({}, 'admin') }}</th>
+                        <th>{{ 'product.list.column.is_published'|trans({}, 'admin') }}</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -57,7 +57,7 @@
                             <td>
                                 <i class="fas fa-check fa-sm" style="color: {% if product.isPublished %}green{% else %}lightgray{% endif %};"></i></td>
                             <td>
-                                <a href="{{ path('admin_product_edit', {'id': product.id}) }}" class="btn btn-outline-info">Edit</a>
+                                <a href="{{ path('admin_product_edit', {'id': product.id}) }}" class="btn btn-outline-info">{{ 'action.edit'|trans({}, 'admin') }}</a>
                             </td>
                         </tr>
                     {% endfor %}
