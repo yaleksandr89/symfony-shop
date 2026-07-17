@@ -1,15 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-export APP_ENV=test
-echo APP_ENV:'['$APP_ENV']'
+set -eu
 
-php bin/console doctrine:database:drop --force
-php bin/console doctrine:database:create
+repository_root=$(CDPATH= cd -P "$(dirname "$0")/.." && pwd)
 
-#php bin/console doctrine:schema:update --dump-sql # выводит на экран сгенерированный sql запрос
-php bin/console doctrine:schema:update --complete --force
+printf '%s\n' 'Deprecated: bin/run-tests.sh is deprecated; use: make test-all CONFIRM=testdb' >&2
 
-php bin/console hautelook:fixtures:load -n
-
-php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional  --group functional-selenium --group functional-panther
-# --log-events-verbose-text log-execute-phpunit.txt #если нужно посмотреть логи выполнения тестов (сохраняется в корень проекта)
+exec make -C "$repository_root" test-all "$@"

@@ -4,7 +4,7 @@ VENDOR = ./vendor
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther test-functional-selenium
+.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther test-functional-selenium
 
 help:
 	@printf '%s\n' 'Docker local development:'
@@ -26,6 +26,9 @@ help:
 	@printf '%s\n' '  make test-functional   Run PHPUnit functional group without result cache'
 	@printf '%s\n' '  make test-functional-panther  Run PHPUnit functional-panther group without result cache'
 	@printf '%s\n' '  make test-functional-selenium Run PHPUnit functional-selenium group without result cache'
+	@printf '%s\n' '  make test-all-core CONFIRM=testdb  Build assets and run unit, test DB reset, integration and functional tests'
+	@printf '%s\n' '  make test-all CONFIRM=testdb       Run the full baseline, including Panther and Selenium'
+	@printf '%s\n' '  make run-test CONFIRM=testdb       Deprecated compatibility alias for test-all'
 	@printf '%s\n' '  make phpstan-check     Run PHPStan read-only analysis'
 	@printf '%s\n' '  make php-cs-fixer-check Check PHP-CS-Fixer rules without writing files'
 	@printf '%s\n' '  make eslint-check      Run ESLint without --fix'
@@ -165,8 +168,24 @@ phpstan-check:
 ## TESTING
 ## -----------
 
+test-all-core:
+	@if [ "$(CONFIRM)" != "testdb" ]; then \
+		printf '%s\n' 'Refusing to run the full test baseline. Re-run with: make test-all-core CONFIRM=testdb'; \
+		exit 1; \
+	fi
+	$(MAKE) assets-build
+	$(MAKE) test-unit
+	$(MAKE) test-db-reset CONFIRM="$(CONFIRM)"
+	$(MAKE) test-integration
+	$(MAKE) test-functional
+
+test-all:
+	$(MAKE) test-all-core CONFIRM="$(CONFIRM)"
+	$(MAKE) test-functional-panther
+	$(MAKE) test-functional-selenium
+
 run-test:
-	sh ./bin/run-tests.sh
+	$(MAKE) test-all CONFIRM="$(CONFIRM)"
 
 test-groups:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-groups
