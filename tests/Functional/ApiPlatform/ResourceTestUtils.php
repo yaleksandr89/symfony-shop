@@ -19,8 +19,19 @@ class ResourceTestUtils extends WebTestCase
         'CONTENT_TYPE' => 'application/merge-patch+json',
     ];
 
-    protected function getResponseDecodeContent(AbstractBrowser $client)
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getResponseDecodedContent(AbstractBrowser $client): array
     {
-        return json_decode($client->getResponse()->getContent());
+        $content = $client->getResponse()->getContent();
+
+        self::assertIsString($content);
+        self::assertJson($content);
+
+        $decodedContent = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($decodedContent);
+
+        return $decodedContent;
     }
 }
