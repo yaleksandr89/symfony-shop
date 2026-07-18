@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\CartRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,32 +26,29 @@ use Symfony\Component\Serializer\Annotation\Groups;
     Table(name: '`cart`'),
     Entity(repositoryClass: CartRepository::class)
 ]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="cart:list"}
- *       },
- *       "post"={
- *          "normalization_context"={"groups"="cart:list:write"},
- *          "security_post_denormalize"="is_granted('CART_EDIT', object)"
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="cart:item"},
- *          "security"="is_granted('CART_READ', object)"
- *       },
- *       "delete"={
- *          "security"="is_granted('CART_DELETE', object)"
- *       },
- *     },
- *    attributes={
- *          "order"={"cartProducts.id": "ASC"}
- *        }
- *    )
- * )
- */
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['cart:list']],
+            name: 'api_carts_get_collection'
+        ),
+        new Post(
+            normalizationContext: ['groups' => ['cart:list:write']],
+            securityPostDenormalize: "is_granted('CART_EDIT', object)",
+            name: 'api_carts_post_collection'
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['cart:item']],
+            security: "is_granted('CART_READ', object)",
+            name: 'api_carts_get_item'
+        ),
+        new Delete(
+            security: "is_granted('CART_DELETE', object)",
+            name: 'api_carts_delete_item'
+        ),
+    ],
+    order: ['cartProducts.id' => 'ASC']
+)]
 class Cart
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

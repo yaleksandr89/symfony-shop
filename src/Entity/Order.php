@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\OrderRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,24 +27,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
     Table(name: '`order`'),
     Entity(repositoryClass: OrderRepository::class)
 ]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order:list"}
- *       },
- *       "post"={
- *          "security"="is_granted('ROLE_USER')",
- *          "normalization_context"={"groups"="order:list:write"}
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order:item"}
- *       },
- *     },
- * )
- */
+#[ApiResource(operations: [
+    new GetCollection(
+        normalizationContext: ['groups' => ['order:list']],
+        name: 'api_orders_get_collection'
+    ),
+    new Post(
+        normalizationContext: ['groups' => ['order:list:write']],
+        security: "is_granted('ROLE_USER')",
+        name: 'api_orders_post_collection'
+    ),
+    new Get(
+        normalizationContext: ['groups' => ['order:item']],
+        name: 'api_orders_get_item'
+    ),
+])]
 class Order
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

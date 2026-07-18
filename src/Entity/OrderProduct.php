@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\OrderProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -20,27 +24,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
     Table(name: '`order_product`'),
     Entity(repositoryClass: OrderProductRepository::class)
 ]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order_product:list"}
- *       },
- *       "post"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "normalization_context"={"groups"="order_product:list:write"}
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order_product:item"}
- *       },
- *       "delete"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *       },
- *     },
- * )
- */
+#[ApiResource(operations: [
+    new GetCollection(
+        normalizationContext: ['groups' => ['order_product:list']],
+        name: 'api_order_products_get_collection'
+    ),
+    new Post(
+        normalizationContext: ['groups' => ['order_product:list:write']],
+        security: "is_granted('ROLE_ADMIN')",
+        name: 'api_order_products_post_collection'
+    ),
+    new Get(
+        normalizationContext: ['groups' => ['order_product:item']],
+        name: 'api_order_products_get_item'
+    ),
+    new Delete(
+        security: "is_granted('ROLE_ADMIN')",
+        name: 'api_order_products_delete_item'
+    ),
+])]
 class OrderProduct
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

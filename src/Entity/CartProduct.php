@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\CartProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -20,31 +25,31 @@ use Symfony\Component\Serializer\Annotation\Groups;
     Table(name: '`cart_product`'),
     Entity(repositoryClass: CartProductRepository::class)
 ]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="cart_product:list"}
- *       },
- *       "post"={
- *          "normalization_context"={"groups"="cart_product:list:write"},
- *          "security_post_denormalize"="is_granted('CART_PRODUCT_EDIT', object)"
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="cart_product:item"},
- *          "security"="is_granted('CART_PRODUCT_READ', object)"
- *       },
- *       "delete"={
- *          "security"="is_granted('CART_PRODUCT_DELETE', object)"
- *       },
- *       "patch"={
- *          "security_post_denormalize"="is_granted('CART_PRODUCT_EDIT', object)"
- *       },
- *     }
- * )
- */
+#[ApiResource(operations: [
+    new GetCollection(
+        normalizationContext: ['groups' => ['cart_product:list']],
+        name: 'api_cart_products_get_collection'
+    ),
+    new Post(
+        normalizationContext: ['groups' => ['cart_product:list:write']],
+        securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
+        name: 'api_cart_products_post_collection'
+    ),
+    new Get(
+        normalizationContext: ['groups' => ['cart_product:item']],
+        security: "is_granted('CART_PRODUCT_READ', object)",
+        name: 'api_cart_products_get_item'
+    ),
+    new Delete(
+        security: "is_granted('CART_PRODUCT_DELETE', object)",
+        name: 'api_cart_products_delete_item'
+    ),
+    new Patch(
+        inputFormats: ['json' => ['application/merge-patch+json']],
+        securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
+        name: 'api_cart_products_patch_item'
+    ),
+])]
 class CartProduct
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
