@@ -68,7 +68,7 @@ class Order
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
 
-    #[OneToMany(mappedBy: 'appOrder', targetEntity: OrderProduct::class)]
+    #[OneToMany(mappedBy: 'appOrder', targetEntity: OrderProduct::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['order:item'])]
     protected Collection $orderProducts;
 
@@ -175,12 +175,7 @@ class Order
 
     public function removeOrderProduct(OrderProduct $orderProduct): self
     {
-        if ($this->orderProducts->removeElement($orderProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($orderProduct->getAppOrder() === $this) {
-                $orderProduct->setAppOrder(null);
-            }
-        }
+        $this->orderProducts->removeElement($orderProduct);
 
         return $this;
     }

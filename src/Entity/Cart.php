@@ -62,7 +62,7 @@ class Cart
     #[Column(type: 'datetime_immutable')]
     protected DateTimeImmutable $createdAt;
 
-    #[OneToMany(mappedBy: 'cart', targetEntity: CartProduct::class, orphanRemoval: true)]
+    #[OneToMany(mappedBy: 'cart', targetEntity: CartProduct::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['cart:list', 'cart:item'])]
     protected Collection $cartProducts;
 
@@ -119,12 +119,7 @@ class Cart
 
     public function removeCartProduct(CartProduct $cartProduct): static
     {
-        if ($this->cartProducts->removeElement($cartProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($cartProduct->getCart() === $this) {
-                $cartProduct->setCart(null);
-            }
-        }
+        $this->cartProducts->removeElement($cartProduct);
 
         return $this;
     }

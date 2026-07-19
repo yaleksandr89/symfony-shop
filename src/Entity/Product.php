@@ -111,7 +111,7 @@ class Product
     #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?Category $category;
 
-    #[OneToMany(mappedBy: 'product', targetEntity: CartProduct::class, orphanRemoval: true)]
+    #[OneToMany(mappedBy: 'product', targetEntity: CartProduct::class)]
     protected Collection $cartProducts;
 
     #[OneToMany(mappedBy: 'product', targetEntity: OrderProduct::class)]

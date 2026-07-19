@@ -56,7 +56,7 @@ class CartProduct
     #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?int $id;
 
-    #[ManyToOne(targetEntity: Cart::class, inversedBy: 'cartProducts'), JoinColumn(nullable: false)]
+    #[ManyToOne(targetEntity: Cart::class, inversedBy: 'cartProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['cart_product:list', 'cart_product:item'])]
     protected ?Cart $cart;
 
