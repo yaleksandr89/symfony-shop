@@ -3,6 +3,10 @@ import { StatusCodes } from "http-status-codes";
 import { apiConfig, apiConfigPatch } from "../../../../../utils/settings";
 import { concatUrlByParams } from "../../../../../utils/url-generator";
 import { setCookie } from "../../../../../utils/cookie-manager";
+import {
+  formatCents,
+  sumCartProductsToCents,
+} from "../../../../../utils/money";
 
 const state = () => ({
   cart: {},
@@ -22,16 +26,11 @@ const state = () => ({
 
 const getters = {
   totalPrice(state) {
-    let result = 0;
     if (!state.cart.cartProducts) {
-      return 0;
+      return formatCents(0);
     }
 
-    state.cart.cartProducts.forEach((cartProduct) => {
-      result += cartProduct.product.price * cartProduct.quantity;
-    });
-
-    return result;
+    return formatCents(sumCartProductsToCents(state.cart.cartProducts));
   },
 };
 

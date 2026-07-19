@@ -11,6 +11,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
+use App\Utils\Money\DecimalMoney;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -74,11 +75,16 @@ final class OrderManager extends AbstractBaseManager
             foreach ($cart->getCartProducts()->getValues() as $cartProduct) {
                 /** @var Product $product */
                 $product = $cartProduct->getProduct();
+                $price = $product->getPrice();
+
+                if (null === $price) {
+                    throw new \InvalidArgumentException('Product price must be set.');
+                }
 
                 $orderProduct = new OrderProduct();
                 $orderProduct->setAppOrder($order);
                 $orderProduct->setQuantity($cartProduct->getQuantity());
-                $orderProduct->setPricePerOne($product->getPrice());
+                $orderProduct->setPricePerOne(DecimalMoney::fromCents(DecimalMoney::toCents($price)));
                 $orderProduct->setProduct($product);
 
                 $order->addOrderProduct($orderProduct);
@@ -89,17 +95,24 @@ final class OrderManager extends AbstractBaseManager
 
     public function calculationOrderTotalPrice(Order $order): void
     {
-        $orderTotalPrice = 0;
+        $orderTotalCents = 0;
 
         /** @var OrderProduct $orderProduct */
         foreach ($order->getOrderProducts()->getValues() as $orderProduct) {
-            $quantity = (int) $orderProduct->getQuantity();
-            $pricePerOne = (float) $orderProduct->getPricePerOne();
+            $quantity = $orderProduct->getQuantity();
+            $pricePerOne = $orderProduct->getPricePerOne();
 
-            $orderTotalPrice += $quantity * $pricePerOne;
+            if (null === $quantity || null === $pricePerOne) {
+                throw new \InvalidArgumentException('Order product price and quantity must be set.');
+            }
+
+            $orderTotalCents = DecimalMoney::addCents(
+                $orderTotalCents,
+                DecimalMoney::multiplyToCents($pricePerOne, $quantity)
+            );
         }
 
-        $order->setTotalPrice($orderTotalPrice);
+        $order->setTotalPrice((float) DecimalMoney::fromCents($orderTotalCents));
     }
 
     public function remove(object $entity): void

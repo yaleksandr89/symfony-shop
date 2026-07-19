@@ -46,6 +46,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+import { formatCents, multiplyPriceToCents } from "../../../../utils/money";
 
 export default {
   name: "CartProductItem",
@@ -67,7 +68,9 @@ export default {
       return productImages.length ? productImages[0] : null;
     },
     productPrice() {
-      return this.quantity * this.cartProduct.product.price;
+      return formatCents(
+        multiplyPriceToCents(this.cartProduct.product.price, this.quantity)
+      );
     },
     urlShowProduct() {
       return (
