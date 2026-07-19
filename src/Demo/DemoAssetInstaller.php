@@ -13,29 +13,33 @@ final class DemoAssetInstaller
 {
     private const VARIANTS = ['big', 'middle', 'small'];
 
+    /** @var list<array{target: string, backup: string|null}> */
+    private array $fileJournal = [];
+
+    /** @var list<string> */
+    private array $createdDirectories = [];
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private KernelInterface $kernel,
-        private string $productImagesDir
+        private string $productImagesDir,
     ) {
     }
 
-    /**
-     * @param array<int, array{slug: string, image_key: string}> $products
-     */
+    /** @param array<int, array<string, mixed>> $products */
     public function assertSourcesExist(array $products): void
     {
-        foreach ($products as $productData) {
-            foreach ($this->getSourcePaths($productData['image_key']) as $path) {
+        foreach ($products as $product) {
+            foreach ($this->getSourcePaths((string) $product['image_key']) as $path) {
                 if (!is_file($path)) {
-                    throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $productData['slug'], $path));
+                    throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product['slug'], $path));
                 }
             }
         }
     }
 
     /**
-     * @return array{created: bool, copied: int}
+     * @return array{record: 'created'|'updated'|'existing', files: array{copied: int, updated: int, existing: int}}
      */
     public function install(Product $product, string $imageKey): array
     {
@@ -44,67 +48,138 @@ final class DemoAssetInstaller
             throw new \RuntimeException(sprintf('Demo product "%s" must be flushed before installing images.', $product->getSlug()));
         }
 
-        foreach ($this->getSourcePaths($imageKey) as $path) {
+        $sourcePaths = $this->getSourcePaths($imageKey);
+        foreach ($sourcePaths as $path) {
             if (!is_file($path)) {
                 throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product->getSlug(), $path));
             }
         }
 
-        $targetDir = sprintf('%s/%d', rtrim($this->productImagesDir, '/'), $productId);
-        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
-            throw new \RuntimeException(sprintf('Unable to create demo product image directory: %s', $targetDir));
-        }
-
-        $copied = 0;
-        foreach ($this->getSourcePaths($imageKey) as $variant => $sourcePath) {
-            $targetPath = sprintf('%s/%s', $targetDir, $this->getFilename($imageKey, $variant));
-            if (!copy($sourcePath, $targetPath)) {
-                throw new \RuntimeException(sprintf('Unable to copy demo image for product "%s": %s -> %s', $product->getSlug(), $sourcePath, $targetPath));
+        $targetDirectory = sprintf('%s/%d', rtrim($this->productImagesDir, '/'), $productId);
+        if (!is_dir($targetDirectory)) {
+            if (!mkdir($targetDirectory, 0775, true) && !is_dir($targetDirectory)) {
+                throw new \RuntimeException(sprintf('Unable to create demo product image directory: %s', $targetDirectory));
             }
-
-            ++$copied;
+            $this->createdDirectories[] = $targetDirectory;
         }
 
-        $created = false;
-        if (!$this->hasDemoImage($product, $imageKey)) {
-            $productImage = new ProductImage();
-            $productImage->setFilenameBig($this->getFilename($imageKey, 'big'));
-            $productImage->setFilenameMiddle($this->getFilename($imageKey, 'middle'));
-            $productImage->setFilenameSmall($this->getFilename($imageKey, 'small'));
-            $product->addProductImage($productImage);
-            $this->entityManager->persist($productImage);
-            $created = true;
+        $fileCounts = ['copied' => 0, 'updated' => 0, 'existing' => 0];
+        foreach ($sourcePaths as $variant => $sourcePath) {
+            $targetPath = sprintf('%s/%s', $targetDirectory, $this->getFilename($imageKey, $variant));
+            if (!file_exists($targetPath)) {
+                $this->copyWithJournal($sourcePath, $targetPath, null);
+                ++$fileCounts['copied'];
+            } elseif ($this->filesAreIdentical($sourcePath, $targetPath)) {
+                ++$fileCounts['existing'];
+            } else {
+                $backup = tempnam(sys_get_temp_dir(), 'demo-image-backup-');
+                if (false === $backup || !copy($targetPath, $backup)) {
+                    throw new \RuntimeException(sprintf('Unable to back up demo product image: %s', $targetPath));
+                }
+                $this->copyWithJournal($sourcePath, $targetPath, $backup);
+                ++$fileCounts['updated'];
+            }
         }
 
-        return ['created' => $created, 'copied' => $copied];
+        return ['record' => $this->reconcileImageRecord($product, $imageKey), 'files' => $fileCounts];
     }
 
-    private function hasDemoImage(Product $product, string $imageKey): bool
+    public function commit(): void
     {
-        foreach ($product->getProductImages() as $productImage) {
-            if (
-                $productImage instanceof ProductImage
-                && $productImage->getFilenameBig() === $this->getFilename($imageKey, 'big')
-                && $productImage->getFilenameMiddle() === $this->getFilename($imageKey, 'middle')
-                && $productImage->getFilenameSmall() === $this->getFilename($imageKey, 'small')
-            ) {
-                return true;
+        foreach ($this->fileJournal as $change) {
+            if (null !== $change['backup'] && is_file($change['backup'])) {
+                unlink($change['backup']);
+            }
+        }
+        $this->fileJournal = [];
+        $this->createdDirectories = [];
+    }
+
+    public function rollback(): void
+    {
+        foreach (array_reverse($this->fileJournal) as $change) {
+            if (null === $change['backup']) {
+                if (is_file($change['target'])) {
+                    unlink($change['target']);
+                }
+                continue;
+            }
+            if (is_file($change['backup'])) {
+                copy($change['backup'], $change['target']);
+                unlink($change['backup']);
+            }
+        }
+        foreach (array_reverse($this->createdDirectories) as $directory) {
+            if (is_dir($directory) && !(new \FilesystemIterator($directory))->valid()) {
+                rmdir($directory);
+            }
+        }
+        $this->fileJournal = [];
+        $this->createdDirectories = [];
+    }
+
+    /** @return 'created'|'updated'|'existing' */
+    private function reconcileImageRecord(Product $product, string $imageKey): string
+    {
+        $expected = [
+            'big' => $this->getFilename($imageKey, 'big'),
+            'middle' => $this->getFilename($imageKey, 'middle'),
+            'small' => $this->getFilename($imageKey, 'small'),
+        ];
+        $matchingImage = null;
+        $conflictingImages = [];
+        foreach ($product->getProductImages() as $image) {
+            if (!$image instanceof ProductImage) {
+                continue;
+            }
+            if ($image->getFilenameBig() === $expected['big'] && $image->getFilenameMiddle() === $expected['middle'] && $image->getFilenameSmall() === $expected['small']) {
+                $matchingImage ??= $image;
+                if ($matchingImage !== $image) {
+                    $conflictingImages[] = $image;
+                }
+            } else {
+                $conflictingImages[] = $image;
             }
         }
 
-        return false;
+        $recordState = null === $matchingImage ? (count($conflictingImages) > 0 ? 'updated' : 'created') : (count($conflictingImages) > 0 ? 'updated' : 'existing');
+        if (null === $matchingImage) {
+            $matchingImage = (new ProductImage())
+                ->setFilenameBig($expected['big'])
+                ->setFilenameMiddle($expected['middle'])
+                ->setFilenameSmall($expected['small']);
+            $product->addProductImage($matchingImage);
+            $this->entityManager->persist($matchingImage);
+        }
+        foreach ($conflictingImages as $image) {
+            $product->removeProductImage($image);
+            $this->entityManager->remove($image);
+        }
+
+        return $recordState;
     }
 
-    /**
-     * @return array<string, string>
-     */
+    private function copyWithJournal(string $source, string $target, ?string $backup): void
+    {
+        $this->fileJournal[] = ['target' => $target, 'backup' => $backup];
+        if (!copy($source, $target)) {
+            throw new \RuntimeException(sprintf('Unable to install demo image: %s -> %s', $source, $target));
+        }
+    }
+
+    private function filesAreIdentical(string $source, string $target): bool
+    {
+        return filesize($source) === filesize($target)
+            && hash_equals((string) hash_file('sha256', $source), (string) hash_file('sha256', $target));
+    }
+
+    /** @return array<string, string> */
     private function getSourcePaths(string $imageKey): array
     {
-        $sourceDir = sprintf('%s/fixtures/demo/images/%s', $this->kernel->getProjectDir(), $imageKey);
+        $sourceDirectory = sprintf('%s/fixtures/demo/images/%s', $this->kernel->getProjectDir(), $imageKey);
         $paths = [];
-
         foreach (self::VARIANTS as $variant) {
-            $paths[$variant] = sprintf('%s/%s', $sourceDir, $this->getFilename($imageKey, $variant));
+            $paths[$variant] = sprintf('%s/%s', $sourceDirectory, $this->getFilename($imageKey, $variant));
         }
 
         return $paths;
