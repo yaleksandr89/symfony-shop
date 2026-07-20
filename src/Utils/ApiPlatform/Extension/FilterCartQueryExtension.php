@@ -12,7 +12,6 @@ use App\Entity\Cart;
 use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -46,7 +45,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         ?Operation $operation = null,
         array $context = []
     ): void {
-        $this->andWhere($queryBuilder, $resourceClass);
+        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass);
     }
 
     public function applyToItem(
@@ -57,10 +56,10 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         ?Operation $operation = null,
         array $context = []
     ): void {
-        $this->andWhere($queryBuilder, $resourceClass);
+        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass);
     }
 
-    private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
+    private function andWhere(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass): void
     {
         if (Cart::class !== $resourceClass) {
             return;
@@ -79,12 +78,12 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $request = Request::createFromGlobals();
-        $cartToken = $request->cookies->get('CART_TOKEN');
+        $cartToken = $this->request->getCurrentRequest()?->cookies->get('CART_TOKEN') ?? '';
+        $parameterName = $queryNameGenerator->generateParameterName('cart_token');
 
         $queryBuilder->andWhere(
-            sprintf("%s.token = '%s'", $rootAlias, $cartToken)
-        );
+            sprintf('%s.token = :%s', $rootAlias, $parameterName)
+        )->setParameter($parameterName, $cartToken);
     }
 
     /**
