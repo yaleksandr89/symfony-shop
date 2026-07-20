@@ -40,6 +40,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ),
     new Get(
         normalizationContext: ['groups' => ['order:item']],
+        security: "is_granted('ROLE_ADMIN')",
         name: 'api_orders_get_item'
     ),
 ])]

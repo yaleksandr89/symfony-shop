@@ -389,6 +389,15 @@ class OrderControllerTest extends WebTestCase
             DecimalMoney::toCents($storedTotal),
             self::currencyTextToCents($totalPriceRow->filter('.col-md-11')->text()),
         );
+        self::assertCount(1, $card->filter('#app'));
+        $staticStoreScript = implode(' ', $crawler->filter('script')->each(
+            static fn (Crawler $script): string => $script->text(),
+        ));
+        self::assertStringContainsString(
+            sprintf("window.staticStore.orderId = '%d';", $order->getId()),
+            $staticStoreScript,
+        );
+        self::assertStringContainsString("window.staticStore.urlApiOrder = '/api/orders';", $staticStoreScript);
         self::assertSame($deleteRow, trim($card->filter('[data-target="#approveDeleteModal"]')->text()));
         self::assertSame($modalTitle, trim($modal->filter('.modal-title')->text()));
         self::assertSame($modalText, trim($modal->filter('.modal-body')->text()));

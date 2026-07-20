@@ -50,7 +50,6 @@ class OrderProduct
     protected ?int $id;
 
     #[ManyToOne(targetEntity: Order::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['order:item'])]
     protected ?Order $appOrder;
 
     #[ManyToOne(targetEntity: Product::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
