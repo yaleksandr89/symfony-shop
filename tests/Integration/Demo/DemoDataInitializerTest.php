@@ -11,6 +11,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
+use App\Utils\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -38,6 +39,7 @@ class DemoDataInitializerTest extends KernelTestCase
         self::assertSame(24, (int) $this->entityManager->getConnection()->fetchOne("SELECT COUNT(*) FROM product_image pi JOIN product p ON p.id = pi.product_id WHERE p.slug LIKE 'demo-%'"));
         self::assertSame(24, $this->entityManager->getRepository(Order::class)->count([]));
         self::assertSame(48, $this->entityManager->getRepository(OrderProduct::class)->count([]));
+        $this->assertOrderTotalsAreCanonical();
         self::assertSame(24, $first['orders']['created']);
         self::assertSame(48, $first['order_products']['created']);
         self::assertSame(6, (int) $this->entityManager->getConnection()->fetchOne("SELECT COUNT(*) FROM (SELECT category_id FROM product WHERE slug LIKE 'demo-%' GROUP BY category_id HAVING COUNT(*) = 4) grouped"));
@@ -53,5 +55,26 @@ class DemoDataInitializerTest extends KernelTestCase
         self::assertSame(['removed' => 24, 'created' => 24], $second['orders']);
         self::assertSame(['removed' => 48, 'created' => 48], $second['order_products']);
         self::assertSame(0, (int) $this->entityManager->getConnection()->fetchOne('SELECT COUNT(*) FROM order_product op LEFT JOIN "order" o ON o.id = op.app_order_id WHERE o.id IS NULL'));
+        $this->assertOrderTotalsAreCanonical();
+    }
+
+    private function assertOrderTotalsAreCanonical(): void
+    {
+        foreach ($this->entityManager->getRepository(Order::class)->findAll() as $order) {
+            $totalCents = 0;
+            foreach ($order->getOrderProducts() as $line) {
+                $pricePerOne = $line->getPricePerOne();
+                $quantity = $line->getQuantity();
+                self::assertNotNull($pricePerOne);
+                self::assertNotNull($quantity);
+                $totalCents = DecimalMoney::addCents(
+                    $totalCents,
+                    DecimalMoney::multiplyToCents($pricePerOne, $quantity),
+                );
+            }
+
+            self::assertSame(DecimalMoney::fromCents($totalCents), $order->getTotalPrice());
+            self::assertMatchesRegularExpression('/^\\d+\\.\\d{2}$/', (string) $order->getTotalPrice());
+        }
     }
 }

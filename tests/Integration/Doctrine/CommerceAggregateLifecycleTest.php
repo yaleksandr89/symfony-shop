@@ -15,6 +15,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -164,6 +165,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
 
     public function testCommerceAssociationMetadataMatchesAggregateBoundaries(): void
     {
+        $totalPrice = $this->entityManager->getClassMetadata(Order::class)->fieldMappings['totalPrice'];
         $orderProducts = $this->entityManager->getClassMetadata(Order::class)->associationMappings['orderProducts'];
         $cartProducts = $this->entityManager->getClassMetadata(Cart::class)->associationMappings['cartProducts'];
         $order = $this->entityManager->getClassMetadata(OrderProduct::class)->associationMappings['appOrder'];
@@ -184,6 +186,10 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         self::assertNull($product['joinColumns'][0]['onDelete'] ?? null);
         self::assertNull($owner['joinColumns'][0]['onDelete'] ?? null);
         self::assertSame([], $userOrders['cascade']);
+        self::assertSame(Types::DECIMAL, $totalPrice['type']);
+        self::assertSame(19, $totalPrice['precision']);
+        self::assertSame(2, $totalPrice['scale']);
+        self::assertTrue($totalPrice['nullable']);
     }
 
     /** @return array{User, Product} */
@@ -211,7 +217,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         return (new Order())
             ->setOwner($user)
             ->setStatus(1)
-            ->setTotalPrice(10.0);
+            ->setTotalPrice('10.00');
     }
 
     private function newOrderProduct(Product $product): OrderProduct
@@ -257,7 +263,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     {
         [$userId, $productId] = $this->insertRawUserAndProduct($connection);
         $connection->executeStatement(
-            'INSERT INTO "order" (owner_id, created_at, updated_at, status, total_price, is_deleted) VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 10.0, 0)',
+            "INSERT INTO \"order\" (owner_id, created_at, updated_at, status, total_price, is_deleted) VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, '10.00', 0)",
             [$userId],
         );
         $orderId = (int) $connection->lastInsertId();

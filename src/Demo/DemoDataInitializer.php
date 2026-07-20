@@ -10,6 +10,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
+use App\Utils\Money\DecimalMoney;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -326,7 +327,7 @@ final class DemoDataInitializer
                 $totalCents += $this->priceToCents($price) * $lineData['quantity'];
                 ++$createdLines;
             }
-            $order->setTotalPrice($totalCents / 100);
+            $order->setTotalPrice(DecimalMoney::fromCents($totalCents));
             $this->entityManager->persist($order);
         }
 

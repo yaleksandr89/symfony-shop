@@ -139,6 +139,44 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         }
     }
 
+    public function testOrderTotalPriceRangeIncludesBothDecimalBoundaries(): void
+    {
+        $owner = self::getContainer()->get(UserRepository::class)->findOneBy([
+            'email' => UserFixtures::USER_ADMIN_1_EMAIL,
+        ]);
+        self::assertInstanceOf(User::class, $owner);
+        $orders = [];
+
+        foreach (['90.60', '94.20', '94.21'] as $totalPrice) {
+            $order = (new Order())
+                ->setOwner($owner)
+                ->setStatus(1)
+                ->setTotalPrice($totalPrice);
+            $this->entityManager->persist($order);
+            $orders[] = $order;
+        }
+
+        try {
+            $this->entityManager->flush();
+            $form = self::getContainer()->get(FormFactoryInterface::class)->create(OrderFilterFormType::class, new OrderFilterModel());
+            $form->submit(['totalPrice' => ['left_number' => '90.60', 'right_number' => '94.20']], false);
+            self::assertTrue($form->isSynchronized());
+
+            $queryBuilder = $this->entityManager->createQueryBuilder()->select('filtered_order')->from(Order::class, 'filtered_order');
+            self::getContainer()->get(FilterBuilderUpdater::class)->addFilterConditions($form, $queryBuilder);
+            $resultIds = array_map(static fn (Order $order): ?int => $order->getId(), $queryBuilder->getQuery()->getResult());
+
+            self::assertContains($orders[0]->getId(), $resultIds);
+            self::assertContains($orders[1]->getId(), $resultIds);
+            self::assertNotContains($orders[2]->getId(), $resultIds);
+        } finally {
+            foreach ($orders as $order) {
+                $this->entityManager->remove($order);
+            }
+            $this->entityManager->flush();
+        }
+    }
+
     /** @param class-string $entityClass */
     private function ormQuery(string $entityClass, string $alias): ORMQuery
     {
@@ -200,7 +238,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
             $order = (new Order())
                 ->setOwner($owner)
                 ->setStatus(1)
-                ->setTotalPrice(10.0)
+                ->setTotalPrice('10.00')
                 ->setCreatedAt($timestamp);
             $this->entityManager->persist($order);
             $orders[] = $order;

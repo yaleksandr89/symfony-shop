@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Repository\OrderRepository;
+use App\Utils\Money\DecimalMoney;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -61,9 +62,9 @@ class Order
     #[Groups(['order:item'])]
     protected ?int $status;
 
-    #[Column(type: Types::FLOAT, nullable: true)]
+    #[Column(type: Types::DECIMAL, precision: 19, scale: 2, nullable: true)]
     #[Groups(['order:item'])]
-    protected ?float $totalPrice;
+    protected ?string $totalPrice = null;
 
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
@@ -122,14 +123,14 @@ class Order
         return $this;
     }
 
-    public function getTotalPrice(): ?float
+    public function getTotalPrice(): ?string
     {
-        return $this->totalPrice;
+        return null === $this->totalPrice ? null : DecimalMoney::normalize($this->totalPrice);
     }
 
-    public function setTotalPrice(?float $totalPrice): static
+    public function setTotalPrice(?string $totalPrice): static
     {
-        $this->totalPrice = $totalPrice;
+        $this->totalPrice = null === $totalPrice ? null : DecimalMoney::normalize($totalPrice);
 
         return $this;
     }

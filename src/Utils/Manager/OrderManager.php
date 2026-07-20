@@ -112,7 +112,7 @@ final class OrderManager extends AbstractBaseManager
             );
         }
 
-        $order->setTotalPrice((float) DecimalMoney::fromCents($orderTotalCents));
+        $order->setTotalPrice(DecimalMoney::fromCents($orderTotalCents));
     }
 
     public function remove(object $entity): void

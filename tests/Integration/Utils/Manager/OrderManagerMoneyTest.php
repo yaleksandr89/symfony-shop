@@ -16,6 +16,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Group(name: 'integration')]
 class OrderManagerMoneyTest extends KernelTestCase
@@ -24,6 +26,8 @@ class OrderManagerMoneyTest extends KernelTestCase
 
     private OrderManager $orderManager;
 
+    private SerializerInterface $serializer;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -31,6 +35,7 @@ class OrderManagerMoneyTest extends KernelTestCase
 
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $this->orderManager = self::getContainer()->get(OrderManager::class);
+        $this->serializer = self::getContainer()->get(SerializerInterface::class);
     }
 
     #[TestWith([
@@ -87,13 +92,13 @@ class OrderManagerMoneyTest extends KernelTestCase
         self::assertSame($expectedSnapshots, $this->getPriceSnapshots($order));
 
         $this->orderManager->calculationOrderTotalPrice($order);
-        self::assertEqualsWithDelta((float) $expectedTotal, $order->getTotalPrice(), 0.000001);
+        self::assertSame($expectedTotal, $order->getTotalPrice());
 
         $this->orderManager->calculationOrderTotalPrice($order);
 
         self::assertSame(OrderStaticStorage::ORDER_STATUS_CREATED, $order->getStatus());
         self::assertSame($expectedSnapshots, $this->getPriceSnapshots($order));
-        self::assertEqualsWithDelta((float) $expectedTotal, $order->getTotalPrice(), 0.000001);
+        self::assertSame($expectedTotal, $order->getTotalPrice());
 
         $this->entityManager->persist($order);
         $this->entityManager->flush();
@@ -104,10 +109,17 @@ class OrderManagerMoneyTest extends KernelTestCase
 
         /** @var Order $reloadedOrder */
         $reloadedOrder = $this->entityManager->find(Order::class, $orderId);
-        self::assertEqualsWithDelta((float) $expectedTotal, $reloadedOrder->getTotalPrice(), 0.000001);
+        self::assertSame($expectedTotal, $reloadedOrder->getTotalPrice());
+
+        $normalized = $this->serializer->normalize($reloadedOrder, null, [
+            'groups' => ['order:item'],
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['orderProducts'],
+        ]);
+        self::assertIsArray($normalized);
+        self::assertSame($expectedTotal, $normalized['totalPrice']);
 
         $this->orderManager->calculationOrderTotalPrice($reloadedOrder);
-        self::assertEqualsWithDelta((float) $expectedTotal, $reloadedOrder->getTotalPrice(), 0.000001);
+        self::assertSame($expectedTotal, $reloadedOrder->getTotalPrice());
     }
 
     /** @return list<string> */

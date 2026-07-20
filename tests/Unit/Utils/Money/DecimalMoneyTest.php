@@ -47,6 +47,7 @@ class DecimalMoneyTest extends TestCase
     {
         self::assertSame($expectedCents, DecimalMoney::toCents($amount));
         self::assertSame($expectedAmount, DecimalMoney::fromCents(DecimalMoney::toCents($amount)));
+        self::assertSame($expectedAmount, DecimalMoney::normalize($amount));
     }
 
     #[TestWith(['089.99'])]

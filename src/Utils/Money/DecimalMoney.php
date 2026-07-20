@@ -51,6 +51,11 @@ final class DecimalMoney
         return intdiv($cents, 100).'.'.str_pad((string) ($cents % 100), 2, '0', STR_PAD_LEFT);
     }
 
+    public static function normalize(string $amount): string
+    {
+        return self::fromCents(self::toCents($amount));
+    }
+
     private static function parseDigits(string $digits): int
     {
         $value = 0;

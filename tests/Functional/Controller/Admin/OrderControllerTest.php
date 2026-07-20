@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use App\Utils\Money\DecimalMoney;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -47,6 +48,27 @@ class OrderControllerTest extends WebTestCase
         $client->submit($form);
 
         self::assertResponseIsSuccessful();
+    }
+
+    public function testTotalPriceSortingIsNumericAndListRendersCurrency(): void
+    {
+        $client = $this->createAdminClient();
+        $ascending = $client->request('GET', '/ru/admin/order/list?sort=o.totalPrice&direction=asc');
+
+        self::assertResponseIsSuccessful();
+        $ascendingCents = $this->listTotalPriceCents($ascending);
+        self::assertNotSame([], $ascendingCents);
+        $expectedAscending = $ascendingCents;
+        sort($expectedAscending);
+        self::assertSame($expectedAscending, $ascendingCents);
+
+        $descending = $client->request('GET', '/ru/admin/order/list?sort=o.totalPrice&direction=desc');
+
+        self::assertResponseIsSuccessful();
+        $descendingCents = $this->listTotalPriceCents($descending);
+        $expectedDescending = $descendingCents;
+        rsort($expectedDescending);
+        self::assertSame($expectedDescending, $descendingCents);
     }
 
     public function testDateFilterControlsUseDateInputs(): void
@@ -356,6 +378,17 @@ class OrderControllerTest extends WebTestCase
         self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
         self::assertStringContainsString($productsHeading, $card->text());
         self::assertStringContainsString($totalPrice, $card->text());
+        $totalPriceRow = $card->filterXPath(sprintf(
+            './/div[contains(@class, "row")][.//div[contains(normalize-space(), "%s")]]',
+            $totalPrice,
+        ));
+        self::assertCount(1, $totalPriceRow);
+        $storedTotal = $order->getTotalPrice();
+        self::assertNotNull($storedTotal);
+        self::assertSame(
+            DecimalMoney::toCents($storedTotal),
+            self::currencyTextToCents($totalPriceRow->filter('.col-md-11')->text()),
+        );
         self::assertSame($deleteRow, trim($card->filter('[data-target="#approveDeleteModal"]')->text()));
         self::assertSame($modalTitle, trim($modal->filter('.modal-title')->text()));
         self::assertSame($modalText, trim($modal->filter('.modal-body')->text()));
@@ -539,6 +572,23 @@ class OrderControllerTest extends WebTestCase
         self::assertInstanceOf(Order::class, $order);
 
         return $order;
+    }
+
+    /** @return list<int> */
+    private function listTotalPriceCents(Crawler $crawler): array
+    {
+        return $crawler->filter('#main_table tbody tr')->each(
+            static fn (Crawler $row): int => self::currencyTextToCents($row->filter('td')->eq(6)->text()),
+        );
+    }
+
+    private static function currencyTextToCents(string $currencyText): int
+    {
+        $currencyText = str_replace(["\u{00A0}", "\u{202F}"], '', $currencyText);
+        self::assertMatchesRegularExpression('/(?<amount>\d+[.,]\d{2})/', $currencyText);
+        preg_match('/(?<amount>\d+[.,]\d{2})/', $currencyText, $matches);
+
+        return DecimalMoney::toCents(str_replace(',', '.', $matches['amount']));
     }
 
     private function assertOwnerOptionIsApplicationData(Crawler $form): void
