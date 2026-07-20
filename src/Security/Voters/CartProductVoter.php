@@ -58,7 +58,7 @@ class CartProductVoter extends Voter
 
         switch ($attribute) {
             case self::CART_PRODUCT_READ:
-                return $this->canRead();
+                return $this->canRead($cart);
             case self::CART_PRODUCT_EDIT:
                 return $this->canEdit($cart);
             case self::CART_PRODUCT_DELETE:
@@ -68,10 +68,11 @@ class CartProductVoter extends Voter
         throw new LogicException('This code should not be reached!');
     }
 
-    private function canRead(): bool
+    private function canRead(Cart $cart): bool
     {
-        // так как отрабатывает проверка в FilterCartQueryExtension.php
-        return true;
+        $cartToken = $this->getCartToken();
+
+        return null !== $cartToken && '' !== $cartToken && $cart->getToken() === $cartToken;
     }
 
     private function canEdit(Cart $cart): bool
@@ -105,9 +106,11 @@ class CartProductVoter extends Voter
 
     private function getCartToken(): ?string
     {
-        return $this->requestStack
+        $cartToken = $this->requestStack
             ->getCurrentRequest()
-            ->cookies
+            ?->cookies
             ->get('CART_TOKEN');
+
+        return is_string($cartToken) ? $cartToken : null;
     }
 }

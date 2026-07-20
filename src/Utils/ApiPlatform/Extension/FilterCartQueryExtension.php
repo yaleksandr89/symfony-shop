@@ -7,8 +7,11 @@ namespace App\Utils\ApiPlatform\Extension;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Cart;
+use App\Entity\CartProduct;
 use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -45,7 +48,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         ?Operation $operation = null,
         array $context = []
     ): void {
-        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass);
+        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass, $operation);
     }
 
     public function applyToItem(
@@ -56,12 +59,20 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         ?Operation $operation = null,
         array $context = []
     ): void {
-        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass);
+        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass, $operation);
     }
 
-    private function andWhere(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass): void
-    {
-        if (Cart::class !== $resourceClass) {
+    private function andWhere(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation
+    ): void {
+        if (Cart::class !== $resourceClass && CartProduct::class !== $resourceClass) {
+            return;
+        }
+
+        if (CartProduct::class === $resourceClass && !$operation instanceof Get && !$operation instanceof GetCollection) {
             return;
         }
 
@@ -78,11 +89,17 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
+        $cartAlias = $rootAlias;
+        if (CartProduct::class === $resourceClass) {
+            $cartAlias = $queryNameGenerator->generateJoinAlias('cart');
+            $queryBuilder->innerJoin(sprintf('%s.cart', $rootAlias), $cartAlias);
+        }
+
         $cartToken = $this->request->getCurrentRequest()?->cookies->get('CART_TOKEN') ?? '';
         $parameterName = $queryNameGenerator->generateParameterName('cart_token');
 
         $queryBuilder->andWhere(
-            sprintf('%s.token = :%s', $rootAlias, $parameterName)
+            sprintf('%s.token = :%s', $cartAlias, $parameterName)
         )->setParameter($parameterName, $cartToken);
     }
 
