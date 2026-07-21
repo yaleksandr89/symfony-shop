@@ -7,12 +7,27 @@ import {
   formatCents,
   sumCartProductsToCents,
 } from "../../../../../utils/money";
+import cartSync from "../../../cart-sync";
 
 function getAlertStructure() {
   return {
     type: null,
     message: null,
   };
+}
+
+async function loadCart(state) {
+  const result = await axios.get(state.staticStore.url.apiCart, apiConfig);
+
+  if (
+    result.data &&
+    result.data["hydra:member"].length &&
+    StatusCodes.OK === result.status
+  ) {
+    return result.data["hydra:member"][0];
+  }
+
+  return {};
 }
 
 const state = () => ({
@@ -46,37 +61,30 @@ const getters = {
 };
 
 const actions = {
-  async getCart({ state, commit }) {
-    const url = state.staticStore.url.apiCart;
-    const result = await axios.get(url, apiConfig);
+  async getCart({ state, commit }, { force = false } = {}) {
+    const cart = await cartSync.load(() => loadCart(state), { force });
 
-    if (
-      result.data &&
-      result.data["hydra:member"].length &&
-      StatusCodes.OK === result.status
-    ) {
-      commit("setCart", result.data["hydra:member"][0]);
-    } else {
-      commit("setCart", {});
+    if (!Object.keys(cart).length) {
       commit("setAlert", {
         type: "info",
         message: state.staticStore.localization.cart_empty,
       });
     }
+
+    return cart;
   },
-  async cleanCart({ state, commit }) {
+  async cleanCart({ state }) {
     const url = concatUrlByParams(state.staticStore.url.apiCart, state.cart.id);
 
     const result = await axios.delete(url, apiConfig);
 
     if (StatusCodes.NO_CONTENT === result.status) {
-      commit("setCart", {});
+      cartSync.publish({});
       setCookie("CART_TOKEN", result.data.token, {
         secure: true,
         "max-age": 0,
       });
     }
-    await window.vueMenuCartInstance.setCart();
   },
   async removeCartProduct({ state, dispatch }, cartProductId) {
     const url = concatUrlByParams(
@@ -86,7 +94,7 @@ const actions = {
     const result = await axios.delete(url, apiConfig);
 
     if (StatusCodes.NO_CONTENT === result.status) {
-      dispatch("getCart");
+      await dispatch("getCart", { force: true });
     }
   },
   async updateCartProductQuantity({ state, dispatch }, payload) {
@@ -100,7 +108,7 @@ const actions = {
     const result = await axios.patch(url, data, apiConfigPatch);
 
     if (StatusCodes.OK === result.status) {
-      dispatch("getCart");
+      await dispatch("getCart", { force: true });
     }
   },
   async makeOrder({ state, commit, dispatch }) {

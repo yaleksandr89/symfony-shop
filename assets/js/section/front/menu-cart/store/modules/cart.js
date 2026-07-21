@@ -7,6 +7,21 @@ import {
   formatCents,
   sumCartProductsToCents,
 } from "../../../../../utils/money";
+import cartSync from "../../../cart-sync";
+
+async function loadCart(state) {
+  const result = await axios.get(state.staticStore.url.apiCart, apiConfig);
+
+  if (
+    result.data &&
+    result.data["hydra:member"].length &&
+    StatusCodes.OK === result.status
+  ) {
+    return result.data["hydra:member"][0];
+  }
+
+  return {};
+}
 
 const state = () => ({
   cart: {},
@@ -35,25 +50,19 @@ const getters = {
 };
 
 const actions = {
-  async getCart({ state, commit }) {
-    const url = state.staticStore.url.apiCart;
-    const result = await axios.get(url, apiConfig);
-
-    if (
-      result.data &&
-      result.data["hydra:member"].length &&
-      StatusCodes.OK === result.status
-    ) {
+  async getCart({ state, commit }, { force = false } = {}) {
+    try {
+      return await cartSync.load(() => loadCart(state), { force });
+    } finally {
       commit("setIsLoading", false);
-      commit("setCart", result.data["hydra:member"][0]);
     }
   },
-  async cleanCart({ state, commit }) {
+  async cleanCart({ state }) {
     const url = concatUrlByParams(state.staticStore.url.apiCart, state.cart.id);
     const result = await axios.delete(url, apiConfig);
 
     if (StatusCodes.NO_CONTENT === result.status) {
-      commit("setCart", {});
+      cartSync.publish({});
     }
   },
   async removeCartProduct({ state, dispatch }, cartProductId) {
@@ -64,7 +73,7 @@ const actions = {
     const result = await axios.delete(url, apiConfig);
 
     if (StatusCodes.NO_CONTENT === result.status) {
-      dispatch("getCart");
+      await dispatch("getCart", { force: true });
     }
   },
   async addCartProduct({ state, commit, dispatch }, productData) {
@@ -86,21 +95,25 @@ const actions = {
 
     commit("setIsLoading", true);
 
-    if (existCartProduct) {
-      let newQuantity = existCartProduct.quantity + productData.quantity;
+    try {
+      if (existCartProduct) {
+        let newQuantity = existCartProduct.quantity + productData.quantity;
 
-      // если количество имеющегося продукта меньше, чем добавляемое значение
-      // то позволяем добавить только максимальное значение
-      if (existCartProduct.product.quantity <= newQuantity) {
-        newQuantity = existCartProduct.product.quantity;
+        // если количество имеющегося продукта меньше, чем добавляемое значение
+        // то позволяем добавить только максимальное значение
+        if (existCartProduct.product.quantity <= newQuantity) {
+          newQuantity = existCartProduct.product.quantity;
+        }
+
+        await dispatch("addExistCartProduct", {
+          cartProductId: existCartProduct.id,
+          quantity: existCartProduct.quantity + productData.quantity,
+        });
+      } else {
+        await dispatch("addNewCartProduct", productData);
       }
-
-      dispatch("addExistCartProduct", {
-        cartProductId: existCartProduct.id,
-        quantity: existCartProduct.quantity + productData.quantity,
-      });
-    } else {
-      dispatch("addNewCartProduct", productData);
+    } finally {
+      commit("setIsLoading", false);
     }
   },
   async createCart({ state, dispatch }) {
@@ -113,7 +126,7 @@ const actions = {
         secure: true,
         "max-age": 86400,
       });
-      await dispatch("getCart");
+      await dispatch("getCart", { force: true });
     }
   },
   async addExistCartProduct({ state, dispatch }, cartProductData) {
@@ -127,7 +140,7 @@ const actions = {
     const result = await axios.patch(url, data, apiConfigPatch);
 
     if (StatusCodes.OK === result.status) {
-      dispatch("getCart");
+      return dispatch("getCart", { force: true });
     }
   },
   async addNewCartProduct({ state, dispatch }, productData) {
@@ -140,7 +153,7 @@ const actions = {
 
     const result = await axios.post(url, data, apiConfig);
     if (result.data && StatusCodes.CREATED === result.status) {
-      dispatch("getCart");
+      return dispatch("getCart", { force: true });
     }
   },
 };
