@@ -32,6 +32,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ),
     new Post(
         normalizationContext: ['groups' => ['cart_product:list:write']],
+        denormalizationContext: [
+            'groups' => ['cart_product:create'],
+            'allow_extra_attributes' => false,
+        ],
         securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
         name: 'api_cart_products_post_collection'
     ),
@@ -46,7 +50,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ),
     new Patch(
         inputFormats: ['json' => ['application/merge-patch+json']],
-        securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
+        denormalizationContext: [
+            'groups' => ['cart_product:update'],
+            'allow_extra_attributes' => false,
+        ],
+        security: "is_granted('CART_PRODUCT_EDIT', object)",
         name: 'api_cart_products_patch_item'
     ),
 ])]
@@ -57,15 +65,22 @@ class CartProduct
     protected ?int $id;
 
     #[ManyToOne(targetEntity: Cart::class, inversedBy: 'cartProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['cart_product:list', 'cart_product:item'])]
+    #[Groups(['cart_product:list', 'cart_product:item', 'cart_product:create'])]
     protected ?Cart $cart;
 
     #[ManyToOne(targetEntity: Product::class, inversedBy: 'cartProducts'), JoinColumn(nullable: false)]
-    #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item', 'cart_product:create'])]
     protected ?Product $product;
 
     #[Column(type: Types::INTEGER)]
-    #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
+    #[Groups([
+        'cart_product:list',
+        'cart_product:item',
+        'cart:list',
+        'cart:item',
+        'cart_product:create',
+        'cart_product:update',
+    ])]
     protected ?int $quantity;
 
     public function __construct()

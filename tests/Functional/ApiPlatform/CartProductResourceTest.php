@@ -169,8 +169,157 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertNotContains($context['lineB']->getId(), array_column($document['cartProducts'], 'id'));
     }
 
+    public function testMatchingTokenCanPatchOnlyQuantityOnOwnLine(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], ['quantity' => 7]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            7,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    public function testWrongTokenCannotPatchForeignLine(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenB']);
+
+        $this->requestPatch($client, $context['lineA'], ['quantity' => 7]);
+
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    public function testMissingTokenCannotPatchExistingLine(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+
+        $this->requestPatch($client, $context['lineA'], ['quantity' => 7]);
+
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    public function testMatchingTokenCannotPatchCart(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], [
+            'cart' => $this->cartIri($context['cartB']),
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    public function testMatchingTokenCannotPatchProduct(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], [
+            'product' => $this->productIri($context['productB']),
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    public function testCombinedReassignmentPayloadCannotBypassPatchOwnership(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], [
+            'cart' => $this->cartIri($context['cartB']),
+            'product' => $this->productIri($context['productB']),
+            'quantity' => 7,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    public function testPostStillAcceptsCartProductAndQuantityForMatchingToken(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+        $quantity = 7;
+
+        $client->request(
+            'POST',
+            self::URI_KEY,
+            [],
+            [],
+            self::REQUEST_HEADERS,
+            json_encode([
+                'cart' => $this->cartIri($context['cartA']),
+                'product' => $this->productIri($context['productA']),
+                'quantity' => $quantity,
+            ], JSON_THROW_ON_ERROR)
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $cartId = $context['cartA']->getId();
+        $productId = $context['productA']->getId();
+        self::assertNotNull($cartId);
+        self::assertNotNull($productId);
+        $entityManager->clear();
+        $createdLine = $entityManager->getRepository(CartProduct::class)->findOneBy(
+            [
+                'cart' => $entityManager->getReference(Cart::class, $cartId),
+                'product' => $entityManager->getReference(Product::class, $productId),
+            ],
+            ['id' => 'DESC']
+        );
+
+        self::assertInstanceOf(CartProduct::class, $createdLine);
+        self::assertSame($quantity, $createdLine->getQuantity());
+    }
+
     /**
-     * @return array{cartA: Cart, lineA: CartProduct, tokenA: string, lineB: CartProduct, tokenB: string}
+     * @return array{cartA: Cart, cartB: Cart, lineA: CartProduct, tokenA: string, productA: Product, lineB: CartProduct, tokenB: string, productB: Product}
      */
     private function createCartContext(): array
     {
@@ -204,10 +353,13 @@ class CartProductResourceTest extends ResourceTestUtils
 
         return [
             'cartA' => $cartA,
+            'cartB' => $cartB,
             'lineA' => $lineA,
             'tokenA' => $tokenA,
+            'productA' => $productA,
             'lineB' => $lineB,
             'tokenB' => $tokenB,
+            'productB' => $productB,
         ];
     }
 
@@ -263,5 +415,50 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertNotNull($lineId);
 
         return self::URI_KEY.'/'.$lineId;
+    }
+
+    private function cartIri(Cart $cart): string
+    {
+        $cartId = $cart->getId();
+        self::assertNotNull($cartId);
+
+        return '/api/carts/'.$cartId;
+    }
+
+    private function productIri(Product $product): string
+    {
+        return '/api/products/'.$product->getUuid();
+    }
+
+    /**
+     * @param array<string, int|string> $payload
+     */
+    private function requestPatch(AbstractBrowser $client, CartProduct $line, array $payload): void
+    {
+        $client->request(
+            'PATCH',
+            $this->lineIri($line),
+            [],
+            [],
+            self::REQUEST_HEADERS_PATCH,
+            json_encode($payload, JSON_THROW_ON_ERROR)
+        );
+    }
+
+    private function assertPersistedLineState(CartProduct $line, int $quantity, ?int $cartId, ?int $productId): void
+    {
+        $lineId = $line->getId();
+        self::assertNotNull($lineId);
+        self::assertNotNull($cartId);
+        self::assertNotNull($productId);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $persistedLine = $entityManager->find(CartProduct::class, $lineId);
+
+        self::assertInstanceOf(CartProduct::class, $persistedLine);
+        self::assertSame($quantity, $persistedLine->getQuantity());
+        self::assertSame($cartId, $persistedLine->getCart()?->getId());
+        self::assertSame($productId, $persistedLine->getProduct()?->getId());
     }
 }
