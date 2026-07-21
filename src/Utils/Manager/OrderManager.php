@@ -71,25 +71,38 @@ final class OrderManager extends AbstractBaseManager
         $cart = $this->cartManager->find($cartId);
 
         if ($cart) {
-            /** @var CartProduct $cartProduct */
-            foreach ($cart->getCartProducts()->getValues() as $cartProduct) {
-                /** @var Product $product */
-                $product = $cartProduct->getProduct();
-                $price = $product->getPrice();
+            $this->addOrdersProductsFromVerifiedCart($order, $cart);
+        }
+    }
 
-                if (null === $price) {
-                    throw new \InvalidArgumentException('Product price must be set.');
-                }
+    public function findCart(int $cartId): ?Cart
+    {
+        /** @var Cart|null $cart */
+        $cart = $this->cartManager->find($cartId);
 
-                $orderProduct = new OrderProduct();
-                $orderProduct->setAppOrder($order);
-                $orderProduct->setQuantity($cartProduct->getQuantity());
-                $orderProduct->setPricePerOne(DecimalMoney::fromCents(DecimalMoney::toCents($price)));
-                $orderProduct->setProduct($product);
+        return $cart;
+    }
 
-                $order->addOrderProduct($orderProduct);
-                $this->persist($orderProduct);
+    public function addOrdersProductsFromVerifiedCart(Order $order, Cart $cart): void
+    {
+        /** @var CartProduct $cartProduct */
+        foreach ($cart->getCartProducts()->getValues() as $cartProduct) {
+            /** @var Product $product */
+            $product = $cartProduct->getProduct();
+            $price = $product->getPrice();
+
+            if (null === $price) {
+                throw new \InvalidArgumentException('Product price must be set.');
             }
+
+            $orderProduct = new OrderProduct();
+            $orderProduct->setAppOrder($order);
+            $orderProduct->setQuantity($cartProduct->getQuantity());
+            $orderProduct->setPricePerOne(DecimalMoney::fromCents(DecimalMoney::toCents($price)));
+            $orderProduct->setProduct($product);
+
+            $order->addOrderProduct($orderProduct);
+            $this->persist($orderProduct);
         }
     }
 
