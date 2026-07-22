@@ -19,6 +19,35 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 class OrderResourceTest extends ResourceTestUtils
 {
+    public function testAnonymousUserCannotGetOrderCollection(): void
+    {
+        $client = self::createClient();
+
+        $client->request('GET', '/api/orders', [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+    }
+
+    public function testRegularUserCannotGetOrderCollection(): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+
+        $client->request('GET', '/api/orders', [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+    }
+
+    public function testAdminCanGetOrderCollection(): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+
+        $client->request('GET', '/api/orders', [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
     public function testAdminCanGetOrderItemWithEmbeddedProductsAndCategories(): void
     {
         $client = self::createClient();

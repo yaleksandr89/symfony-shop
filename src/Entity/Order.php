@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use App\ApiPlatform\Input\CheckoutOrderInput;
+use App\ApiPlatform\State\CheckoutOrderProcessor;
 use App\Repository\OrderRepository;
 use App\Utils\Money\DecimalMoney;
 use DateTimeImmutable;
@@ -31,12 +33,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(operations: [
     new GetCollection(
         normalizationContext: ['groups' => ['order:list']],
+        security: "is_granted('ROLE_ADMIN')",
         name: 'api_orders_get_collection'
     ),
     new Post(
         normalizationContext: ['groups' => ['order:list:write']],
+        denormalizationContext: ['allow_extra_attributes' => false],
         security: "is_granted('ROLE_USER')",
-        name: 'api_orders_post_collection'
+        input: CheckoutOrderInput::class,
+        name: 'api_orders_post_collection',
+        processor: CheckoutOrderProcessor::class
     ),
     new Get(
         normalizationContext: ['groups' => ['order:item']],

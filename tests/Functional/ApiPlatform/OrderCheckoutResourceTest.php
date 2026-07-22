@@ -15,6 +15,7 @@ use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
@@ -107,6 +108,22 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$ownCart, $foreignCart]);
     }
 
+    public function testCheckoutWithForeignTokenDoesNotRevealCartAvailability(): void
+    {
+        $client = self::createClient();
+        $ownCart = $this->createCart([['10.00', 1]]);
+        $foreignCart = $this->createCart([['20.00', 2]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $ownCart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $foreignCart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertCheckoutUnavailableResponse($client);
+        $this->assertNoCheckoutSideEffects($counts, [$ownCart, $foreignCart]);
+    }
+
     public function testCheckoutWithoutCartTokenIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -134,7 +151,8 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
-    public function testCheckoutWithoutCartIdIsRejectedWithoutSideEffects(): void
+    #[DataProvider('invalidCartIdPayloads')]
+    public function testMissingOrNonPositiveCartIdIsRejectedByValidationWithoutSideEffects(array $payload): void
     {
         $client = self::createClient();
         $cart = $this->createCart([['10.00', 1]]);
@@ -142,27 +160,24 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
         $this->setCartToken($client, $cart['token']);
 
-        $this->requestCheckout($client, []);
+        $this->requestCheckout($client, $payload);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
-    public function testInvalidCartIdsAreRejectedWithoutSideEffects(): void
+    public function testStringCartIdIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
         $cart = $this->createCart([['10.00', 1]]);
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
         $this->setCartToken($client, $cart['token']);
 
-        foreach (['abc', 0, -1] as $invalidCartId) {
-            $counts = $this->getOrderCounts();
+        $counts = $this->getOrderCounts();
+        $this->requestCheckout($client, ['cartId' => '123']);
 
-            $this->requestCheckout($client, ['cartId' => $invalidCartId]);
-
-            self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-            $this->assertNoCheckoutSideEffects($counts, [$cart]);
-        }
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
     public function testCheckoutWithNonexistentCartIsRejectedWithoutSideEffects(): void
@@ -176,6 +191,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->requestCheckout($client, ['cartId' => $existingCart['id'] + 100000]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertCheckoutUnavailableResponse($client);
         $this->assertNoCheckoutSideEffects($counts, [$existingCart]);
     }
 
@@ -190,6 +206,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->requestCheckout($client, ['cartId' => $cart['id']]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertCheckoutUnavailableResponse($client);
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
@@ -206,6 +223,107 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         $this->assertNoCheckoutSideEffects($counts, [$adminCart, $foreignCart]);
+    }
+
+    public function testAdminCannotBypassMissingCartTokenRequirement(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+    }
+
+    #[DataProvider('forbiddenOrderFields')]
+    public function testForbiddenOrderFieldsAreRejectedBeforeCheckoutSideEffects(string $field, mixed $value): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id'], $field => $value]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+    }
+
+    public function testCombinedMassAssignmentPayloadIsRejectedBeforeCheckoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, [
+            'cartId' => $cart['id'],
+            'owner' => '/api/users/1',
+            'status' => 999,
+            'totalPrice' => '0.01',
+            'createdAt' => '2000-01-01T00:00:00+00:00',
+            'updatedAt' => '2000-01-01T00:00:00+00:00',
+            'isDeleted' => true,
+            'orderProducts' => [],
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+    }
+
+    public function testMalformedJsonIsRejectedWithoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckoutRaw($client, '{"cartId":');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+    }
+
+    public function testCheckoutOpenApiInputSchemaOnlyAllowsRequiredCartId(): void
+    {
+        $client = self::createClient();
+        $client->request('GET', '/api/docs.json', [], [], ['HTTP_ACCEPT' => 'application/json']);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $document = $this->getResponseDecodedContent($client);
+        $schemaReference = $document['paths']['/api/orders']['post']['requestBody']['content']['application/json']['schema'];
+        self::assertSame('#/components/schemas/Order.CheckoutOrderInput', $schemaReference['$ref']);
+        $schema = $document['components']['schemas']['Order.CheckoutOrderInput'];
+        self::assertSame(['cartId'], array_keys($schema['properties']));
+        self::assertSame(['cartId'], $schema['required']);
+        self::assertFalse($schema['additionalProperties']);
+    }
+
+    /** @return iterable<string, array{array{cartId?: int|null}}> */
+    public static function invalidCartIdPayloads(): iterable
+    {
+        yield 'missing' => [[]];
+        yield 'null' => [['cartId' => null]];
+        yield 'zero' => [['cartId' => 0]];
+        yield 'negative' => [['cartId' => -1]];
+    }
+
+    /** @return iterable<string, array{string, mixed}> */
+    public static function forbiddenOrderFields(): iterable
+    {
+        yield 'owner' => ['owner', '/api/users/1'];
+        yield 'status' => ['status', 999];
+        yield 'total price' => ['totalPrice', '0.01'];
+        yield 'created at' => ['createdAt', '2000-01-01T00:00:00+00:00'];
+        yield 'updated at' => ['updatedAt', '2000-01-01T00:00:00+00:00'];
+        yield 'is deleted' => ['isDeleted', true];
+        yield 'order products' => ['orderProducts', []];
     }
 
     /**
@@ -266,7 +384,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     }
 
     /**
-     * @param array{cartId?: int|string} $payload
+     * @param array<string, mixed> $payload
      */
     private function requestCheckout(AbstractBrowser $client, array $payload): void
     {
@@ -278,6 +396,18 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
             self::REQUEST_HEADERS,
             json_encode($payload, JSON_THROW_ON_ERROR)
         );
+    }
+
+    private function requestCheckoutRaw(AbstractBrowser $client, string $content): void
+    {
+        $client->request('POST', self::URI, [], [], self::REQUEST_HEADERS, $content);
+    }
+
+    private function assertCheckoutUnavailableResponse(AbstractBrowser $client): void
+    {
+        $content = $client->getResponse()->getContent();
+        self::assertIsString($content);
+        self::assertStringContainsString('Checkout cart is unavailable.', $content);
     }
 
     /**
