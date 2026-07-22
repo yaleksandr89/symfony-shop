@@ -290,6 +290,50 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    public function testCheckoutRejectsPersistedZeroQuantityWithoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 2]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        self::assertNotNull($lineId);
+        $line->setQuantity(0);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertCheckoutUnavailableResponse($client);
+        $this->assertNoCheckoutSideEffects($counts, []);
+        $this->assertCartProductQuantity($lineId, 0);
+    }
+
+    public function testCheckoutRejectsLineAfterProductStockIsLoweredWithoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 2]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        self::assertNotNull($lineId);
+        $product = $line->getProduct();
+        self::assertInstanceOf(Product::class, $product);
+        $product->setQuantity(1);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertCheckoutUnavailableResponse($client);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+        $this->assertCartProductQuantity($lineId, 2);
+    }
+
     public function testCheckoutOpenApiInputSchemaOnlyAllowsRequiredCartId(): void
     {
         $client = self::createClient();
@@ -462,6 +506,27 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     private function getEntityManager(): EntityManagerInterface
     {
         return self::getContainer()->get(EntityManagerInterface::class);
+    }
+
+    private function getOnlyCartProduct(int $cartId): CartProduct
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        $cart = $entityManager->find(Cart::class, $cartId);
+        self::assertInstanceOf(Cart::class, $cart);
+        $line = $cart->getCartProducts()->first();
+        self::assertInstanceOf(CartProduct::class, $line);
+
+        return $line;
+    }
+
+    private function assertCartProductQuantity(int $lineId, int $quantity): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        $line = $entityManager->find(CartProduct::class, $lineId);
+        self::assertInstanceOf(CartProduct::class, $line);
+        self::assertSame($quantity, $line->getQuantity());
     }
 
     private function getUser(string $email): User

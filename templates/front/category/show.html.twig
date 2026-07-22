@@ -36,7 +36,7 @@
                                                     >
                                                 </a>
                                                 <div class="product-actions">
-                                                    <a href="#" class="btn-add-to-cart" data-id="{{ product.uuid }}" data-add-cart>
+                                                    <a href="#" class="btn-add-to-cart" data-id="{{ product.uuid }}" data-stock="{{ product.quantity }}" data-add-cart>
                                                         {{ 'product.add_to_cart'|trans }}
                                                     </a>
                                                 </div>
@@ -73,11 +73,15 @@
             item.addEventListener('click', function (event){
                 event.preventDefault();
 
-                window.vueMenuCartInstance.addCartProduct({
-                    uuid: this.getAttribute('data-id')
-                });
+                const stock = Number(this.getAttribute('data-stock'));
+                if (Number.isInteger(stock) && stock >= 1) {
+                    window.vueMenuCartInstance.addCartProduct({
+                        uuid: this.getAttribute('data-id'),
+                        quantity: 1,
+                        stock: stock,
+                    });
+                }
             });
         })
     </script>
 {% endblock %}
-

@@ -20,14 +20,14 @@
     <td class="price-col">${{ cartProduct.product.price }}</td>
     <td class="quantity-col">
       <input
-        v-model="quantity"
+        v-model.number="quantity"
         type="number"
         class="form-control"
         min="1"
         :max="productQuantityMax"
         step="1"
-        @focusout="updateQuantity"
-        @change="updateMaxValue($event, 'quantity', productQuantityMax)"
+        :disabled="isSaving"
+        @change="saveQuantity"
       />
     </td>
     <td class="total-col">${{ productPrice }}</td>
@@ -59,6 +59,7 @@ export default {
   data() {
     return {
       quantity: 1,
+      isSaving: false,
     };
   },
   computed: {
@@ -78,11 +79,18 @@ export default {
       );
     },
     productQuantityMax() {
-      return parseInt(this.cartProduct.product.quantity);
+      return Number(this.cartProduct.product.quantity);
     },
   },
-  created() {
-    this.quantity = this.cartProduct.quantity;
+  watch: {
+    "cartProduct.quantity": {
+      immediate: true,
+      handler(quantity) {
+        if (!this.isSaving) {
+          this.quantity = quantity;
+        }
+      },
+    },
   },
   methods: {
     ...mapActions("cart", ["removeCartProduct", "updateCartProductQuantity"]),
@@ -95,23 +103,44 @@ export default {
         productImage.filenameSmall
       );
     },
-    updateQuantity() {
-      const payload = {
-        cartProductId: this.cartProduct.id,
-        quantity: this.quantity,
-      };
-
-      this.updateCartProductQuantity(payload);
-    },
-    updateMaxValue(event, field, maxValue) {
-      const value = Number.parseFloat(event.target.value);
-      let updatedValue = 1;
-      if (value > 0 && value <= maxValue) {
-        updatedValue = value;
-      } else if (value > maxValue) {
-        updatedValue = maxValue;
+    async saveQuantity() {
+      if (this.isSaving) {
+        return;
       }
-      this.$data[field] = updatedValue;
+
+      const requestedQuantity = Number(this.quantity);
+      const persistedQuantity = this.cartProduct.quantity;
+      const stock = this.productQuantityMax;
+
+      if (
+        !Number.isInteger(requestedQuantity) ||
+        requestedQuantity < 1 ||
+        !Number.isInteger(stock) ||
+        stock < 1
+      ) {
+        this.quantity = persistedQuantity;
+        return;
+      }
+
+      const quantity = Math.min(requestedQuantity, stock);
+      this.quantity = quantity;
+      if (quantity === persistedQuantity) {
+        return;
+      }
+
+      this.isSaving = true;
+      try {
+        const updated = await this.updateCartProductQuantity({
+          cartProductId: this.cartProduct.id,
+          quantity,
+          stock,
+        });
+        this.quantity = updated ? this.cartProduct.quantity : persistedQuantity;
+      } catch (error) {
+        this.quantity = this.cartProduct.quantity;
+      } finally {
+        this.isSaving = false;
+      }
     },
   },
 };

@@ -98,18 +98,43 @@ const actions = {
     }
   },
   async updateCartProductQuantity({ state, dispatch }, payload) {
+    const quantity = Number(payload.quantity);
+    const stock = Number(payload.stock);
+    if (
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      !Number.isInteger(stock) ||
+      stock < 1 ||
+      quantity > stock
+    ) {
+      return false;
+    }
+
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
       payload.cartProductId
     );
     const data = {
-      quantity: parseInt(payload.quantity),
+      quantity,
     };
-    const result = await axios.patch(url, data, apiConfigPatch);
+    try {
+      const result = await axios.patch(url, data, apiConfigPatch);
 
-    if (StatusCodes.OK === result.status) {
-      await dispatch("getCart", { force: true });
+      if (StatusCodes.OK === result.status) {
+        await dispatch("getCart", { force: true });
+        return true;
+      }
+    } catch (error) {
+      try {
+        await dispatch("getCart", { force: true });
+      } catch (refreshError) {
+        // Preserve the write error for callers instead of reporting a false success.
+      }
+
+      throw error;
     }
+
+    return false;
   },
   async makeOrder({ state, commit, dispatch }) {
     const url = state.staticStore.url.apiOrder;

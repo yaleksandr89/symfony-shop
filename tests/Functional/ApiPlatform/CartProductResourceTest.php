@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
@@ -278,31 +279,26 @@ class CartProductResourceTest extends ResourceTestUtils
         );
     }
 
-    public function testPostStillAcceptsCartProductAndQuantityForMatchingToken(): void
+    #[DataProvider('validPostQuantities')]
+    public function testMatchingTokenCanCreateLineWithValidQuantity(int $quantity): void
     {
         $client = self::createClient();
         $context = $this->createCartContext();
         $this->setCartToken($client, $context['tokenA']);
-        $quantity = 7;
+        $countBefore = $this->countCartProducts();
 
-        $client->request(
-            'POST',
-            self::URI_KEY,
-            [],
-            [],
-            self::REQUEST_HEADERS,
-            json_encode([
-                'cart' => $this->cartIri($context['cartA']),
-                'product' => $this->productIri($context['productA']),
-                'quantity' => $quantity,
-            ], JSON_THROW_ON_ERROR)
-        );
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productB']),
+            'quantity' => $quantity,
+        ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        self::assertSame($countBefore + 1, $this->countCartProducts());
 
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $cartId = $context['cartA']->getId();
-        $productId = $context['productA']->getId();
+        $productId = $context['productB']->getId();
         self::assertNotNull($cartId);
         self::assertNotNull($productId);
         $entityManager->clear();
@@ -316,6 +312,228 @@ class CartProductResourceTest extends ResourceTestUtils
 
         self::assertInstanceOf(CartProduct::class, $createdLine);
         self::assertSame($quantity, $createdLine->getQuantity());
+        self::assertSame($cartId, $createdLine->getCart()?->getId());
+        self::assertSame($productId, $createdLine->getProduct()?->getId());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    #[DataProvider('invalidPostSemanticQuantities')]
+    public function testPostRejectsSemanticInvalidQuantity(mixed $quantity, string $message): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+        $payload = [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productB']),
+        ];
+        if (null !== $quantity) {
+            $payload['quantity'] = $quantity;
+        }
+
+        $this->requestPost($client, $payload);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->assertValidationMessage($client, $message);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    #[DataProvider('invalidTypeQuantities')]
+    public function testPostRejectsNonIntegerQuantityTypes(mixed $quantity): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productB']),
+            'quantity' => $quantity,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testPostRejectsMalformedJsonWithoutChangingState(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPostRaw($client, '{"quantity":');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testPostRejectsUnknownWritableFieldWithoutChangingState(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productB']),
+            'quantity' => 1,
+            'unexpected' => true,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    #[DataProvider('validPatchQuantities')]
+    public function testMatchingTokenCanPatchOwnLineWithValidQuantity(int $quantity): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], ['quantity' => $quantity]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            $quantity,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    #[DataProvider('invalidPatchSemanticQuantities')]
+    public function testPatchRejectsSemanticInvalidQuantity(mixed $quantity, string $message): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], ['quantity' => $quantity]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->assertValidationMessage($client, $message);
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    #[DataProvider('invalidTypeQuantities')]
+    public function testPatchRejectsNonIntegerQuantityTypes(mixed $quantity): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], ['quantity' => $quantity]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testPatchRejectsMalformedJsonWithoutChangingState(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatchRaw($client, $context['lineA'], '{"quantity":');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testPatchRejectsUnknownWritableFieldWithoutChangingState(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], ['unexpected' => true]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testPatchWithoutQuantityKeepsCurrentState(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPatch($client, $context['lineA'], []);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testCartProductOpenApiQuantitySchemaMatchesPolicy(): void
+    {
+        $client = self::createClient();
+        $client->request('GET', '/api/docs.json', [], [], ['HTTP_ACCEPT' => 'application/json']);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $document = $this->getResponseDecodedContent($client);
+        $postSchema = $this->requestSchema($document, 'post');
+        $patchSchema = $this->requestSchema($document, 'patch');
+
+        self::assertSame('integer', $postSchema['properties']['quantity']['type']);
+        self::assertSame(1, $postSchema['properties']['quantity']['minimum']);
+        self::assertContains('quantity', $postSchema['required']);
+        self::assertFalse($postSchema['additionalProperties']);
+
+        self::assertSame('integer', $patchSchema['properties']['quantity']['type']);
+        self::assertSame(1, $patchSchema['properties']['quantity']['minimum']);
+        self::assertArrayNotHasKey('maximum', $patchSchema['properties']['quantity']);
+        self::assertFalse($patchSchema['additionalProperties']);
+    }
+
+    /** @return iterable<string, array{int}> */
+    public static function validPostQuantities(): iterable
+    {
+        yield 'one' => [1];
+        yield 'stock' => [20];
+    }
+
+    /** @return iterable<string, array{int|null, string}> */
+    public static function invalidPostSemanticQuantities(): iterable
+    {
+        yield 'missing' => [null, 'Quantity is required.'];
+        yield 'zero' => [0, 'Quantity must be at least 1.'];
+        yield 'negative' => [-1, 'Quantity must be at least 1.'];
+        yield 'overstock' => [21, 'Quantity cannot exceed the product stock.'];
+    }
+
+    /** @return iterable<string, array{int}> */
+    public static function validPatchQuantities(): iterable
+    {
+        yield 'one' => [1];
+        yield 'stock' => [10];
+    }
+
+    /** @return iterable<string, array{int, string}> */
+    public static function invalidPatchSemanticQuantities(): iterable
+    {
+        yield 'zero' => [0, 'Quantity must be at least 1.'];
+        yield 'negative' => [-1, 'Quantity must be at least 1.'];
+        yield 'overstock' => [11, 'Quantity cannot exceed the product stock.'];
+    }
+
+    /** @return iterable<string, array{mixed}> */
+    public static function invalidTypeQuantities(): iterable
+    {
+        yield 'null' => [null];
+        yield 'string' => ['2'];
+        yield 'decimal' => [1.5];
+        yield 'boolean' => [true];
+        yield 'array' => [[]];
+        yield 'object' => [new \stdClass()];
     }
 
     /**
@@ -431,7 +649,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     /**
-     * @param array<string, int|string> $payload
+     * @param array<string, mixed> $payload
      */
     private function requestPatch(AbstractBrowser $client, CartProduct $line, array $payload): void
     {
@@ -443,6 +661,88 @@ class CartProductResourceTest extends ResourceTestUtils
             self::REQUEST_HEADERS_PATCH,
             json_encode($payload, JSON_THROW_ON_ERROR)
         );
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function requestPost(AbstractBrowser $client, array $payload): void
+    {
+        $client->request(
+            'POST',
+            self::URI_KEY,
+            [],
+            [],
+            self::REQUEST_HEADERS,
+            json_encode($payload, JSON_THROW_ON_ERROR)
+        );
+    }
+
+    private function requestPostRaw(AbstractBrowser $client, string $content): void
+    {
+        $client->request('POST', self::URI_KEY, [], [], self::REQUEST_HEADERS, $content);
+    }
+
+    private function requestPatchRaw(AbstractBrowser $client, CartProduct $line, string $content): void
+    {
+        $client->request(
+            'PATCH',
+            $this->lineIri($line),
+            [],
+            [],
+            self::REQUEST_HEADERS_PATCH,
+            $content
+        );
+    }
+
+    private function countCartProducts(): int
+    {
+        return self::getContainer()->get(EntityManagerInterface::class)
+            ->getRepository(CartProduct::class)
+            ->count([]);
+    }
+
+    /** @param array<string, mixed> $context */
+    private function assertContextLinesUnchanged(array $context): void
+    {
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+        $this->assertPersistedLineState(
+            $context['lineB'],
+            2,
+            $context['cartB']->getId(),
+            $context['productB']->getId()
+        );
+    }
+
+    private function assertValidationMessage(AbstractBrowser $client, string $message): void
+    {
+        $content = $client->getResponse()->getContent();
+        self::assertIsString($content);
+        self::assertStringContainsString($message, $content);
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    private function requestSchema(array $document, string $method): array
+    {
+        $contentType = 'patch' === $method ? 'application/merge-patch+json' : 'application/json';
+        $path = 'patch' === $method ? self::URI_KEY.'/{id}' : self::URI_KEY;
+        $reference = $document['paths'][$path][$method]['requestBody']['content'][$contentType]['schema'];
+        self::assertIsArray($reference);
+        self::assertArrayHasKey('$ref', $reference);
+        self::assertIsString($reference['$ref']);
+        $schemaName = substr($reference['$ref'], strlen('#/components/schemas/'));
+        self::assertNotSame($reference['$ref'], $schemaName);
+        $schema = $document['components']['schemas'][$schemaName];
+        self::assertIsArray($schema);
+
+        return $schema;
     }
 
     private function assertPersistedLineState(CartProduct $line, int $quantity, ?int $cartId, ?int $productId): void

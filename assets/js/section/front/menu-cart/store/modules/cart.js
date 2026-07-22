@@ -50,12 +50,8 @@ const getters = {
 };
 
 const actions = {
-  async getCart({ state, commit }, { force = false } = {}) {
-    try {
-      return await cartSync.load(() => loadCart(state), { force });
-    } finally {
-      commit("setIsLoading", false);
-    }
+  async getCart({ state }, { force = false } = {}) {
+    return cartSync.load(() => loadCart(state), { force });
   },
   async cleanCart({ state }) {
     const url = concatUrlByParams(state.staticStore.url.apiCart, state.cart.id);
@@ -77,41 +73,69 @@ const actions = {
     }
   },
   async addCartProduct({ state, commit, dispatch }, productData) {
-    if (!state.cart.cartProducts) {
-      await dispatch("createCart");
-    }
-
-    if (!productData.quantity) {
-      productData.quantity = 1;
-    }
-
     if (state.isLoading) {
       return;
     }
 
-    const existCartProduct = state.cart.cartProducts.find(
-      (cartProduct) => cartProduct.product.uuid === productData.uuid
-    );
-
     commit("setIsLoading", true);
 
     try {
-      if (existCartProduct) {
-        let newQuantity = existCartProduct.quantity + productData.quantity;
+      const amount = Number(
+        typeof productData.quantity === "undefined" ? 1 : productData.quantity
+      );
 
-        // если количество имеющегося продукта меньше, чем добавляемое значение
-        // то позволяем добавить только максимальное значение
-        if (existCartProduct.product.quantity <= newQuantity) {
-          newQuantity = existCartProduct.product.quantity;
+      if (!Number.isInteger(amount) || amount < 1) {
+        return;
+      }
+
+      if (!state.cart.cartProducts) {
+        await dispatch("createCart");
+      }
+
+      const existCartProduct = state.cart.cartProducts.find(
+        (cartProduct) => cartProduct.product.uuid === productData.uuid
+      );
+
+      if (existCartProduct) {
+        const stock = Number(existCartProduct.product.quantity);
+        const currentQuantity = Number(existCartProduct.quantity);
+
+        if (
+          !Number.isInteger(stock) ||
+          stock < 1 ||
+          !Number.isInteger(currentQuantity)
+        ) {
+          return;
+        }
+
+        const newQuantity = Math.min(currentQuantity + amount, stock);
+        if (newQuantity === currentQuantity) {
+          return;
         }
 
         await dispatch("addExistCartProduct", {
           cartProductId: existCartProduct.id,
-          quantity: existCartProduct.quantity + productData.quantity,
+          quantity: newQuantity,
         });
       } else {
-        await dispatch("addNewCartProduct", productData);
+        const stock = Number(productData.stock);
+        if (!Number.isInteger(stock) || stock < 1) {
+          return;
+        }
+
+        await dispatch("addNewCartProduct", {
+          uuid: productData.uuid,
+          quantity: Math.min(amount, stock),
+        });
       }
+    } catch (error) {
+      try {
+        await dispatch("getCart", { force: true });
+      } catch (refreshError) {
+        // Preserve the write error for callers instead of reporting a false success.
+      }
+
+      throw error;
     } finally {
       commit("setIsLoading", false);
     }

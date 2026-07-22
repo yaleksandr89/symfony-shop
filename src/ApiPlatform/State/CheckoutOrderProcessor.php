@@ -18,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @implements ProcessorInterface<CheckoutOrderInput, Order>
@@ -32,6 +33,7 @@ final class CheckoutOrderProcessor implements ProcessorInterface
         private readonly RequestStack $requestStack,
         private readonly OrderManager $orderManager,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ValidatorInterface $validator,
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
         private readonly ProcessorInterface $persistProcessor,
     ) {
@@ -57,6 +59,12 @@ final class CheckoutOrderProcessor implements ProcessorInterface
         $cartToken = $request?->cookies->get('CART_TOKEN');
         if (!is_string($cartToken) || '' === $cartToken || $cart->getToken() !== $cartToken) {
             throw new BadRequestHttpException('Checkout cart is unavailable.');
+        }
+
+        foreach ($cart->getCartProducts() as $cartProduct) {
+            if (0 < count($this->validator->validate($cartProduct))) {
+                throw new BadRequestHttpException('Checkout cart is unavailable.');
+            }
         }
 
         $order = (new Order())

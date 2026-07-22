@@ -20,6 +20,7 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[
     Table(name: '`cart_product`'),
@@ -81,7 +82,16 @@ class CartProduct
         'cart_product:create',
         'cart_product:update',
     ])]
-    protected ?int $quantity;
+    #[Assert\NotNull(message: 'Quantity is required.')]
+    #[Assert\GreaterThanOrEqual(
+        value: 1,
+        message: 'Quantity must be at least 1.'
+    )]
+    #[Assert\LessThanOrEqual(
+        propertyPath: 'product.quantity',
+        message: 'Quantity cannot exceed the product stock.'
+    )]
+    protected ?int $quantity = null;
 
     public function __construct()
     {
