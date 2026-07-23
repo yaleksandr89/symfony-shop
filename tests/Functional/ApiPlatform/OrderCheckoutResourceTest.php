@@ -14,6 +14,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
+use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -379,7 +380,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     {
         $entityManager = $this->getEntityManager();
         $suffix = str_replace('.', '', uniqid('', true));
-        $token = 'checkout-'.$suffix;
+        $token = TokenGenerator::generateToken();
         $cart = (new Cart())->setToken($token);
         $lines = [];
 

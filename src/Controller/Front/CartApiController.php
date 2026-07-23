@@ -10,6 +10,7 @@ use App\Entity\Product;
 use App\Repository\CartProductRepository;
 use App\Repository\CartRepository;
 use App\Repository\ProductRepository;
+use App\Utils\Generator\TokenGenerator;
 use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,7 +49,11 @@ class CartApiController extends AbstractController
         $cart = $cartRepository->findOneBy(['token' => $cartToken]);
         if (!$cart) {
             $cart = new Cart();
-            $cart->setToken($cartToken);
+            $cart->setToken(
+                is_string($cartToken) && preg_match('/\A[0-9a-f]{32}\z/', $cartToken)
+                    ? $cartToken
+                    : TokenGenerator::generateToken()
+            );
         }
 
         /** @var CartProduct|null $cartProduct */

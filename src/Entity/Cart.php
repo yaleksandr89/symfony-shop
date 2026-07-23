@@ -13,6 +13,7 @@ use App\Repository\CartRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -20,12 +21,15 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[
     Table(name: '`cart`'),
     Entity(repositoryClass: CartRepository::class)
 ]
+#[UniqueConstraint(name: 'uniq_cart_token', columns: ['token'])]
 #[ApiResource(
     operations: [
         new GetCollection(
@@ -35,6 +39,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Post(
             normalizationContext: ['groups' => ['cart:list:write']],
             securityPostDenormalize: "is_granted('CART_EDIT', object)",
+            exceptionToStatus: [UniqueConstraintViolationException::class => 409],
             name: 'api_carts_post_collection'
         ),
         new Get(
@@ -55,8 +60,11 @@ class Cart
     #[Groups(['cart:list', 'cart:item'])]
     protected ?int $id;
 
-    #[Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Column(type: Types::STRING, length: 32, nullable: false)]
     #[Groups(['cart:list', 'cart:item', 'cart:list:write'])]
+    #[Assert\NotBlank(message: 'Cart token is required.')]
+    #[Assert\Length(exactly: 32, exactMessage: 'Cart token must be exactly 32 characters.')]
+    #[Assert\Regex(pattern: '/\A[0-9a-f]{32}\z/', message: 'Cart token must contain 32 lowercase hexadecimal characters.')]
     protected ?string $token;
 
     #[Column(type: 'datetime_immutable')]

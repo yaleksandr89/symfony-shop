@@ -10,6 +10,7 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -317,6 +318,128 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    public function testFirstThenDuplicateCartProductReturnsConflictWithoutChangingState(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productB']),
+            'quantity' => 3,
+        ]);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $countAfterFirstPost = $this->countCartProducts();
+        $createdLine = $this->findCartProduct($context['cartA'], $context['productB']);
+        $createdLineId = $createdLine->getId();
+        self::assertNotNull($createdLineId);
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productB']),
+            'quantity' => 7,
+        ]);
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        self::assertSame($countAfterFirstPost, $this->countCartProducts());
+
+        $persistedLine = $this->findCartProduct($context['cartA'], $context['productB']);
+        self::assertSame($createdLineId, $persistedLine->getId());
+        self::assertSame(3, $persistedLine->getQuantity());
+        self::assertSame($context['cartA']->getId(), $persistedLine->getCart()?->getId());
+        self::assertSame($context['productB']->getId(), $persistedLine->getProduct()?->getId());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testSameCartCanCreateLinesForDifferentProducts(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $productC = $this->createProduct('Cart product C');
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        foreach ([$context['productB'], $productC] as $product) {
+            $this->requestPost($client, [
+                'cart' => $this->cartIri($context['cartA']),
+                'product' => $this->productIri($product),
+                'quantity' => 1,
+            ]);
+            self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        }
+
+        self::assertSame($countBefore + 2, $this->countCartProducts());
+        self::assertSame(1, $this->findCartProduct($context['cartA'], $context['productB'])->getQuantity());
+        self::assertSame(1, $this->findCartProduct($context['cartA'], $productC)->getQuantity());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testSameProductCanCreateLinesForDifferentCarts(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $productC = $this->createProduct('Cart product C');
+        $countBefore = $this->countCartProducts();
+
+        $this->setCartToken($client, $context['tokenA']);
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($productC),
+            'quantity' => 1,
+        ]);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $client->getCookieJar()->clear();
+        $this->setCartToken($client, $context['tokenB']);
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartB']),
+            'product' => $this->productIri($productC),
+            'quantity' => 1,
+        ]);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        self::assertSame($countBefore + 2, $this->countCartProducts());
+        self::assertSame(1, $this->findCartProduct($context['cartA'], $productC)->getQuantity());
+        self::assertSame(1, $this->findCartProduct($context['cartB'], $productC)->getQuantity());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testWrongTokenCannotTurnAnExistingPairIntoAConflictResponse(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenB']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productA']),
+            'quantity' => 7,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    public function testMissingTokenCannotTurnAnExistingPairIntoAConflictResponse(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($context['productA']),
+            'quantity' => 7,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
     #[DataProvider('invalidPostSemanticQuantities')]
     public function testPostRejectsSemanticInvalidQuantity(mixed $quantity, string $message): void
     {
@@ -543,8 +666,8 @@ class CartProductResourceTest extends ResourceTestUtils
     {
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $tokenA = 'cart-a-'.$suffix;
-        $tokenB = 'cart-b-'.$suffix;
+        $tokenA = TokenGenerator::generateToken();
+        $tokenB = TokenGenerator::generateToken();
         $productA = (new Product())
             ->setTitle('Cart product A '.$suffix)
             ->setPrice('10.00')
@@ -698,6 +821,39 @@ class CartProductResourceTest extends ResourceTestUtils
         return self::getContainer()->get(EntityManagerInterface::class)
             ->getRepository(CartProduct::class)
             ->count([]);
+    }
+
+    private function createProduct(string $prefix): Product
+    {
+        $suffix = str_replace('.', '', uniqid('', true));
+        $product = (new Product())
+            ->setTitle($prefix.' '.$suffix)
+            ->setPrice('30.00')
+            ->setQuantity(10);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($product);
+        $entityManager->flush();
+
+        return $product;
+    }
+
+    private function findCartProduct(Cart $cart, Product $product): CartProduct
+    {
+        $cartId = $cart->getId();
+        $productId = $product->getId();
+        self::assertNotNull($cartId);
+        self::assertNotNull($productId);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $line = $entityManager->getRepository(CartProduct::class)->findOneBy([
+            'cart' => $entityManager->getReference(Cart::class, $cartId),
+            'product' => $entityManager->getReference(Product::class, $productId),
+        ]);
+        self::assertInstanceOf(CartProduct::class, $line);
+
+        return $line;
     }
 
     /** @param array<string, mixed> $context */

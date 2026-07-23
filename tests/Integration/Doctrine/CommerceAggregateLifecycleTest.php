@@ -10,6 +10,7 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
+use App\Utils\Generator\TokenGenerator;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -57,7 +58,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     public function testCartRootPersistsAndOrphanRemovesItsLines(): void
     {
         [, $product] = $this->persistUserAndProduct();
-        $cart = new Cart();
+        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
         $cartProduct = $this->newCartProduct($product);
         $cart->addCartProduct($cartProduct);
 
@@ -97,7 +98,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     public function testRemovingCartRemovesItsLinesButKeepsProduct(): void
     {
         [, $product] = $this->persistUserAndProduct();
-        $cart = new Cart();
+        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
         $cart->addCartProduct($this->newCartProduct($product));
         $this->entityManager->persist($cart);
         $this->entityManager->flush();
@@ -279,7 +280,10 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     private function insertRawCartProduct(Connection $connection): array
     {
         [, $productId] = $this->insertRawUserAndProduct($connection);
-        $connection->executeStatement('INSERT INTO cart (token, created_at) VALUES (NULL, CURRENT_TIMESTAMP)');
+        $connection->executeStatement(
+            'INSERT INTO cart (token, created_at) VALUES (?, CURRENT_TIMESTAMP)',
+            [TokenGenerator::generateToken()],
+        );
         $cartId = (int) $connection->lastInsertId();
         $connection->executeStatement(
             'INSERT INTO cart_product (cart_id, product_id, quantity) VALUES (?, ?, 1)',

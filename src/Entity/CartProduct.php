@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\CartProductRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -19,6 +20,7 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -26,39 +28,42 @@ use Symfony\Component\Validator\Constraints as Assert;
     Table(name: '`cart_product`'),
     Entity(repositoryClass: CartProductRepository::class)
 ]
-#[ApiResource(operations: [
-    new GetCollection(
-        normalizationContext: ['groups' => ['cart_product:list']],
-        name: 'api_cart_products_get_collection'
-    ),
-    new Post(
-        normalizationContext: ['groups' => ['cart_product:list:write']],
-        denormalizationContext: [
-            'groups' => ['cart_product:create'],
-            'allow_extra_attributes' => false,
-        ],
-        securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
-        name: 'api_cart_products_post_collection'
-    ),
-    new Get(
-        normalizationContext: ['groups' => ['cart_product:item']],
-        security: "is_granted('CART_PRODUCT_READ', object)",
-        name: 'api_cart_products_get_item'
-    ),
-    new Delete(
-        security: "is_granted('CART_PRODUCT_DELETE', object)",
-        name: 'api_cart_products_delete_item'
-    ),
-    new Patch(
-        inputFormats: ['json' => ['application/merge-patch+json']],
-        denormalizationContext: [
-            'groups' => ['cart_product:update'],
-            'allow_extra_attributes' => false,
-        ],
-        security: "is_granted('CART_PRODUCT_EDIT', object)",
-        name: 'api_cart_products_patch_item'
-    ),
-])]
+#[UniqueConstraint(name: 'uniq_cart_product_cart_id_product_id', columns: ['cart_id', 'product_id'])]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['cart_product:list']],
+            name: 'api_cart_products_get_collection'
+        ),
+        new Post(
+            exceptionToStatus: [UniqueConstraintViolationException::class => 409],
+            normalizationContext: ['groups' => ['cart_product:list:write']],
+            denormalizationContext: [
+                'groups' => ['cart_product:create'],
+                'allow_extra_attributes' => false,
+            ],
+            securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
+            name: 'api_cart_products_post_collection'
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['cart_product:item']],
+            security: "is_granted('CART_PRODUCT_READ', object)",
+            name: 'api_cart_products_get_item'
+        ),
+        new Delete(
+            security: "is_granted('CART_PRODUCT_DELETE', object)",
+            name: 'api_cart_products_delete_item'
+        ),
+        new Patch(
+            inputFormats: ['json' => ['application/merge-patch+json']],
+            denormalizationContext: [
+                'groups' => ['cart_product:update'],
+                'allow_extra_attributes' => false,
+            ],
+            security: "is_granted('CART_PRODUCT_EDIT', object)",
+            name: 'api_cart_products_patch_item'
+        ),
+    ])]
 class CartProduct
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

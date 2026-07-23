@@ -12,6 +12,7 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Utils\Manager\OrderManager;
+use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -54,7 +55,7 @@ class OrderManagerMoneyTest extends KernelTestCase
             ->setEmail('order-money-'.uniqid('', true).'@example.test')
             ->setPassword('not-used-by-this-test')
             ->setIsVerified(true);
-        $cart = new Cart();
+        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
 
         $this->entityManager->persist($user);
 
