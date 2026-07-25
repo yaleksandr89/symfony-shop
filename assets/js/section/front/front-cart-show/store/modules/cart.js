@@ -136,7 +136,7 @@ const actions = {
 
     return false;
   },
-  async makeOrder({ state, commit, dispatch }) {
+  async makeOrder({ state, commit }) {
     const url = state.staticStore.url.apiOrder;
     const data = {
       cartId: state.cart.id,
@@ -150,7 +150,12 @@ const actions = {
           "Thank you for your purchase! Our manager will contact with you in 24 hours.",
       });
       commit("setIsSentForm", true);
-      dispatch("cleanCart");
+      cartSync.publish({});
+      setCookie("CART_TOKEN", "", {
+        secure: true,
+        path: "/",
+        "max-age": 0,
+      });
     }
   },
 };

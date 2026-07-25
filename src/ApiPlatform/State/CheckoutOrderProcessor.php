@@ -11,9 +11,10 @@ use App\Entity\Order;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
 use App\Event\OrderCreatedFromCartEvent;
+use App\Repository\CartRepository;
 use App\Utils\Manager\OrderManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -25,17 +26,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 final class CheckoutOrderProcessor implements ProcessorInterface
 {
-    /**
-     * @param ProcessorInterface<Order, Order> $persistProcessor
-     */
     public function __construct(
         private readonly Security $security,
         private readonly RequestStack $requestStack,
         private readonly OrderManager $orderManager,
+        private readonly CartRepository $cartRepository,
+        private readonly EntityManagerInterface $entityManager,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ValidatorInterface $validator,
-        #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
-        private readonly ProcessorInterface $persistProcessor,
     ) {
     }
 
@@ -50,36 +48,43 @@ final class CheckoutOrderProcessor implements ProcessorInterface
             throw new AccessDeniedHttpException();
         }
 
-        $cart = $this->orderManager->findCart($data->cartId);
-        if (!$cart || $cart->getCartProducts()->isEmpty()) {
-            throw new BadRequestHttpException('Checkout cart is unavailable.');
-        }
-
         $request = $this->requestStack->getCurrentRequest();
         $cartToken = $request?->cookies->get('CART_TOKEN');
-        if (!is_string($cartToken) || '' === $cartToken || $cart->getToken() !== $cartToken) {
-            throw new BadRequestHttpException('Checkout cart is unavailable.');
-        }
 
-        foreach ($cart->getCartProducts() as $cartProduct) {
-            if (0 < count($this->validator->validate($cartProduct))) {
+        $order = $this->entityManager->wrapInTransaction(function () use ($data, $user, $cartToken): Order {
+            $cart = $this->cartRepository->findForCheckout($data->cartId);
+            if (!$cart || $cart->getCartProducts()->isEmpty()) {
                 throw new BadRequestHttpException('Checkout cart is unavailable.');
             }
+
+            if (!is_string($cartToken) || '' === $cartToken || $cart->getToken() !== $cartToken) {
+                throw new BadRequestHttpException('Checkout cart is unavailable.');
+            }
+
+            foreach ($cart->getCartProducts() as $cartProduct) {
+                if (0 < count($this->validator->validate($cartProduct))) {
+                    throw new BadRequestHttpException('Checkout cart is unavailable.');
+                }
+            }
+
+            $order = (new Order())
+                ->setOwner($user)
+                ->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
+            $this->orderManager->addOrdersProductsFromVerifiedCart($order, $cart);
+            $this->orderManager->calculationOrderTotalPrice($order);
+
+            $this->entityManager->persist($order);
+            $this->entityManager->remove($cart);
+
+            return $order;
+        });
+
+        if (!$order instanceof Order) {
+            throw new \LogicException('The checkout transaction must return an order.');
         }
 
-        $order = (new Order())
-            ->setOwner($user)
-            ->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
-        $this->orderManager->addOrdersProductsFromVerifiedCart($order, $cart);
-        $this->orderManager->calculationOrderTotalPrice($order);
+        $this->eventDispatcher->dispatch(new OrderCreatedFromCartEvent($order));
 
-        $persistedOrder = $this->persistProcessor->process($order, $operation, $uriVariables, $context);
-        if (!$persistedOrder instanceof Order) {
-            throw new \LogicException('The checkout order processor must persist an order.');
-        }
-
-        $this->eventDispatcher->dispatch(new OrderCreatedFromCartEvent($persistedOrder));
-
-        return $persistedOrder;
+        return $order;
     }
 }

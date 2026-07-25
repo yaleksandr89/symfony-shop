@@ -11,15 +11,20 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
+use App\Event\OrderCreatedFromCartEvent;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use App\Utils\Money\DecimalMoney;
 use App\Utils\Generator\TokenGenerator;
+use App\Utils\Money\DecimalMoney;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PreFlushEventArgs;
+use Doctrine\ORM\Events;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Group(name: 'functional')]
@@ -91,7 +96,117 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         unset($expectedLine);
         usort($expectedLines, static fn (array $left, array $right): int => $left['productId'] <=> $right['productId']);
         self::assertSame($expectedLines, $actualLines);
-        $this->assertCartPersisted($cart);
+        $this->assertCartConsumed($cart);
+    }
+
+    public function testSequentialReplayCannotCheckoutConsumedCartAgain(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $cart = $this->createCart([['10.00', 2]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        self::assertEmailCount(2);
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        self::assertSame($counts['orders'] + 1, $entityManager->getRepository(Order::class)->count([]));
+        self::assertSame($counts['orderProducts'] + 1, $entityManager->getRepository(OrderProduct::class)->count([]));
+        /** @var Order|null $order */
+        $order = $entityManager->getRepository(Order::class)->findOneBy([], ['id' => 'DESC']);
+        self::assertInstanceOf(Order::class, $order);
+        $orderProduct = $order->getOrderProducts()->first();
+        self::assertInstanceOf(OrderProduct::class, $orderProduct);
+        self::assertSame($cart['lines'][0]['productId'], $orderProduct->getProduct()?->getId());
+        self::assertSame($cart['lines'][0]['quantity'], $orderProduct->getQuantity());
+        $pricePerOne = $orderProduct->getPricePerOne();
+        self::assertNotNull($pricePerOne);
+        self::assertSame(
+            DecimalMoney::toCents($cart['lines'][0]['price']),
+            DecimalMoney::toCents($pricePerOne)
+        );
+        $this->assertCartConsumed($cart);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertCheckoutUnavailableResponse($client);
+        $entityManager->clear();
+        self::assertSame($counts['orders'] + 1, $entityManager->getRepository(Order::class)->count([]));
+        self::assertSame($counts['orderProducts'] + 1, $entityManager->getRepository(OrderProduct::class)->count([]));
+        self::assertEmailCount(0);
+    }
+
+    public function testCheckoutFlushFailureRollsBackOrderAndCartConsumption(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 2], ['7.50', 3]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $eventManager = $entityManager->getEventManager();
+        $listener = new class {
+            public function preFlush(PreFlushEventArgs $eventArgs): void
+            {
+                throw new \RuntimeException('Forced checkout flush failure.');
+            }
+        };
+        $eventManager->addEventListener([Events::preFlush], $listener);
+
+        try {
+            $this->requestCheckout($client, ['cartId' => $cart['id']]);
+        } finally {
+            $eventManager->removeEventListener([Events::preFlush], $listener);
+        }
+
+        self::assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
+        $this->assertOrderCountsInConnection($connection, $counts);
+        self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM cart WHERE id = ?', [$cart['id']]));
+        self::assertSame(
+            count($cart['lines']),
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM cart_product WHERE cart_id = ?', [$cart['id']])
+        );
+        foreach ($cart['lines'] as $line) {
+            self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product WHERE id = ?', [$line['productId']]));
+        }
+        self::assertEmailCount(0);
+    }
+
+    public function testCheckoutEventFailureOccursAfterDatabaseCommit(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 2], ['7.50', 3]]);
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+        $eventDispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        self::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+        $listener = static function (OrderCreatedFromCartEvent $event): void {
+            self::assertNotNull($event->getOrder()->getId());
+
+            throw new \RuntimeException('Forced post-commit checkout event failure.');
+        };
+        $eventDispatcher->addListener(OrderCreatedFromCartEvent::class, $listener, -255);
+
+        try {
+            $this->requestCheckout($client, ['cartId' => $cart['id']]);
+        } finally {
+            $eventDispatcher->removeListener(OrderCreatedFromCartEvent::class, $listener);
+        }
+
+        self::assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
+        self::assertEmailCount(2);
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        self::assertSame($counts['orders'] + 1, $entityManager->getRepository(Order::class)->count([]));
+        self::assertSame($counts['orderProducts'] + 2, $entityManager->getRepository(OrderProduct::class)->count([]));
+        $this->assertCartConsumed($cart);
     }
 
     public function testRegularUserCannotCheckoutForeignCart(): void
@@ -502,6 +617,26 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         unset($expectedLine);
         usort($expectedLines, static fn (array $left, array $right): int => $left['productId'] <=> $right['productId']);
         self::assertSame($expectedLines, $actualLines);
+    }
+
+    /** @param array{id: int, token: string, lines: list<array{productId: int, quantity: int, price: string}>} $expected */
+    private function assertCartConsumed(array $expected): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+
+        self::assertNull($entityManager->find(Cart::class, $expected['id']));
+        self::assertSame(0, $entityManager->getRepository(CartProduct::class)->count(['cart' => $expected['id']]));
+        foreach ($expected['lines'] as $line) {
+            self::assertInstanceOf(Product::class, $entityManager->find(Product::class, $line['productId']));
+        }
+    }
+
+    /** @param array{orders: int, orderProducts: int} $counts */
+    private function assertOrderCountsInConnection(Connection $connection, array $counts): void
+    {
+        self::assertSame($counts['orders'], (int) $connection->fetchOne('SELECT COUNT(*) FROM "order"'));
+        self::assertSame($counts['orderProducts'], (int) $connection->fetchOne('SELECT COUNT(*) FROM order_product'));
     }
 
     private function getEntityManager(): EntityManagerInterface
