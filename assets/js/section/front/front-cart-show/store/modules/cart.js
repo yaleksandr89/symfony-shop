@@ -16,6 +16,106 @@ function getAlertStructure() {
   };
 }
 
+function normalizeCartProductId(value) {
+  if (Number.isInteger(value) && value > 0) {
+    return String(value);
+  }
+
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    const normalizedValue = Number(value);
+
+    if (Number.isSafeInteger(normalizedValue) && normalizedValue > 0) {
+      return String(normalizedValue);
+    }
+  }
+
+  return null;
+}
+
+function getUnavailableItemsByCartProductId(error, cart) {
+  const response = error && error.response;
+  const headers = response && response.headers;
+  const contentType =
+    headers && (headers["content-type"] || headers["Content-Type"]);
+  const data = response && response.data;
+
+  if (
+    !response ||
+    response.status !== StatusCodes.CONFLICT ||
+    typeof contentType !== "string" ||
+    !contentType.toLowerCase().startsWith("application/problem+json") ||
+    !data ||
+    typeof data !== "object" ||
+    Array.isArray(data) ||
+    data.type !== "/problems/cart-products-unavailable" ||
+    data.status !== StatusCodes.CONFLICT ||
+    !Array.isArray(data.unavailableItems) ||
+    !data.unavailableItems.length
+  ) {
+    return null;
+  }
+
+  const cartProductIds = new Set(
+    (cart && Array.isArray(cart.cartProducts) ? cart.cartProducts : [])
+      .map((cartProduct) => normalizeCartProductId(cartProduct.id))
+      .filter(Boolean)
+  );
+  const unavailableItemsByCartProductId = {};
+
+  for (const item of data.unavailableItems) {
+    if (
+      !item ||
+      typeof item !== "object" ||
+      Array.isArray(item) ||
+      !Number.isInteger(item.cartProductId) ||
+      item.cartProductId <= 0 ||
+      !["deleted", "unpublished"].includes(item.reason)
+    ) {
+      return null;
+    }
+
+    const cartProductId = normalizeCartProductId(item.cartProductId);
+    if (
+      !cartProductId ||
+      !cartProductIds.has(cartProductId) ||
+      Object.prototype.hasOwnProperty.call(
+        unavailableItemsByCartProductId,
+        cartProductId
+      )
+    ) {
+      return null;
+    }
+
+    unavailableItemsByCartProductId[cartProductId] = item.reason;
+  }
+
+  return unavailableItemsByCartProductId;
+}
+
+function reconcileUnavailableItems(unavailableItemsByCartProductId, cart) {
+  if (!cart || !Array.isArray(cart.cartProducts)) {
+    return {};
+  }
+
+  const cartProductIds = new Set(
+    cart.cartProducts
+      .map((cartProduct) => normalizeCartProductId(cartProduct.id))
+      .filter(Boolean)
+  );
+
+  return Object.keys(unavailableItemsByCartProductId).reduce(
+    (reconciledItems, cartProductId) => {
+      if (cartProductIds.has(cartProductId)) {
+        reconciledItems[cartProductId] =
+          unavailableItemsByCartProductId[cartProductId];
+      }
+
+      return reconciledItems;
+    },
+    {}
+  );
+}
+
 async function loadCart(state) {
   const result = await axios.get(state.staticStore.url.apiCart, apiConfig);
 
@@ -34,6 +134,8 @@ const state = () => ({
   cart: {},
   alert: getAlertStructure(),
   isSentForm: false,
+  unavailableItemsByCartProductId: {},
+  isCheckoutSubmitting: false,
   staticStore: {
     url: {
       apiCart: window.staticStore.urlCart,
@@ -57,6 +159,23 @@ const getters = {
     }
 
     return formatCents(sumCartProductsToCents(state.cart.cartProducts));
+  },
+  hasUnavailableItems(state) {
+    return Object.keys(state.unavailableItemsByCartProductId).length > 0;
+  },
+  isCheckoutDisabled(state, getters) {
+    return state.isCheckoutSubmitting || getters.hasUnavailableItems;
+  },
+  unavailableReason: (state) => (cartProductId) => {
+    const normalizedCartProductId = normalizeCartProductId(cartProductId);
+
+    if (!normalizedCartProductId) {
+      return null;
+    }
+
+    return (
+      state.unavailableItemsByCartProductId[normalizedCartProductId] || null
+    );
   },
 };
 
@@ -137,25 +256,54 @@ const actions = {
     return false;
   },
   async makeOrder({ state, commit }) {
+    if (
+      state.isCheckoutSubmitting ||
+      Object.keys(state.unavailableItemsByCartProductId).length
+    ) {
+      return false;
+    }
+
     const url = state.staticStore.url.apiOrder;
     const data = {
       cartId: state.cart.id,
     };
-    const result = await axios.post(url, data, apiConfig);
+    commit("setCheckoutSubmitting", true);
 
-    if (result.data && StatusCodes.CREATED === result.status) {
-      commit("setAlert", {
-        type: "success",
-        message:
-          "Thank you for your purchase! Our manager will contact with you in 24 hours.",
-      });
-      commit("setIsSentForm", true);
-      cartSync.publish({});
-      setCookie("CART_TOKEN", "", {
-        secure: true,
-        path: "/",
-        "max-age": 0,
-      });
+    try {
+      const result = await axios.post(url, data, apiConfig);
+
+      if (result.data && StatusCodes.CREATED === result.status) {
+        commit("clearUnavailableItems");
+        commit("setAlert", {
+          type: "success",
+          message:
+            "Thank you for your purchase! Our manager will contact with you in 24 hours.",
+        });
+        commit("setIsSentForm", true);
+        cartSync.publish({});
+        setCookie("CART_TOKEN", "", {
+          secure: true,
+          path: "/",
+          "max-age": 0,
+        });
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      const unavailableItemsByCartProductId =
+        getUnavailableItemsByCartProductId(error, state.cart);
+
+      if (unavailableItemsByCartProductId) {
+        commit("setUnavailableItems", unavailableItemsByCartProductId);
+
+        return false;
+      }
+
+      throw error;
+    } finally {
+      commit("setCheckoutSubmitting", false);
     }
   },
 };
@@ -163,6 +311,10 @@ const actions = {
 const mutations = {
   setCart(state, cart) {
     state.cart = cart;
+    state.unavailableItemsByCartProductId = reconcileUnavailableItems(
+      state.unavailableItemsByCartProductId,
+      cart
+    );
   },
   setAlert(state, model) {
     state.alert = {
@@ -175,6 +327,17 @@ const mutations = {
   },
   setIsSentForm(state, value) {
     state.isSentForm = value;
+  },
+  setUnavailableItems(state, unavailableItemsByCartProductId) {
+    state.unavailableItemsByCartProductId = {
+      ...unavailableItemsByCartProductId,
+    };
+  },
+  clearUnavailableItems(state) {
+    state.unavailableItemsByCartProductId = {};
+  },
+  setCheckoutSubmitting(state, value) {
+    state.isCheckoutSubmitting = value;
   },
 };
 

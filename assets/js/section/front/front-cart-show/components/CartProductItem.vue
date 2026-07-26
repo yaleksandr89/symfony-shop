@@ -1,19 +1,36 @@
 <template>
-  <tr>
+  <tr
+    :class="{ 'cart-product-unavailable': isUnavailable }"
+    :data-cart-product-id="cartProduct.id"
+    :data-unavailable-reason="unavailableReason || null"
+  >
     <td class="product-col">
       <div class="text-center">
         <figure>
-          <a :href="urlShowProduct" target="_blank">
+          <a v-if="!isUnavailable" :href="urlShowProduct" target="_blank">
             <img
               :src="getUrlProductImage(productImage)"
               :alt="cartProduct.product.title"
             />
           </a>
+          <img
+            v-else
+            :src="getUrlProductImage(productImage)"
+            :alt="cartProduct.product.title"
+          />
         </figure>
         <div class="product-title">
-          <a :href="urlShowProduct" target="_blank">{{
+          <a v-if="!isUnavailable" :href="urlShowProduct" target="_blank">{{
             cartProduct.product.title
           }}</a>
+          <span v-else>{{ cartProduct.product.title }}</span>
+          <p
+            v-if="isUnavailable"
+            class="cart-product-unavailable-message"
+            data-cart-product-unavailable-message
+          >
+            {{ unavailableMessage }}
+          </p>
         </div>
       </div>
     </td>
@@ -26,7 +43,7 @@
         min="1"
         :max="productQuantityMax"
         step="1"
-        :disabled="isSaving"
+        :disabled="isSaving || isUnavailable"
         @change="saveQuantity"
       />
     </td>
@@ -36,6 +53,7 @@
         href="#"
         class="btn-remove"
         title="Remove product"
+        data-remove-cart-product
         @click.prevent="removeCartProduct(cartProduct.id)"
       >
         X
@@ -54,6 +72,10 @@ export default {
     cartProduct: {
       type: Object,
       default: () => {},
+    },
+    unavailableReason: {
+      type: String,
+      default: null,
     },
   },
   data() {
@@ -81,6 +103,23 @@ export default {
     productQuantityMax() {
       return Number(this.cartProduct.product.quantity);
     },
+    isUnavailable() {
+      return (
+        this.unavailableReason === "deleted" ||
+        this.unavailableReason === "unpublished"
+      );
+    },
+    unavailableMessage() {
+      if (this.unavailableReason === "deleted") {
+        return this.staticStore.localization.product_deleted;
+      }
+
+      if (this.unavailableReason === "unpublished") {
+        return this.staticStore.localization.product_unpublished;
+      }
+
+      return null;
+    },
   },
   watch: {
     "cartProduct.quantity": {
@@ -104,7 +143,7 @@ export default {
       );
     },
     async saveQuantity() {
-      if (this.isSaving) {
+      if (this.isSaving || this.isUnavailable) {
         return;
       }
 

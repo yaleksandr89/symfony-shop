@@ -7,14 +7,17 @@
           <CartProductList />
           <CartTotalPrice />
           <div v-if="isNotEmptyCart">
-            <a
+            <button
               v-if="isUserLoggedIn"
-              href="#"
+              type="button"
               class="btn btn-success mb-3 text-white"
-              @click.prevent="makeOrder"
+              data-checkout-button
+              :disabled="isCheckoutDisabled"
+              :aria-disabled="isCheckoutDisabled"
+              @click="makeOrder"
             >
               {{ staticStore.localization.make_order }}
-            </a>
+            </button>
             <a
               v-else
               href="#"
@@ -33,7 +36,7 @@
 <script>
 import CartProductList from "./components/CartProductList";
 import CartTotalPrice from "./components/CartTotalPrice";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import Alert from "./components/Alert";
 
 export default {
@@ -41,6 +44,7 @@ export default {
   components: { Alert, CartTotalPrice, CartProductList },
   computed: {
     ...mapState("cart", ["cart", "isSentForm", "staticStore"]),
+    ...mapGetters("cart", ["isCheckoutDisabled"]),
     showCartContent() {
       return !this.isSentForm && Object.keys(this.cart).length;
     },

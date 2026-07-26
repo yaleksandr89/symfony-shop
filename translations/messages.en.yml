@@ -53,6 +53,9 @@ cart.quantity: Quantity
 cart.price: Price
 cart.actions: Actions
 cart.total: Total
+cart.unavailable_products: 'Some products in your cart are unavailable. Remove them before checkout.'
+cart.product_deleted: 'This product has been removed and can no longer be ordered.'
+cart.product_unpublished: 'This product is no longer on sale and cannot be ordered.'
 header_menu.en: En
 header_menu.ru: Rus
 header_menu.profile: Profile

@@ -53,6 +53,9 @@ cart.quantity: Количество
 cart.price: Цена
 cart.actions: Действия
 cart.total: Всего
+cart.unavailable_products: 'В корзине есть недоступные товары. Удалите их перед оформлением заказа.'
+cart.product_deleted: 'Товар удалён и больше не может быть заказан.'
+cart.product_unpublished: 'Товар снят с продажи и недоступен для заказа.'
 header_menu.en: Англ
 header_menu.ru: Рус
 header_menu.profile: Профиль
