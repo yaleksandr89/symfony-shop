@@ -119,7 +119,8 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         $product = (new Product())
             ->setTitle('Problem details product '.$suffix)
             ->setPrice('10.00')
-            ->setQuantity(10);
+            ->setQuantity(10)
+            ->setIsPublished(true);
         $cart = (new Cart())->setToken($token);
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);

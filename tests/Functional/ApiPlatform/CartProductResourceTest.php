@@ -319,6 +319,27 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[DataProvider('hiddenProducts')]
+    public function testHiddenProductIriCannotCreateCartLine(bool $isPublished, bool $isDeleted): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $hiddenProduct = $this->createProduct('Hidden cart product', $isPublished, $isDeleted);
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'product' => $this->productIri($hiddenProduct),
+            'quantity' => 1,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertStringNotContainsString($hiddenProduct->getTitle() ?? '', (string) $client->getResponse()->getContent());
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
     public function testFirstThenDuplicateCartProductReturnsConflictWithoutChangingState(): void
     {
         $client = self::createClient();
@@ -625,6 +646,13 @@ class CartProductResourceTest extends ResourceTestUtils
         yield 'stock' => [20];
     }
 
+    /** @return iterable<string, array{bool, bool}> */
+    public static function hiddenProducts(): iterable
+    {
+        yield 'unpublished' => [false, false];
+        yield 'deleted' => [true, true];
+    }
+
     /** @return iterable<string, array{int|null, string}> */
     public static function invalidPostSemanticQuantities(): iterable
     {
@@ -672,11 +700,13 @@ class CartProductResourceTest extends ResourceTestUtils
         $productA = (new Product())
             ->setTitle('Cart product A '.$suffix)
             ->setPrice('10.00')
-            ->setQuantity(10);
+            ->setQuantity(10)
+            ->setIsPublished(true);
         $productB = (new Product())
             ->setTitle('Cart product B '.$suffix)
             ->setPrice('20.00')
-            ->setQuantity(20);
+            ->setQuantity(20)
+            ->setIsPublished(true);
         $cartA = (new Cart())->setToken($tokenA);
         $cartB = (new Cart())->setToken($tokenB);
         $lineA = (new CartProduct())->setProduct($productA)->setQuantity(1);
@@ -824,13 +854,15 @@ class CartProductResourceTest extends ResourceTestUtils
             ->count([]);
     }
 
-    private function createProduct(string $prefix): Product
+    private function createProduct(string $prefix, bool $isPublished = true, bool $isDeleted = false): Product
     {
         $suffix = str_replace('.', '', uniqid('', true));
         $product = (new Product())
             ->setTitle($prefix.' '.$suffix)
             ->setPrice('30.00')
-            ->setQuantity(10);
+            ->setQuantity(10)
+            ->setIsPublished($isPublished)
+            ->setIsDeleted($isDeleted);
 
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);

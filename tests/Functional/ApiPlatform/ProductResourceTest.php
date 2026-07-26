@@ -120,6 +120,79 @@ class ProductResourceTest extends ResourceTestUtils
         );
     }
 
+    public function testAnonymousProductVisibility(): void
+    {
+        $client = self::createClient();
+        $published = $this->createProduct('Published product', true);
+        $unpublished = $this->createProduct('Unpublished product');
+        $deleted = $this->createProduct('Deleted product', true, true);
+
+        $client->request('GET', $this->uriKey.'?itemsPerPage=100', [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $iris = array_column($this->getResponseDecodedContent($client)['hydra:member'], '@id');
+        self::assertContains($this->uriKey.'/'.$published->getUuid(), $iris);
+        self::assertNotContains($this->uriKey.'/'.$unpublished->getUuid(), $iris);
+        self::assertNotContains($this->uriKey.'/'.$deleted->getUuid(), $iris);
+
+        $client->request('GET', $this->uriKey.'/'.$published->getUuid(), [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        foreach ([$unpublished, $deleted] as $product) {
+            $client->request('GET', $this->uriKey.'/'.$product->getUuid(), [], [], self::REQUEST_HEADERS);
+            self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        }
+
+        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        self::assertSame([], $this->getResponseDecodedContent($client)['hydra:member']);
+    }
+
+    public function testRegularUserProductVisibility(): void
+    {
+        $client = self::createClient();
+        $published = $this->createProduct('User published product', true);
+        $unpublished = $this->createProduct('User unpublished product');
+        $deleted = $this->createProduct('User deleted product', true, true);
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+
+        $client->request('GET', $this->uriKey.'/'.$published->getUuid(), [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        foreach ([$unpublished, $deleted] as $product) {
+            $client->request('GET', $this->uriKey.'/'.$product->getUuid(), [], [], self::REQUEST_HEADERS);
+            self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        }
+
+        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        self::assertSame([], $this->getResponseDecodedContent($client)['hydra:member']);
+    }
+
+    public function testAdminCanReadAndPatchUnpublishedProductButNotDeletedProduct(): void
+    {
+        $client = self::createClient();
+        $unpublished = $this->createProduct('Admin unpublished product');
+        $deleted = $this->createProduct('Admin deleted product', true, true);
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+
+        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        self::assertContains(
+            $this->uriKey.'/'.$unpublished->getUuid(),
+            array_column($this->getResponseDecodedContent($client)['hydra:member'], '@id')
+        );
+
+        $uri = $this->uriKey.'/'.$unpublished->getUuid();
+        $client->request('GET', $uri, [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        $client->request('PATCH', $uri, [], [], self::REQUEST_HEADERS_PATCH, json_encode(['title' => 'Updated admin draft'], JSON_THROW_ON_ERROR));
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        $client->request('GET', $this->uriKey.'/'.$deleted->getUuid(), [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
     public function testCreatedProductWithAccess(): void
     {
         $client = self::createClient();
@@ -298,6 +371,21 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertInstanceOf(User::class, $user);
 
         return $user;
+    }
+
+    private function createProduct(string $title, bool $isPublished = false, bool $isDeleted = false): Product
+    {
+        $product = (new Product())
+            ->setTitle($title.' '.uniqid('', true))
+            ->setPrice('10.00')
+            ->setQuantity(1)
+            ->setIsPublished($isPublished)
+            ->setIsDeleted($isDeleted);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($product);
+        $entityManager->flush();
+
+        return $product;
     }
 
     /**

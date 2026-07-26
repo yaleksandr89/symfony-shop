@@ -5,25 +5,18 @@ declare(strict_types=1);
 namespace App\Controller\Front;
 
 use App\Entity\Product;
+use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Service\Attribute\Required;
 
-class ProductController extends AbstractController
+final class ProductController extends AbstractController
 {
-    private Doctrine $doctrine;
-
-    #[Required]
-    public function setDoctrine(Doctrine $doctrine): ProductController
+    public function __construct(private readonly ProductRepository $productRepository)
     {
-        $this->doctrine = $doctrine;
-
-        return $this;
     }
 
     #[Route('/product/{identifier}', name: 'main_product_show')]
@@ -31,18 +24,22 @@ class ProductController extends AbstractController
     public function show(string $identifier): Response
     {
         try {
-            $product = $this->doctrine
-                ->getRepository(Product::class)
-                ->findOneBy(['uuid' => $identifier]);
+            $product = $this->findVisibleProduct([
+                'uuid' => $identifier,
+                'isPublished' => true,
+                'isDeleted' => false,
+            ]);
         } catch (ConversionException $e) {
             $product = null;
         }
 
         if (!$product) {
             try {
-                $product = $this->doctrine
-                    ->getRepository(Product::class)
-                    ->findOneBy(['slug' => $identifier]);
+                $product = $this->findVisibleProduct([
+                    'slug' => $identifier,
+                    'isPublished' => true,
+                    'isDeleted' => false,
+                ]);
             } catch (ConversionException $e) {
                 $product = null;
             }
@@ -52,17 +49,21 @@ class ProductController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if (true === $product->getIsDeleted()) {
-            $this->addFlash('warning', "The product {$product->getTitle()} not found!");
-
-            return $this->redirectToRoute('main_homepage');
-        }
-
         $canonicalLink = $this->generateUrl('main_product_show', ['identifier' => $product->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->render('front/product/show.html.twig', [
             'product' => $product,
             'canonicalLink' => $canonicalLink,
         ]);
+    }
+
+    /**
+     * @param array<string, bool|string> $criteria
+     *
+     * @throws ConversionException
+     */
+    private function findVisibleProduct(array $criteria): ?Product
+    {
+        return $this->productRepository->findOneBy($criteria);
     }
 }
