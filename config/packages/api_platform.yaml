@@ -1,4 +1,7 @@
 api_platform:
+    defaults:
+        extra_properties:
+            rfc_7807_compliant_errors: true
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:
