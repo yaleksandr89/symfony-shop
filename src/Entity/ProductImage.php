@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use App\Repository\ProductImageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -22,16 +19,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     Table(name: '`product_image`'),
     Entity(repositoryClass: ProductImageRepository::class)
 ]
-#[ApiResource(operations: [
-    new GetCollection(
-        normalizationContext: ['groups' => ['product_image:list']],
-        name: 'api_product_images_get_collection'
-    ),
-    new Get(
-        normalizationContext: ['groups' => ['product_image:item']],
-        name: 'api_product_images_get_item'
-    ),
-])]
 class ProductImage
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
