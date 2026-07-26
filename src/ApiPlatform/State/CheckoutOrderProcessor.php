@@ -6,8 +6,11 @@ namespace App\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\ApiPlatform\Error\CartProductsUnavailableException;
 use App\ApiPlatform\Input\CheckoutOrderInput;
+use App\Entity\CartProduct;
 use App\Entity\Order;
+use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
 use App\Event\OrderCreatedFromCartEvent;
@@ -61,7 +64,40 @@ final class CheckoutOrderProcessor implements ProcessorInterface
                 throw new BadRequestHttpException('Checkout cart is unavailable.');
             }
 
+            $unavailableItems = [];
             foreach ($cart->getCartProducts() as $cartProduct) {
+                if (!$cartProduct instanceof CartProduct) {
+                    throw new BadRequestHttpException('Checkout cart is unavailable.');
+                }
+
+                $cartProductId = $cartProduct->getId();
+                $product = $cartProduct->getProduct();
+                if (!is_int($cartProductId) || $cartProductId <= 0 || !$product instanceof Product) {
+                    throw new BadRequestHttpException('Checkout cart is unavailable.');
+                }
+
+                if (true === $product->getIsDeleted()) {
+                    $unavailableItems[] = [
+                        'cartProductId' => $cartProductId,
+                        'reason' => CartProductsUnavailableException::REASON_DELETED,
+                    ];
+                } elseif (true !== $product->getIsPublished()) {
+                    $unavailableItems[] = [
+                        'cartProductId' => $cartProductId,
+                        'reason' => CartProductsUnavailableException::REASON_UNPUBLISHED,
+                    ];
+                }
+            }
+
+            if ([] !== $unavailableItems) {
+                throw new CartProductsUnavailableException($unavailableItems);
+            }
+
+            foreach ($cart->getCartProducts() as $cartProduct) {
+                if (!$cartProduct instanceof CartProduct) {
+                    throw new BadRequestHttpException('Checkout cart is unavailable.');
+                }
+
                 if (0 < count($this->validator->validate($cartProduct))) {
                     throw new BadRequestHttpException('Checkout cart is unavailable.');
                 }

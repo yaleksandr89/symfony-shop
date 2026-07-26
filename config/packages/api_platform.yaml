@@ -3,7 +3,9 @@ api_platform:
         extra_properties:
             rfc_7807_compliant_errors: true
     mapping:
-        paths: ['%kernel.project_dir%/src/Entity']
+        paths:
+            - '%kernel.project_dir%/src/Entity'
+            - '%kernel.project_dir%/src/ApiPlatform/Error'
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:

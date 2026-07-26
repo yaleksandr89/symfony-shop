@@ -450,6 +450,185 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductQuantity($lineId, 2);
     }
 
+    public function testCheckoutRejectsUnpublishedProductWithoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        $product = $line->getProduct();
+        self::assertIsInt($lineId);
+        self::assertInstanceOf(Product::class, $product);
+        $productTitle = $product->getTitle();
+        $productUuid = (string) $product->getUuid();
+        $product->setIsPublished(false);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+        $eventDispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        self::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+        $eventCount = 0;
+        $listener = static function (OrderCreatedFromCartEvent $event) use (&$eventCount): void {
+            ++$eventCount;
+        };
+        $eventDispatcher->addListener(OrderCreatedFromCartEvent::class, $listener);
+
+        try {
+            $this->requestCheckout($client, ['cartId' => $cart['id']]);
+        } finally {
+            $eventDispatcher->removeListener(OrderCreatedFromCartEvent::class, $listener);
+        }
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        self::assertSame(0, $eventCount);
+        $this->assertUnavailableProductsProblem($client, [[
+            'cartProductId' => $lineId,
+            'reason' => 'unpublished',
+        ]], $productTitle, $productUuid);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+        $this->assertCartProductVisibilityState($lineId, false, false);
+    }
+
+    public function testCheckoutRejectsDeletedProductWithoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        $product = $line->getProduct();
+        self::assertIsInt($lineId);
+        self::assertInstanceOf(Product::class, $product);
+        $product->setIsDeleted(true);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        $this->assertUnavailableProductsProblem($client, [[
+            'cartProductId' => $lineId,
+            'reason' => 'deleted',
+        ]]);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+        $this->assertCartProductVisibilityState($lineId, true, true);
+    }
+
+    public function testCheckoutPrefersDeletedReasonWhenProductHasBothVisibilityFlags(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        $product = $line->getProduct();
+        self::assertIsInt($lineId);
+        self::assertInstanceOf(Product::class, $product);
+        $product->setIsPublished(false)->setIsDeleted(true);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        $this->assertUnavailableProductsProblem($client, [[
+            'cartProductId' => $lineId,
+            'reason' => 'deleted',
+        ]]);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+        $this->assertCartProductVisibilityState($lineId, false, true);
+    }
+
+    public function testCheckoutReportsEveryUnavailableProductInCartProductIdOrder(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1], ['20.00', 2], ['30.00', 3]]);
+        $lines = $this->getCartProducts($cart['id']);
+        self::assertCount(3, $lines);
+        $unpublishedLine = $lines[1];
+        $deletedLine = $lines[2];
+        $unpublishedLineId = $unpublishedLine->getId();
+        $deletedLineId = $deletedLine->getId();
+        self::assertIsInt($unpublishedLineId);
+        self::assertIsInt($deletedLineId);
+        $unpublishedLine->getProduct()?->setIsPublished(false);
+        $deletedLine->getProduct()?->setIsDeleted(true);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        $expected = [
+            ['cartProductId' => $unpublishedLineId, 'reason' => 'unpublished'],
+            ['cartProductId' => $deletedLineId, 'reason' => 'deleted'],
+        ];
+        usort($expected, static fn (array $left, array $right): int => $left['cartProductId'] <=> $right['cartProductId']);
+        $this->assertUnavailableProductsProblem($client, $expected);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+        $this->assertCartProductVisibilityState($unpublishedLineId, false, false);
+        $this->assertCartProductVisibilityState($deletedLineId, true, true);
+    }
+
+    public function testAdminCannotBypassUnavailableProductCheck(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        self::assertIsInt($lineId);
+        $line->getProduct()?->setIsPublished(false);
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        $this->assertUnavailableProductsProblem($client, [[
+            'cartProductId' => $lineId,
+            'reason' => 'unpublished',
+        ]]);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+    }
+
+    #[DataProvider('unavailableProductAcceptHeaders')]
+    public function testCheckoutUnavailableProductAlwaysUsesProblemDetails(string $accept, bool $isDeleted, string $reason): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart([['10.00', 1]]);
+        $line = $this->getOnlyCartProduct($cart['id']);
+        $lineId = $line->getId();
+        self::assertIsInt($lineId);
+        if ($isDeleted) {
+            $line->getProduct()?->setIsDeleted(true);
+        } else {
+            $line->getProduct()?->setIsPublished(false);
+        }
+        $this->getEntityManager()->flush();
+        $counts = $this->getOrderCounts();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $cart['token']);
+
+        $this->requestCheckout($client, ['cartId' => $cart['id']], [
+            'HTTP_ACCEPT' => $accept,
+            'CONTENT_TYPE' => 'application/json',
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        $this->assertUnavailableProductsProblem($client, [[
+            'cartProductId' => $lineId,
+            'reason' => $reason,
+        ]]);
+        $this->assertNoCheckoutSideEffects($counts, [$cart]);
+    }
+
     public function testCheckoutOpenApiInputSchemaOnlyAllowsRequiredCartId(): void
     {
         $client = self::createClient();
@@ -463,6 +642,13 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertSame(['cartId'], array_keys($schema['properties']));
         self::assertSame(['cartId'], $schema['required']);
         self::assertFalse($schema['additionalProperties']);
+
+        $responseSchema = $document['paths']['/api/orders']['post']['responses']['409']['content']['application/json']['schema'];
+        self::assertArrayHasKey('$ref', $responseSchema);
+        self::assertStringContainsString('CartProductsUnavailableException', $responseSchema['$ref']);
+        $errorSchemaName = substr($responseSchema['$ref'], strlen('#/components/schemas/'));
+        self::assertArrayHasKey($errorSchemaName, $document['components']['schemas']);
+        self::assertArrayHasKey('unavailableItems', $document['components']['schemas'][$errorSchemaName]['properties']);
     }
 
     /** @return iterable<string, array{array{cartId?: int|null}}> */
@@ -486,6 +672,15 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         yield 'order products' => ['orderProducts', []];
     }
 
+    /** @return iterable<string, array{string, bool, 'deleted'|'unpublished'}> */
+    public static function unavailableProductAcceptHeaders(): iterable
+    {
+        yield 'json unpublished' => ['application/json', false, 'unpublished'];
+        yield 'json-ld unpublished' => ['application/ld+json', false, 'unpublished'];
+        yield 'json deleted' => ['application/json', true, 'deleted'];
+        yield 'json-ld deleted' => ['application/ld+json', true, 'deleted'];
+    }
+
     /**
      * @param list<array{0: string, 1: int}> $definitions
      *
@@ -503,7 +698,8 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
             $product = (new Product())
                 ->setTitle('Checkout product '.$suffix.'-'.$quantity)
                 ->setPrice($price)
-                ->setQuantity(100);
+                ->setQuantity(100)
+                ->setIsPublished(true);
             $line = (new CartProduct())
                 ->setProduct($product)
                 ->setQuantity($quantity);
@@ -546,14 +742,14 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     /**
      * @param array<string, mixed> $payload
      */
-    private function requestCheckout(AbstractBrowser $client, array $payload): void
+    private function requestCheckout(AbstractBrowser $client, array $payload, array $headers = self::REQUEST_HEADERS): void
     {
         $client->request(
             'POST',
             self::URI,
             [],
             [],
-            self::REQUEST_HEADERS,
+            $headers,
             json_encode($payload, JSON_THROW_ON_ERROR)
         );
     }
@@ -568,6 +764,34 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $content = $client->getResponse()->getContent();
         self::assertIsString($content);
         self::assertStringContainsString('Checkout cart is unavailable.', $content);
+    }
+
+    /**
+     * @param list<array{cartProductId: int, reason: 'deleted'|'unpublished'}> $expectedItems
+     */
+    private function assertUnavailableProductsProblem(AbstractBrowser $client, array $expectedItems, ?string $productTitle = null, ?string $productUuid = null): void
+    {
+        self::assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+        $document = $this->getResponseDecodedContent($client);
+        self::assertEquals([
+            'type' => '/problems/cart-products-unavailable',
+            'title' => 'Some products are no longer available',
+            'status' => Response::HTTP_CONFLICT,
+            'detail' => 'Remove unavailable products from the cart before checkout.',
+            'unavailableItems' => $expectedItems,
+        ], $document);
+
+        $content = $client->getResponse()->getContent();
+        self::assertIsString($content);
+        if (null !== $productTitle) {
+            self::assertStringNotContainsString($productTitle, $content);
+        }
+        if (null !== $productUuid) {
+            self::assertStringNotContainsString($productUuid, $content);
+        }
+        foreach (['trace', 'file', 'line', 'class', 'exception', 'traceAsString', 'message', 'code', 'previous'] as $key) {
+            self::assertArrayNotHasKey($key, $document);
+        }
     }
 
     /**
@@ -656,6 +880,19 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         return $line;
     }
 
+    /** @return list<CartProduct> */
+    private function getCartProducts(int $cartId): array
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        $cart = $entityManager->find(Cart::class, $cartId);
+        self::assertInstanceOf(Cart::class, $cart);
+        $lines = $cart->getCartProducts()->toArray();
+        usort($lines, static fn (CartProduct $left, CartProduct $right): int => $left->getId() <=> $right->getId());
+
+        return $lines;
+    }
+
     private function assertCartProductQuantity(int $lineId, int $quantity): void
     {
         $entityManager = $this->getEntityManager();
@@ -663,6 +900,18 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $line = $entityManager->find(CartProduct::class, $lineId);
         self::assertInstanceOf(CartProduct::class, $line);
         self::assertSame($quantity, $line->getQuantity());
+    }
+
+    private function assertCartProductVisibilityState(int $lineId, bool $isPublished, bool $isDeleted): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        $line = $entityManager->find(CartProduct::class, $lineId);
+        self::assertInstanceOf(CartProduct::class, $line);
+        $product = $line->getProduct();
+        self::assertInstanceOf(Product::class, $product);
+        self::assertSame($isPublished, $product->getIsPublished());
+        self::assertSame($isDeleted, $product->getIsDeleted());
     }
 
     private function getUser(string $email): User

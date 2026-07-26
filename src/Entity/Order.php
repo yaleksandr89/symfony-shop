@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use App\ApiPlatform\Error\CartProductsUnavailableException;
 use App\ApiPlatform\Input\CheckoutOrderInput;
 use App\ApiPlatform\State\CheckoutOrderProcessor;
 use App\Repository\OrderRepository;
@@ -37,6 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         name: 'api_orders_get_collection'
     ),
     new Post(
+        errors: [CartProductsUnavailableException::class],
         normalizationContext: ['groups' => ['order:list:write']],
         denormalizationContext: ['allow_extra_attributes' => false],
         security: "is_granted('ROLE_USER')",
