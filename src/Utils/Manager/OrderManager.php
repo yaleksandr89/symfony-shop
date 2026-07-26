@@ -128,6 +128,41 @@ final class OrderManager extends AbstractBaseManager
         $order->setTotalPrice(DecimalMoney::fromCents($orderTotalCents));
     }
 
+    public function normalizeProductPrice(Product $product): string
+    {
+        $price = $product->getPrice();
+        if (null === $price) {
+            throw new \InvalidArgumentException('Product price must be set.');
+        }
+
+        return DecimalMoney::normalize($price);
+    }
+
+    public function addOrderProductToAggregate(OrderProduct $orderProduct, string $normalizedProductPrice): void
+    {
+        $order = $orderProduct->getAppOrder();
+        if (!$order instanceof Order) {
+            throw new \InvalidArgumentException('Order product order must be set.');
+        }
+
+        $orderProduct->setPricePerOne($normalizedProductPrice);
+        $order->addOrderProduct($orderProduct);
+        $this->em->persist($orderProduct);
+        $this->calculationOrderTotalPrice($order);
+    }
+
+    public function removeOrderProductFromAggregate(OrderProduct $orderProduct): void
+    {
+        $order = $orderProduct->getAppOrder();
+        if (!$order instanceof Order) {
+            throw new \InvalidArgumentException('Order product order must be set.');
+        }
+
+        $order->removeOrderProduct($orderProduct);
+        $this->em->remove($orderProduct);
+        $this->calculationOrderTotalPrice($order);
+    }
+
     public function remove(object $entity): void
     {
         /** @var Order $order */

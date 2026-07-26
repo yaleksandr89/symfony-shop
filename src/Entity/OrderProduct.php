@@ -6,9 +6,9 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use App\ApiPlatform\State\AdminOrderProductProcessor;
+use App\ApiPlatform\State\AdminOrderProductRemoveProcessor;
 use App\Repository\OrderProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -25,22 +25,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
     Entity(repositoryClass: OrderProductRepository::class)
 ]
 #[ApiResource(operations: [
-    new GetCollection(
-        normalizationContext: ['groups' => ['order_product:list']],
-        name: 'api_order_products_get_collection'
-    ),
     new Post(
         normalizationContext: ['groups' => ['order_product:list:write']],
-        security: "is_granted('ROLE_ADMIN')",
-        name: 'api_order_products_post_collection'
-    ),
-    new Get(
-        normalizationContext: ['groups' => ['order_product:item']],
-        name: 'api_order_products_get_item'
+        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()",
+        name: 'api_order_products_post_collection',
+        processor: AdminOrderProductProcessor::class
     ),
     new Delete(
-        security: "is_granted('ROLE_ADMIN')",
-        name: 'api_order_products_delete_item'
+        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()",
+        name: 'api_order_products_delete_item',
+        processor: AdminOrderProductRemoveProcessor::class
     ),
 ])]
 class OrderProduct
@@ -50,19 +44,19 @@ class OrderProduct
     protected ?int $id;
 
     #[ManyToOne(targetEntity: Order::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    protected ?Order $appOrder;
+    protected ?Order $appOrder = null;
 
     #[ManyToOne(targetEntity: Product::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
     #[Groups(['order:item'])]
-    protected ?Product $product;
+    protected ?Product $product = null;
 
     #[Column(type: Types::INTEGER)]
     #[Groups(['order:item'])]
-    protected ?int $quantity;
+    protected ?int $quantity = null;
 
     #[Column(type: Types::DECIMAL, precision: 15, scale: 2)]
     #[Groups(['order:item'])]
-    protected ?string $pricePerOne;
+    protected ?string $pricePerOne = null;
 
     public function __construct()
     {

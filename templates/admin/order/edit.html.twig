@@ -154,7 +154,7 @@
         window.staticStore.urlApiCategory = '{{ path('api_categories_get_collection') }}';
         window.staticStore.urlApiProduct = '{{ path('api_products_get_collection') }}';
         window.staticStore.urlApiOrder = '{{ path('api_orders_get_collection') }}';
-        window.staticStore.urlApiOrderProduct = '{{ path('api_order_products_get_collection') }}';
+        window.staticStore.urlApiOrderProduct = '{{ path('api_order_products_post_collection') }}';
         window.staticStore.userIsVerified = '{{ userVerified|json_encode }}';
         window.staticStore.translations = {{ {
             chooseCategory: 'order.products.choose_category'|trans({}, 'admin'),
