@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -27,11 +26,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(operations: [
     new GetCollection(
         normalizationContext: ['groups' => ['category:list']],
+        security: "is_granted('ROLE_ADMIN')",
         name: 'api_categories_get_collection'
-    ),
-    new Get(
-        normalizationContext: ['groups' => ['category:item']],
-        name: 'api_categories_get_item'
     ),
 ])]
 class Category

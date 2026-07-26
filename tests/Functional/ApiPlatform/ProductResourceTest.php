@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\ApiPlatform;
 
+use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\ProductRepository;
@@ -10,6 +11,7 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 
 #[Group(name: 'functional')]
 class ProductResourceTest extends ResourceTestUtils
@@ -353,6 +355,50 @@ class ProductResourceTest extends ResourceTestUtils
         $unchangedProduct = self::getContainer()->get(ProductRepository::class)->findOneBy(['uuid' => $uuid]);
         self::assertInstanceOf(Product::class, $unchangedProduct);
         self::assertSame($originalTitle, $unchangedProduct->getTitle());
+    }
+
+    public function testProductCategorySearchFilterAcceptsNumericIdWithoutCategoryItemRoute(): void
+    {
+        $client = self::createClient();
+        $router = self::getContainer()->get(RouterInterface::class);
+        self::assertNull($router->getRouteCollection()->get('api_categories_get_item'));
+        $suffix = str_replace('.', '', uniqid('', true));
+        $selectedCategory = (new Category())->setTitle('Filtered category '.$suffix);
+        $otherCategory = (new Category())->setTitle('Other category '.$suffix);
+        $selectedProduct = (new Product())
+            ->setTitle('Selected product '.$suffix)
+            ->setPrice('10.00')
+            ->setQuantity(1)
+            ->setIsPublished(true)
+            ->setCategory($selectedCategory);
+        $otherProduct = (new Product())
+            ->setTitle('Other product '.$suffix)
+            ->setPrice('10.00')
+            ->setQuantity(1)
+            ->setIsPublished(true)
+            ->setCategory($otherCategory);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        foreach ([$selectedCategory, $otherCategory, $selectedProduct, $otherProduct] as $entity) {
+            $entityManager->persist($entity);
+        }
+        $entityManager->flush();
+
+        $selectedCategoryId = $selectedCategory->getId();
+        self::assertIsInt($selectedCategoryId);
+        $selectedProductIri = $this->uriKey.'/'.$selectedProduct->getUuid();
+        $otherProductIri = $this->uriKey.'/'.$otherProduct->getUuid();
+
+        $client->request('GET', $this->uriKey.'?category='.$selectedCategoryId.'&isPublished=true&itemsPerPage=100', [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $numericDocument = $this->getResponseDecodedContent($client);
+        $numericIris = array_column($numericDocument['hydra:member'], '@id');
+        self::assertContains($selectedProductIri, $numericIris);
+        self::assertNotContains($otherProductIri, $numericIris);
+
+        $numericProduct = $this->findMemberByIri($numericDocument['hydra:member'], $selectedProductIri);
+        self::assertSame($selectedCategoryId, $numericProduct['category']['id']);
+        self::assertSame($selectedCategory->getTitle(), $numericProduct['category']['title']);
+        $this->assertPrivateFieldsAreAbsent($numericProduct);
     }
 
     private function getStableProduct(string $order = 'ASC'): Product

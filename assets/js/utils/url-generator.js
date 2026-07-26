@@ -21,7 +21,7 @@ export function getUrlProductsByCategory(
 ) {
   return (
     defaultUrl +
-    "?category=/api/categories/" +
+    "?category=" +
     categoryId +
     "&isPublished=true" +
     "&page=" +
