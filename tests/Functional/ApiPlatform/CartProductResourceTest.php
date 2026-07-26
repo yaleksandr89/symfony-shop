@@ -192,11 +192,12 @@ class CartProductResourceTest extends ResourceTestUtils
     {
         $client = self::createClient();
         $context = $this->createCartContext();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
         $this->setCartToken($client, $context['tokenB']);
 
         $this->requestPatch($client, $context['lineA'], ['quantity' => 7]);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
         $this->assertPersistedLineState(
             $context['lineA'],
             1,
@@ -212,7 +213,7 @@ class CartProductResourceTest extends ResourceTestUtils
 
         $this->requestPatch($client, $context['lineA'], ['quantity' => 7]);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
         $this->assertPersistedLineState(
             $context['lineA'],
             1,

@@ -41,7 +41,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
 
         $this->requestCheckout($client, ['cartId' => $cart['id']]);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 

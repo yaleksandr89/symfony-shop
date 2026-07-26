@@ -179,7 +179,7 @@ class ProductResourceTest extends ResourceTestUtils
             json_encode($context, JSON_THROW_ON_ERROR)
         );
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
         self::assertSame(
             $productCount,
             self::getContainer()->get(ProductRepository::class)->count([])
@@ -206,7 +206,7 @@ class ProductResourceTest extends ResourceTestUtils
             json_encode($context, JSON_THROW_ON_ERROR)
         );
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
         self::assertSame(
             $productCount,
             self::getContainer()->get(ProductRepository::class)->count([])
@@ -274,7 +274,7 @@ class ProductResourceTest extends ResourceTestUtils
             json_encode($context, JSON_THROW_ON_ERROR)
         );
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
 
         self::getContainer()->get(EntityManagerInterface::class)->clear();
         $unchangedProduct = self::getContainer()->get(ProductRepository::class)->findOneBy(['uuid' => $uuid]);

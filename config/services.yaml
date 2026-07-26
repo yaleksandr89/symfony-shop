@@ -44,5 +44,21 @@ services:
 
   Imagine\Gd\Imagine:
     class: Imagine\Gd\Imagine
+
+  # Unsupported output-format errors for protected operations are coordinated
+  # with API Platform's own security providers by the application listener.
+  api_platform.listener.request.add_format:
+    class: ApiPlatform\Symfony\EventListener\AddFormatListener
+    arguments:
+      - '@api_platform.state_provider.content_negotiation'
+      - '@api_platform.metadata.resource.metadata_collection_factory'
+
+  App\Security\EventListener\ApiSecurityContentNegotiationListener:
+    arguments:
+      $addFormatListener: '@api_platform.listener.request.add_format'
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, method: onEarlyKernelRequest, priority: 28 }
+      - { name: kernel.event_listener, event: kernel.request, method: onPostReadKernelRequest, priority: 3 }
+      - { name: kernel.event_listener, event: kernel.request, method: onPostDeserializeKernelRequest, priority: 1 }
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

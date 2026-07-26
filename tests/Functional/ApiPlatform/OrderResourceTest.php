@@ -25,7 +25,7 @@ class OrderResourceTest extends ResourceTestUtils
 
         $client->request('GET', '/api/orders', [], [], self::REQUEST_HEADERS);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
     }
 
     public function testRegularUserCannotGetOrderCollection(): void
@@ -35,7 +35,7 @@ class OrderResourceTest extends ResourceTestUtils
 
         $client->request('GET', '/api/orders', [], [], self::REQUEST_HEADERS);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
     }
 
     public function testAdminCanGetOrderCollection(): void
@@ -109,7 +109,7 @@ class OrderResourceTest extends ResourceTestUtils
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
         $client->request('GET', '/api/orders/'.$orderId, [], [], self::REQUEST_HEADERS);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
     }
 
     public function testAnonymousUserCannotGetOrderItem(): void
@@ -121,7 +121,7 @@ class OrderResourceTest extends ResourceTestUtils
 
         $client->request('GET', '/api/orders/'.$orderId, [], [], self::REQUEST_HEADERS);
 
-        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
     }
 
     /**

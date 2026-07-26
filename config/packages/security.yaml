@@ -42,8 +42,8 @@ security:
       context: website
       lazy: true
       provider: app_user_provider
-      access_denied_handler: App\Security\Handler\AccessFrontDeniedHandler
-      entry_point: App\Security\EntryPoint\AuthenticationFrontEntryPoint
+      access_denied_handler: App\Security\Handler\RequestAwareAccessDeniedHandler
+      entry_point: App\Security\EntryPoint\RequestAwareAuthenticationEntryPoint
       custom_authenticator:
         - App\Security\Authenticator\Front\LoginFormAuthenticator
         - App\Security\Authenticator\Front\GoogleAuthenticator
