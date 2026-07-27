@@ -11,7 +11,6 @@ deploy.php
 ### Custom Rules <###
 
 ###> symfony/framework-bundle ###
-/.env
 /.env.local
 /.env.local.php
 /.env.*.local
