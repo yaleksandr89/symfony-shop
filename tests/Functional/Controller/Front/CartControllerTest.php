@@ -52,7 +52,36 @@ class CartControllerTest extends WebTestCase
         self::assertInstanceOf(CartProduct::class, $entityManager->find(CartProduct::class, $cart['cartProductId']));
     }
 
-    /** @return array{id: int, cartProductId: int, token: string} */
+    public function testLegacyApiRoutesAreRemovedWithoutSideEffects(): void
+    {
+        $client = self::createClient();
+        $cart = $this->createCart();
+        $counts = $this->getCartCounts();
+        $this->setCartToken($client, $cart['token']);
+
+        /** @var Router $router */
+        $router = self::getContainer()->get('router');
+        self::assertNull($router->getRouteCollection()->get('main_api_cart_save'));
+
+        foreach (['/ru/api/cart', '/en/api/cart'] as $url) {
+            $client->request('POST', $url, ['productId' => $cart['productUuid']]);
+
+            self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+        self::assertSame($counts['carts'], $entityManager->getRepository(Cart::class)->count([]));
+        self::assertSame($counts['cartProducts'], $entityManager->getRepository(CartProduct::class)->count([]));
+
+        $persistedCart = $entityManager->find(Cart::class, $cart['id']);
+        $persistedCartProduct = $entityManager->find(CartProduct::class, $cart['cartProductId']);
+        self::assertInstanceOf(Cart::class, $persistedCart);
+        self::assertInstanceOf(CartProduct::class, $persistedCartProduct);
+        self::assertSame($cart['quantity'], $persistedCartProduct->getQuantity());
+    }
+
+    /** @return array{id: int, cartProductId: int, productUuid: string, quantity: int, token: string} */
     private function createCart(): array
     {
         $entityManager = $this->getEntityManager();
@@ -61,11 +90,12 @@ class CartControllerTest extends WebTestCase
         $product = (new Product())
             ->setTitle('Removed legacy cart route product '.$suffix)
             ->setPrice('10.00')
-            ->setQuantity(1);
+            ->setQuantity(10)
+            ->setIsPublished(true);
         $cart = (new Cart())->setToken($token);
         $cartProduct = (new CartProduct())
             ->setProduct($product)
-            ->setQuantity(1);
+            ->setQuantity(2);
         $cart->addCartProduct($cartProduct);
 
         $entityManager->persist($product);
@@ -80,7 +110,21 @@ class CartControllerTest extends WebTestCase
         return [
             'id' => $cartId,
             'cartProductId' => $cartProductId,
+            'productUuid' => (string) $product->getUuid(),
+            'quantity' => $cartProduct->getQuantity(),
             'token' => $token,
+        ];
+    }
+
+    /** @return array{carts: int, cartProducts: int} */
+    private function getCartCounts(): array
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->clear();
+
+        return [
+            'carts' => $entityManager->getRepository(Cart::class)->count([]),
+            'cartProducts' => $entityManager->getRepository(CartProduct::class)->count([]),
         ];
     }
 
