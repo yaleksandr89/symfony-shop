@@ -60,7 +60,7 @@
         "symfony/uid": "6.4.*",
         "symfony/validator": "6.4.*",
         "symfony/web-link": "6.4.*",
-        "symfony/webpack-encore-bundle": "^1",
+        "symfony/webpack-encore-bundle": "^2.4",
         "symfony/yaml": "6.4.*",
         "symfonycasts/reset-password-bundle": "^1.0",
         "symfonycasts/verify-email-bundle": "^1.0",
