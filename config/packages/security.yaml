@@ -22,6 +22,7 @@ security:
       pattern: ^/%app_locales.in_brackets%/admin
       lazy: true
       provider: app_user_provider
+      user_checker: App\Security\UserChecker\DeletedUserChecker
       access_denied_handler: App\Security\Handler\AccessAdminDeniedHandler
       entry_point: App\Security\EntryPoint\AuthenticationAdminEntryPoint
       custom_authenticators:
@@ -42,6 +43,7 @@ security:
       context: website
       lazy: true
       provider: app_user_provider
+      user_checker: App\Security\UserChecker\DeletedUserChecker
       access_denied_handler: App\Security\Handler\RequestAwareAccessDeniedHandler
       entry_point: App\Security\EntryPoint\RequestAwareAuthenticationEntryPoint
       custom_authenticator:

@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -24,7 +25,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     Entity(repositoryClass: UserRepository::class),
     UniqueEntity(fields: ['email'], message: 'У данной электронной почты уже зарегистрирована учетная запись')
 ]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
     protected ?int $id;
@@ -194,6 +195,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function isEqualTo(UserInterface $user): bool
+    {
+        if (!$user instanceof self) {
+            return false;
+        }
+
+        if ($this->getPassword() !== $user->getPassword()) {
+            return false;
+        }
+
+        $currentRoles = array_map('strval', $this->getRoles());
+        $newRoles = array_map('strval', $user->getRoles());
+        if (count($currentRoles) !== count($newRoles) || count($currentRoles) !== count(array_intersect($currentRoles, $newRoles))) {
+            return false;
+        }
+
+        if ($this->getUserIdentifier() !== $user->getUserIdentifier()) {
+            return false;
+        }
+
+        return $this->getIsDeleted() === $user->getIsDeleted();
     }
 
     public function isVerified(): bool
