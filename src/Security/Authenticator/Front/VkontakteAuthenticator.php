@@ -6,6 +6,7 @@ namespace App\Security\Authenticator\Front;
 
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
+use App\Security\OAuth\OAuthUserResolver;
 use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
@@ -34,6 +35,7 @@ class VkontakteAuthenticator extends OAuth2Authenticator
     public function __construct(
         private ClientRegistry $clientRegistry,
         private UserManager $userManager,
+        private OAuthUserResolver $oauthUserResolver,
         private RouterInterface $router,
         private EventDispatcherInterface $eventDispatcher,
         private VerifyEmailHelperInterface $verifyEmailHelper,
@@ -60,8 +62,6 @@ class VkontakteAuthenticator extends OAuth2Authenticator
                 $vkUser = $client->fetchUserFromToken($accessToken);
                 $email = $vkUser->getEmail();
 
-                $existingUser = $this->userManager->getRepository()->findOneBy(['vkontakteId' => $vkUser->getId()]);
-
                 if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
                     $session
                         ->getFlashBag()
@@ -73,15 +73,15 @@ class VkontakteAuthenticator extends OAuth2Authenticator
                     return $this->security->getUser();
                 }
 
-                if ($existingUser) {
-                    return $existingUser;
-                }
+                $resolution = $this->oauthUserResolver->resolve(
+                    OAuthUserResolver::PROVIDER_VKONTAKTE,
+                    $vkUser->getId(),
+                    $email,
+                    static fn (): User => UserFactory::createUserFromVk($vkUser)
+                );
+                $user = $resolution->user();
 
-                $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
-
-                if (!$user) {
-                    $user = UserFactory::createUserFromVk($vkUser);
-
+                if ($resolution->isNewUser()) {
                     $plainPassword = PasswordGenerator::generatePassword(15);
                     $this->userManager->encodePassword($user, $plainPassword);
 
@@ -99,10 +99,9 @@ class VkontakteAuthenticator extends OAuth2Authenticator
                         );
                 }
 
-                // 3) Maybe you just want to "register" them by creating
-                // a User object
-                $user->setVkontakteId($vkUser->getId());
-                $this->userManager->flush();
+                if ($resolution->requiresFlush()) {
+                    $this->userManager->flush();
+                }
 
                 return $user;
             })

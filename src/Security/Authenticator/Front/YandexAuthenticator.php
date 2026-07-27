@@ -7,6 +7,7 @@ namespace App\Security\Authenticator\Front;
 use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
+use App\Security\OAuth\OAuthUserResolver;
 use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
@@ -34,6 +35,7 @@ class YandexAuthenticator extends OAuth2Authenticator
     public function __construct(
         private ClientRegistry $clientRegistry,
         private UserManager $userManager,
+        private OAuthUserResolver $oauthUserResolver,
         private RouterInterface $router,
         private EventDispatcherInterface $eventDispatcher,
         private VerifyEmailHelperInterface $verifyEmailHelper,
@@ -60,8 +62,6 @@ class YandexAuthenticator extends OAuth2Authenticator
                 $yandexUser = $client->fetchUserFromToken($accessToken);
                 $email = $yandexUser->getEmail();
 
-                $existingUser = $this->userManager->getRepository()->findOneBy(['yandexId' => $yandexUser->getId()]);
-
                 if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
                     $session
                         ->getFlashBag()
@@ -73,15 +73,15 @@ class YandexAuthenticator extends OAuth2Authenticator
                     return $this->security->getUser();
                 }
 
-                if ($existingUser) {
-                    return $existingUser;
-                }
+                $resolution = $this->oauthUserResolver->resolve(
+                    OAuthUserResolver::PROVIDER_YANDEX,
+                    $yandexUser->getId(),
+                    $email,
+                    static fn (): User => UserFactory::createUserFromYandex($yandexUser)
+                );
+                $user = $resolution->user();
 
-                $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
-
-                if (!$user) {
-                    $user = UserFactory::createUserFromYandex($yandexUser);
-
+                if ($resolution->isNewUser()) {
                     $plainPassword = PasswordGenerator::generatePassword(15);
                     $this->userManager->encodePassword($user, $plainPassword);
 
@@ -99,16 +99,15 @@ class YandexAuthenticator extends OAuth2Authenticator
                         );
                 }
 
-                // 3) Maybe you just want to "register" them by creating
-                // a User object
-                $session
-                    ->getFlashBag()
-                    ->add(
-                        'success',
-                        $this->translator->trans('The social network has been successfully linked.')
-                    );
-                $user->setYandexId($yandexUser->getId());
-                $this->userManager->flush();
+                if ($resolution->requiresFlush()) {
+                    $session
+                        ->getFlashBag()
+                        ->add(
+                            'success',
+                            $this->translator->trans('The social network has been successfully linked.')
+                        );
+                    $this->userManager->flush();
+                }
 
                 return $user;
             })

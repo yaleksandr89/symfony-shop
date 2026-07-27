@@ -6,6 +6,7 @@ namespace App\Security\Authenticator\Front;
 
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
+use App\Security\OAuth\OAuthUserResolver;
 use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Generator\PasswordGenerator;
@@ -34,6 +35,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
     public function __construct(
         private ClientRegistry $clientRegistry,
         private UserManager $userManager,
+        private OAuthUserResolver $oauthUserResolver,
         private RouterInterface $router,
         private EventDispatcherInterface $eventDispatcher,
         private VerifyEmailHelperInterface $verifyEmailHelper,
@@ -60,9 +62,6 @@ class GoogleAuthenticator extends OAuth2Authenticator
                 $googleUser = $client->fetchUserFromToken($accessToken);
                 $email = $googleUser->getEmail();
 
-                // 1) have they logged in with Facebook before? Easy!
-                $existingUser = $this->userManager->getRepository()->findOneBy(['googleId' => $googleUser->getId()]);
-
                 if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
                     $session
                         ->getFlashBag()
@@ -74,16 +73,15 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     return $this->security->getUser();
                 }
 
-                if ($existingUser) {
-                    return $existingUser;
-                }
+                $resolution = $this->oauthUserResolver->resolve(
+                    OAuthUserResolver::PROVIDER_GOOGLE,
+                    $googleUser->getId(),
+                    $email,
+                    static fn (): User => UserFactory::createUserFromGoogle($googleUser)
+                );
+                $user = $resolution->user();
 
-                // 2) do we have a matching user by email?
-                $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
-
-                if (!$user) {
-                    $user = UserFactory::createUserFromGoogle($googleUser);
-
+                if ($resolution->isNewUser()) {
                     $plainPassword = PasswordGenerator::generatePassword(15);
                     $this->userManager->encodePassword($user, $plainPassword);
 
@@ -101,10 +99,9 @@ class GoogleAuthenticator extends OAuth2Authenticator
                         );
                 }
 
-                // 3) Maybe you just want to "register" them by creating
-                // a User object
-                $user->setGoogleId($googleUser->getId());
-                $this->userManager->flush();
+                if ($resolution->requiresFlush()) {
+                    $this->userManager->flush();
+                }
 
                 return $user;
             })
