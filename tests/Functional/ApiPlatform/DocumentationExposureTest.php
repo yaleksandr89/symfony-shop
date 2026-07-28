@@ -20,7 +20,6 @@ final class DocumentationExposureTest extends WebTestCase
         '/api/docs',
         '/api/docs.html',
         '/api/docs?ui=re_doc',
-        '/api/docs.json',
         '/api/docs.jsonld',
         '/api/docs.jsonopenapi',
         '/api/docs.yamlopenapi',
@@ -40,7 +39,6 @@ final class DocumentationExposureTest extends WebTestCase
         }
 
         foreach ([
-            '/api/docs.json' => 'application/json',
             '/api/docs.jsonopenapi' => 'application/vnd.openapi+json',
         ] as $uri => $accept) {
             $client->request('GET', $uri, [], [], ['HTTP_ACCEPT' => $accept]);

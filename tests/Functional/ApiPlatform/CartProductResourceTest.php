@@ -54,8 +54,8 @@ class CartProductResourceTest extends ResourceTestUtils
 
         $document = $this->requestCollection($client);
 
-        self::assertSame([], $document['hydra:member']);
-        self::assertSame(0, $document['hydra:totalItems']);
+        self::assertSame([], $document['member']);
+        self::assertSame(0, $document['totalItems']);
     }
 
     public function testMatchingTokenCanReadOwnItem(): void
@@ -621,7 +621,7 @@ class CartProductResourceTest extends ResourceTestUtils
     public function testCartProductOpenApiQuantitySchemaMatchesPolicy(): void
     {
         $client = self::createClient();
-        $client->request('GET', '/api/docs.json', [], [], ['HTTP_ACCEPT' => 'application/json']);
+        $client->request('GET', '/api/docs.jsonopenapi', [], [], ['HTTP_ACCEPT' => 'application/vnd.openapi+json']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $document = $this->getResponseDecodedContent($client);
@@ -766,8 +766,8 @@ class CartProductResourceTest extends ResourceTestUtils
     {
         $lineId = $line->getId();
         self::assertNotNull($lineId);
-        self::assertContains($this->lineIri($line), array_column($document['hydra:member'], '@id'));
-        self::assertContains($lineId, array_column($document['hydra:member'], 'id'));
+        self::assertContains($this->lineIri($line), array_column($document['member'], '@id'));
+        self::assertContains($lineId, array_column($document['member'], 'id'));
     }
 
     /**
@@ -777,8 +777,8 @@ class CartProductResourceTest extends ResourceTestUtils
     {
         $lineId = $line->getId();
         self::assertNotNull($lineId);
-        self::assertNotContains($this->lineIri($line), array_column($document['hydra:member'], '@id'));
-        self::assertNotContains($lineId, array_column($document['hydra:member'], 'id'));
+        self::assertNotContains($this->lineIri($line), array_column($document['member'], '@id'));
+        self::assertNotContains($lineId, array_column($document['member'], 'id'));
     }
 
     private function lineIri(CartProduct $line): string

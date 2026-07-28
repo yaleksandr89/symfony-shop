@@ -65,7 +65,7 @@ const actions = {
     const result = await axios.get(url, apiConfig);
 
     if (result.data && StatusCodes.OK === result.status) {
-      commit("setCategoryProducts", result.data["hydra:member"]);
+      commit("setCategoryProducts", result.data.member);
     }
   },
   async getCategories({ commit, state }) {
@@ -73,7 +73,7 @@ const actions = {
     const result = await axios.get(url, apiConfig);
 
     if (result.data && StatusCodes.OK === result.status) {
-      commit("setCategories", result.data["hydra:member"]);
+      commit("setCategories", result.data.member);
     }
   },
   async addNewOrderProduct({ state, dispatch }) {

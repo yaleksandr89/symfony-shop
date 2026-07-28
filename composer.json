@@ -17,7 +17,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "aego/oauth2-yandex": "^0.2.2",
-        "api-platform/core": "^3.4.17",
+        "api-platform/core": "~4.3.17",
         "composer/package-versions-deprecated": "^1.0",
         "doctrine/doctrine-bundle": "^2.0",
         "doctrine/doctrine-migrations-bundle": "^3.0",

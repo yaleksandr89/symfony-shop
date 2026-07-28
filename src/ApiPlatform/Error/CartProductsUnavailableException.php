@@ -17,7 +17,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: [
                 'groups' => ['json'],
                 'skip_null_values' => true,
-                'rfc_7807_compliant_errors' => true,
             ],
             name: '_api_cart_products_unavailable_problem',
         ),

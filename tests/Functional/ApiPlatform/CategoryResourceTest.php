@@ -32,7 +32,7 @@ class CategoryResourceTest extends ResourceTestUtils
         self::assertSame(['GET'], $collectionRoute->getMethods());
         self::assertNull($routes->get('api_categories_get_item'));
 
-        $client->request('GET', '/api/docs.json', [], [], ['HTTP_ACCEPT' => 'application/json']);
+        $client->request('GET', '/api/docs.jsonopenapi', [], [], ['HTTP_ACCEPT' => 'application/vnd.openapi+json']);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $document = $this->getResponseDecodedContent($client);
         self::assertArrayHasKey(self::COLLECTION_URI, $document['paths']);
@@ -74,15 +74,15 @@ class CategoryResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $document = $this->getResponseDecodedContent($client);
         self::assertSame('/api/contexts/Category', $document['@context']);
-        self::assertSame('hydra:Collection', $document['@type']);
-        self::assertIsArray($document['hydra:member']);
+        self::assertSame('Collection', $document['@type']);
+        self::assertIsArray($document['member']);
 
         $activeCategoryId = $activeCategory->getId();
         $deletedCategoryId = $deletedCategory->getId();
         self::assertIsInt($activeCategoryId);
         self::assertIsInt($deletedCategoryId);
         $membersById = [];
-        foreach ($document['hydra:member'] as $member) {
+        foreach ($document['member'] as $member) {
             self::assertIsArray($member);
             $membersById[$member['id']] = $member;
         }

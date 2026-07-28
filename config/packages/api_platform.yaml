@@ -1,7 +1,5 @@
 api_platform:
-    defaults:
-        extra_properties:
-            rfc_7807_compliant_errors: true
+    use_symfony_listeners: true
     mapping:
         paths:
             - '%kernel.project_dir%/src/Entity'

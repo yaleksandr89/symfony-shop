@@ -121,10 +121,10 @@ async function loadCart(state) {
 
   if (
     result.data &&
-    result.data["hydra:member"].length &&
+    result.data.member.length &&
     StatusCodes.OK === result.status
   ) {
-    return result.data["hydra:member"][0];
+    return result.data.member[0];
   }
 
   return {};

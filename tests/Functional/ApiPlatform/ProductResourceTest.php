@@ -45,18 +45,18 @@ class ProductResourceTest extends ResourceTestUtils
 
         $document = $this->getResponseDecodedContent($client);
         self::assertSame('/api/contexts/Product', $document['@context']);
-        self::assertSame('hydra:Collection', $document['@type']);
-        self::assertIsArray($document['hydra:member']);
-        self::assertCount(2, $document['hydra:member']);
-        self::assertIsInt($document['hydra:totalItems']);
-        self::assertGreaterThan(2, $document['hydra:totalItems']);
-        self::assertIsArray($document['hydra:view']);
-        self::assertSame('hydra:PartialCollectionView', $document['hydra:view']['@type']);
-        self::assertArrayHasKey('hydra:first', $document['hydra:view']);
-        self::assertArrayHasKey('hydra:last', $document['hydra:view']);
+        self::assertSame('Collection', $document['@type']);
+        self::assertIsArray($document['member']);
+        self::assertCount(2, $document['member']);
+        self::assertIsInt($document['totalItems']);
+        self::assertGreaterThan(2, $document['totalItems']);
+        self::assertIsArray($document['view']);
+        self::assertSame('PartialCollectionView', $document['view']['@type']);
+        self::assertArrayHasKey('first', $document['view']);
+        self::assertArrayHasKey('last', $document['view']);
 
         $expectedIri = $this->uriKey.'/'.$product->getUuid();
-        $member = $this->findMemberByIri($document['hydra:member'], $expectedIri);
+        $member = $this->findMemberByIri($document['member'], $expectedIri);
 
         self::assertSame('Product', $member['@type']);
         self::assertSame($product->getId(), $member['id']);
@@ -112,13 +112,13 @@ class ProductResourceTest extends ResourceTestUtils
         $filteredDocument = $this->getResponseDecodedContent($client);
 
         self::assertSame('/api/contexts/Product', $filteredDocument['@context']);
-        self::assertSame('hydra:Collection', $filteredDocument['@type']);
-        self::assertIsArray($filteredDocument['hydra:member']);
-        self::assertSame([], $filteredDocument['hydra:member']);
-        self::assertSame(0, $filteredDocument['hydra:totalItems']);
+        self::assertSame('Collection', $filteredDocument['@type']);
+        self::assertIsArray($filteredDocument['member']);
+        self::assertSame([], $filteredDocument['member']);
+        self::assertSame(0, $filteredDocument['totalItems']);
         self::assertGreaterThan(
-            $filteredDocument['hydra:totalItems'],
-            $unfilteredDocument['hydra:totalItems']
+            $filteredDocument['totalItems'],
+            $unfilteredDocument['totalItems']
         );
     }
 
@@ -131,7 +131,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $client->request('GET', $this->uriKey.'?itemsPerPage=100', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        $iris = array_column($this->getResponseDecodedContent($client)['hydra:member'], '@id');
+        $iris = array_column($this->getResponseDecodedContent($client)['member'], '@id');
         self::assertContains($this->uriKey.'/'.$published->getUuid(), $iris);
         self::assertNotContains($this->uriKey.'/'.$unpublished->getUuid(), $iris);
         self::assertNotContains($this->uriKey.'/'.$deleted->getUuid(), $iris);
@@ -146,7 +146,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        self::assertSame([], $this->getResponseDecodedContent($client)['hydra:member']);
+        self::assertSame([], $this->getResponseDecodedContent($client)['member']);
     }
 
     public function testRegularUserProductVisibility(): void
@@ -167,7 +167,7 @@ class ProductResourceTest extends ResourceTestUtils
 
         $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        self::assertSame([], $this->getResponseDecodedContent($client)['hydra:member']);
+        self::assertSame([], $this->getResponseDecodedContent($client)['member']);
     }
 
     public function testAdminCanReadAndPatchUnpublishedProductButNotDeletedProduct(): void
@@ -181,7 +181,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertContains(
             $this->uriKey.'/'.$unpublished->getUuid(),
-            array_column($this->getResponseDecodedContent($client)['hydra:member'], '@id')
+            array_column($this->getResponseDecodedContent($client)['member'], '@id')
         );
 
         $uri = $this->uriKey.'/'.$unpublished->getUuid();
@@ -391,11 +391,11 @@ class ProductResourceTest extends ResourceTestUtils
         $client->request('GET', $this->uriKey.'?category='.$selectedCategoryId.'&isPublished=true&itemsPerPage=100', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $numericDocument = $this->getResponseDecodedContent($client);
-        $numericIris = array_column($numericDocument['hydra:member'], '@id');
+        $numericIris = array_column($numericDocument['member'], '@id');
         self::assertContains($selectedProductIri, $numericIris);
         self::assertNotContains($otherProductIri, $numericIris);
 
-        $numericProduct = $this->findMemberByIri($numericDocument['hydra:member'], $selectedProductIri);
+        $numericProduct = $this->findMemberByIri($numericDocument['member'], $selectedProductIri);
         self::assertSame($selectedCategoryId, $numericProduct['category']['id']);
         self::assertSame($selectedCategory->getTitle(), $numericProduct['category']['title']);
         $this->assertPrivateFieldsAreAbsent($numericProduct);

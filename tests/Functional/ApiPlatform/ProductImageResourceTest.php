@@ -29,7 +29,7 @@ class ProductImageResourceTest extends ResourceTestUtils
         self::assertNull($routes->get('api_product_images_get_collection'));
         self::assertNull($routes->get('api_product_images_get_item'));
 
-        $client->request('GET', '/api/docs.json', [], [], ['HTTP_ACCEPT' => 'application/json']);
+        $client->request('GET', '/api/docs.jsonopenapi', [], [], ['HTTP_ACCEPT' => 'application/vnd.openapi+json']);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $document = $this->getResponseDecodedContent($client);
         self::assertArrayNotHasKey(self::COLLECTION_URI, $document['paths']);
