@@ -20,6 +20,10 @@ framework:
   #fragments: true
   php_errors:
     log: true
+  property_info:
+    with_constructor_extractor: false
+  profiler:
+    collect_serializer_data: true
 
 when@test:
   framework:

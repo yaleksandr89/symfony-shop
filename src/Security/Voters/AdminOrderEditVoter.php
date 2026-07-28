@@ -6,6 +6,7 @@ namespace App\Security\Voters;
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AdminOrderEditVoter extends Voter
@@ -18,7 +19,7 @@ class AdminOrderEditVoter extends Voter
         return self::CAN_ADMIN_EDIT === $attribute;
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         /** @var User $user */
         $user = $token->getUser();
