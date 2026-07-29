@@ -1,7 +1,4 @@
 twig:
-  paths:
-    'assets/images': images
-    'public': public
   default_path: '%kernel.project_dir%/templates'
 
 when@test:

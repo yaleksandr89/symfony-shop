@@ -1,10 +1,10 @@
-{% apply inky_to_html|inline_css(source('@public' ~ asset('build/email.css'))) %}
+{% apply inky_to_html|inline_css(email_inline_css) %}
     <container>
         <row class="header">
             <columns>
                 <a href="{{ url('main_homepage') }}">
                     <center>
-                        <img src="{{ email.image('@images/icons/logo_366x79.png') }}" alt="Symfony shop" class="logo">
+                        <img src="{{ email_logo_cid }}" alt="Symfony shop" class="logo">
                     </center>
                 </a>
             </columns>

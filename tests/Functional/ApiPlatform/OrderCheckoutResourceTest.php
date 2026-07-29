@@ -26,6 +26,8 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
 
 #[Group(name: 'functional')]
 class OrderCheckoutResourceTest extends ResourceTestUtils
@@ -63,7 +65,25 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertEmailCount(2);
         $clientMessage = self::getMailerMessage(0);
         self::assertNotNull($clientMessage);
+        self::assertInstanceOf(Email::class, $clientMessage);
         self::assertEmailAddressContains($clientMessage, 'to', UserFixtures::USER_1_EMAIL);
+        $htmlBody = $clientMessage->getHtmlBody();
+        self::assertIsString($htmlBody);
+        self::assertStringContainsString('Thank you for your purchase!', $htmlBody);
+        self::assertStringContainsString('42.50', $htmlBody);
+        self::assertStringContainsString('style="', $htmlBody);
+        self::assertStringNotContainsString('<style', $htmlBody);
+        self::assertStringContainsString('<table', $htmlBody);
+        self::assertStringContainsString('src="cid:symfony-shop-logo@symfony-shop"', $htmlBody);
+        self::assertStringNotContainsString('@'.'public', $htmlBody);
+        self::assertStringNotContainsString('@'.'images', $htmlBody);
+        $inlineParts = $clientMessage->getAttachments();
+        self::assertCount(1, $inlineParts);
+        self::assertInstanceOf(DataPart::class, $inlineParts[0]);
+        self::assertSame('logo_366x79.png', $inlineParts[0]->getFilename());
+        self::assertSame('image/png', $inlineParts[0]->getContentType());
+        self::assertSame('inline', $inlineParts[0]->getDisposition());
+        self::assertSame('symfony-shop-logo@symfony-shop', $inlineParts[0]->getContentId());
 
         $entityManager = $this->getEntityManager();
         $entityManager->clear();
