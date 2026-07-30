@@ -19,9 +19,6 @@
     "behat/transliterator": {
         "version": "v1.3.0"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.4"
-    },
     "composer/pcre": {
         "version": "3.0.0"
     },

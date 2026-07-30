@@ -18,7 +18,6 @@
         "ext-json": "*",
         "aego/oauth2-yandex": "^0.2.2",
         "api-platform/core": "~4.3.17",
-        "composer/package-versions-deprecated": "^1.0",
         "doctrine/dbal": "^3.10",
         "doctrine/doctrine-bundle": "^2.0",
         "doctrine/doctrine-migrations-bundle": "^3.0",
@@ -93,7 +92,6 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "composer/package-versions-deprecated": true,
             "symfony/flex": true,
             "symfony/runtime": true
         }
