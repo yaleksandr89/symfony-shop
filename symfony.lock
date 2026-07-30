@@ -16,9 +16,6 @@
             "src/Entity/.gitignore"
         ]
     },
-    "behat/transliterator": {
-        "version": "v1.3.0"
-    },
     "composer/pcre": {
         "version": "3.0.0"
     },
