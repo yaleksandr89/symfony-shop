@@ -203,7 +203,7 @@ test-db-reset:
 	fi
 	$(COMPOSE) exec --user app -e APP_ENV=test php rm -f var/db_for_test.db
 	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:database:create
-	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:schema:update --complete --force
+	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:schema:update --force
 	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console hautelook:fixtures:load --no-interaction
 
 test-integration:

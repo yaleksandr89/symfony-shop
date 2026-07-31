@@ -8,8 +8,6 @@ doctrine:
     use_savepoints: true
   orm:
     auto_generate_proxy_classes: true
-    enable_lazy_ghost_objects: true
-    report_fields_where_declared: true
     identity_generation_preferences:
       Doctrine\DBAL\Platforms\PostgreSQLPlatform: sequence
     validate_xml_mapping: true
