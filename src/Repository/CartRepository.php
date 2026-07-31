@@ -8,7 +8,7 @@ use App\Entity\Cart;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -40,7 +40,7 @@ class CartRepository extends ServiceEntityRepository
             return $this->find($cartId, LockMode::PESSIMISTIC_WRITE);
         }
 
-        if ($platform instanceof SqlitePlatform) {
+        if ($platform instanceof SQLitePlatform) {
             return $this->find($cartId);
         }
 

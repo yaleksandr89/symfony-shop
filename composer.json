@@ -18,7 +18,7 @@
         "ext-json": "*",
         "aego/oauth2-yandex": "^0.2.2",
         "api-platform/core": "~4.3.17",
-        "doctrine/dbal": "^3.10",
+        "doctrine/dbal": "~4.4.0",
         "doctrine/doctrine-bundle": "^2.0",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/migrations": "^3.9",
