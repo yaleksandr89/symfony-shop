@@ -20,7 +20,8 @@
         "api-platform/core": "~4.3.17",
         "doctrine/dbal": "^3.10",
         "doctrine/doctrine-bundle": "^2.0",
-        "doctrine/doctrine-migrations-bundle": "^3.0",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/migrations": "^3.9",
         "doctrine/orm": "^2.0",
         "gedmo/doctrine-extensions": "^3.22",
         "imagine/imagine": "^1.0",
@@ -71,7 +72,7 @@
         "twig/twig": "^2.0|^3.0"
     },
     "require-dev": {
-        "dama/doctrine-test-bundle": "^8.0",
+        "dama/doctrine-test-bundle": "^8.6",
         "dbrekelmans/bdi": "^1.0",
         "friendsofphp/php-cs-fixer": "^3.0",
         "hautelook/alice-bundle": "*",
