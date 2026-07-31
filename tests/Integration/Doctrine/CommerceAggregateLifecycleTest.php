@@ -176,21 +176,21 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         $owner = $this->entityManager->getClassMetadata(Order::class)->associationMappings['owner'];
         $userOrders = $this->entityManager->getClassMetadata(User::class)->associationMappings['orders'];
 
-        self::assertSame(['persist', 'remove'], $orderProducts['cascade']);
-        self::assertTrue($orderProducts['orphanRemoval']);
-        self::assertSame(['persist', 'remove'], $cartProducts['cascade']);
-        self::assertTrue($cartProducts['orphanRemoval']);
-        self::assertSame('CASCADE', $order['joinColumns'][0]['onDelete']);
-        self::assertSame('CASCADE', $cart['joinColumns'][0]['onDelete']);
-        self::assertFalse($productCartProducts['orphanRemoval']);
-        self::assertSame([], $productCartProducts['cascade']);
-        self::assertNull($product['joinColumns'][0]['onDelete'] ?? null);
-        self::assertNull($owner['joinColumns'][0]['onDelete'] ?? null);
-        self::assertSame([], $userOrders['cascade']);
-        self::assertSame(Types::DECIMAL, $totalPrice['type']);
-        self::assertSame(19, $totalPrice['precision']);
-        self::assertSame(2, $totalPrice['scale']);
-        self::assertTrue($totalPrice['nullable']);
+        self::assertSame(['persist', 'remove'], $this->mappingValue($orderProducts, 'cascade'));
+        self::assertTrue($this->mappingValue($orderProducts, 'orphanRemoval'));
+        self::assertSame(['persist', 'remove'], $this->mappingValue($cartProducts, 'cascade'));
+        self::assertTrue($this->mappingValue($cartProducts, 'orphanRemoval'));
+        self::assertSame('CASCADE', $this->mappingValue($this->mappingValue($order, 'joinColumns')[0], 'onDelete'));
+        self::assertSame('CASCADE', $this->mappingValue($this->mappingValue($cart, 'joinColumns')[0], 'onDelete'));
+        self::assertFalse($this->mappingValue($productCartProducts, 'orphanRemoval'));
+        self::assertSame([], $this->mappingValue($productCartProducts, 'cascade'));
+        self::assertNull($this->mappingValue($this->mappingValue($product, 'joinColumns')[0], 'onDelete'));
+        self::assertNull($this->mappingValue($this->mappingValue($owner, 'joinColumns')[0], 'onDelete'));
+        self::assertSame([], $this->mappingValue($userOrders, 'cascade'));
+        self::assertSame(Types::DECIMAL, $this->mappingValue($totalPrice, 'type'));
+        self::assertSame(19, $this->mappingValue($totalPrice, 'precision'));
+        self::assertSame(2, $this->mappingValue($totalPrice, 'scale'));
+        self::assertTrue($this->mappingValue($totalPrice, 'nullable'));
     }
 
     /** @return array{User, Product} */
@@ -234,6 +234,23 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         return (new CartProduct())
             ->setProduct($product)
             ->setQuantity(1);
+    }
+
+    private function mappingValue(array|object $mapping, string $key): mixed
+    {
+        if (is_array($mapping)) {
+            if (!array_key_exists($key, $mapping)) {
+                self::fail(sprintf('The Doctrine mapping array does not contain the "%s" key.', $key));
+            }
+
+            return $mapping[$key];
+        }
+
+        if (!property_exists($mapping, $key)) {
+            self::fail(sprintf('The Doctrine mapping object %s does not have the "%s" property.', $mapping::class, $key));
+        }
+
+        return $mapping->{$key};
     }
 
     private function withForeignKeyEnforcement(\Closure $assertions): void

@@ -37,11 +37,6 @@ services:
       - '../src/Kernel.php'
       - '../src/Tests/'
 
-  doctrineMigrationDiffListener:
-    class: App\Utils\Event\Subscriber\MigrationEventSubscriber
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-
   Imagine\Gd\Imagine:
     class: Imagine\Gd\Imagine
 
