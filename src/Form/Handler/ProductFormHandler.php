@@ -22,7 +22,7 @@ class ProductFormHandler
         private FileSaver $fileSaver,
         private FilesystemWorker $filesystemWorker,
         private PaginatorInterface $paginator,
-        private FilterBuilderUpdater $filterBuilderUpdater
+        private FilterBuilderUpdater $filterBuilderUpdater,
     ) {
     }
 

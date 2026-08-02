@@ -23,7 +23,7 @@ final class FilterProductQueryExtension implements QueryCollectionExtensionInter
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass);
     }
@@ -34,7 +34,7 @@ final class FilterProductQueryExtension implements QueryCollectionExtensionInter
         string $resourceClass,
         array $identifiers,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass);
     }
@@ -42,7 +42,7 @@ final class FilterProductQueryExtension implements QueryCollectionExtensionInter
     private function andWhere(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass
+        string $resourceClass,
     ): void {
         if (Product::class !== $resourceClass) {
             return;

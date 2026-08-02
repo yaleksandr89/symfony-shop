@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
- * @implements ProcessorInterface<OrderProduct, OrderProduct>
+ * @implements ProcessorInterface<mixed, OrderProduct>
  */
 final class AdminOrderProductProcessor implements ProcessorInterface
 {
@@ -77,10 +77,6 @@ final class AdminOrderProductProcessor implements ProcessorInterface
 
             return $data;
         });
-
-        if (!$result instanceof OrderProduct) {
-            throw new \LogicException('The order product transaction must return an order product.');
-        }
 
         return $result;
     }

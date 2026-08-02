@@ -30,10 +30,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV4;
 
-#[
-    Table(name: '`product`'),
-    Entity(repositoryClass: ProductRepository::class)
-]
+#[Table(name: '`product`'),
+    Entity(repositoryClass: ProductRepository::class)]
 #[ApiResource(
     operations: [
         new GetCollection(

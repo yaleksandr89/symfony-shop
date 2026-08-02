@@ -16,7 +16,7 @@ class EditOrderModel
         public ?int $status = null,
         public ?string $totalPrice = null,
         public ?DateTimeImmutable $createdAt = null,
-        public ?bool $isDeleted = null
+        public ?bool $isDeleted = null,
     ) {
     }
 

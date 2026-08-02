@@ -38,10 +38,6 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    /**
-     * @{убрать}IsGranted("CAN_ADMIN_EDIT", subject="category") - если требуется редирект в случае если пользователь isVerified = false
-     * Используется избиратель src/Security/Voters/AdminOrderEditVoter
-     */
     #[Route('/edit/{id}', name: 'edit')]
     #[Route('/add', name: 'add')]
     public function edit(Request $request, CategoryFormHandler $categoryFormHandler, ?Category $category = null): Response

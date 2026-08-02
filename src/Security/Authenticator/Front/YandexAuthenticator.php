@@ -39,7 +39,7 @@ class YandexAuthenticator extends OAuth2Authenticator
         private RouterInterface $router,
         private EventDispatcherInterface $eventDispatcher,
         private VerifyEmailHelperInterface $verifyEmailHelper,
-        private TranslatorInterface $translator
+        private TranslatorInterface $translator,
     ) {
     }
 

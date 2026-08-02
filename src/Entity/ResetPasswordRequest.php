@@ -17,10 +17,8 @@ use Doctrine\ORM\Mapping\Table;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
-#[
-    Table(name: '`reset_password_request`'),
-    Entity(repositoryClass: ResetPasswordRequestRepository::class)
-]
+#[Table(name: '`reset_password_request`'),
+    Entity(repositoryClass: ResetPasswordRequestRepository::class)]
 class ResetPasswordRequest implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;

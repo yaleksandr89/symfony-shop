@@ -17,7 +17,7 @@ class InitDemoDataCommand extends Command
 
     public function __construct(
         private DemoDataInitializer $demoDataInitializer,
-        private KernelInterface $kernel
+        private KernelInterface $kernel,
     ) {
         parent::__construct();
     }

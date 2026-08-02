@@ -27,7 +27,7 @@ final class OAuthUserResolver
 
     public function __construct(
         private UserRepository $userRepository,
-        private DeletedUserChecker $deletedUserChecker
+        private DeletedUserChecker $deletedUserChecker,
     ) {
     }
 

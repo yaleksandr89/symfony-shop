@@ -21,7 +21,7 @@ class EditProductModel
         public ?Category $category = null,
         public ?bool $isPublished = null,
         public ?bool $isDeleted = null,
-        public ?DateTimeImmutable $createdAt = null
+        public ?DateTimeImmutable $createdAt = null,
     ) {
     }
 

@@ -15,10 +15,8 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`product_image`'),
-    Entity(repositoryClass: ProductImageRepository::class)
-]
+#[Table(name: '`product_image`'),
+    Entity(repositoryClass: ProductImageRepository::class)]
 class ProductImage
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

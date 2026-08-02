@@ -25,10 +25,8 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[
-    Table(name: '`cart`'),
-    Entity(repositoryClass: CartRepository::class)
-]
+#[Table(name: '`cart`'),
+    Entity(repositoryClass: CartRepository::class)]
 #[UniqueConstraint(name: 'uniq_cart_token', columns: ['token'])]
 #[ApiResource(
     operations: [

@@ -59,8 +59,6 @@ final class ProductController extends AbstractController
 
     /**
      * @param array<string, bool|string> $criteria
-     *
-     * @throws ConversionException
      */
     private function findVisibleProduct(array $criteria): ?Product
     {

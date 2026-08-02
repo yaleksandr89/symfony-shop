@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * @implements ProcessorInterface<OrderProduct, void>
+ * @implements ProcessorInterface<mixed, void>
  */
 final class AdminOrderProductRemoveProcessor implements ProcessorInterface
 {

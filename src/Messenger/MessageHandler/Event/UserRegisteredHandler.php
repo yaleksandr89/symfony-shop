@@ -17,7 +17,7 @@ class UserRegisteredHandler
     public function __construct(
         private EmailVerifier $emailVerifier,
         private UserManager $userManager,
-        private UserRegisteredEmailSender $emailSender
+        private UserRegisteredEmailSender $emailSender,
     ) {
     }
 

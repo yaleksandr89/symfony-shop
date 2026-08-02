@@ -27,10 +27,8 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`order`'),
-    Entity(repositoryClass: OrderRepository::class)
-]
+#[Table(name: '`order`'),
+    Entity(repositoryClass: OrderRepository::class)]
 #[ApiResource(operations: [
     new GetCollection(
         normalizationContext: ['groups' => ['order:list']],

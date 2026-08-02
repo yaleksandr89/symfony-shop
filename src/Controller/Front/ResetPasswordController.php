@@ -27,7 +27,7 @@ class ResetPasswordController extends AbstractController
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private Doctrine $doctrine
+        private Doctrine $doctrine,
     ) {
     }
 

@@ -6,7 +6,6 @@ doctrine:
     #server_version: '13'
     profiling_collect_backtrace: '%kernel.debug%'
   orm:
-    auto_generate_proxy_classes: true
     identity_generation_preferences:
       Doctrine\DBAL\Platforms\PostgreSQLPlatform: sequence
     validate_xml_mapping: true
@@ -19,5 +18,3 @@ doctrine:
         dir: '%kernel.project_dir%/src/Entity'
         prefix: 'App\Entity'
         alias: App
-    controller_resolver:
-      auto_mapping: false

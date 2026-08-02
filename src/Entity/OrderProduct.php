@@ -20,10 +20,8 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`order_product`'),
-    Entity(repositoryClass: OrderProductRepository::class)
-]
+#[Table(name: '`order_product`'),
+    Entity(repositoryClass: OrderProductRepository::class)]
 #[ApiResource(operations: [
     new Post(
         normalizationContext: ['groups' => ['order_product:list:write']],

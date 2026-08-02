@@ -17,7 +17,7 @@ final class ProductImageManager extends AbstractBaseManager
         protected EntityManagerInterface $em,
         private FilesystemWorker $filesystemWorker,
         private string $uploadsTempDir,
-        private ImageResizer $imageResizer
+        private ImageResizer $imageResizer,
     ) {
         parent::__construct($em);
     }

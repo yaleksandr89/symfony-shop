@@ -100,10 +100,10 @@ class DemoAssetInstallerTest extends TestCase
 
     private function installer(): DemoAssetInstaller
     {
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = $this->createStub(KernelInterface::class);
         $kernel->method('getProjectDir')->willReturn($this->directory);
 
-        return new DemoAssetInstaller($this->createMock(EntityManagerInterface::class), $kernel, $this->directory.'/uploads');
+        return new DemoAssetInstaller($this->createStub(EntityManagerInterface::class), $kernel, $this->directory.'/uploads');
     }
 
     private function product(int $id): Product

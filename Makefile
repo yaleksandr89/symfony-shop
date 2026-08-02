@@ -4,7 +4,7 @@ VENDOR = ./vendor
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther test-functional-selenium
+.PHONY: help init check-env config build up down restart ps cache-prod-reset logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther test-functional-selenium
 
 help:
 	@printf '%s\n' 'Docker local development:'
@@ -14,6 +14,7 @@ help:
 	@printf '%s\n' '  make up                Start php, nginx and postgres'
 	@printf '%s\n' '  make down              Stop containers'
 	@printf '%s\n' '  make logs [SERVICE=x]  Follow logs for all services or one service'
+	@printf '%s\n' '  make cache-prod-reset  Remove generated prod cache in php container as app'
 	@printf '%s\n' '  make shell [SERVICE=x] Open a shell in a running service'
 	@printf '%s\n' '  make console CMD=about Run Symfony console in php as app'
 	@printf '%s\n' '  make composer CMD=...  Run Composer in php as app'
@@ -79,6 +80,9 @@ restart: check-env
 
 ps: check-env
 	$(COMPOSE) ps
+
+cache-prod-reset: check-env
+	$(COMPOSE) exec --user app php rm -rf /var/www/html/var/cache/prod
 
 logs: check-env
 	$(COMPOSE) logs -f $(SERVICE)

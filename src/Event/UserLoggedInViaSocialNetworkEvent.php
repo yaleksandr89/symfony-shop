@@ -12,7 +12,7 @@ class UserLoggedInViaSocialNetworkEvent extends Event
     public function __construct(
         private User $user,
         private string $plainPassword,
-        private array $verifyEmail
+        private array $verifyEmail,
     ) {
     }
 

@@ -19,7 +19,7 @@ class OrderFormHandler
     public function __construct(
         private OrderManager $orderManager,
         private PaginatorInterface $paginator,
-        private FilterBuilderUpdater $filterBuilderUpdater
+        private FilterBuilderUpdater $filterBuilderUpdater,
     ) {
     }
 

@@ -11,7 +11,7 @@ final class OAuthUserResolution
     public function __construct(
         private User $user,
         private bool $newUser,
-        private bool $requiresFlush
+        private bool $requiresFlush,
     ) {
     }
 

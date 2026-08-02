@@ -20,7 +20,7 @@ class ProductImageController extends BaseAdminController
         Request $request,
         ProductImage $productImage,
         ProductManager $productManager,
-        ProductImageManager $productImageManager
+        ProductImageManager $productImageManager,
     ): Response {
         /** @var Product $product */
         $product = $productImage->getProduct();

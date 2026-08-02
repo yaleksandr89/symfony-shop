@@ -19,10 +19,8 @@ use Doctrine\ORM\Mapping\Table;
 use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`category`'),
-    Entity(repositoryClass: CategoryRepository::class)
-]
+#[Table(name: '`category`'),
+    Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(operations: [
     new GetCollection(
         normalizationContext: ['groups' => ['category:list']],

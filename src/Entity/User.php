@@ -20,11 +20,9 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[
-    Table(name: '`user`'),
+#[Table(name: '`user`'),
     Entity(repositoryClass: UserRepository::class),
-    UniqueEntity(fields: ['email'], message: 'У данной электронной почты уже зарегистрирована учетная запись')
-]
+    UniqueEntity(fields: ['email'], message: 'У данной электронной почты уже зарегистрирована учетная запись')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

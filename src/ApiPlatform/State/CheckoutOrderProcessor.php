@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @implements ProcessorInterface<CheckoutOrderInput, Order>
+ * @implements ProcessorInterface<mixed, Order>
  */
 final class CheckoutOrderProcessor implements ProcessorInterface
 {
@@ -114,10 +114,6 @@ final class CheckoutOrderProcessor implements ProcessorInterface
 
             return $order;
         });
-
-        if (!$order instanceof Order) {
-            throw new \LogicException('The checkout transaction must return an order.');
-        }
 
         $this->eventDispatcher->dispatch(new OrderCreatedFromCartEvent($order));
 

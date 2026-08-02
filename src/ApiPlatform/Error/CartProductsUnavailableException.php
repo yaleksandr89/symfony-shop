@@ -36,7 +36,7 @@ final class CartProductsUnavailableException extends \RuntimeException implement
     private array $unavailableItems;
 
     /**
-     * @param list<array<string, mixed>> $unavailableItems
+     * @param array<array-key, array<string, mixed>> $unavailableItems
      */
     public function __construct(array $unavailableItems)
     {
@@ -79,19 +79,19 @@ final class CartProductsUnavailableException extends \RuntimeException implement
     }
 
     #[Groups(['json'])]
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return self::TITLE;
     }
 
     #[Groups(['json'])]
-    public function getStatus(): ?int
+    public function getStatus(): int
     {
         return 409;
     }
 
     #[Groups(['json'])]
-    public function getDetail(): ?string
+    public function getDetail(): string
     {
         return self::DETAIL;
     }

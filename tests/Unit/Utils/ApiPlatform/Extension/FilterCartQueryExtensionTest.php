@@ -113,7 +113,7 @@ class FilterCartQueryExtensionTest extends TestCase
 
     private function extension(?Request $request = null, ?UserInterface $user = null): FilterCartQueryExtension
     {
-        $security = $this->createMock(Security::class);
+        $security = $this->createStub(Security::class);
         $security->method('getUser')->willReturn($user);
 
         $requestStack = new RequestStack();
@@ -128,7 +128,7 @@ class FilterCartQueryExtensionTest extends TestCase
 
     private function queryBuilder(string $alias): QueryBuilder
     {
-        return (new QueryBuilder($this->createMock(EntityManagerInterface::class)))
+        return (new QueryBuilder($this->createStub(EntityManagerInterface::class)))
             ->select($alias)
             ->from(Cart::class, $alias);
     }

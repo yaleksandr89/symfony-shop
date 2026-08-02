@@ -46,7 +46,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass, $operation);
     }
@@ -57,7 +57,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         string $resourceClass,
         array $identifiers,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass, $operation);
     }
@@ -66,7 +66,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        ?Operation $operation
+        ?Operation $operation,
     ): void {
         if (Cart::class !== $resourceClass && CartProduct::class !== $resourceClass) {
             return;

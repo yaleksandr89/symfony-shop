@@ -255,7 +255,7 @@ class ProductControllerTest extends WebTestCase
         yield 'English' => ['en', 'Date range error', 'The "From" date cannot be later than the "To" date.'];
     }
 
-    #[DataProvider(methodName: 'provideProductEditLocales')]
+    #[DataProvider(methodName: 'provideProductAddLocales')]
     public function testAddUiIsLocalized(
         string $locale,
         string $pageTitle,
@@ -293,6 +293,13 @@ class ProductControllerTest extends WebTestCase
 
         foreach ($unexpected as $text) {
             self::assertStringNotContainsString($text, $card->text());
+        }
+    }
+
+    public static function provideProductAddLocales(): Generator
+    {
+        foreach (self::provideProductEditLocales() as $name => $arguments) {
+            yield $name => array_slice($arguments, 0, 9);
         }
     }
 

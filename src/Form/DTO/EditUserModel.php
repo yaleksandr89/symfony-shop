@@ -22,7 +22,7 @@ class EditUserModel
         public ?string $address = null,
         public ?int $zipCode = null,
         public ?bool $isDeleted = null,
-        public ?string $email = null
+        public ?string $email = null,
     ) {
     }
 

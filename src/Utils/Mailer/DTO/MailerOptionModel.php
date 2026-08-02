@@ -12,7 +12,7 @@ class MailerOptionModel
         private string $subject = '',
         private string $htmlTemplate = '',
         private array $context = [],
-        private string $text = ''
+        private string $text = '',
     ) {
     }
 

@@ -35,7 +35,7 @@ class InitDemoDataCommandTest extends KernelTestCase
     public function testCommandRefusesProductionBeforeInitialization(): void
     {
         self::bootKernel();
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = $this->createStub(KernelInterface::class);
         $kernel->method('getEnvironment')->willReturn('prod');
         $command = new InitDemoDataCommand(self::getContainer()->get(DemoDataInitializer::class), $kernel);
         $tester = new CommandTester($command);
