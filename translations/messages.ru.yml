@@ -143,6 +143,11 @@ personal_account.social_group.github: Гитхаб
 personal_account.social_group.integration_service: 'Сервис интеграции'
 personal_account.social_group.link: Привязать
 personal_account.social_group.unlink: Отвязать
+personal_account.social_group.oauth_unlink.title: Подтвердите отвязку
+personal_account.social_group.oauth_unlink.warning: 'Чтобы отвязать %provider%, подтвердите текущий пароль.'
+personal_account.social_group.oauth_unlink.current_password: Текущий пароль
+personal_account.social_group.oauth_unlink.submit: Отвязать аккаунт
+personal_account.social_group.oauth_unlink.cancel: Отмена
 'The social network has been successfully unlinked.': 'Социальная сеть успешно отвязана.'
 'The social network has been successfully linked.': 'Социальная сеть успешно привязана.'
 'You have already logged in to the site under the username of this social network': 'Под логином этой социальной сети уже авторизовались на сайте'

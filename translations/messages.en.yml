@@ -141,6 +141,11 @@ personal_account.social_group.github: Github
 personal_account.social_group.integration_service: 'Integration Service'
 personal_account.social_group.link: Link
 personal_account.social_group.unlink: Unlink
+personal_account.social_group.oauth_unlink.title: Confirm unlink
+personal_account.social_group.oauth_unlink.warning: 'To unlink %provider%, confirm your current password.'
+personal_account.social_group.oauth_unlink.current_password: Current password
+personal_account.social_group.oauth_unlink.submit: Unlink account
+personal_account.social_group.oauth_unlink.cancel: Cancel
 'The social network has been successfully unlinked.': 'The social network has been successfully unlinked.'
 'The social network has been successfully linked.': 'The social network has been successfully linked.'
 'You have already logged in to the site under the username of this social network': 'You have already logged in to the site under the username of this social network'

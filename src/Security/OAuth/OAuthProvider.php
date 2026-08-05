@@ -29,6 +29,25 @@ enum OAuthProvider: string
         };
     }
 
+    public function identityFamily(): string
+    {
+        return match ($this) {
+            self::Google => 'google',
+            self::Yandex => 'yandex',
+            self::Vkontakte => 'vkontakte',
+            self::GithubEn,
+            self::GithubRus => 'github',
+            self::Facebook,
+            self::Linkedin,
+            self::Mailru => 'unsupported',
+        };
+    }
+
+    public function isCurrentIdentityProvider(): bool
+    {
+        return 'unsupported' !== $this->identityFamily();
+    }
+
     public static function fromRoute(string $route): ?self
     {
         return match ($route) {

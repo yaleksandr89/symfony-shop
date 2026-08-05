@@ -73,7 +73,8 @@
                                         {% if app.user.googleId or oauth_provider_enabled('google') %}
                                             {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
                                                 'socialNameId': app.user.googleId,
-                                                'socialName': 'google'
+                                                'socialName': 'google',
+                                                'providerKey': 'google'
                                             } %}
                                         {% endif %}
                                     </td>
@@ -90,7 +91,8 @@
                                         {% if app.user.yandexId or oauth_provider_enabled('yandex') %}
                                             {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
                                                 'socialNameId': app.user.yandexId,
-                                                'socialName': 'yandex'
+                                                'socialName': 'yandex',
+                                                'providerKey': 'yandex'
                                             } %}
                                         {% endif %}
                                     </td>
@@ -107,7 +109,8 @@
                                         {% if app.user.vkontakteId or oauth_provider_enabled('vkontakte') %}
                                             {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
                                                 'socialNameId': app.user.vkontakteId,
-                                                'socialName': 'vkontakte'
+                                                'socialName': 'vkontakte',
+                                                'providerKey': 'vkontakte'
                                             } %}
                                         {% endif %}
                                     </td>
@@ -124,7 +127,8 @@
                                         {% if app.user.githubId or (app.request.locale == 'ru' and oauth_provider_enabled('github_rus')) or (app.request.locale == 'en' and oauth_provider_enabled('github_en')) %}
                                             {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
                                                 'socialNameId': app.user.githubId,
-                                                'socialName': 'github'
+                                                'socialName': 'github',
+                                                'providerKey': app.request.locale == 'ru' ? 'github_rus' : 'github_en'
                                             } %}
                                         {% endif %}
                                     </td>

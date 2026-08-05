@@ -86,7 +86,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
             self::assertSelectorNotExists('a[href="/ru/connect/yandex"]');
             self::assertSelectorNotExists('a[href="/ru/connect/vkontakte"]');
-            self::assertSelectorExists('a[href$="/ru/profile/unlink_social_network/google"]');
+            self::assertSelectorExists('a[href$="/ru/profile/oauth/google/unlink"]');
         } finally {
             $user->setGoogleId(null);
             $entityManager->flush();
