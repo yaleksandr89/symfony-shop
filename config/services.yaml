@@ -55,5 +55,33 @@ services:
       - { name: kernel.event_listener, event: kernel.request, method: onEarlyKernelRequest, priority: 28 }
       - { name: kernel.event_listener, event: kernel.request, method: onPostReadKernelRequest, priority: 3 }
       - { name: kernel.event_listener, event: kernel.request, method: onPostDeserializeKernelRequest, priority: 1 }
+
+  App\Security\OAuth\OAuthProviderAvailability:
+    arguments:
+      $enabled:
+        google: '%env(bool:OAUTH_GOOGLE_ENABLED)%'
+        yandex: '%env(bool:OAUTH_YANDEX_ENABLED)%'
+        vkontakte: '%env(bool:OAUTH_VK_ENABLED)%'
+        github_en: '%env(bool:OAUTH_GITHUB_EN_ENABLED)%'
+        github_rus: '%env(bool:OAUTH_GITHUB_RUS_ENABLED)%'
+        facebook: '%env(bool:OAUTH_FACEBOOK_ENABLED)%'
+        linkedin: '%env(bool:OAUTH_LINKEDIN_ENABLED)%'
+        mailru: '%env(bool:OAUTH_MAILRU_ENABLED)%'
+      $credentials:
+        google:
+          clientId: '%env(OAUTH_GOOGLE_ID)%'
+          clientSecret: '%env(OAUTH_GOOGLE_SECRET)%'
+        yandex:
+          clientId: '%env(OAUTH_YANDEX_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_YANDEX_CLIENT_SECRET)%'
+        vkontakte:
+          clientId: '%env(OAUTH_VK_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_VK_CLIENT_SECRET)%'
+        github_en:
+          clientId: '%env(OAUTH_GITHUB_EN_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_GITHUB_EN_CLIENT_SECRET)%'
+        github_rus:
+          clientId: '%env(OAUTH_GITHUB_RUS_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_GITHUB_RUS_CLIENT_SECRET)%'
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

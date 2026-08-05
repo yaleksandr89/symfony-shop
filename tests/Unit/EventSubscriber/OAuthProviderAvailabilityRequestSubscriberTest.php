@@ -1,0 +1,133 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Unit\EventSubscriber;
+
+use App\EventSubscriber\OAuthProviderAvailabilityRequestSubscriber;
+use App\Security\OAuth\OAuthProvider;
+use App\Security\OAuth\OAuthProviderAvailability;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
+{
+    #[DataProvider('currentRoutes')]
+    public function testDisabledMappedRoutesAreNotFound(string $route, OAuthProvider $provider): void
+    {
+        $subscriber = new OAuthProviderAvailabilityRequestSubscriber($this->availability());
+
+        $this->expectException(NotFoundHttpException::class);
+        $subscriber->onKernelRequest($this->event($route));
+    }
+
+    #[DataProvider('currentRoutes')]
+    public function testConfiguredEnabledMappedRoutesPass(string $route, OAuthProvider $provider): void
+    {
+        $subscriber = new OAuthProviderAvailabilityRequestSubscriber(
+            $this->availability([$provider->value => true])
+        );
+
+        $subscriber->onKernelRequest($this->event($route));
+
+        self::assertTrue(true);
+    }
+
+    public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void
+    {
+        $subscriber = new OAuthProviderAvailabilityRequestSubscriber(
+            new OAuthProviderAvailability(
+                [OAuthProvider::Yandex->value => true],
+                [OAuthProvider::Yandex->value => ['clientId' => '', 'clientSecret' => '']]
+            )
+        );
+
+        try {
+            $subscriber->onKernelRequest($this->event('connect_yandex_start'));
+            self::fail('Missing credentials must stop the route before the controller.');
+        } catch (HttpException $exception) {
+            self::assertSame(500, $exception->getStatusCode());
+            self::assertSame('OAuth provider "yandex" is enabled but not configured.', $exception->getMessage());
+        }
+    }
+
+    #[DataProvider('ignoredRoutes')]
+    public function testUnrelatedAndUnlinkRoutesAreIgnored(string $route): void
+    {
+        (new OAuthProviderAvailabilityRequestSubscriber($this->availability()))
+            ->onKernelRequest($this->event($route));
+
+        self::assertTrue(true);
+    }
+
+    public function testSubrequestIsIgnored(): void
+    {
+        (new OAuthProviderAvailabilityRequestSubscriber($this->availability()))
+            ->onKernelRequest($this->event('connect_google_check', HttpKernelInterface::SUB_REQUEST));
+
+        self::assertTrue(true);
+    }
+
+    public function testOnlyCurrentImplementedRoutesAreMapped(): void
+    {
+        self::assertNull(OAuthProvider::fromRoute('connect_facebook_start'));
+        self::assertNull(OAuthProvider::fromRoute('connect_linkedin_check'));
+        self::assertNull(OAuthProvider::fromRoute('connect_mailru_start'));
+        self::assertSame(
+            [KernelEvents::REQUEST => ['onKernelRequest', 16]],
+            OAuthProviderAvailabilityRequestSubscriber::getSubscribedEvents()
+        );
+    }
+
+    /** @return iterable<string, array{string, OAuthProvider}> */
+    public static function currentRoutes(): iterable
+    {
+        yield 'google start' => ['connect_google_start', OAuthProvider::Google];
+        yield 'google callback' => ['connect_google_check', OAuthProvider::Google];
+        yield 'yandex start' => ['connect_yandex_start', OAuthProvider::Yandex];
+        yield 'yandex callback' => ['connect_yandex_check', OAuthProvider::Yandex];
+        yield 'vkontakte start' => ['connect_vkontakte_start', OAuthProvider::Vkontakte];
+        yield 'vkontakte callback' => ['connect_vkontakte_check', OAuthProvider::Vkontakte];
+        yield 'GitHub EN start' => ['connect_github_en_start', OAuthProvider::GithubEn];
+        yield 'GitHub EN callback' => ['connect_github_en_check', OAuthProvider::GithubEn];
+        yield 'GitHub RU start' => ['connect_github_ru_start', OAuthProvider::GithubRus];
+        yield 'GitHub RU callback' => ['connect_github_ru_check', OAuthProvider::GithubRus];
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function ignoredRoutes(): iterable
+    {
+        yield 'unrelated route' => ['main_homepage'];
+        yield 'unlink route' => ['main_profile_unlink_social_network'];
+    }
+
+    /** @param array<string, bool> $enabled */
+    private function availability(array $enabled = []): OAuthProviderAvailability
+    {
+        $credentials = [];
+        foreach (OAuthProvider::cases() as $provider) {
+            if ($provider->isImplemented()) {
+                $credentials[$provider->value] = [
+                    'clientId' => $provider->value.'-id',
+                    'clientSecret' => $provider->value.'-secret',
+                ];
+            }
+        }
+
+        return new OAuthProviderAvailability($enabled, $credentials);
+    }
+
+    private function event(string $route, int $requestType = HttpKernelInterface::MAIN_REQUEST): RequestEvent
+    {
+        $request = Request::create('/');
+        $request->attributes->set('_route', $route);
+
+        return new RequestEvent($this->createMock(HttpKernelInterface::class), $request, $requestType);
+    }
+}

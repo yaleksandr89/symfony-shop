@@ -1,33 +1,48 @@
-<div class="form-additional mt-2 pt-1">
-    <div class="row">
-        <div class="col-sm-12 text-center">
-            <a href="{{ path('connect_google_start') }}" class="btn btn-link btn-dark mb-1">
-                {{ 'login_social_network.google'|trans }}
-            </a>
-        </div>
-        <div class="col-sm-12 text-center">
-            <a href="{{ path('connect_yandex_start') }}" class="btn btn-link btn-dark mb-1">
-                {{ 'login_social_network.yandex'|trans }}
-            </a>
-        </div>
-        <div class="col-sm-12 text-center">
-            <a href="{{ path('connect_vkontakte_start') }}" class="btn btn-link btn-dark mb-1">
-                {{ 'login_social_network.vk'|trans }}
-            </a>
-        </div>
-        {% if app.request.locale == 'ru' %}
+{% set googleEnabled = oauth_provider_enabled('google') %}
+{% set yandexEnabled = oauth_provider_enabled('yandex') %}
+{% set vkontakteEnabled = oauth_provider_enabled('vkontakte') %}
+{% set githubRusEnabled = app.request.locale == 'ru' and oauth_provider_enabled('github_rus') %}
+{% set githubEnEnabled = app.request.locale == 'en' and oauth_provider_enabled('github_en') %}
+{% set hasEnabledProvider = googleEnabled or yandexEnabled or vkontakteEnabled or githubRusEnabled or githubEnEnabled %}
+
+{% if hasEnabledProvider %}
+    <div class="form-additional mt-2 pt-1">
+        <div class="row">
+        {% if googleEnabled %}
+            <div class="col-sm-12 text-center">
+                <a href="{{ path('connect_google_start') }}" class="btn btn-link btn-dark mb-1">
+                    {{ 'login_social_network.google'|trans }}
+                </a>
+            </div>
+        {% endif %}
+        {% if yandexEnabled %}
+            <div class="col-sm-12 text-center">
+                <a href="{{ path('connect_yandex_start') }}" class="btn btn-link btn-dark mb-1">
+                    {{ 'login_social_network.yandex'|trans }}
+                </a>
+            </div>
+        {% endif %}
+        {% if vkontakteEnabled %}
+            <div class="col-sm-12 text-center">
+                <a href="{{ path('connect_vkontakte_start') }}" class="btn btn-link btn-dark mb-1">
+                    {{ 'login_social_network.vk'|trans }}
+                </a>
+            </div>
+        {% endif %}
+        {% if githubRusEnabled %}
             <div class="col-sm-12 text-center">
                 <a href="{{ path('connect_github_ru_start') }}" class="btn btn-link btn-dark mb-">
                     {{ 'login_social_network.github'|trans }}
                 </a>
             </div>
         {% endif %}
-        {% if app.request.locale == 'en' %}
+        {% if githubEnEnabled %}
             <div class="col-sm-12 text-center">
                 <a href="{{ path('connect_github_en_start') }}" class="btn btn-link btn-dark mb-">
                     {{ 'login_social_network.github'|trans }}
                 </a>
             </div>
         {% endif %}
+        </div>
     </div>
-</div>
+{% endif %}
