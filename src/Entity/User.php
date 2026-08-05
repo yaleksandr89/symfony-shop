@@ -58,16 +58,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[OneToMany(mappedBy: 'owner', targetEntity: Order::class)]
     protected Collection $orders;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $googleId;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $yandexId;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $vkontakteId;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $githubId;
 
     public function __construct()
