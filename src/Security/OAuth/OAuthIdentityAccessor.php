@@ -31,4 +31,28 @@ final class OAuthIdentityAccessor
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
+
+    public function link(User $user, OAuthProvider $provider, string $externalId): void
+    {
+        match ($provider) {
+            OAuthProvider::Google => $user->setGoogleId($externalId),
+            OAuthProvider::Yandex => $user->setYandexId($externalId),
+            OAuthProvider::Vkontakte => $user->setVkontakteId($externalId),
+            OAuthProvider::GithubEn,
+            OAuthProvider::GithubRus => $user->setGithubId($externalId),
+            default => throw new \LogicException('Unsupported OAuth identity provider.'),
+        };
+    }
+
+    public function identityField(OAuthProvider $provider): string
+    {
+        return match ($provider) {
+            OAuthProvider::Google => 'googleId',
+            OAuthProvider::Yandex => 'yandexId',
+            OAuthProvider::Vkontakte => 'vkontakteId',
+            OAuthProvider::GithubEn,
+            OAuthProvider::GithubRus => 'githubId',
+            default => throw new \LogicException('Unsupported OAuth identity provider.'),
+        };
+    }
 }

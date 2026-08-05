@@ -146,6 +146,12 @@ personal_account.social_group.oauth_unlink.warning: 'To unlink %provider%, confi
 personal_account.social_group.oauth_unlink.current_password: Current password
 personal_account.social_group.oauth_unlink.submit: Unlink account
 personal_account.social_group.oauth_unlink.cancel: Cancel
+personal_account.social_group.oauth_link.title: 'Confirm account linking'
+personal_account.social_group.oauth_link.warning: 'To link %provider%, confirm your current password. You will then continue to the provider.'
+personal_account.social_group.oauth_link.current_password: 'Current password'
+personal_account.social_group.oauth_link.submit: 'Continue to provider'
+personal_account.social_group.oauth_link.cancel: Cancel
+personal_account.social_group.oauth_link.failure: 'The social account could not be linked.'
 'The social network has been successfully unlinked.': 'The social network has been successfully unlinked.'
 'The social network has been successfully linked.': 'The social network has been successfully linked.'
 'You have already logged in to the site under the username of this social network': 'You have already logged in to the site under the username of this social network'

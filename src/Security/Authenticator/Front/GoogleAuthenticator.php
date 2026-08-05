@@ -6,6 +6,7 @@ namespace App\Security\Authenticator\Front;
 
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
+use App\Security\OAuth\OAuthCallbackModeResolver;
 use App\Security\OAuth\OAuthUserResolver;
 use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
 use App\Utils\Factory\UserFactory;
@@ -25,6 +26,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -43,10 +45,19 @@ class GoogleAuthenticator extends OAuth2Authenticator
     ) {
     }
 
+    private OAuthCallbackModeResolver $callbackModeResolver;
+
+    #[Required]
+    public function setCallbackModeResolver(OAuthCallbackModeResolver $callbackModeResolver): void
+    {
+        $this->callbackModeResolver = $callbackModeResolver;
+    }
+
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_google_check' === $request->attributes->get('_route');
+        return 'connect_google_check' === $request->attributes->get('_route')
+            && $this->callbackModeResolver->useOrdinaryAuthenticator();
     }
 
     public function authenticate(Request $request): Passport

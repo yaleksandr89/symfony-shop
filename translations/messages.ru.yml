@@ -148,6 +148,12 @@ personal_account.social_group.oauth_unlink.warning: 'Чтобы отвязать
 personal_account.social_group.oauth_unlink.current_password: Текущий пароль
 personal_account.social_group.oauth_unlink.submit: Отвязать аккаунт
 personal_account.social_group.oauth_unlink.cancel: Отмена
+personal_account.social_group.oauth_link.title: 'Подтвердите привязку'
+personal_account.social_group.oauth_link.warning: 'Чтобы привязать %provider%, подтвердите текущий пароль. Затем вы перейдёте на сайт провайдера.'
+personal_account.social_group.oauth_link.current_password: 'Текущий пароль'
+personal_account.social_group.oauth_link.submit: 'Продолжить у провайдера'
+personal_account.social_group.oauth_link.cancel: Отмена
+personal_account.social_group.oauth_link.failure: 'Не удалось привязать аккаунт социальной сети.'
 'The social network has been successfully unlinked.': 'Социальная сеть успешно отвязана.'
 'The social network has been successfully linked.': 'Социальная сеть успешно привязана.'
 'You have already logged in to the site under the username of this social network': 'Под логином этой социальной сети уже авторизовались на сайте'

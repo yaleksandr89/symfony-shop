@@ -6,15 +6,9 @@
         {{ 'personal_account.social_group.unlink'|trans }}
     </a>
 {% else %}
-    {% if 'github' != socialName %}
-        <a class="social-group social-group--link" href="{{ path('connect_'~ socialName ~'_start') }}">
-            {{ 'personal_account.social_group.link'|trans }}
-        </a>
-    {% else %}
-        <a class="social-group social-group--link" href="{{ path('connect_'~ socialName ~ '_' ~ app.request.locale ~'_start') }}">
-            {{ 'personal_account.social_group.link'|trans }}
-        </a>
-    {% endif %}
+    <a class="social-group social-group--link" href="{{ path('main_profile_link_social_network', {'provider': providerKey}) }}">
+        {{ 'personal_account.social_group.link'|trans }}
+    </a>
     <span class="social-group social-group--unlink">
         {{ 'personal_account.social_group.unlink'|trans }}
     </span>

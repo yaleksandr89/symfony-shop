@@ -107,6 +107,32 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertTrue($client->getResponse()->isRedirect());
     }
 
+    public function testEnabledUnlinkedProfileProviderUsesExplicitConfirmationWhileLoginUsesPublicStart(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
+            [OAuthProvider::Yandex->value => true],
+            [OAuthProvider::Yandex->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+        ));
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        self::assertInstanceOf(User::class, $user);
+        $client->loginUser($user, 'website');
+
+        $client->request('GET', '/ru/profile');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href="/ru/profile/oauth/yandex/link"]');
+        self::assertSelectorNotExists('a[href="/ru/connect/yandex"]');
+
+        $client->request('GET', '/ru/logout');
+        self::assertTrue($client->getResponse()->isRedirect());
+        $client->followRedirect();
+        $client->request('GET', '/ru/login');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href="/ru/connect/yandex"]');
+    }
+
     public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void
     {
         $client = self::createClient(['debug' => false]);
