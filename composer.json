@@ -16,7 +16,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "aego/oauth2-yandex": "^0.2.2",
         "api-platform/core": "~4.3.17",
         "doctrine/dbal": "~4.4.0",
         "doctrine/doctrine-bundle": "^3.3",
@@ -69,7 +68,8 @@
         "twig/extra-bundle": "^2.0|^3.0",
         "twig/inky-extra": "^3.0",
         "twig/intl-extra": "^3.0",
-        "twig/twig": "^2.0|^3.0"
+        "twig/twig": "^2.0|^3.0",
+        "yaleksandr89/oauth2-yandex": "^1.0"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.6",

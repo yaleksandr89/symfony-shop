@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Authenticator\Front;
 
-use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
 use App\Event\UserLoggedInViaSocialNetworkEvent;
 use App\Security\OAuth\OAuthUserResolver;
@@ -22,11 +21,13 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
 class YandexAuthenticator extends OAuth2Authenticator
 {
@@ -60,7 +61,11 @@ class YandexAuthenticator extends OAuth2Authenticator
                 $session = $request->getSession();
                 /** @var YandexResourceOwner $yandexUser */
                 $yandexUser = $client->fetchUserFromToken($accessToken);
-                $email = $yandexUser->getEmail();
+                $email = trim($yandexUser->getDefaultEmail() ?? '');
+
+                if ('' === $email) {
+                    throw new CustomUserMessageAuthenticationException('Unable to authenticate with this provider.');
+                }
 
                 if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
                     $session
@@ -77,7 +82,7 @@ class YandexAuthenticator extends OAuth2Authenticator
                     OAuthUserResolver::PROVIDER_YANDEX,
                     $yandexUser->getId(),
                     $email,
-                    static fn (): User => UserFactory::createUserFromYandex($yandexUser)
+                    static fn (): User => UserFactory::createUserFromYandex($yandexUser, $email)
                 );
                 $user = $resolution->user();
 

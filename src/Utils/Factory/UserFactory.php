@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Utils\Factory;
 
-use Aego\OAuth2\Client\Provider\YandexResourceOwner;
 use App\Entity\User;
 use App\Utils\Oauth2\Vk\VkUser;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use League\OAuth2\Client\Provider\GoogleUser;
+use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
 class UserFactory
 {
@@ -23,11 +23,11 @@ class UserFactory
         return $user;
     }
 
-    public static function createUserFromYandex(YandexResourceOwner $yandexUser): User
+    public static function createUserFromYandex(YandexResourceOwner $yandexUser, string $email): User
     {
         $user = new User();
-        $user->setEmail($yandexUser->getEmail());
-        $user->setFullName($yandexUser->getName());
+        $user->setEmail($email);
+        $user->setFullName($yandexUser->getRealName() ?? $yandexUser->getDisplayName() ?? $yandexUser->getLogin());
         $user->setYandexId($yandexUser->getId());
         // $user->setIsVerified(true);
 

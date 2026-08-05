@@ -4,52 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d067809a551fc54fe5afd68aae6c297",
+    "content-hash": "26a4266af2be1f392f18ea62e827034c",
     "packages": [
-        {
-            "name": "aego/oauth2-yandex",
-            "version": "0.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rakeev/oauth2-yandex.git",
-                "reference": "a61fa07d4c23ea9f8065f952faf4cc6712aea142"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rakeev/oauth2-yandex/zipball/a61fa07d4c23ea9f8065f952faf4cc6712aea142",
-                "reference": "a61fa07d4c23ea9f8065f952faf4cc6712aea142",
-                "shasum": ""
-            },
-            "require": {
-                "league/oauth2-client": "^2.0 || ^1.4",
-                "php": ">=5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Aego\\OAuth2\\Client\\Provider\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alexey Rakeev",
-                    "email": "alexey@rakeev.name"
-                }
-            ],
-            "description": "Yandex provider for league/oauth2-client",
-            "support": {
-                "issues": "https://github.com/rakeev/oauth2-yandex/issues",
-                "source": "https://github.com/rakeev/oauth2-yandex/tree/master"
-            },
-            "time": "2018-01-31T06:23:53+00:00"
-        },
         {
             "name": "api-platform/core",
             "version": "v4.3.17",
@@ -10121,6 +10077,77 @@
                 "source": "https://github.com/willdurand/Negotiation/tree/3.1.0"
             },
             "time": "2022-01-30T20:08:53+00:00"
+        },
+        {
+            "name": "yaleksandr89/oauth2-yandex",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yaleksandr89/oauth2-yandex.git",
+                "reference": "f0bd8ac4ffcd31ed703a33377dcef590981f8b47"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yaleksandr89/oauth2-yandex/zipball/f0bd8ac4ffcd31ed703a33377dcef590981f8b47",
+                "reference": "f0bd8ac4ffcd31ed703a33377dcef590981f8b47",
+                "shasum": ""
+            },
+            "require": {
+                "league/oauth2-client": "^2.9",
+                "php": "^8.3",
+                "psr/http-message": "^1.1 || ^2.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.9",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^12.5",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Yaleksandr\\OAuth2\\Client\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Александр Юрченко",
+                    "homepage": "https://github.com/yaleksandr89",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Yandex ID OAuth 2.0 provider client for league/oauth2-client.",
+            "homepage": "https://github.com/yaleksandr89/oauth2-yandex",
+            "keywords": [
+                "Authentication",
+                "authorization",
+                "oauth",
+                "oauth2",
+                "oauth2-client",
+                "yandex",
+                "yandex-id"
+            ],
+            "support": {
+                "forum": "https://github.com/yaleksandr89/oauth2-yandex/discussions",
+                "issues": "https://github.com/yaleksandr89/oauth2-yandex/issues",
+                "security": "https://github.com/yaleksandr89/oauth2-yandex/security/policy",
+                "source": "https://github.com/yaleksandr89/oauth2-yandex"
+            },
+            "funding": [
+                {
+                    "url": "https://boosty.to/backendbezpafosa",
+                    "type": "other"
+                },
+                {
+                    "url": "https://sponsr.ru/backendbezpafosa/",
+                    "type": "other"
+                }
+            ],
+            "time": "2026-08-04T22:43:16+00:00"
         }
     ],
     "packages-dev": [
