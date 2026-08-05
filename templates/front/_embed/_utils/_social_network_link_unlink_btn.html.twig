@@ -1,15 +1,9 @@
 {% if socialNameId %}
-    <span class="social-group social-group--unlink">
-        {{ 'personal_account.social_group.link'|trans }}
-    </span>
-    <a class="social-group social-group--link" href="{{ path('main_profile_unlink_social_network', {'provider': providerKey}) }}">
+    <a class="social-group social-group--unlink btn btn-sm btn-outline-danger" href="{{ path('main_profile_unlink_social_network', {'provider': providerKey}) }}">
         {{ 'personal_account.social_group.unlink'|trans }}
     </a>
 {% else %}
-    <a class="social-group social-group--link" href="{{ path('main_profile_link_social_network', {'provider': providerKey}) }}">
+    <a class="social-group social-group--link btn btn-sm btn-outline-success" href="{{ path('main_profile_link_social_network', {'provider': providerKey}) }}">
         {{ 'personal_account.social_group.link'|trans }}
     </a>
-    <span class="social-group social-group--unlink">
-        {{ 'personal_account.social_group.unlink'|trans }}
-    </span>
 {% endif %}

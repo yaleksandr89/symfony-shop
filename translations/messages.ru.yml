@@ -17,6 +17,7 @@ login_form.create_account: 'Создать Аккаунт'
 login_form.reset_password: 'Сбросить пароль'
 login_form.placeholder.email: 'Пожалуйста, введите свой адрес электронной почты'
 login_form.placeholder.password: 'Пожалуйста, введите свой пароль'
+oauth.authentication.failure: 'Не удалось выполнить вход через социальную сеть. Войдите другим способом и при необходимости привяжите её в профиле.'
 personal_account.head: 'Добро пожаловать в ЛК'
 personal_account.labels.email: 'Адрес электронной почты'
 personal_account.labels.full_name: ФИО

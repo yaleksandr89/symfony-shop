@@ -9,9 +9,8 @@ use App\Entity\User;
 final class OAuthUserResolution
 {
     public function __construct(
-        private User $user,
-        private bool $newUser,
-        private bool $requiresFlush,
+        private readonly User $user,
+        private readonly bool $newUser,
     ) {
     }
 
@@ -23,10 +22,5 @@ final class OAuthUserResolution
     public function isNewUser(): bool
     {
         return $this->newUser;
-    }
-
-    public function requiresFlush(): bool
-    {
-        return $this->requiresFlush;
     }
 }

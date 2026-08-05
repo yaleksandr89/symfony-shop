@@ -6,59 +6,58 @@ namespace App\Security\OAuth;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\Security\UserChecker\DeletedUserChecker;
-use InvalidArgumentException;
 
 final class OAuthUserResolver
 {
-    public const PROVIDER_GOOGLE = 'google';
-    public const PROVIDER_YANDEX = 'yandex';
-    public const PROVIDER_VKONTAKTE = 'vkontakte';
-    public const PROVIDER_GITHUB_EN = 'github_en';
-    public const PROVIDER_GITHUB_RUS = 'github_rus';
-
-    private const PROVIDER_SOCIAL_ID_FIELDS = [
-        self::PROVIDER_GOOGLE => ['googleId', 'setGoogleId'],
-        self::PROVIDER_YANDEX => ['yandexId', 'setYandexId'],
-        self::PROVIDER_VKONTAKTE => ['vkontakteId', 'setVkontakteId'],
-        self::PROVIDER_GITHUB_EN => ['githubId', 'setGithubId'],
-        self::PROVIDER_GITHUB_RUS => ['githubId', 'setGithubId'],
-    ];
-
     public function __construct(
-        private UserRepository $userRepository,
-        private DeletedUserChecker $deletedUserChecker,
+        private readonly UserRepository $userRepository,
+        private readonly DeletedUserChecker $deletedUserChecker,
+        private readonly OAuthIdentityAccessor $identityAccessor,
     ) {
     }
 
     /**
      * @param callable(): User $newUserFactory
      */
-    public function resolve(string $provider, string $externalId, string $email, callable $newUserFactory): OAuthUserResolution
+    public function resolve(OAuthProvider $provider, mixed $externalId, ?string $email, callable $newUserFactory): OAuthUserResolution
     {
-        if (!isset(self::PROVIDER_SOCIAL_ID_FIELDS[$provider])) {
-            throw new InvalidArgumentException(sprintf('Unknown OAuth provider "%s".', $provider));
+        if (!$provider->isImplemented()) {
+            throw new OAuthLoginDeniedException();
         }
 
-        [$socialIdField, $socialIdSetter] = self::PROVIDER_SOCIAL_ID_FIELDS[$provider];
+        $externalId = is_scalar($externalId) || $externalId instanceof \Stringable ? trim((string) $externalId) : '';
+        if ('' === $externalId) {
+            throw new OAuthLoginDeniedException();
+        }
 
-        $user = $this->userRepository->findOneBy([$socialIdField => $externalId]);
+        $user = $this->userRepository->findOneBy([
+            $this->identityAccessor->identityField($provider) => $externalId,
+        ]);
 
         if ($user instanceof User) {
             $this->deletedUserChecker->checkPreAuth($user);
 
-            return new OAuthUserResolution($user, false, false);
+            return new OAuthUserResolution($user, false);
+        }
+
+        $email = trim($email ?? '');
+        if ('' === $email) {
+            throw new OAuthLoginDeniedException();
         }
 
         $user = $this->userRepository->findOneBy(['email' => $email]);
 
         if ($user instanceof User) {
-            $this->deletedUserChecker->checkPreAuth($user);
-            $user->{$socialIdSetter}($externalId);
-
-            return new OAuthUserResolution($user, false, true);
+            throw new OAuthLoginDeniedException();
         }
 
-        return new OAuthUserResolution($newUserFactory(), true, true);
+        $user = $newUserFactory();
+        $user->setEmail($email);
+        $this->identityAccessor->link($user, $provider, $externalId);
+        $user->setIsVerified(false);
+
+        return new OAuthUserResolution($user, true);
     }
 }

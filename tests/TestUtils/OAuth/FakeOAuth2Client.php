@@ -7,6 +7,7 @@ namespace App\Tests\TestUtils\OAuth;
 use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,7 +21,7 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
 
     public function __construct(
         private readonly RequestStack $requestStack,
-        private readonly FakeOAuthResourceOwner $resourceOwner,
+        private readonly ResourceOwnerInterface $resourceOwner,
         private readonly string $state = 'fake-oauth-state',
     ) {
     }
@@ -50,14 +51,14 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
         return new AccessToken(['access_token' => 'fake-token']);
     }
 
-    public function fetchUserFromToken(AccessToken $accessToken): FakeOAuthResourceOwner
+    public function fetchUserFromToken(AccessToken $accessToken): ResourceOwnerInterface
     {
         ++$this->userInfoRequests;
 
         return $this->resourceOwner;
     }
 
-    public function fetchUser(): FakeOAuthResourceOwner
+    public function fetchUser(): ResourceOwnerInterface
     {
         return $this->fetchUserFromToken($this->getAccessToken());
     }

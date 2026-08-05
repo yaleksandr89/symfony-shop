@@ -86,7 +86,37 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
             self::assertSelectorNotExists('a[href="/ru/connect/yandex"]');
             self::assertSelectorNotExists('a[href="/ru/connect/vkontakte"]');
-            self::assertSelectorExists('a[href$="/ru/profile/oauth/google/unlink"]');
+            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/google/unlink"]');
+            self::assertSelectorTextContains('a[href="/ru/profile/oauth/google/unlink"]', 'Отвязать');
+            self::assertSelectorNotExists('a[href="/ru/profile/oauth/google/link"]');
+        } finally {
+            $user->setGoogleId(null);
+            $entityManager->flush();
+        }
+    }
+
+    public function testEnabledLinkedProfileProviderRendersOnlyUnlinkAction(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
+            [OAuthProvider::Google->value => true],
+            [OAuthProvider::Google->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+        ));
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        self::assertInstanceOf(User::class, $user);
+        $user->setGoogleId('already-linked-google-id');
+        $entityManager->flush();
+
+        try {
+            $client->loginUser($user, 'website');
+            $client->request('GET', '/ru/profile');
+
+            self::assertResponseIsSuccessful();
+            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/google/unlink"]');
+            self::assertSelectorTextContains('a[href="/ru/profile/oauth/google/unlink"]', 'Отвязать');
+            self::assertSelectorNotExists('a[href="/ru/profile/oauth/google/link"]');
         } finally {
             $user->setGoogleId(null);
             $entityManager->flush();
@@ -122,7 +152,9 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
 
         $client->request('GET', '/ru/profile');
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('a[href="/ru/profile/oauth/yandex/link"]');
+        self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/yandex/link"]');
+        self::assertSelectorTextContains('a[href="/ru/profile/oauth/yandex/link"]', 'Привязать');
+        self::assertSelectorNotExists('a[href="/ru/profile/oauth/yandex/unlink"]');
         self::assertSelectorNotExists('a[href="/ru/connect/yandex"]');
 
         $client->request('GET', '/ru/logout');
