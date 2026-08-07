@@ -67,12 +67,12 @@ final class OAuthIdentityAccessorTest extends TestCase
         yield 'Vkontakte' => [OAuthProvider::Vkontakte, 'vkontakte-id'];
         yield 'Github EN' => [OAuthProvider::GithubEn, 'github-id'];
         yield 'Github RU' => [OAuthProvider::GithubRus, 'github-id'];
+        yield 'Facebook' => [OAuthProvider::Facebook, 'facebook-id'];
     }
 
     /** @return iterable<string, array{OAuthProvider}> */
     public static function unsupportedProviders(): iterable
     {
-        yield 'Facebook' => [OAuthProvider::Facebook];
         yield 'Linkedin' => [OAuthProvider::Linkedin];
         yield 'Mailru' => [OAuthProvider::Mailru];
     }
@@ -84,6 +84,7 @@ final class OAuthIdentityAccessorTest extends TestCase
         $user->setYandexId('yandex-id');
         $user->setVkontakteId('vkontakte-id');
         $user->setGithubId('github-id');
+        $user->setFacebookId('facebook-id');
 
         return $user;
     }
@@ -96,6 +97,7 @@ final class OAuthIdentityAccessorTest extends TestCase
             'yandex' => $user->getYandexId(),
             'vkontakte' => $user->getVkontakteId(),
             'github' => $user->getGithubId(),
+            'facebook' => $user->getFacebookId(),
         ];
     }
 
@@ -107,6 +109,7 @@ final class OAuthIdentityAccessorTest extends TestCase
             'yandex' => 'yandex-id',
             'vkontakte' => 'vkontakte-id',
             'github' => 'github-id',
+            'facebook' => 'facebook-id',
         ];
         $identities[$provider->identityFamily()] = null;
 

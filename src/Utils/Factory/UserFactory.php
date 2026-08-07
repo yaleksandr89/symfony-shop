@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Utils\Factory;
 
 use App\Entity\User;
+use App\Utils\Oauth2\Facebook\FacebookUser;
 use App\Utils\Oauth2\Vk\VkUser;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use League\OAuth2\Client\Provider\GoogleUser;
@@ -52,6 +53,16 @@ class UserFactory
         $user->setFullName($githubUser->getName());
         $user->setGithubId((string) $githubUser->getId());
         // $user->setIsVerified(true);
+
+        return $user;
+    }
+
+    public static function createUserFromFacebook(FacebookUser $facebookUser, string $email): User
+    {
+        $user = new User();
+        $user->setEmail($email);
+        $user->setFullName($facebookUser->getName());
+        $user->setFacebookId($facebookUser->getId());
 
         return $user;
     }

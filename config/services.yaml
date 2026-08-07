@@ -83,5 +83,8 @@ services:
         github_rus:
           clientId: '%env(OAUTH_GITHUB_RUS_CLIENT_ID)%'
           clientSecret: '%env(OAUTH_GITHUB_RUS_CLIENT_SECRET)%'
+        facebook:
+          clientId: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

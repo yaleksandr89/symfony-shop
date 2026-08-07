@@ -137,6 +137,20 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertTrue($client->getResponse()->isRedirect());
     }
 
+    public function testConfiguredEnabledFacebookReachesVersionedStartFlowWithoutNetworkRequest(): void
+    {
+        $client = self::createClient();
+        self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
+            [OAuthProvider::Facebook->value => true],
+            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+        ));
+
+        $client->request('GET', '/ru/connect/facebook');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        self::assertStringStartsWith('https://www.facebook.com/v26.0/dialog/oauth?', (string) $client->getResponse()->headers->get('Location'));
+    }
+
     public function testEnabledUnlinkedProfileProviderUsesExplicitConfirmationWhileLoginUsesPublicStart(): void
     {
         $client = self::createClient();
@@ -188,6 +202,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
 
     /** @var list<string> */
     private const START_PATHS = [
+        '/connect/facebook',
         '/connect/google',
         '/connect/yandex',
         '/connect/vkontakte',
@@ -197,6 +212,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
 
     /** @var list<string> */
     private const CALLBACK_PATHS = [
+        '/connect/facebook/check',
         '/connect/google/check',
         '/connect/yandex/check',
         '/connect/vkontakte/check',

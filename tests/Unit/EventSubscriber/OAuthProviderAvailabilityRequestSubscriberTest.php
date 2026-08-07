@@ -76,7 +76,6 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 
     public function testOnlyCurrentImplementedRoutesAreMapped(): void
     {
-        self::assertNull(OAuthProvider::fromRoute('connect_facebook_start'));
         self::assertNull(OAuthProvider::fromRoute('connect_linkedin_check'));
         self::assertNull(OAuthProvider::fromRoute('connect_mailru_start'));
         self::assertSame(
@@ -98,6 +97,8 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
         yield 'GitHub EN callback' => ['connect_github_en_check', OAuthProvider::GithubEn];
         yield 'GitHub RU start' => ['connect_github_ru_start', OAuthProvider::GithubRus];
         yield 'GitHub RU callback' => ['connect_github_ru_check', OAuthProvider::GithubRus];
+        yield 'Facebook start' => ['connect_facebook_start', OAuthProvider::Facebook];
+        yield 'Facebook callback' => ['connect_facebook_check', OAuthProvider::Facebook];
     }
 
     /** @return iterable<string, array{string}> */

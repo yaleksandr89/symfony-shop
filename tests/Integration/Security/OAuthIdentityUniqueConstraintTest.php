@@ -36,6 +36,7 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
     #[TestWith(['yandex'])]
     #[TestWith(['vkontakte'])]
     #[TestWith(['github'])]
+    #[TestWith(['facebook'])]
     public function testProviderExternalIdMustBeUnique(string $provider): void
     {
         $externalId = 'external-id-'.$provider;
@@ -92,6 +93,9 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
                 break;
             case 'github':
                 $user->setGithubId($externalId);
+                break;
+            case 'facebook':
+                $user->setFacebookId($externalId);
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported OAuth provider "%s".', $provider));

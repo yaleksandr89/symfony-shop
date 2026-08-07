@@ -16,6 +16,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::Vkontakte => $user->getVkontakteId(),
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => $user->getGithubId(),
+            OAuthProvider::Facebook => $user->getFacebookId(),
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
@@ -28,6 +29,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::Vkontakte => $user->setVkontakteId(null),
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => $user->setGithubId(null),
+            OAuthProvider::Facebook => $user->setFacebookId(null),
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
@@ -40,6 +42,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::Vkontakte => $user->setVkontakteId($externalId),
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => $user->setGithubId($externalId),
+            OAuthProvider::Facebook => $user->setFacebookId($externalId),
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
@@ -52,6 +55,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::Vkontakte => 'vkontakteId',
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => 'githubId',
+            OAuthProvider::Facebook => 'facebookId',
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }

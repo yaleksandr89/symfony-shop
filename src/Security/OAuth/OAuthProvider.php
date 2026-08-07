@@ -22,8 +22,8 @@ enum OAuthProvider: string
             self::Yandex,
             self::Vkontakte,
             self::GithubEn,
-            self::GithubRus => true,
-            self::Facebook,
+            self::GithubRus,
+            self::Facebook => true,
             self::Linkedin,
             self::Mailru => false,
         };
@@ -37,7 +37,7 @@ enum OAuthProvider: string
             self::Vkontakte => 'vkontakte',
             self::GithubEn,
             self::GithubRus => 'github',
-            self::Facebook,
+            self::Facebook => 'facebook',
             self::Linkedin,
             self::Mailru => 'unsupported',
         };
@@ -56,6 +56,7 @@ enum OAuthProvider: string
             self::Vkontakte => 'vkontakte_main',
             self::GithubEn => 'github_en',
             self::GithubRus => 'github_ru',
+            self::Facebook => 'facebook_main',
             default => throw new \LogicException('Unsupported OAuth client provider.'),
         };
     }
@@ -68,6 +69,7 @@ enum OAuthProvider: string
             self::Vkontakte => 'connect_vkontakte_check',
             self::GithubEn => 'connect_github_en_check',
             self::GithubRus => 'connect_github_ru_check',
+            self::Facebook => 'connect_facebook_check',
             default => throw new \LogicException('Unsupported OAuth callback provider.'),
         };
     }
@@ -80,6 +82,7 @@ enum OAuthProvider: string
             self::Vkontakte => 'connect_vkontakte_start',
             self::GithubEn => 'connect_github_en_start',
             self::GithubRus => 'connect_github_ru_start',
+            self::Facebook => 'connect_facebook_start',
             default => throw new \LogicException('Unsupported OAuth start provider.'),
         };
     }
@@ -92,6 +95,7 @@ enum OAuthProvider: string
             'connect_vkontakte_start', 'connect_vkontakte_check' => self::Vkontakte,
             'connect_github_en_start', 'connect_github_en_check' => self::GithubEn,
             'connect_github_ru_start', 'connect_github_ru_check' => self::GithubRus,
+            'connect_facebook_start', 'connect_facebook_check' => self::Facebook,
             default => null,
         };
     }

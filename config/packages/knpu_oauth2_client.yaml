@@ -20,6 +20,15 @@ knpu_oauth2_client:
             redirect_params: {}
             use_state: true
 
+        facebook_main:
+            type: generic
+            provider_class: App\Utils\Oauth2\Facebook\Facebook
+            client_id: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
+            redirect_route: connect_facebook_check
+            redirect_params: {}
+            use_state: true
+
         # will create service: "knpu.oauth2.client.vkontakte_main"
         # an instance of: KnpU\OAuth2ClientBundle\Client\OAuth2Client
         vkontakte_main:
