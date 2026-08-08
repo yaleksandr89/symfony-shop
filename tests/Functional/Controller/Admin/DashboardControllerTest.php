@@ -29,8 +29,10 @@ class DashboardControllerTest extends WebTestCase
         self::assertStringContainsString($expected['dashboard'], $crawler->filter('title')->text());
         self::assertSame($expected['dashboard'], trim($crawler->filter('h1')->text()));
         self::assertSame($expected['logout'], trim($crawler->filter('.topbar a[href$="/admin/logout"]')->text()));
-        self::assertSame('Copyright © RankedChoice', trim($crawler->filter('footer .copyright')->text()));
+        self::assertSame($expected['copyright'], trim($crawler->filter('footer .copyright')->text()));
         self::assertStringContainsString($expected['layout'], $crawler->filter('title')->text());
+        self::assertStringContainsString($expected['brand'], $crawler->filter('title')->text());
+        self::assertStringNotContainsString('Ranked'.'Choice', $crawler->filter('title, footer')->text());
         foreach ($unexpected as $text) {
             self::assertStringNotContainsString($text, $crawler->filter('title, h1, .topbar, footer')->text());
         }
@@ -40,9 +42,11 @@ class DashboardControllerTest extends WebTestCase
     {
         yield 'Russian' => ['ru', [
             'dashboard' => 'Панель управления', 'logout' => 'Выйти', 'layout' => 'Панель администратора',
+            'brand' => 'Александр Юрченко', 'copyright' => 'Авторское право © Александр Юрченко',
         ], ['Dashboard', 'Logout', 'Admin Panel']];
         yield 'English' => ['en', [
             'dashboard' => 'Dashboard', 'logout' => 'Logout', 'layout' => 'Admin Panel',
+            'brand' => 'Alexander Yurchenko', 'copyright' => 'Copyright © Alexander Yurchenko',
         ], ['Панель управления', 'Выйти', 'Панель администратора']];
     }
 }

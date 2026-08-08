@@ -657,15 +657,6 @@
         <target>Английский</target>
       </segment>
     </unit>
-    <unit id="GceQhC6" name="footer.copyright">
-      <notes>
-        <note category="file-source" priority="1">shop/templates/front/_embed/_footer.html.twig:53</note>
-      </notes>
-      <segment>
-        <source>footer.copyright</source>
-        <target>Авторское право © Команда RankedChoice. все права защищены.</target>
-      </segment>
-    </unit>
     <unit id="NF.vvAN" name="You have to login in order to access this page.">
       <notes>
         <note category="file-source" priority="1">shop/src/Security/EntryPoint/AuthenticationFrontEntryPoint.php:35</note>

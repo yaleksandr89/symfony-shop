@@ -39,7 +39,8 @@ action.save_changes: Сохранить изменения
 action.logout: Выйти
 
 layout.page_title: Панель администратора
-layout.copyright: 'Copyright © RankedChoice'
+layout.brand: Александр Юрченко
+layout.copyright: 'Авторское право © Александр Юрченко'
 
 dashboard.page_title: Панель управления
 dashboard.heading: Панель управления

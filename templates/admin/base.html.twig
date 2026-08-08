@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <title>{% block title %}Admin Panel - RankedChoice{% endblock %}</title>
+    <title>{% block title %}{{ 'layout.page_title'|trans({}, 'admin') }} - {{ 'layout.brand'|trans({}, 'admin') }}{% endblock %}</title>
     <meta name="keywords" content="{% block page_keywords %}clothes, jackets, jeans{% endblock %}">
     <meta name="description" content="{% block page_description %}clothes, jackets, jeans{% endblock %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/icons/favicon/apple-touch-icon.png') }}">

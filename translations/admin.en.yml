@@ -39,7 +39,8 @@ action.save_changes: Save changes
 action.logout: Logout
 
 layout.page_title: Admin Panel
-layout.copyright: 'Copyright © RankedChoice'
+layout.brand: Alexander Yurchenko
+layout.copyright: 'Copyright © Alexander Yurchenko'
 
 dashboard.page_title: Dashboard
 dashboard.heading: Dashboard
