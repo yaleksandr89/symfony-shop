@@ -95,6 +95,26 @@ class EditProductFormType extends AbstractType
                     'class' => 'form-check-label',
                 ],
             ])
+            ->add('isNew', CheckboxType::class, [
+                'label' => 'product.form.field.is_new',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                ],
+                'label_attr' => [
+                    'class' => 'form-check-label',
+                ],
+            ])
+            ->add('isOnSale', CheckboxType::class, [
+                'label' => 'product.form.field.is_on_sale',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                ],
+                'label_attr' => [
+                    'class' => 'form-check-label',
+                ],
+            ])
             ->add('category', EntityType::class, [
                 'label' => 'product.form.field.category',
                 'required' => true,

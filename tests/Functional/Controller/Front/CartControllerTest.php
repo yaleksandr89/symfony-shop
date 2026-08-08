@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Generator\TokenGenerator;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -23,6 +24,21 @@ use Symfony\Component\HttpFoundation\Response;
 #[\PHPUnit\Framework\Attributes\Group(name: 'functional')]
 class CartControllerTest extends WebTestCase
 {
+    public function testCartHtmlDoesNotLoadCartEntity(): void
+    {
+        $client = self::createClient();
+        $client->enableProfiler();
+        $client->request('GET', '/ru/cart');
+
+        self::assertResponseIsSuccessful();
+        $profile = $client->getProfile();
+        self::assertNotFalse($profile);
+        self::assertNotNull($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+        self::assertLessThanOrEqual(1, $collector->getQueryCount());
+    }
+
     public function testLegacyCreateRoutesAreRemovedWithoutSideEffects(): void
     {
         $client = self::createClient();

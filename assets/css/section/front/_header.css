@@ -17,13 +17,14 @@
 
 .logotype {
     display: block;
-    min-height: 30px;
+    flex: 0 0 auto;
 }
 
 .logotype img {
     display: block;
-    width: 100%;
-    min-height: 30px;
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
 }
 
 .mobile-menu-toggler {
@@ -49,8 +50,7 @@
         display: none;
     }
     .logotype img {
-        display: block;
-        max-width: 100%;
-        height: auto;
+        width: 76px;
+        height: 76px;
     }
 }

@@ -126,6 +126,8 @@ product.form.field.description: Описание
 product.form.field.category: Категория
 product.form.field.new_image: Выберите новое изображение
 product.form.field.is_published: Опубликован
+product.form.field.is_new: Новинка
+product.form.field.is_on_sale: Распродажа
 product.form.field.is_deleted: Удалён
 product.form.category_placeholder: Выберите категорию
 product.image.current: Текущие изображения

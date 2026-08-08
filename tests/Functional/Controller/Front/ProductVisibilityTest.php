@@ -48,6 +48,27 @@ final class ProductVisibilityTest extends WebTestCase
         }
     }
 
+    public function testProductDetailAndSimilarCardsRenderMerchandisingBadges(): void
+    {
+        $client = self::createClient();
+        $merchandised = $this->createProduct(true, false)->setIsNew(true)->setIsOnSale(true);
+        $ordinary = $this->createProduct(true, false);
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $client->request('GET', '/en/product/'.$merchandised->getUuid());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '.product-full .sale-status-new');
+        self::assertSelectorCount(1, '.product-full .sale-status-sale');
+        self::assertSelectorCount(1, '.product-list .sale-status-new');
+        self::assertSelectorCount(1, '.product-list .sale-status-sale');
+
+        $client->request('GET', '/en/product/'.$ordinary->getUuid());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(0, '.product-full .product-merchandising-statuses');
+    }
+
     private function createProduct(bool $isPublished, bool $isDeleted): Product
     {
         $product = (new Product())

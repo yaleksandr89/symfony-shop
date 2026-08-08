@@ -38,9 +38,11 @@ login_social_network.facebook: 'Авторизоваться через Facebook
 login_social_network.linkedin: 'Авторизоваться через LinkedIn'
 similar_products.head: 'Мы рекомендуем'
 similar_products.new: Новинка
+similar_products.sale: Распродажа
 product.add_to_cart: 'Добавить в корзину'
 product.new: Новинка
 product.products_not_fount: 'Продукты не найдены'
+product.image_unavailable: 'Изображение отсутствует'
 category.show_me: Перейти
 category.new_collection: 'Новая коллекция'
 category.unique: 'Уникальное предложение'
@@ -75,7 +77,9 @@ footer.my_account.my_profile: 'Мой профиль'
 footer.сhange_language.head: 'Сменить язык'
 footer.сhange_language.russian: Русский
 footer.сhange_language.english: Английский
-footer.copyright: 'Авторское право © Команда RankedChoice. все права защищены.'
+footer.copyright.prefix: 'Авторское право © '
+footer.copyright.owner: 'Александр Юрченко'
+footer.copyright.suffix: '. Все права защищены.'
 'You have to login in order to access this page.': 'Вам необходимо войти в систему, чтобы получить доступ к этой странице.'
 'An email has been sent. Please check inbox to find password and verified your email': 'Было отправлено электронное письмо. Пожалуйста, проверьте входящие, чтобы найти пароль и подтвердить свой адрес электронной почты'
 'Please log in to the site!': 'Пожалуйста, авторизуйтесь на сайте!'

@@ -21,37 +21,48 @@
                     <div class="product-list mb-3">
                         <div class="row justify-content-center">
                             {% for product in products %}
-                                {% set images = product.getProductImages().getValues() %}
-                                {% if images|length %}
-                                    {% set cover = images[0] %}
-                                    <div class="col-6 col-md-4 col-lg-4 col-xl-3">
-                                        <div class="product-item">
-                                            <figure class="product-media">
-                                                <span class="product-sale-status sale-status-new">{{ 'similar_products.new'|trans }}</span>
-                                                <a href="{{ path('main_product_show', {'identifier': product.uuid}) }}">
+                                {% set cover = product.cover %}
+                                <div class="col-6 col-md-4 col-lg-4 col-xl-3">
+                                    <div class="product-item">
+                                        <figure class="product-media">
+                                            {% if product.isNew or product.isOnSale %}
+                                                <div class="product-merchandising-statuses">
+                                                    {% if product.isNew %}
+                                                        <span class="product-sale-status sale-status-new">{{ 'similar_products.new'|trans }}</span>
+                                                    {% endif %}
+                                                    {% if product.isOnSale %}
+                                                        <span class="product-sale-status sale-status-sale">{{ 'similar_products.sale'|trans }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            <a href="{{ path('main_product_show', {'identifier': product.uuid}) }}"{% if cover is null %} class="product-image-placeholder" aria-label="{{ 'product.image_unavailable'|trans }}"{% endif %}>
+                                                {% if cover is not null %}
                                                     <img
                                                         src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
                                                         alt="{{ product.title }}"
                                                         class="product-image"
                                                     >
+                                                {% else %}
+                                                    <i class="far fa-image" aria-hidden="true"></i>
+                                                    <span class="sr-only">{{ 'product.image_unavailable'|trans }}</span>
+                                                {% endif %}
+                                            </a>
+                                            <div class="product-actions">
+                                                <a href="#" class="btn-add-to-cart" data-id="{{ product.uuid }}" data-stock="{{ product.quantity }}" data-add-cart>
+                                                    {{ 'product.add_to_cart'|trans }}
                                                 </a>
-                                                <div class="product-actions">
-                                                    <a href="#" class="btn-add-to-cart" data-id="{{ product.uuid }}" data-stock="{{ product.quantity }}" data-add-cart>
-                                                        {{ 'product.add_to_cart'|trans }}
-                                                    </a>
-                                                </div>
-                                            </figure>
-                                            <div class="product-card-content">
-                                                <h3 class="product-title">
-                                                    <a href="{{ path('main_product_show', {'identifier': product.uuid}) }}">{{ product.title }}</a>
-                                                </h3>
-                                                <div class="product-price justify-content-center">
-                                                    ${{ product.price }}
-                                                </div>
+                                            </div>
+                                        </figure>
+                                        <div class="product-card-content">
+                                            <h3 class="product-title">
+                                                <a href="{{ path('main_product_show', {'identifier': product.uuid}) }}">{{ product.title }}</a>
+                                            </h3>
+                                            <div class="product-price justify-content-center">
+                                                ${{ product.price }}
                                             </div>
                                         </div>
                                     </div>
-                                {% endif %}
+                                </div>
                             {% else %}
                                 <div class="alert alert-warning alert-dismissible text-center" role="alert">
                                     {{ 'product.products_not_fount'|trans }}

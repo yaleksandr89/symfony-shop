@@ -13,6 +13,16 @@
                 <div class="row">
                     <div class="col-md-6">
                         <figure class="product-media">
+                            {% if product.isNew or product.isOnSale %}
+                                <div class="product-merchandising-statuses">
+                                    {% if product.isNew %}
+                                        <span class="product-sale-status sale-status-new">{{ 'similar_products.new'|trans }}</span>
+                                    {% endif %}
+                                    {% if product.isOnSale %}
+                                        <span class="product-sale-status sale-status-sale">{{ 'similar_products.sale'|trans }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                             {% for image in product.getProductImages().getValues() %}
                                 <img
                                         src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.getFilenameBig()) }}" alt="{{ product.title }}"

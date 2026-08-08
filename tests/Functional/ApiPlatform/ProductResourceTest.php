@@ -21,6 +21,7 @@ class ProductResourceTest extends ResourceTestUtils
 
     private const PRIVATE_FIELDS = [
         'createdAt',
+        'updatedAt',
         'description',
         'isPublished',
         'isDeleted',
@@ -64,6 +65,8 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame($product->getTitle(), $member['title']);
         self::assertSame($product->getPrice(), $member['price']);
         self::assertSame($product->getQuantity(), $member['quantity']);
+        self::assertSame($product->getIsNew(), $member['isNew']);
+        self::assertSame($product->getIsOnSale(), $member['isOnSale']);
         self::assertSame($product->getCategory()?->getId(), $member['category']['id']);
         self::assertSame($product->getCategory()?->getTitle(), $member['category']['title']);
         $this->assertPrivateFieldsAreAbsent($member);
@@ -93,6 +96,8 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame($product->getTitle(), $document['title']);
         self::assertSame($product->getPrice(), $document['price']);
         self::assertSame($product->getQuantity(), $document['quantity']);
+        self::assertSame($product->getIsNew(), $document['isNew']);
+        self::assertSame($product->getIsOnSale(), $document['isOnSale']);
         self::assertSame($product->getCategory()?->getId(), $document['category']['id']);
         self::assertSame($product->getCategory()?->getTitle(), $document['category']['title']);
         self::assertArrayNotHasKey('id', $document);
@@ -207,6 +212,8 @@ class ProductResourceTest extends ResourceTestUtils
             'title' => 'New product',
             'price' => '100',
             'quantity' => 5,
+            'isNew' => true,
+            'isOnSale' => false,
         ];
 
         $client->request(
@@ -224,6 +231,8 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame('Product', $document['@type']);
         self::assertStringStartsWith($this->uriKey.'/', $document['@id']);
         self::assertSame($context['title'], $document['title']);
+        self::assertTrue($document['isNew']);
+        self::assertFalse($document['isOnSale']);
         self::assertResponseHeaderSame('location', $document['@id']);
         self::assertSame(
             $productCount + 1,
@@ -299,6 +308,9 @@ class ProductResourceTest extends ResourceTestUtils
         $uri = $this->uriKey.'/'.$product->getUuid();
         $context = [
             'title' => 'Update product',
+            'isNew' => true,
+            'isOnSale' => true,
+            'updatedAt' => '2000-01-01T00:00:00+00:00',
         ];
 
         $client->request(
@@ -316,6 +328,8 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame($uri, $document['@id']);
         self::assertSame('Product', $document['@type']);
         self::assertSame($context['title'], $document['title']);
+        self::assertTrue($document['isNew']);
+        self::assertTrue($document['isOnSale']);
 
         self::getContainer()->get(EntityManagerInterface::class)->clear();
         $updatedProduct = self::getContainer()->get(ProductRepository::class)->findOneBy([
@@ -323,6 +337,9 @@ class ProductResourceTest extends ResourceTestUtils
         ]);
         self::assertInstanceOf(Product::class, $updatedProduct);
         self::assertSame($context['title'], $updatedProduct->getTitle());
+        self::assertTrue($updatedProduct->getIsNew());
+        self::assertTrue($updatedProduct->getIsOnSale());
+        self::assertNotSame($context['updatedAt'], $updatedProduct->getUpdatedAt()->format(DATE_ATOM));
     }
 
     public function testPathProductWithoutAccess(): void

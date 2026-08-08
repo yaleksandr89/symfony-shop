@@ -38,6 +38,28 @@ class ProductControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    public function testEditPersistsMerchandisingFlags(): void
+    {
+        $client = $this->createAdminClient();
+        $product = $this->getEditableProductWithImage()->setIsNew(false)->setIsOnSale(false);
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+        $crawler = $client->request('GET', sprintf('/en/admin/product/edit/%d', $product->getId()));
+        $form = $crawler->filter('form[name="edit_product_form"]')->form([
+            'edit_product_form[isNew]' => true,
+            'edit_product_form[isOnSale]' => true,
+        ]);
+
+        $client->submit($form);
+
+        self::assertResponseRedirects(sprintf('/en/admin/product/edit/%d', $product->getId()));
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $updatedProduct = $entityManager->find(Product::class, $product->getId());
+        self::assertInstanceOf(Product::class, $updatedProduct);
+        self::assertTrue($updatedProduct->getIsNew());
+        self::assertTrue($updatedProduct->getIsOnSale());
+    }
+
     public function testPriceRangeFilterDoesNotFail(): void
     {
         $client = $this->createAdminClient();
@@ -419,10 +441,10 @@ class ProductControllerTest extends WebTestCase
             'Товары',
             'Добавить',
             'Алиас',
-            ['Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Удалён'],
+            ['Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Новинка', 'Распродажа', 'Удалён'],
             'Выберите категорию',
             'Сохранить изменения',
-            ['Edit Product', 'Products', 'Add new', 'Slug', 'Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Is Published', 'Is Deleted', 'Save changes', 'Please select a category'],
+            ['Edit Product', 'Products', 'Add new', 'Slug', 'Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Is Published', 'New', 'On sale', 'Is Deleted', 'Save changes', 'Please select a category'],
             'Текущие изображения',
             'Удалить',
             'Удалить запись',
@@ -438,10 +460,10 @@ class ProductControllerTest extends WebTestCase
             'Products',
             'Add new',
             'Slug',
-            ['Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Published', 'Deleted'],
+            ['Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Published', 'New', 'On sale', 'Deleted'],
             'Please select a category',
             'Save changes',
-            ['Редактирование товара', 'Товары', 'Добавить', 'Алиас', 'Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Удалён', 'Сохранить изменения', 'Выберите категорию'],
+            ['Редактирование товара', 'Товары', 'Добавить', 'Алиас', 'Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Новинка', 'Распродажа', 'Удалён', 'Сохранить изменения', 'Выберите категорию'],
             'Current images',
             'Delete',
             'Delete row',

@@ -21,9 +21,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\PreUpdate;
 use Doctrine\ORM\Mapping\Table;
 use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -32,6 +34,7 @@ use Symfony\Component\Uid\UuidV4;
 
 #[Table(name: '`product`'),
     Entity(repositoryClass: ProductRepository::class)]
+#[HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
         new GetCollection(
@@ -88,6 +91,9 @@ class Product
     #[Column(type: Types::DATETIME_IMMUTABLE)]
     protected DateTimeImmutable $createdAt;
 
+    #[Column(type: Types::DATETIME_IMMUTABLE)]
+    protected DateTimeImmutable $updatedAt;
+
     #[Column(type: Types::TEXT, nullable: true)]
     protected ?string $description;
 
@@ -96,6 +102,14 @@ class Product
 
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
+
+    #[Column(type: Types::BOOLEAN, options: ['default' => false])]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write'])]
+    protected bool $isNew;
+
+    #[Column(type: Types::BOOLEAN, options: ['default' => false])]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write'])]
+    protected bool $isOnSale;
 
     #[OneToMany(mappedBy: 'product', targetEntity: ProductImage::class, cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
@@ -119,9 +133,13 @@ class Product
     {
         $this->id = null;
         $this->uuid = Uuid::v4();
+        $now = new DateTimeImmutable();
         $this->isDeleted = false;
         $this->isPublished = false;
-        $this->createdAt = new DateTimeImmutable();
+        $this->isNew = false;
+        $this->isOnSale = false;
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
         $this->productImages = new ArrayCollection();
         $this->cartProducts = new ArrayCollection();
         $this->orderProducts = new ArrayCollection();
@@ -185,6 +203,24 @@ class Product
         return $this;
     }
 
+    public function getUpdatedAt(): DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    #[PreUpdate]
+    public function refreshUpdatedAt(): void
+    {
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -217,6 +253,30 @@ class Product
     public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    public function getIsNew(): bool
+    {
+        return $this->isNew;
+    }
+
+    public function setIsNew(bool $isNew): static
+    {
+        $this->isNew = $isNew;
+
+        return $this;
+    }
+
+    public function getIsOnSale(): bool
+    {
+        return $this->isOnSale;
+    }
+
+    public function setIsOnSale(bool $isOnSale): static
+    {
+        $this->isOnSale = $isOnSale;
 
         return $this;
     }

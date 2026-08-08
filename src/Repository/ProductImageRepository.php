@@ -21,32 +21,39 @@ class ProductImageRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductImage::class);
     }
 
-    // /**
-    //  * @return ProductImage[] Returns an array of ProductImage objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param list<int> $productIds
+     *
+     * @return array<int, array{filenameBig: string, filenameMiddle: string, filenameSmall: string}>
+     */
+    public function findFirstCoversByProductIds(array $productIds): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        if ([] === $productIds) {
+            return [];
+        }
 
-    /*
-    public function findOneBySomeField($value): ?ProductImage
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
+        $rows = $this->createQueryBuilder('image')
+            ->select('IDENTITY(image.product) AS productId')
+            ->addSelect('image.filenameBig AS filenameBig')
+            ->addSelect('image.filenameMiddle AS filenameMiddle')
+            ->addSelect('image.filenameSmall AS filenameSmall')
+            ->andWhere('image.product IN (:productIds)')
+            ->setParameter('productIds', array_values(array_unique($productIds)))
+            ->orderBy('image.product', 'ASC')
+            ->addOrderBy('image.id', 'ASC')
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getArrayResult();
+
+        $covers = [];
+        foreach ($rows as $row) {
+            $productId = (int) $row['productId'];
+            $covers[$productId] ??= [
+                'filenameBig' => (string) $row['filenameBig'],
+                'filenameMiddle' => (string) $row['filenameMiddle'],
+                'filenameSmall' => (string) $row['filenameSmall'],
+            ];
+        }
+
+        return $covers;
     }
-    */
 }

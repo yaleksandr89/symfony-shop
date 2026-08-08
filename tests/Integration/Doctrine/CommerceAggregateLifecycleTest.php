@@ -320,7 +320,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         );
         $userId = (int) $connection->lastInsertId();
         $connection->executeStatement(
-            'INSERT INTO product (uuid, title, price, quantity, created_at, is_published, is_deleted) VALUES (?, ?, 10.00, 1, CURRENT_TIMESTAMP, 0, 0)',
+            'INSERT INTO product (uuid, title, price, quantity, created_at, updated_at, is_published, is_deleted) VALUES (?, ?, 10.00, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 0)',
             ['00000000-0000-4000-8000-'.str_replace('.', '', $suffix), 'Commerce lifecycle '.$suffix],
         );
 

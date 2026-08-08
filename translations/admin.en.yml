@@ -126,6 +126,8 @@ product.form.field.description: Description
 product.form.field.category: Category
 product.form.field.new_image: Choose new image
 product.form.field.is_published: Published
+product.form.field.is_new: New
+product.form.field.is_on_sale: 'On sale'
 product.form.field.is_deleted: Deleted
 product.form.category_placeholder: Please select a category
 product.image.current: Current images

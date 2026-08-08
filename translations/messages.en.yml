@@ -38,9 +38,11 @@ login_social_network.facebook: 'Login with Facebook'
 login_social_network.linkedin: 'Sign in with LinkedIn'
 similar_products.head: 'We recommend'
 similar_products.new: New
+similar_products.sale: Sale
 product.add_to_cart: 'Add to cart'
 product.new: New
 product.products_not_fount: 'Products not fount'
+product.image_unavailable: 'Image unavailable'
 category.show_me: 'Show me'
 category.new_collection: 'New Collection'
 category.unique: Unique
@@ -75,7 +77,9 @@ footer.my_account.my_profile: 'My profile'
 footer.сhange_language.head: 'Change language'
 footer.сhange_language.russian: Russian
 footer.сhange_language.english: English
-footer.copyright: 'Copyright © RankedChoice Team. All Rights Reserved.'
+footer.copyright.prefix: 'Copyright © '
+footer.copyright.owner: 'Alexander Yurchenko'
+footer.copyright.suffix: '. All rights reserved.'
 'You have to login in order to access this page.': 'You have to login in order to access this page.'
 'An email has been sent. Please check inbox to find password and verified your email': 'An email has been sent. Please check inbox to find password and verified your email'
 'Please log in to the site!': 'Please log in to the site!'

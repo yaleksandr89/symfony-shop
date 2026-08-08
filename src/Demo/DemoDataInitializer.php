@@ -31,7 +31,11 @@ final class DemoDataInitializer
     {
         $catalog = $this->loadCatalog();
         $this->validateCatalog($catalog);
-        $this->assetInstaller->assertSourcesExist($catalog['products']);
+        $productsWithImages = array_values(array_filter(
+            $catalog['products'],
+            static fn (array $product): bool => is_string($product['image_key']),
+        ));
+        $this->assetInstaller->assertSourcesExist($productsWithImages);
 
         $connection = $this->entityManager->getConnection();
         $connection->beginTransaction();
@@ -42,7 +46,7 @@ final class DemoDataInitializer
             [$productCounts, $productsBySlug] = $this->initProducts($catalog['products'], $categoriesBySlug);
             $this->entityManager->flush();
 
-            $imageCounts = $this->initImages($catalog['products'], $productsBySlug);
+            $imageCounts = $this->initImages($productsWithImages, $productsBySlug);
             $this->entityManager->flush();
 
             $removedOrderProducts = $this->entityManager->getRepository(OrderProduct::class)->count([]);
@@ -120,13 +124,13 @@ final class DemoDataInitializer
         }
 
         $this->assertUnique($catalog['products'], 'slug', 'product slug');
-        if (24 !== count($catalog['products'])) {
-            throw new \RuntimeException('Demo catalog must define exactly 24 products.');
+        if (48 !== count($catalog['products'])) {
+            throw new \RuntimeException('Demo catalog must define exactly 48 products.');
         }
         $this->assertUnique($catalog['products'], 'title', 'product title');
         $productsByCategory = array_fill_keys($categorySlugs, 0);
         foreach ($catalog['products'] as $product) {
-            if (!is_array($product) || !isset($product['category_slug'], $product['price'], $product['quantity'], $product['description'], $product['image_key'])) {
+            if (!is_array($product) || !isset($product['category_slug'], $product['price'], $product['quantity'], $product['description']) || !array_key_exists('image_key', $product) || !array_key_exists('is_new', $product) || !array_key_exists('is_on_sale', $product)) {
                 throw new \RuntimeException('Every demo product must provide all required fields.');
             }
             if (!isset($productsByCategory[$product['category_slug']])) {
@@ -135,12 +139,32 @@ final class DemoDataInitializer
             if (!is_string($product['price']) || !preg_match('/^\d+\.\d{2}$/', $product['price']) || (int) $product['quantity'] <= 0) {
                 throw new \RuntimeException(sprintf('Demo product "%s" has an invalid price or quantity.', $product['slug']));
             }
+            if (null !== $product['image_key'] && !is_string($product['image_key'])) {
+                throw new \RuntimeException(sprintf('Demo product "%s" has an invalid image key.', $product['slug']));
+            }
+            if (!is_bool($product['is_new']) || !is_bool($product['is_on_sale'])) {
+                throw new \RuntimeException(sprintf('Demo product "%s" has invalid merchandising flags.', $product['slug']));
+            }
             ++$productsByCategory[$product['category_slug']];
         }
-        foreach ($productsByCategory as $categorySlug => $count) {
-            if (4 !== $count) {
-                throw new \RuntimeException(sprintf('Demo category "%s" must contain exactly 4 products.', $categorySlug));
+        $expectedProductsByCategory = [
+            'demo-sneakers' => 4,
+            'demo-boots' => 6,
+            'demo-accessories' => 7,
+            'demo-sale' => 9,
+            'demo-sandals' => 10,
+            'demo-apparel' => 12,
+        ];
+        foreach ($expectedProductsByCategory as $categorySlug => $expectedCount) {
+            if (($productsByCategory[$categorySlug] ?? null) !== $expectedCount) {
+                throw new \RuntimeException(sprintf('Demo category "%s" must contain exactly %d products.', $categorySlug, $expectedCount));
             }
+        }
+        $newProductCount = count(array_filter($catalog['products'], static fn (array $product): bool => $product['is_new']));
+        $saleProductCount = count(array_filter($catalog['products'], static fn (array $product): bool => $product['is_on_sale']));
+        $overlapCount = count(array_filter($catalog['products'], static fn (array $product): bool => $product['is_new'] && $product['is_on_sale']));
+        if (11 !== $newProductCount || 8 !== $saleProductCount || 0 !== $overlapCount) {
+            throw new \RuntimeException('Demo products must define exactly 11 new, 8 sale, and no overlapping merchandising states.');
         }
 
         if (24 !== count($catalog['orders'])) {
@@ -285,12 +309,12 @@ final class DemoDataInitializer
                 $product = new Product();
                 $this->entityManager->persist($product);
                 ++$counts['created'];
-            } elseif ($product->getTitle() !== $data['title'] || $product->getPrice() !== $data['price'] || $product->getQuantity() !== $data['quantity'] || $product->getDescription() !== $data['description'] || !$product->getIsPublished() || $product->getIsDeleted() || $product->getCategory() !== $category) {
+            } elseif ($product->getTitle() !== $data['title'] || $product->getPrice() !== $data['price'] || $product->getQuantity() !== $data['quantity'] || $product->getDescription() !== $data['description'] || !$product->getIsPublished() || $product->getIsDeleted() || $product->getIsNew() !== $data['is_new'] || $product->getIsOnSale() !== $data['is_on_sale'] || $product->getCategory() !== $category) {
                 ++$counts['updated'];
             } else {
                 ++$counts['existing'];
             }
-            $product->setSlug($data['slug'])->setTitle($data['title'])->setPrice($data['price'])->setQuantity($data['quantity'])->setDescription($data['description'])->setIsPublished(true)->setIsDeleted(false)->setCategory($category);
+            $product->setSlug($data['slug'])->setTitle($data['title'])->setPrice($data['price'])->setQuantity($data['quantity'])->setDescription($data['description'])->setIsPublished(true)->setIsDeleted(false)->setIsNew($data['is_new'])->setIsOnSale($data['is_on_sale'])->setCategory($category);
             $bySlug[$data['slug']] = $product;
         }
 

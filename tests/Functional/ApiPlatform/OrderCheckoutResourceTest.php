@@ -80,7 +80,10 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $inlineParts = $clientMessage->getAttachments();
         self::assertCount(1, $inlineParts);
         self::assertInstanceOf(DataPart::class, $inlineParts[0]);
-        self::assertSame('logo_366x79.png', $inlineParts[0]->getFilename());
+        self::assertSame(
+            'alexander-yurchenko-php-developer.png',
+            $inlineParts[0]->getFilename(),
+        );
         self::assertSame('image/png', $inlineParts[0]->getContentType());
         self::assertSame('inline', $inlineParts[0]->getDisposition());
         self::assertSame('symfony-shop-logo@symfony-shop', $inlineParts[0]->getContentId());

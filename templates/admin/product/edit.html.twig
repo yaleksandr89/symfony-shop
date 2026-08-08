@@ -136,6 +136,28 @@
             <div class="form-group row">
                 <div class="col-md-1"></div>
                 <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isNew) }}
+                    {{ form_label(form.isNew) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isNew) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isOnSale) }}
+                    {{ form_label(form.isOnSale) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isOnSale) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
                     {{ form_widget(form.isDeleted) }}
                     {{ form_label(form.isDeleted) }}
                     <div class="form-error">

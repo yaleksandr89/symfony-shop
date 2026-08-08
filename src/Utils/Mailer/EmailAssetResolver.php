@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final class EmailAssetResolver
 {
     private const STYLESHEET = 'build/email.css';
-    private const LOGO = 'icons/logo_366x79.png';
+    private const LOGO = 'icons/alexander-yurchenko-php-developer.png';
 
     public function __construct(
         private Packages $packages,

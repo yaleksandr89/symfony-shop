@@ -21,6 +21,8 @@ class EditProductModel
         public ?Category $category = null,
         public ?bool $isPublished = null,
         public ?bool $isDeleted = null,
+        public ?bool $isNew = null,
+        public ?bool $isOnSale = null,
         public ?DateTimeImmutable $createdAt = null,
     ) {
     }
@@ -41,6 +43,8 @@ class EditProductModel
         $model->category = $product->getCategory();
         $model->isPublished = $product->getIsPublished();
         $model->isDeleted = $product->getIsDeleted();
+        $model->isNew = $product->getIsNew();
+        $model->isOnSale = $product->getIsOnSale();
         $model->createdAt = $product->getCreatedAt();
 
         return $model;

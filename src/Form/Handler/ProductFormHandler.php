@@ -103,6 +103,14 @@ class ProductFormHandler
             ? (bool) $editProductModel->isDeleted
             : $editProductModel->isDeleted;
 
+        $isNew = (!is_bool($editProductModel->isNew))
+            ? (bool) $editProductModel->isNew
+            : $editProductModel->isNew;
+
+        $isOnSale = (!is_bool($editProductModel->isOnSale))
+            ? (bool) $editProductModel->isOnSale
+            : $editProductModel->isOnSale;
+
         $product->setTitle($title);
         $product->setPrice($price);
         $product->setQuantity($quantity);
@@ -110,6 +118,8 @@ class ProductFormHandler
         $product->setCategory($category);
         $product->setIsPublished($isPublished);
         $product->setIsDeleted($isDeleted);
+        $product->setIsNew($isNew);
+        $product->setIsOnSale($isOnSale);
 
         return $product;
     }
