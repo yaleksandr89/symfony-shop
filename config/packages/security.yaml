@@ -52,6 +52,7 @@ security:
         - App\Security\Authenticator\Front\YandexAuthenticator
         - App\Security\Authenticator\Front\VkontakteAuthenticator
         - App\Security\Authenticator\Front\FacebookAuthenticator
+        - App\Security\Authenticator\Front\LinkedinAuthenticator
         - App\Security\Authenticator\Front\GithubEnAuthenticator
         - App\Security\Authenticator\Front\GithubRusAuthenticator
       remember_me:

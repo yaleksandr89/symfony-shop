@@ -6,6 +6,7 @@ namespace App\Utils\Factory;
 
 use App\Entity\User;
 use App\Utils\Oauth2\Facebook\FacebookUser;
+use App\Utils\Oauth2\Linkedin\LinkedinUser;
 use App\Utils\Oauth2\Vk\VkUser;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use League\OAuth2\Client\Provider\GoogleUser;
@@ -63,6 +64,16 @@ class UserFactory
         $user->setEmail($email);
         $user->setFullName($facebookUser->getName());
         $user->setFacebookId($facebookUser->getId());
+
+        return $user;
+    }
+
+    public static function createUserFromLinkedin(LinkedinUser $linkedinUser, string $email): User
+    {
+        $user = new User();
+        $user->setEmail($email);
+        $user->setFullName($linkedinUser->getName());
+        $user->setLinkedinId($linkedinUser->getId());
 
         return $user;
     }

@@ -54,6 +54,22 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         }
     }
 
+    #[DataProvider('locales')]
+    public function testConfiguredEnabledLinkedinRendersSocialWrapperAndOnlyLinkedinButton(string $locale): void
+    {
+        foreach (['/login', '/registration'] as $path) {
+            $client = $this->requestWithAvailability('/'.$locale.$path, [OAuthProvider::Linkedin->value => true]);
+
+            self::assertResponseStatusCodeSame(Response::HTTP_OK);
+            self::assertSelectorExists('.form-additional.mt-2.pt-1');
+            self::assertSelectorCount(1, 'a[href="/'.$locale.'/connect/linkedin"]');
+            self::assertSelectorTextContains('a[href="/'.$locale.'/connect/linkedin"]', 'ru' === $locale ? 'Авторизоваться через LinkedIn' : 'Sign in with LinkedIn');
+            foreach (array_diff(self::START_PATHS, ['/connect/linkedin']) as $oauthPath) {
+                self::assertSelectorNotExists('a[href="/'.$locale.$oauthPath.'"]');
+            }
+        }
+    }
+
     public function testDisabledRoutesAreNotFoundWithoutRedirectOrUserMutation(): void
     {
         $client = self::createClient();
@@ -77,6 +93,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
         $user->setFacebookId('already-linked-facebook-id');
+        $user->setLinkedinId('Already-Linked-LinkedIn-Sub');
         $entityManager->flush();
 
         try {
@@ -88,10 +105,52 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
             self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/facebook/unlink"]');
             self::assertSelectorTextContains('a[href="/ru/profile/oauth/facebook/unlink"]', 'Отвязать');
             self::assertSelectorNotExists('a[href="/ru/profile/oauth/facebook/link"]');
+            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/linkedin/unlink"]');
+            self::assertSelectorTextContains('a[href="/ru/profile/oauth/linkedin/unlink"]', 'Отвязать');
+            self::assertSelectorNotExists('a[href="/ru/profile/oauth/linkedin/link"]');
         } finally {
             $user->setFacebookId(null);
+            $user->setLinkedinId(null);
             $entityManager->flush();
         }
+    }
+
+    public function testDisabledUnlinkedLinkedinProfileHidesLinkAndUnlinkActions(): void
+    {
+        $client = self::createClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        self::assertInstanceOf(User::class, $user);
+        self::assertNull($user->getLinkedinId());
+        $client->loginUser($user, 'website');
+
+        $client->request('GET', '/ru/profile');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('a[href="/ru/profile/oauth/linkedin/link"]');
+        self::assertSelectorNotExists('a[href="/ru/profile/oauth/linkedin/unlink"]');
+    }
+
+    public function testEnabledUnlinkedLinkedinProfileRendersOnlyLinkAction(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
+            [OAuthProvider::Linkedin->value => true],
+            [OAuthProvider::Linkedin->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+        ));
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        self::assertInstanceOf(User::class, $user);
+        self::assertNull($user->getLinkedinId());
+        $client->loginUser($user, 'website');
+
+        $client->request('GET', '/ru/profile');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/linkedin/link"]');
+        self::assertSelectorTextContains('a[href="/ru/profile/oauth/linkedin/link"]', 'Привязать');
+        self::assertSelectorNotExists('a[href="/ru/profile/oauth/linkedin/unlink"]');
     }
 
     public function testEnabledLinkedProfileProviderRendersOnlyUnlinkAction(): void
@@ -202,6 +261,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     /** @var list<string> */
     private const START_PATHS = [
         '/connect/facebook',
+        '/connect/linkedin',
         '/connect/google',
         '/connect/yandex',
         '/connect/vkontakte',
@@ -212,6 +272,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     /** @var list<string> */
     private const CALLBACK_PATHS = [
         '/connect/facebook/check',
+        '/connect/linkedin/check',
         '/connect/google/check',
         '/connect/yandex/check',
         '/connect/vkontakte/check',

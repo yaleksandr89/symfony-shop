@@ -86,5 +86,8 @@ services:
         facebook:
           clientId: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
           clientSecret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
+        linkedin:
+          clientId: '%env(OAUTH_LINKEDIN_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_LINKEDIN_CLIENT_SECRET)%'
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

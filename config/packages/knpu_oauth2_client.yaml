@@ -29,6 +29,15 @@ knpu_oauth2_client:
             redirect_params: {}
             use_state: true
 
+        linkedin_main:
+            type: generic
+            provider_class: App\Utils\Oauth2\Linkedin\Linkedin
+            client_id: '%env(OAUTH_LINKEDIN_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_LINKEDIN_CLIENT_SECRET)%'
+            redirect_route: connect_linkedin_check
+            redirect_params: {}
+            use_state: true
+
         # will create service: "knpu.oauth2.client.vkontakte_main"
         # an instance of: KnpU\OAuth2ClientBundle\Client\OAuth2Client
         vkontakte_main:

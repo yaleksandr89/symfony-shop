@@ -148,6 +148,21 @@
                                         {% endif %}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <th scope="row">6</th>
+                                    <td>
+                                        <i class="fab fa-linkedin" style="font-size: 35px;" aria-label="{{ 'personal_account.social_group.linkedin'|trans }}" title="{{ 'personal_account.social_group.linkedin'|trans }}"></i>
+                                    </td>
+                                    <td>
+                                        {% if app.user.linkedinId or oauth_provider_enabled('linkedin') %}
+                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                                'socialNameId': app.user.linkedinId,
+                                                'socialName': 'linkedin',
+                                                'providerKey': 'linkedin'
+                                            } %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>

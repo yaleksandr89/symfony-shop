@@ -8,22 +8,37 @@ use App\Entity\User;
 use App\Security\OAuth\OAuthIdentityAccessor;
 use App\Security\OAuth\OAuthProvider;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group(name: 'unit')]
 final class OAuthIdentityAccessorTest extends TestCase
 {
     #[DataProvider('supportedProviders')]
-    public function testGetsAndUnlinksOnlyTheRequestedIdentity(OAuthProvider $provider, string $expectedExternalId): void
+    public function testGetsAndUnlinksOnlyTheRequestedIdentity(OAuthProvider $provider, string $expectedExternalId, string $expectedField): void
     {
         $user = $this->userWithIdentities();
         $accessor = new OAuthIdentityAccessor();
 
         self::assertSame($expectedExternalId, $accessor->getExternalId($user, $provider));
+        self::assertSame($expectedField, $accessor->identityField($provider));
 
         $accessor->unlink($user, $provider);
 
         self::assertNull($accessor->getExternalId($user, $provider));
         self::assertSame($this->expectedIdentitiesAfterUnlink($provider), $this->identities($user));
+    }
+
+    #[DataProvider('supportedProviders')]
+    public function testLinksOnlyTheRequestedIdentity(OAuthProvider $provider, string $externalId, string $identityField): void
+    {
+        $user = new User();
+        $accessor = new OAuthIdentityAccessor();
+
+        $accessor->link($user, $provider, $externalId);
+
+        self::assertSame($externalId, $accessor->getExternalId($user, $provider));
+        self::assertSame($identityField, $accessor->identityField($provider));
     }
 
     public function testGithubProvidersUseTheSameIdentityField(): void
@@ -59,21 +74,21 @@ final class OAuthIdentityAccessorTest extends TestCase
         $accessor->unlink($user, $provider);
     }
 
-    /** @return iterable<string, array{OAuthProvider, string}> */
+    /** @return iterable<string, array{OAuthProvider, string, string}> */
     public static function supportedProviders(): iterable
     {
-        yield 'Google' => [OAuthProvider::Google, 'google-id'];
-        yield 'Yandex' => [OAuthProvider::Yandex, 'yandex-id'];
-        yield 'Vkontakte' => [OAuthProvider::Vkontakte, 'vkontakte-id'];
-        yield 'Github EN' => [OAuthProvider::GithubEn, 'github-id'];
-        yield 'Github RU' => [OAuthProvider::GithubRus, 'github-id'];
-        yield 'Facebook' => [OAuthProvider::Facebook, 'facebook-id'];
+        yield 'Google' => [OAuthProvider::Google, 'google-id', 'googleId'];
+        yield 'Yandex' => [OAuthProvider::Yandex, 'yandex-id', 'yandexId'];
+        yield 'Vkontakte' => [OAuthProvider::Vkontakte, 'vkontakte-id', 'vkontakteId'];
+        yield 'Github EN' => [OAuthProvider::GithubEn, 'github-id', 'githubId'];
+        yield 'Github RU' => [OAuthProvider::GithubRus, 'github-id', 'githubId'];
+        yield 'Facebook' => [OAuthProvider::Facebook, 'facebook-id', 'facebookId'];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin, 'LiNkEdIn-sub', 'linkedinId'];
     }
 
     /** @return iterable<string, array{OAuthProvider}> */
     public static function unsupportedProviders(): iterable
     {
-        yield 'Linkedin' => [OAuthProvider::Linkedin];
         yield 'Mailru' => [OAuthProvider::Mailru];
     }
 
@@ -85,6 +100,7 @@ final class OAuthIdentityAccessorTest extends TestCase
         $user->setVkontakteId('vkontakte-id');
         $user->setGithubId('github-id');
         $user->setFacebookId('facebook-id');
+        $user->setLinkedinId('LiNkEdIn-sub');
 
         return $user;
     }
@@ -98,6 +114,7 @@ final class OAuthIdentityAccessorTest extends TestCase
             'vkontakte' => $user->getVkontakteId(),
             'github' => $user->getGithubId(),
             'facebook' => $user->getFacebookId(),
+            'linkedin' => $user->getLinkedinId(),
         ];
     }
 
@@ -110,6 +127,7 @@ final class OAuthIdentityAccessorTest extends TestCase
             'vkontakte' => 'vkontakte-id',
             'github' => 'github-id',
             'facebook' => 'facebook-id',
+            'linkedin' => 'LiNkEdIn-sub',
         ];
         $identities[$provider->identityFamily()] = null;
 

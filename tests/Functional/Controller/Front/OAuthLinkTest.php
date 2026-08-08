@@ -215,9 +215,12 @@ final class OAuthLinkTest extends WebTestCase
         OAuthProvider $provider,
         string $callbackPath,
     ): void {
-        $externalId = 'linked-'.$provider->value.'-'.str_replace('.', '', uniqid('', true));
+        $nonce = str_replace('.', '', uniqid('', true));
+        $externalId = OAuthProvider::Linkedin === $provider ? 'LiNkEdIn-Link-Sub-'.$nonce : 'linked-'.$provider->value.'-'.$nonce;
         [$client, $user, $fake] = $this->linkClient($provider, $externalId);
         $beforeCount = $this->userCount();
+        $beforeEmail = $user->getEmail();
+        $beforeIdentities = $this->identities($user);
         $this->startLink($client, $provider);
 
         $client->request('GET', $callbackPath, ['code' => 'fake-code', 'state' => 'fake-oauth-state']);
@@ -229,7 +232,10 @@ final class OAuthLinkTest extends WebTestCase
         self::assertFalse($client->getRequest()->getSession()->has('oauth_link_intent'));
         self::assertFalse($client->getRequest()->getSession()->has('knpu.oauth2_client_state'));
         $reloaded = $this->reload($user);
-        self::assertSame($externalId, $this->identity($reloaded, $provider));
+        $expectedIdentities = $beforeIdentities;
+        $expectedIdentities[$provider->identityFamily()] = $externalId;
+        self::assertSame($expectedIdentities, $this->identities($reloaded));
+        self::assertSame($beforeEmail, $reloaded->getEmail());
         self::assertSame($user->getId(), $client->getContainer()->get('security.token_storage')->getToken()?->getUser()?->getId());
         self::assertSame($beforeCount, $this->userCount());
         self::assertEmailCount(0);
@@ -238,6 +244,10 @@ final class OAuthLinkTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
         self::assertSame(1, $fake->tokenRequests);
         self::assertSame(2, $fake->registryAccesses);
+        $afterReplay = $this->reload($user);
+        self::assertSame($expectedIdentities, $this->identities($afterReplay));
+        self::assertSame($beforeEmail, $afterReplay->getEmail());
+        self::assertSame($beforeCount, $this->userCount());
     }
 
     public function testOwnedExternalIdentityProducesGenericFailureWithoutCurrentUserMutation(): void
@@ -289,6 +299,7 @@ final class OAuthLinkTest extends WebTestCase
         yield 'GitHub EN' => [OAuthProvider::GithubEn, '/ru/connect/github-en/check'];
         yield 'GitHub RU' => [OAuthProvider::GithubRus, '/ru/connect/github-ru/check'];
         yield 'Facebook' => [OAuthProvider::Facebook, '/ru/connect/facebook/check'];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin, '/ru/connect/linkedin/check'];
     }
 
     /** @return array{KernelBrowser, User, FakeOAuth2Client} */
@@ -373,6 +384,7 @@ final class OAuthLinkTest extends WebTestCase
         $user->setVkontakteId($identities['vkontakte'] ?? null);
         $user->setGithubId($identities['github'] ?? null);
         $user->setFacebookId($identities['facebook'] ?? null);
+        $user->setLinkedinId($identities['linkedin'] ?? null);
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
         $entityManager->flush();
@@ -403,7 +415,21 @@ final class OAuthLinkTest extends WebTestCase
             OAuthProvider::Vkontakte => $user->getVkontakteId(),
             OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->getGithubId(),
             OAuthProvider::Facebook => $user->getFacebookId(),
+            OAuthProvider::Linkedin => $user->getLinkedinId(),
             default => null,
         };
+    }
+
+    /** @return array<string, ?string> */
+    private function identities(User $user): array
+    {
+        return [
+            'google' => $user->getGoogleId(),
+            'yandex' => $user->getYandexId(),
+            'vkontakte' => $user->getVkontakteId(),
+            'github' => $user->getGithubId(),
+            'facebook' => $user->getFacebookId(),
+            'linkedin' => $user->getLinkedinId(),
+        ];
     }
 }

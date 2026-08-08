@@ -73,6 +73,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $facebookId = null;
 
+    #[Column(type: Types::STRING, length: 255, unique: true, nullable: true)]
+    protected ?string $linkedinId = null;
+
     public function __construct()
     {
         $this->id = null;
@@ -371,5 +374,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function setFacebookId(?string $facebookId): void
     {
         $this->facebookId = $facebookId;
+    }
+
+    public function getLinkedinId(): ?string
+    {
+        return $this->linkedinId;
+    }
+
+    public function setLinkedinId(?string $linkedinId): static
+    {
+        $this->linkedinId = $linkedinId;
+
+        return $this;
     }
 }

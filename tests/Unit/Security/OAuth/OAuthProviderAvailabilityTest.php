@@ -8,9 +8,11 @@ use App\Security\OAuth\OAuthProvider;
 use App\Security\OAuth\OAuthProviderAvailability;
 use App\Security\OAuth\OAuthProviderConfigurationException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[Group(name: 'unit')]
 final class OAuthProviderAvailabilityTest extends TestCase
 {
     #[DataProvider('providers')]
@@ -72,6 +74,23 @@ final class OAuthProviderAvailabilityTest extends TestCase
             self::fail('A blank credential must make an enabled provider unavailable.');
         } catch (OAuthProviderConfigurationException $exception) {
             self::assertSame('OAuth provider "yandex" is enabled but not configured.', $exception->getMessage());
+            self::assertStringNotContainsString($secret, $exception->getMessage());
+        }
+    }
+
+    public function testEnabledLinkedinRequiresCompleteCredentialsWithoutLeakingThem(): void
+    {
+        $secret = 'linkedin-secret-not-for-output';
+        $availability = new OAuthProviderAvailability(
+            [OAuthProvider::Linkedin->value => true],
+            [OAuthProvider::Linkedin->value => ['clientId' => ' ', 'clientSecret' => $secret]],
+        );
+
+        try {
+            $availability->assertOperational(OAuthProvider::Linkedin);
+            self::fail('LinkedIn must not be operational without complete credentials.');
+        } catch (OAuthProviderConfigurationException $exception) {
+            self::assertSame('OAuth provider "linkedin" is enabled but not configured.', $exception->getMessage());
             self::assertStringNotContainsString($secret, $exception->getMessage());
         }
     }

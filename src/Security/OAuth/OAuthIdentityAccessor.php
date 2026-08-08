@@ -17,6 +17,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => $user->getGithubId(),
             OAuthProvider::Facebook => $user->getFacebookId(),
+            OAuthProvider::Linkedin => $user->getLinkedinId(),
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
@@ -30,6 +31,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => $user->setGithubId(null),
             OAuthProvider::Facebook => $user->setFacebookId(null),
+            OAuthProvider::Linkedin => $user->setLinkedinId(null),
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
@@ -43,6 +45,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => $user->setGithubId($externalId),
             OAuthProvider::Facebook => $user->setFacebookId($externalId),
+            OAuthProvider::Linkedin => $user->setLinkedinId($externalId),
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }
@@ -56,6 +59,7 @@ final class OAuthIdentityAccessor
             OAuthProvider::GithubEn,
             OAuthProvider::GithubRus => 'githubId',
             OAuthProvider::Facebook => 'facebookId',
+            OAuthProvider::Linkedin => 'linkedinId',
             default => throw new \LogicException('Unsupported OAuth identity provider.'),
         };
     }

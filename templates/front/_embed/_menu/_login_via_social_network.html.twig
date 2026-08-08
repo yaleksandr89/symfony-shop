@@ -2,9 +2,10 @@
 {% set yandexEnabled = oauth_provider_enabled('yandex') %}
 {% set vkontakteEnabled = oauth_provider_enabled('vkontakte') %}
 {% set facebookEnabled = oauth_provider_enabled('facebook') %}
+{% set linkedinEnabled = oauth_provider_enabled('linkedin') %}
 {% set githubRusEnabled = app.request.locale == 'ru' and oauth_provider_enabled('github_rus') %}
 {% set githubEnEnabled = app.request.locale == 'en' and oauth_provider_enabled('github_en') %}
-{% set hasEnabledProvider = googleEnabled or yandexEnabled or vkontakteEnabled or facebookEnabled or githubRusEnabled or githubEnEnabled %}
+{% set hasEnabledProvider = googleEnabled or yandexEnabled or vkontakteEnabled or facebookEnabled or linkedinEnabled or githubRusEnabled or githubEnEnabled %}
 
 {% if hasEnabledProvider %}
     <div class="form-additional mt-2 pt-1">
@@ -34,6 +35,13 @@
             <div class="col-sm-12 text-center">
                 <a href="{{ path('connect_facebook_start') }}" class="btn btn-link btn-dark mb-1">
                     {{ 'login_social_network.facebook'|trans }}
+                </a>
+            </div>
+        {% endif %}
+        {% if linkedinEnabled %}
+            <div class="col-sm-12 text-center">
+                <a href="{{ path('connect_linkedin_start') }}" class="btn btn-link btn-dark mb-1">
+                    {{ 'login_social_network.linkedin'|trans }}
                 </a>
             </div>
         {% endif %}

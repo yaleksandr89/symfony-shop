@@ -209,6 +209,7 @@ final class OAuthUserResolverTest extends TestCase
         yield 'GitHub EN' => [OAuthProvider::GithubEn, 'githubId', 'github-external-id'];
         yield 'GitHub RU' => [OAuthProvider::GithubRus, 'githubId', 'github-external-id'];
         yield 'Facebook' => [OAuthProvider::Facebook, 'facebookId', 'facebook-external-id'];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin, 'linkedinId', 'LiNkEdIn-external-id'];
     }
 
     /** @return iterable<string, array{?string}> */
@@ -231,7 +232,6 @@ final class OAuthUserResolverTest extends TestCase
     /** @return iterable<string, array{OAuthProvider}> */
     public static function futureProviders(): iterable
     {
-        yield 'LinkedIn' => [OAuthProvider::Linkedin];
         yield 'Mail.ru' => [OAuthProvider::Mailru];
     }
 
@@ -248,6 +248,7 @@ final class OAuthUserResolverTest extends TestCase
         $user->setVkontakteId(null);
         $user->setGithubId(null);
         $user->setFacebookId(null);
+        $user->setLinkedinId(null);
 
         return $user;
     }
@@ -260,6 +261,7 @@ final class OAuthUserResolverTest extends TestCase
         $user->setVkontakteId('vkontakte-original');
         $user->setGithubId('github-original');
         $user->setFacebookId('facebook-original');
+        $user->setLinkedinId('LiNkEdIn-original');
 
         return $user;
     }
@@ -278,6 +280,7 @@ final class OAuthUserResolverTest extends TestCase
             'vkontakte' => $user->getVkontakteId(),
             'github' => $user->getGithubId(),
             'facebook' => $user->getFacebookId(),
+            'linkedin' => $user->getLinkedinId(),
         ];
     }
 }

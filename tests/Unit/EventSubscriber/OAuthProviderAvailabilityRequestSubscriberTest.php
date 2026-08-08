@@ -8,6 +8,7 @@ use App\EventSubscriber\OAuthProviderAvailabilityRequestSubscriber;
 use App\Security\OAuth\OAuthProvider;
 use App\Security\OAuth\OAuthProviderAvailability;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+#[Group(name: 'unit')]
 final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 {
     #[DataProvider('currentRoutes')]
@@ -76,7 +78,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 
     public function testOnlyCurrentImplementedRoutesAreMapped(): void
     {
-        self::assertNull(OAuthProvider::fromRoute('connect_linkedin_check'));
+        self::assertSame(OAuthProvider::Linkedin, OAuthProvider::fromRoute('connect_linkedin_check'));
         self::assertNull(OAuthProvider::fromRoute('connect_mailru_start'));
         self::assertSame(
             [KernelEvents::REQUEST => ['onKernelRequest', 16]],
@@ -99,6 +101,8 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
         yield 'GitHub RU callback' => ['connect_github_ru_check', OAuthProvider::GithubRus];
         yield 'Facebook start' => ['connect_facebook_start', OAuthProvider::Facebook];
         yield 'Facebook callback' => ['connect_facebook_check', OAuthProvider::Facebook];
+        yield 'LinkedIn start' => ['connect_linkedin_start', OAuthProvider::Linkedin];
+        yield 'LinkedIn callback' => ['connect_linkedin_check', OAuthProvider::Linkedin];
     }
 
     /** @return iterable<string, array{string}> */
@@ -129,6 +133,6 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
         $request = Request::create('/');
         $request->attributes->set('_route', $route);
 
-        return new RequestEvent($this->createMock(HttpKernelInterface::class), $request, $requestType);
+        return new RequestEvent($this->createStub(HttpKernelInterface::class), $request, $requestType);
     }
 }

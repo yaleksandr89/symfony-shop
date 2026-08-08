@@ -114,6 +114,7 @@ final class OAuthUnlinkTest extends WebTestCase
             'vkontakte' => 'vkontakte-'.$provider->value,
             'github' => 'github-'.$provider->value,
             'facebook' => 'facebook-'.$provider->value,
+            'linkedin' => 'LiNkEdIn-'.$provider->value.'-Sub',
         ];
         $client = self::createClient();
         $user = $this->createUser($identities);
@@ -134,12 +135,13 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
-    public function testDisabledButLinkedProviderCanBeUnlinked(): void
+    #[DataProvider('disabledLinkedProviders')]
+    public function testDisabledButLinkedProviderCanBeUnlinked(OAuthProvider $provider, string $externalId): void
     {
         $client = self::createClient();
-        $user = $this->createUser(['facebook' => 'disabled-facebook']);
+        $user = $this->createUser([$provider->identityFamily() => $externalId]);
         $client->loginUser($user, 'website');
-        $crawler = $client->request('GET', '/ru/profile/oauth/facebook/unlink');
+        $crawler = $client->request('GET', '/ru/profile/oauth/'.$provider->value.'/unlink');
         $form = $crawler->filter('form')->form([
             'oauth_unlink_form[currentPassword]' => self::PASSWORD,
         ]);
@@ -147,7 +149,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $client->submit($form);
 
         self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
-        $this->assertIdentity($user, 'facebook', null);
+        $this->assertIdentity($user, $provider->identityFamily(), null);
         self::assertEmailCount(0);
     }
 
@@ -157,7 +159,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $user = $this->createUser(['yandex' => 'linked-yandex']);
         $client->loginUser($user, 'website');
 
-        foreach (['linkedin', 'mailru', 'not-a-provider', 'google'] as $provider) {
+        foreach (['mailru', 'not-a-provider', 'google'] as $provider) {
             $client->request('GET', '/ru/profile/oauth/'.$provider.'/unlink');
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
@@ -195,6 +197,14 @@ final class OAuthUnlinkTest extends WebTestCase
         yield 'Github EN' => [OAuthProvider::GithubEn];
         yield 'Github RU' => [OAuthProvider::GithubRus];
         yield 'Facebook' => [OAuthProvider::Facebook];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin];
+    }
+
+    /** @return iterable<string, array{OAuthProvider, string}> */
+    public static function disabledLinkedProviders(): iterable
+    {
+        yield 'Facebook' => [OAuthProvider::Facebook, 'disabled-facebook'];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin, 'Disabled-LiNkEdIn-Sub'];
     }
 
     /** @param array<string, string> $linkedIdentities */
@@ -211,6 +221,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $user->setVkontakteId($linkedIdentities['vkontakte'] ?? null);
         $user->setGithubId($linkedIdentities['github'] ?? null);
         $user->setFacebookId($linkedIdentities['facebook'] ?? null);
+        $user->setLinkedinId($linkedIdentities['linkedin'] ?? null);
 
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
@@ -233,6 +244,7 @@ final class OAuthUnlinkTest extends WebTestCase
             'vkontakte' => $reloadedUser->getVkontakteId(),
             'github' => $reloadedUser->getGithubId(),
             'facebook' => $reloadedUser->getFacebookId(),
+            'linkedin' => $reloadedUser->getLinkedinId(),
         ];
     }
 
