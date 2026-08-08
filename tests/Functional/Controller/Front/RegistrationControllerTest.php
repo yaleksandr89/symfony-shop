@@ -4,9 +4,11 @@ namespace App\Tests\Functional\Controller\Front;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Security\Verifier\EmailVerifier;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
@@ -77,5 +79,33 @@ class RegistrationControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
 
         self::assertSelectorTextContains('div', 'Значение слишком короткое. Должно быть равно 6 символам или больше.');
+    }
+
+    public function testVerificationLinkVerifiesTheUserSelectedByQueryId(): void
+    {
+        $client = static::createClient();
+        $container = static::getContainer();
+
+        /** @var User $user */
+        $user = $container->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        self::assertNotNull($user);
+
+        $user->setIsVerified(false);
+        $container->get(EntityManagerInterface::class)->flush();
+
+        $signedUrl = $container->get(EmailVerifier::class)
+            ->generateEmailSignature('main_verify_email', $user)
+            ->getSignedUrl();
+
+        $client->request('GET', $signedUrl);
+
+        self::assertResponseRedirects('/ru/', Response::HTTP_FOUND);
+
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+
+        /** @var User $verifiedUser */
+        $verifiedUser = static::getContainer()->get(UserRepository::class)->find($user->getId());
+        self::assertTrue($verifiedUser->isVerified());
     }
 }
