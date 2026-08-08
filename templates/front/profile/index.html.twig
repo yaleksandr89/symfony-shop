@@ -133,6 +133,21 @@
                                         {% endif %}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <th scope="row">5</th>
+                                    <td>
+                                        <i class="fab fa-facebook" style="font-size: 35px;" aria-label="{{ 'personal_account.social_group.facebook'|trans }}" title="{{ 'personal_account.social_group.facebook'|trans }}"></i>
+                                    </td>
+                                    <td>
+                                        {% if app.user.facebookId or oauth_provider_enabled('facebook') %}
+                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                                'socialNameId': app.user.facebookId,
+                                                'socialName': 'facebook',
+                                                'providerKey': 'facebook'
+                                            } %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>

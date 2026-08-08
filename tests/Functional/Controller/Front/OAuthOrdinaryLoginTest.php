@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Security\OAuth\OAuthProvider;
 use App\Security\OAuth\OAuthProviderAvailability;
 use App\Tests\TestUtils\OAuth\FakeOAuth2Client;
+use App\Utils\Oauth2\Facebook\FacebookUser;
 use App\Utils\Oauth2\Vk\VkUser;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -58,19 +59,19 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
-    public function testExistingEmailWithoutIdentityIsDeniedGenericallyAndNeverLinked(): void
+    public function testFacebookExistingEmailWithoutIdentityIsDeniedGenericallyAndNeverLinked(): void
     {
         $email = 'collision-'.str_replace('.', '', uniqid('', true)).'@example.test';
-        $externalId = 'collision-yandex-'.str_replace('.', '', uniqid('', true));
-        [$client] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Yandex, $externalId, $email));
+        $externalId = 'collision-facebook-'.str_replace('.', '', uniqid('', true));
+        [$client] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Facebook, $externalId, $email));
         $user = $this->createUser($email);
         $beforeCount = $this->userCount();
 
-        $this->completeCallback($client, '/ru/connect/yandex', '/ru/connect/yandex/check');
+        $this->completeCallback($client, '/ru/connect/facebook', '/ru/connect/facebook/check');
 
         self::assertResponseRedirects('/ru/login');
         self::assertFalse($client->getContainer()->get('security.token_storage')->getToken()?->getUser() instanceof User);
-        self::assertNull($this->reload($user)->getYandexId());
+        self::assertNull($this->reload($user)->getFacebookId());
         self::assertSame($beforeCount, $this->userCount());
         self::assertEmailCount(0);
         $client->followRedirect();
@@ -82,13 +83,13 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         self::assertStringNotContainsString('database detail', (string) $client->getResponse()->getContent());
     }
 
-    public function testMissingProviderEmailIsDeniedWithoutUserEmailOrLogin(): void
+    public function testMissingFacebookEmailIsDeniedWithoutUserEmailOrLogin(): void
     {
-        $externalId = 'missing-email-yandex-'.str_replace('.', '', uniqid('', true));
-        [$client] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Yandex, $externalId, null));
+        $externalId = 'missing-email-facebook-'.str_replace('.', '', uniqid('', true));
+        [$client] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Facebook, $externalId, null));
         $beforeCount = $this->userCount();
 
-        $this->completeCallback($client, '/ru/connect/yandex', '/ru/connect/yandex/check');
+        $this->completeCallback($client, '/ru/connect/facebook', '/ru/connect/facebook/check');
 
         self::assertResponseRedirects('/ru/login');
         self::assertFalse($client->getContainer()->get('security.token_storage')->getToken()?->getUser() instanceof User);
@@ -101,21 +102,21 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         self::assertStringNotContainsString($externalId, (string) $client->getResponse()->getContent());
     }
 
-    public function testNewGoogleUserIsPersistedUnverifiedBeforeStandardConfirmationEmailAndLogin(): void
+    public function testNewFacebookUserIsPersistedUnverifiedBeforeStandardConfirmationEmailAndLogin(): void
     {
-        $externalId = 'new-google-'.str_replace('.', '', uniqid('', true));
-        $email = 'new-google-'.str_replace('.', '', uniqid('', true)).'@example.test';
-        [$client] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Google, $externalId, $email));
+        $externalId = 'new-facebook-'.str_replace('.', '', uniqid('', true));
+        $email = 'new-facebook-'.str_replace('.', '', uniqid('', true)).'@example.test';
+        [$client] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Facebook, $externalId, $email));
         $beforeCount = $this->userCount();
 
-        $this->completeCallback($client, '/ru/connect/google', '/ru/connect/google/check');
+        $this->completeCallback($client, '/ru/connect/facebook', '/ru/connect/facebook/check');
 
         self::assertResponseRedirects('/ru/profile');
         self::assertSame($beforeCount + 1, $this->userCount());
         $user = $this->entityManager()->getRepository(User::class)->findOneBy(['email' => $email]);
         self::assertInstanceOf(User::class, $user);
         self::assertNotNull($user->getId());
-        self::assertSame($externalId, $user->getGoogleId());
+        self::assertSame($externalId, $user->getFacebookId());
         self::assertFalse($user->isVerified(), 'The provider email_verified claim must not verify the local account.');
         self::assertNotSame('', trim($user->getPassword()));
         $authenticatedUser = $client->getContainer()->get('security.token_storage')->getToken()?->getUser();
@@ -141,6 +142,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         yield 'Vkontakte' => [OAuthProvider::Vkontakte, '/ru/connect/vkontakte', '/ru/connect/vkontakte/check'];
         yield 'GitHub EN' => [OAuthProvider::GithubEn, '/ru/connect/github-en', '/ru/connect/github-en/check'];
         yield 'GitHub RU' => [OAuthProvider::GithubRus, '/ru/connect/github-ru', '/ru/connect/github-ru/check'];
+        yield 'Facebook' => [OAuthProvider::Facebook, '/ru/connect/facebook', '/ru/connect/facebook/check'];
     }
 
     /** @return array{KernelBrowser, FakeOAuth2Client} */
@@ -227,6 +229,11 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
                 'name' => 'GitHub User',
                 'login' => 'github-user',
             ]),
+            OAuthProvider::Facebook => new FacebookUser(array_filter([
+                'id' => $externalId,
+                'name' => 'Facebook User',
+                'email' => $email,
+            ], static fn (?string $value): bool => null !== $value)),
             default => throw new \LogicException('Unsupported test provider.'),
         };
     }
@@ -239,12 +246,14 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         $user->setYandexId(null);
         $user->setVkontakteId(null);
         $user->setGithubId(null);
+        $user->setFacebookId(null);
         if (null !== $provider && null !== $externalId) {
             match ($provider) {
                 OAuthProvider::Google => $user->setGoogleId($externalId),
                 OAuthProvider::Yandex => $user->setYandexId($externalId),
                 OAuthProvider::Vkontakte => $user->setVkontakteId($externalId),
                 OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->setGithubId($externalId),
+                OAuthProvider::Facebook => $user->setFacebookId($externalId),
                 default => throw new \LogicException('Unsupported test provider.'),
             };
         }
@@ -280,6 +289,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
             OAuthProvider::Yandex => $user->getYandexId(),
             OAuthProvider::Vkontakte => $user->getVkontakteId(),
             OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->getGithubId(),
+            OAuthProvider::Facebook => $user->getFacebookId(),
             default => null,
         };
     }

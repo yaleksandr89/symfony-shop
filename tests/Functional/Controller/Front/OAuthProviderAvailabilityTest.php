@@ -39,18 +39,18 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         }
     }
 
-    public function testConfiguredEnabledYandexRendersSocialWrapperAndOnlyYandexButton(): void
+    #[DataProvider('locales')]
+    public function testConfiguredEnabledFacebookRendersSocialWrapperAndOnlyFacebookButton(string $locale): void
     {
-        foreach (['/ru/login', '/ru/registration'] as $path) {
-            $client = $this->requestWithAvailability($path, [OAuthProvider::Yandex->value => true]);
+        foreach (['/login', '/registration'] as $path) {
+            $client = $this->requestWithAvailability('/'.$locale.$path, [OAuthProvider::Facebook->value => true]);
 
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
             self::assertSelectorExists('.form-additional.mt-2.pt-1');
-            self::assertSelectorExists('a[href="/ru/connect/yandex"]');
-            self::assertSelectorNotExists('a[href="/ru/connect/google"]');
-            self::assertSelectorNotExists('a[href="/ru/connect/vkontakte"]');
-            self::assertSelectorNotExists('a[href="/ru/connect/github-ru"]');
-            self::assertSelectorNotExists('a[href="/ru/connect/github-en"]');
+            self::assertSelectorCount(1, 'a[href="/'.$locale.'/connect/facebook"]');
+            foreach (array_diff(self::START_PATHS, ['/connect/facebook']) as $oauthPath) {
+                self::assertSelectorNotExists('a[href="/'.$locale.$oauthPath.'"]');
+            }
         }
     }
 
@@ -76,7 +76,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
-        $user->setGoogleId('already-linked-google-id');
+        $user->setFacebookId('already-linked-facebook-id');
         $entityManager->flush();
 
         try {
@@ -84,13 +84,12 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
             $client->request('GET', '/ru/profile');
 
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
-            self::assertSelectorNotExists('a[href="/ru/connect/yandex"]');
-            self::assertSelectorNotExists('a[href="/ru/connect/vkontakte"]');
-            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/google/unlink"]');
-            self::assertSelectorTextContains('a[href="/ru/profile/oauth/google/unlink"]', 'Отвязать');
-            self::assertSelectorNotExists('a[href="/ru/profile/oauth/google/link"]');
+            self::assertSelectorNotExists('a[href="/ru/connect/facebook"]');
+            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/facebook/unlink"]');
+            self::assertSelectorTextContains('a[href="/ru/profile/oauth/facebook/unlink"]', 'Отвязать');
+            self::assertSelectorNotExists('a[href="/ru/profile/oauth/facebook/link"]');
         } finally {
-            $user->setGoogleId(null);
+            $user->setFacebookId(null);
             $entityManager->flush();
         }
     }
@@ -100,13 +99,13 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client = self::createClient();
         $client->disableReboot();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
-            [OAuthProvider::Google->value => true],
-            [OAuthProvider::Google->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Facebook->value => true],
+            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
         ));
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
-        $user->setGoogleId('already-linked-google-id');
+        $user->setFacebookId('already-linked-facebook-id');
         $entityManager->flush();
 
         try {
@@ -114,11 +113,11 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
             $client->request('GET', '/ru/profile');
 
             self::assertResponseIsSuccessful();
-            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/google/unlink"]');
-            self::assertSelectorTextContains('a[href="/ru/profile/oauth/google/unlink"]', 'Отвязать');
-            self::assertSelectorNotExists('a[href="/ru/profile/oauth/google/link"]');
+            self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/facebook/unlink"]');
+            self::assertSelectorTextContains('a[href="/ru/profile/oauth/facebook/unlink"]', 'Отвязать');
+            self::assertSelectorNotExists('a[href="/ru/profile/oauth/facebook/link"]');
         } finally {
-            $user->setGoogleId(null);
+            $user->setFacebookId(null);
             $entityManager->flush();
         }
     }
@@ -151,13 +150,13 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertStringStartsWith('https://www.facebook.com/v26.0/dialog/oauth?', (string) $client->getResponse()->headers->get('Location'));
     }
 
-    public function testEnabledUnlinkedProfileProviderUsesExplicitConfirmationWhileLoginUsesPublicStart(): void
+    public function testEnabledUnlinkedFacebookProfileUsesExplicitConfirmationWhileLoginUsesPublicStart(): void
     {
         $client = self::createClient();
         $client->disableReboot();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
-            [OAuthProvider::Yandex->value => true],
-            [OAuthProvider::Yandex->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Facebook->value => true],
+            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
         ));
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
@@ -166,17 +165,17 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
 
         $client->request('GET', '/ru/profile');
         self::assertResponseIsSuccessful();
-        self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/yandex/link"]');
-        self::assertSelectorTextContains('a[href="/ru/profile/oauth/yandex/link"]', 'Привязать');
-        self::assertSelectorNotExists('a[href="/ru/profile/oauth/yandex/unlink"]');
-        self::assertSelectorNotExists('a[href="/ru/connect/yandex"]');
+        self::assertSelectorCount(1, 'a[href="/ru/profile/oauth/facebook/link"]');
+        self::assertSelectorTextContains('a[href="/ru/profile/oauth/facebook/link"]', 'Привязать');
+        self::assertSelectorNotExists('a[href="/ru/profile/oauth/facebook/unlink"]');
+        self::assertSelectorNotExists('a[href="/ru/connect/facebook"]');
 
         $client->request('GET', '/ru/logout');
         self::assertTrue($client->getResponse()->isRedirect());
         $client->followRedirect();
         $client->request('GET', '/ru/login');
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('a[href="/ru/connect/yandex"]');
+        self::assertSelectorExists('a[href="/ru/connect/facebook"]');
     }
 
     public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void

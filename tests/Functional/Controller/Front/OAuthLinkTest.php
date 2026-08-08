@@ -46,7 +46,7 @@ final class OAuthLinkTest extends WebTestCase
         $client->loginUser($user, 'website');
         $fake = $this->installFakeClients('external-id');
 
-        foreach (['yandex', 'google', 'facebook', 'unknown'] as $provider) {
+        foreach (['yandex', 'google', 'linkedin', 'unknown'] as $provider) {
             $client->request('GET', '/ru/profile/oauth/'.$provider.'/link');
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
@@ -288,6 +288,7 @@ final class OAuthLinkTest extends WebTestCase
         yield 'Vkontakte' => [OAuthProvider::Vkontakte, '/ru/connect/vkontakte/check'];
         yield 'GitHub EN' => [OAuthProvider::GithubEn, '/ru/connect/github-en/check'];
         yield 'GitHub RU' => [OAuthProvider::GithubRus, '/ru/connect/github-ru/check'];
+        yield 'Facebook' => [OAuthProvider::Facebook, '/ru/connect/facebook/check'];
     }
 
     /** @return array{KernelBrowser, User, FakeOAuth2Client} */
@@ -371,6 +372,7 @@ final class OAuthLinkTest extends WebTestCase
         $user->setYandexId($identities['yandex'] ?? null);
         $user->setVkontakteId($identities['vkontakte'] ?? null);
         $user->setGithubId($identities['github'] ?? null);
+        $user->setFacebookId($identities['facebook'] ?? null);
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
         $entityManager->flush();
@@ -400,6 +402,7 @@ final class OAuthLinkTest extends WebTestCase
             OAuthProvider::Yandex => $user->getYandexId(),
             OAuthProvider::Vkontakte => $user->getVkontakteId(),
             OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->getGithubId(),
+            OAuthProvider::Facebook => $user->getFacebookId(),
             default => null,
         };
     }

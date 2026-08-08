@@ -113,6 +113,7 @@ final class OAuthUnlinkTest extends WebTestCase
             'yandex' => 'yandex-'.$provider->value,
             'vkontakte' => 'vkontakte-'.$provider->value,
             'github' => 'github-'.$provider->value,
+            'facebook' => 'facebook-'.$provider->value,
         ];
         $client = self::createClient();
         $user = $this->createUser($identities);
@@ -136,9 +137,9 @@ final class OAuthUnlinkTest extends WebTestCase
     public function testDisabledButLinkedProviderCanBeUnlinked(): void
     {
         $client = self::createClient();
-        $user = $this->createUser(['google' => 'disabled-google']);
+        $user = $this->createUser(['facebook' => 'disabled-facebook']);
         $client->loginUser($user, 'website');
-        $crawler = $client->request('GET', '/ru/profile/oauth/google/unlink');
+        $crawler = $client->request('GET', '/ru/profile/oauth/facebook/unlink');
         $form = $crawler->filter('form')->form([
             'oauth_unlink_form[currentPassword]' => self::PASSWORD,
         ]);
@@ -146,7 +147,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $client->submit($form);
 
         self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
-        $this->assertIdentity($user, 'google', null);
+        $this->assertIdentity($user, 'facebook', null);
         self::assertEmailCount(0);
     }
 
@@ -156,7 +157,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $user = $this->createUser(['yandex' => 'linked-yandex']);
         $client->loginUser($user, 'website');
 
-        foreach (['facebook', 'not-a-provider', 'google'] as $provider) {
+        foreach (['linkedin', 'mailru', 'not-a-provider', 'google'] as $provider) {
             $client->request('GET', '/ru/profile/oauth/'.$provider.'/unlink');
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
@@ -193,6 +194,7 @@ final class OAuthUnlinkTest extends WebTestCase
         yield 'Vkontakte' => [OAuthProvider::Vkontakte];
         yield 'Github EN' => [OAuthProvider::GithubEn];
         yield 'Github RU' => [OAuthProvider::GithubRus];
+        yield 'Facebook' => [OAuthProvider::Facebook];
     }
 
     /** @param array<string, string> $linkedIdentities */
@@ -208,6 +210,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $user->setYandexId($linkedIdentities['yandex'] ?? null);
         $user->setVkontakteId($linkedIdentities['vkontakte'] ?? null);
         $user->setGithubId($linkedIdentities['github'] ?? null);
+        $user->setFacebookId($linkedIdentities['facebook'] ?? null);
 
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
@@ -229,6 +232,7 @@ final class OAuthUnlinkTest extends WebTestCase
             'yandex' => $reloadedUser->getYandexId(),
             'vkontakte' => $reloadedUser->getVkontakteId(),
             'github' => $reloadedUser->getGithubId(),
+            'facebook' => $reloadedUser->getFacebookId(),
         ];
     }
 

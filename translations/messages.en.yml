@@ -34,6 +34,7 @@ personal_account.edit.labels.address: 'Enter address'
 personal_account.edit.labels.zipcode: 'Enter zipcode'
 personal_account.edit.save_changes: 'Save changes'
 login_social_network.google: 'Login with Google'
+login_social_network.facebook: 'Login with Facebook'
 similar_products.head: 'We recommend'
 similar_products.new: New
 product.add_to_cart: 'Add to cart'
@@ -139,6 +140,7 @@ personal_account.social_group.google: Google
 personal_account.social_group.yandex: Yandex
 personal_account.social_group.vkontakte: Vkontakte
 personal_account.social_group.github: Github
+personal_account.social_group.facebook: Facebook
 personal_account.social_group.integration_service: 'Integration Service'
 personal_account.social_group.link: Link
 personal_account.social_group.unlink: Unlink
