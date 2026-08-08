@@ -15,7 +15,7 @@ use App\Form\Handler\OrderFormHandler;
 use App\Utils\Manager\OrderManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin/order', name: 'admin_order_')]
 class OrderController extends BaseAdminController

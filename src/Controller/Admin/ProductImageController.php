@@ -10,7 +10,7 @@ use App\Utils\Manager\ProductImageManager;
 use App\Utils\Manager\ProductManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin/product-image', name: 'admin_product_image_')]
 class ProductImageController extends BaseAdminController

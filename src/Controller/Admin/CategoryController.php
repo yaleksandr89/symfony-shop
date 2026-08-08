@@ -12,7 +12,7 @@ use App\Repository\CategoryRepository;
 use App\Utils\Manager\CategoryManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
 #[Route('/admin/category', name: 'admin_category_')]
