@@ -62,6 +62,7 @@ class ProductFormHandler
         $queryBuilder = $this->productManager
             ->getQueryBuilder()
             ->leftJoin('p.category', 'c')
+            ->addSelect('c')
             ->where('p.isDeleted = :isDeleted')
             ->setParameter('isDeleted', false);
 

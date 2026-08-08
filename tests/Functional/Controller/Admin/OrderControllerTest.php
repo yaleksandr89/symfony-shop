@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Admin;
 
 use App\Entity\Order;
+use App\Entity\OrderProduct;
+use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\OrderRepository;
+use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
+use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -26,6 +31,96 @@ class OrderControllerTest extends WebTestCase
         $client->request('GET', '/ru/admin/order/list');
 
         self::assertResponseIsSuccessful();
+    }
+
+    public function testListBatchesLineCountsAndKeepsQueryCountBounded(): void
+    {
+        $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $orderRepository = self::getContainer()->get(OrderRepository::class);
+        $product = self::getContainer()->get(ProductRepository::class)->findOneBy(['isDeleted' => false]);
+        self::assertInstanceOf(Product::class, $product);
+        $existingCount = $orderRepository->count(['isDeleted' => false]);
+        $orderCount = 10 + ((5 - (($existingCount + 10) % 10) + 10) % 10);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $owner = (new User())
+            ->setEmail('admin-query-owner-'.$suffix.'@example.test')
+            ->setPassword('not-used-in-functional-test')
+            ->setRoles(['ROLE_USER'])
+            ->setIsVerified(true)
+            ->setFullName('Admin Query Owner '.$suffix)
+            ->setPhone('+7 900 123-45-67');
+        $entityManager->persist($owner);
+
+        $orders = [];
+        for ($index = 1; $index <= $orderCount; ++$index) {
+            $order = (new Order())
+                ->setOwner($owner)
+                ->setStatus(0)
+                ->setTotalPrice($index === $orderCount ? '0.00' : '39.98');
+            if ($index < $orderCount) {
+                for ($line = 1; $line <= 2; ++$line) {
+                    $order->addOrderProduct(
+                        (new OrderProduct())
+                            ->setProduct($product)
+                            ->setQuantity(1)
+                            ->setPricePerOne('19.99')
+                    );
+                }
+            }
+            $entityManager->persist($order);
+            $orders[] = $order;
+        }
+        $entityManager->flush();
+
+        $expectedPageIds = array_reverse(array_map(
+            static fn (Order $order): int => (int) $order->getId(),
+            array_slice($orders, -10),
+        ));
+        $lastPage = (int) ceil(($existingCount + $orderCount) / 10);
+        $entityManager->clear();
+        $admin = self::getContainer()->get(UserRepository::class)->findOneBy([
+            'email' => UserFixtures::USER_ADMIN_1_EMAIL,
+        ]);
+        self::assertInstanceOf(User::class, $admin);
+        $client->loginUser($admin, 'website');
+
+        $this->resetDoctrineQueryLog();
+        $client->enableProfiler();
+        $crawler = $client->request('GET', '/en/admin/order/list?sort=o.id&direction=desc');
+
+        self::assertResponseIsSuccessful();
+        $rows = $crawler->filter('#main_table tbody tr');
+        self::assertCount(10, $rows);
+        self::assertSame(
+            $expectedPageIds,
+            $rows->each(static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text())),
+        );
+        self::assertSame((string) $owner->getFullName(), trim($rows->first()->filter('td')->eq(1)->text()));
+        self::assertSame((string) $owner->getEmail(), trim($rows->first()->filter('td')->eq(2)->text()));
+        self::assertSame((string) $owner->getPhone(), trim($rows->first()->filter('td')->eq(3)->text()));
+        self::assertSame('0', trim($rows->first()->filter('td')->eq(5)->text()));
+        self::assertSame('2', trim($rows->eq(1)->filter('td')->eq(5)->text()));
+        self::assertCount(1, $crawler->filter('#order_list_filters_block form'));
+        self::assertGreaterThan(
+            0,
+            $crawler->filter(sprintf('.navigation a[href*="page=%d"]', $lastPage))->count(),
+        );
+        $fullPageQueryCount = $this->doctrineQueryCount($client);
+        self::assertLessThanOrEqual(9, $fullPageQueryCount);
+
+        $this->resetDoctrineQueryLog();
+        $client->enableProfiler();
+        $crawler = $client->request('GET', sprintf(
+            '/en/admin/order/list?sort=o.id&direction=desc&page=%d',
+            $lastPage,
+        ));
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(5, $crawler->filter('#main_table tbody tr'));
+        $partialPageQueryCount = $this->doctrineQueryCount($client);
+        self::assertLessThanOrEqual(9, $partialPageQueryCount);
+        self::assertLessThanOrEqual(1, abs($fullPageQueryCount - $partialPageQueryCount));
     }
 
     public function testEmptyFilterSubmitDoesNotFail(): void
@@ -628,5 +723,23 @@ class OrderControllerTest extends WebTestCase
         $client->loginUser($user, 'website');
 
         return $client;
+    }
+
+    private function doctrineQueryCount(KernelBrowser $client): int
+    {
+        $profile = $client->getProfile();
+        self::assertNotFalse($profile);
+        self::assertNotNull($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        return $collector->getQueryCount();
+    }
+
+    private function resetDoctrineQueryLog(): void
+    {
+        $collector = self::getContainer()->get('data_collector.doctrine');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+        $collector->reset();
     }
 }

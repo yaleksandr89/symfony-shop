@@ -38,7 +38,7 @@
                             <td>{{ order.owner.email }}</td>
                             <td>{{ order.owner.phone|default('order.list.missing_phone'|trans({}, 'admin')) }}</td>
                             <td>{{ order.createdAt|format_datetime('full', 'medium') }}</td>
-                            <td>{{ order.getOrderProducts.getValues|length }}</td>
+                            <td>{{ orderProductCounts[order.id] ?? 0 }}</td>
                             <td>{{ order.totalPrice|format_currency('USD') }}</td>
                             <td>{{ orderStatusChoice[order.status]|trans }}</td>
                             <td>

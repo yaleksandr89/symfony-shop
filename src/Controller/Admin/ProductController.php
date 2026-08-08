@@ -10,6 +10,7 @@ use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\EditProductModel;
 use App\Form\DTO\ProductFilterModel;
 use App\Form\Handler\ProductFormHandler;
+use App\Repository\ProductImageRepository;
 use App\Utils\Manager\ProductManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,15 +20,23 @@ use Symfony\Component\Routing\Attribute\Route;
 class ProductController extends BaseAdminController
 {
     #[Route('/list', name: 'list')]
-    public function list(Request $request, ProductFormHandler $productFormHandler): Response
-    {
+    public function list(
+        Request $request,
+        ProductFormHandler $productFormHandler,
+        ProductImageRepository $productImageRepository,
+    ): Response {
         $filterForm = $this->createForm(ProductFilterFormType::class, new ProductFilterModel());
         $filterForm->handleRequest($request);
 
         $pagination = $productFormHandler->processOrderFiltersForm($request, $filterForm);
+        $productIds = [];
+        foreach ($pagination->getItems() as $product) {
+            $productIds[] = (int) $product->getId();
+        }
 
         return $this->render('admin/product/list.html.twig', [
             'pagination' => $pagination,
+            'coversByProductId' => $productImageRepository->findFirstCoversByProductIds($productIds),
             'form' => $filterForm->createView(),
         ]);
     }

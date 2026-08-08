@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller\Admin;
 
+use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,6 +29,101 @@ class ProductControllerTest extends WebTestCase
         $client->request('GET', '/ru/admin/product/list');
 
         self::assertResponseIsSuccessful();
+    }
+
+    public function testListBatchesPageCoversAndKeepsQueryCountBounded(): void
+    {
+        $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $productRepository = self::getContainer()->get(ProductRepository::class);
+        $existingCount = $productRepository->count(['isDeleted' => false]);
+        $productCount = 10 + ((5 - (($existingCount + 10) % 10) + 10) % 10);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $category = (new Category())
+            ->setTitle('Admin query category '.$suffix)
+            ->setSlug('admin-query-category-'.$suffix);
+        $entityManager->persist($category);
+
+        $products = [];
+        for ($index = 1; $index <= $productCount; ++$index) {
+            $product = (new Product())
+                ->setTitle(sprintf('Admin query product %02d %s', $index, $suffix))
+                ->setSlug(sprintf('admin-query-product-%02d-%s', $index, $suffix))
+                ->setPrice('19.99')
+                ->setQuantity($index)
+                ->setIsPublished(0 === $index % 2)
+                ->setCategory($category);
+            if ($index < $productCount) {
+                $filename = sprintf('admin-query-%02d-%s.jpg', $index, $suffix);
+                $product->addProductImage(
+                    (new ProductImage())
+                        ->setFilenameBig($filename)
+                        ->setFilenameMiddle($filename)
+                        ->setFilenameSmall($filename)
+                );
+            }
+            $entityManager->persist($product);
+            $products[] = $product;
+        }
+        $entityManager->flush();
+
+        $expectedPageIds = array_reverse(array_map(
+            static fn (Product $product): int => (int) $product->getId(),
+            array_slice($products, -10),
+        ));
+        $coverProduct = $products[$productCount - 2];
+        $coverFilename = sprintf('admin-query-%02d-%s.jpg', $productCount - 1, $suffix);
+        $categoryTitle = (string) $category->getTitle();
+        $lastPage = (int) ceil(($existingCount + $productCount) / 10);
+        $entityManager->clear();
+        $admin = self::getContainer()->get(UserRepository::class)->findOneBy([
+            'email' => UserFixtures::USER_ADMIN_1_EMAIL,
+        ]);
+        self::assertInstanceOf(User::class, $admin);
+        $client->loginUser($admin, 'website');
+
+        $this->resetDoctrineQueryLog();
+        $client->enableProfiler();
+        $crawler = $client->request('GET', '/en/admin/product/list?sort=p.id&direction=desc');
+
+        self::assertResponseIsSuccessful();
+        $rows = $crawler->filter('#main_table tbody tr');
+        self::assertCount(10, $rows);
+        self::assertSame(
+            $expectedPageIds,
+            $rows->each(static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text())),
+        );
+        self::assertSame($categoryTitle, trim($rows->first()->filter('td')->eq(1)->text()));
+        self::assertCount(0, $rows->first()->filter('td')->eq(5)->filter('img'));
+        $coverRow = $rows->reduce(
+            static fn (Crawler $row): bool => (int) trim($row->filter('td')->eq(0)->text()) === $coverProduct->getId(),
+        );
+        self::assertCount(1, $coverRow);
+        self::assertCount(1, $coverRow->filter(sprintf('img[alt="%s"]', $coverFilename)));
+        self::assertStringContainsString(
+            sprintf('/uploads/images/products/%d/%s', $coverProduct->getId(), $coverFilename),
+            (string) $coverRow->filter('img')->attr('src'),
+        );
+        self::assertCount(1, $crawler->filter('#product_list_filters_block form'));
+        self::assertGreaterThan(
+            0,
+            $crawler->filter(sprintf('.navigation a[href*="page=%d"]', $lastPage))->count(),
+        );
+        $fullPageQueryCount = $this->doctrineQueryCount($client);
+        self::assertLessThanOrEqual(9, $fullPageQueryCount);
+
+        $this->resetDoctrineQueryLog();
+        $client->enableProfiler();
+        $crawler = $client->request('GET', sprintf(
+            '/en/admin/product/list?sort=p.id&direction=desc&page=%d',
+            $lastPage,
+        ));
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(5, $crawler->filter('#main_table tbody tr'));
+        $partialPageQueryCount = $this->doctrineQueryCount($client);
+        self::assertLessThanOrEqual(9, $partialPageQueryCount);
+        self::assertLessThanOrEqual(1, abs($fullPageQueryCount - $partialPageQueryCount));
     }
 
     public function testEmptyFilterSubmitDoesNotFail(): void
@@ -519,5 +616,23 @@ class ProductControllerTest extends WebTestCase
         $client->loginUser($user, 'website');
 
         return $client;
+    }
+
+    private function doctrineQueryCount(KernelBrowser $client): int
+    {
+        $profile = $client->getProfile();
+        self::assertNotFalse($profile);
+        self::assertNotNull($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        return $collector->getQueryCount();
+    }
+
+    private function resetDoctrineQueryLog(): void
+    {
+        $collector = self::getContainer()->get('data_collector.doctrine');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+        $collector->reset();
     }
 }

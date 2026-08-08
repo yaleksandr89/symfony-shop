@@ -45,6 +45,7 @@ class OrderFormHandler
         $queryBuilder = $this->orderManager
             ->getQueryBuilder()
             ->leftJoin('o.owner', 'u')
+            ->addSelect('u')
             ->where('o.isDeleted = :isDeleted')
             ->setParameter('isDeleted', false);
 

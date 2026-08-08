@@ -43,13 +43,12 @@
                             <td>{{ product.price|format_currency('USD') }}</td>
                             <td>{{ product.quantity }}</td>
                             <td>
-                                {% set images = product.getProductImages().getValues() %}
-                                {% if images|length %}
-                                    {% set image = images[0] %}
+                                {% set cover = coversByProductId[product.id] ?? null %}
+                                {% if cover %}
                                     <img
-                                            src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.filenameMiddle) }}"
+                                            src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
                                             style="width: 250px"
-                                            alt="{{ image.filenameMiddle }}"
+                                            alt="{{ cover.filenameMiddle }}"
                                     >
                                 {% endif %}
                             </td>

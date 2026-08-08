@@ -12,6 +12,7 @@ use App\Form\Admin\FilterType\OrderFilterFormType;
 use App\Form\DTO\EditOrderModel;
 use App\Form\DTO\OrderFilterModel;
 use App\Form\Handler\OrderFormHandler;
+use App\Repository\OrderProductRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,15 +22,23 @@ use Symfony\Component\Routing\Attribute\Route;
 class OrderController extends BaseAdminController
 {
     #[Route('/list', name: 'list')]
-    public function list(Request $request, OrderFormHandler $orderFormHandler): Response
-    {
+    public function list(
+        Request $request,
+        OrderFormHandler $orderFormHandler,
+        OrderProductRepository $orderProductRepository,
+    ): Response {
         $filterForm = $this->createForm(OrderFilterFormType::class, new OrderFilterModel());
         $filterForm->handleRequest($request);
 
         $pagination = $orderFormHandler->processOrderFiltersForm($request, $filterForm);
+        $orderIds = [];
+        foreach ($pagination->getItems() as $order) {
+            $orderIds[] = (int) $order->getId();
+        }
 
         return $this->render('admin/order/list.html.twig', [
             'pagination' => $pagination,
+            'orderProductCounts' => $orderProductRepository->countByOrderIds($orderIds),
             'orderStatusChoice' => OrderStaticStorage::getOrderStatusChoices(),
             'form' => $filterForm->createView(),
         ]);
