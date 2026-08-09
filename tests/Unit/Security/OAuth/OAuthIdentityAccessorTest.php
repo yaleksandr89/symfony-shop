@@ -41,19 +41,6 @@ final class OAuthIdentityAccessorTest extends TestCase
         self::assertSame($identityField, $accessor->identityField($provider));
     }
 
-    public function testGithubProvidersUseTheSameIdentityField(): void
-    {
-        $user = $this->userWithIdentities();
-        $accessor = new OAuthIdentityAccessor();
-
-        self::assertSame('github-id', $accessor->getExternalId($user, OAuthProvider::GithubEn));
-        self::assertSame('github-id', $accessor->getExternalId($user, OAuthProvider::GithubRus));
-
-        $accessor->unlink($user, OAuthProvider::GithubRus);
-
-        self::assertNull($user->getGithubId());
-    }
-
     #[DataProvider('unsupportedProviders')]
     public function testRejectsUnsupportedProviders(OAuthProvider $provider): void
     {

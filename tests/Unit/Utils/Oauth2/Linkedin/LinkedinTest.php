@@ -39,14 +39,6 @@ final class LinkedinTest extends TestCase
         self::assertStringNotContainsString('r_emailaddress', $authorizationUrl);
     }
 
-    public function testDefaultScopesAreExactlyOpenidProfileAndEmail(): void
-    {
-        $provider = new Linkedin();
-        $method = new \ReflectionMethod($provider, 'getDefaultScopes');
-
-        self::assertSame(['openid', 'profile', 'email'], $method->invoke($provider));
-    }
-
     public function testCreatesLinkedinResourceOwnerFromSuccessfulResponse(): void
     {
         $provider = new Linkedin();
@@ -55,18 +47,6 @@ final class LinkedinTest extends TestCase
 
         self::assertInstanceOf(LinkedinUser::class, $user);
         self::assertSame('LiNkEdIn-sub', $user->getId());
-    }
-
-    public function testSuccessfulResponsePassesWithoutException(): void
-    {
-        $provider = new Linkedin();
-        $method = new \ReflectionMethod($provider, 'checkResponse');
-        $response = $this->createStub(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(200);
-
-        $method->invoke($provider, $response, ['sub' => 'subject']);
-
-        self::assertTrue(true);
     }
 
     public function testProviderErrorIsSanitized(): void

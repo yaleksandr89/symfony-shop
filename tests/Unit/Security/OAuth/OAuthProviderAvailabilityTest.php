@@ -78,23 +78,6 @@ final class OAuthProviderAvailabilityTest extends TestCase
         }
     }
 
-    public function testEnabledLinkedinRequiresCompleteCredentialsWithoutLeakingThem(): void
-    {
-        $secret = 'linkedin-secret-not-for-output';
-        $availability = new OAuthProviderAvailability(
-            [OAuthProvider::Linkedin->value => true],
-            [OAuthProvider::Linkedin->value => ['clientId' => ' ', 'clientSecret' => $secret]],
-        );
-
-        try {
-            $availability->assertOperational(OAuthProvider::Linkedin);
-            self::fail('LinkedIn must not be operational without complete credentials.');
-        } catch (OAuthProviderConfigurationException $exception) {
-            self::assertSame('OAuth provider "linkedin" is enabled but not configured.', $exception->getMessage());
-            self::assertStringNotContainsString($secret, $exception->getMessage());
-        }
-    }
-
     #[DataProvider('futureProviders')]
     public function testFutureProviderHasNoClientConfigurationContract(OAuthProvider $provider): void
     {

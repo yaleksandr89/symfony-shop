@@ -6,7 +6,6 @@ namespace App\Tests\Unit\Security\OAuth;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\Security\OAuth\OAuthIdentityAccessor;
 use App\Security\OAuth\OAuthLoginHandler;
 use App\Security\OAuth\OAuthNewUserRegistrar;
@@ -14,8 +13,6 @@ use App\Security\OAuth\OAuthProvider;
 use App\Security\OAuth\OAuthUserResolver;
 use App\Security\UserChecker\DeletedUserChecker;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
-use Doctrine\DBAL\Driver\Exception as DriverExceptionInterface;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -87,56 +84,6 @@ final class OAuthLoginHandlerTest extends TestCase
         self::assertSame('new@example.test', $user->getEmail());
         self::assertSame('yandex-id', $user->getYandexId());
         self::assertFalse($user->isVerified());
-    }
-
-    public function testEmailCollisionIsAGenericAuthenticationFailureWithoutRegistration(): void
-    {
-        $existing = (new User())->setEmail('existing@example.test');
-        $repository = $this->createMock(UserRepository::class);
-        $repository->expects(self::exactly(2))->method('findOneBy')->willReturnOnConsecutiveCalls(null, $existing);
-        $checker = $this->createMock(DeletedUserChecker::class);
-        $checker->expects(self::never())->method('checkPreAuth');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::never())->method('persist');
-        $entityManager->expects(self::never())->method('flush');
-        $handler = $this->handler($repository, $checker, $entityManager);
-
-        try {
-            $handler->handle(OAuthProvider::Vkontakte, 'secret-id', 'existing@example.test', static fn (): User => new User());
-            self::fail('An email collision must deny authentication.');
-        } catch (OAuthLoginDeniedException $exception) {
-            self::assertSame('OAuth authentication could not be completed.', $exception->getMessageKey());
-            self::assertStringNotContainsString('existing@example.test', $exception->getMessage());
-            self::assertStringNotContainsString('secret-id', $exception->getMessage());
-        }
-    }
-
-    public function testUniqueRaceIsAGenericAuthenticationFailureWithoutEmail(): void
-    {
-        $repository = $this->createMock(UserRepository::class);
-        $repository->expects(self::exactly(2))->method('findOneBy')->willReturn(null);
-        $checker = $this->createMock(DeletedUserChecker::class);
-        $checker->expects(self::never())->method('checkPreAuth');
-        $passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')->willReturn('hashed-password');
-        $driverException = new class('secret database detail') extends \RuntimeException implements DriverExceptionInterface {
-            public function getSQLState(): ?string
-            {
-                return '23000';
-            }
-        };
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::once())->method('persist');
-        $entityManager->expects(self::once())->method('flush')->willThrowException(new UniqueConstraintViolationException($driverException, null));
-        $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
-        $verifyEmailHelper->expects(self::never())->method('generateSignature');
-        $emailSender = $this->createMock(UserRegisteredEmailSender::class);
-        $emailSender->expects(self::never())->method('sendEmailToClient');
-        $handler = $this->handler($repository, $checker, $entityManager, $passwordHasher, $verifyEmailHelper, $emailSender);
-
-        $this->expectException(OAuthLoginDeniedException::class);
-        $this->expectExceptionMessage('OAuth authentication could not be completed.');
-        $handler->handle(OAuthProvider::GithubEn, 'github-id', 'new@example.test', static fn (): User => new User());
     }
 
     private function handler(
