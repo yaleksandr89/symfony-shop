@@ -6,11 +6,13 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\Verifier\EmailVerifier;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
+use Symfony\Component\HttpFoundation\UriSigner;
+use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 #[Group(name: 'integration')]
 class EmailVerifierTest extends KernelTestCase
@@ -19,6 +21,10 @@ class EmailVerifierTest extends KernelTestCase
 
     private EmailVerifier $emailVerifier;
 
+    private EntityManagerInterface $entityManager;
+
+    private UriSigner $verifyEmailUriSigner;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -26,71 +32,93 @@ class EmailVerifierTest extends KernelTestCase
 
         $this->emailVerifier = self::getContainer()->get(EmailVerifier::class);
         $this->userRepository = self::getContainer()->get(UserRepository::class);
+        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $this->verifyEmailUriSigner = self::getContainer()->get('symfonycasts.verify_email.uri_signer');
     }
 
-    public function testGenerateEmailSignature(): void
+    #[TestDox('Подменённая ссылка подтверждения не верифицирует пользователя')]
+    public function testTamperedConfirmationDoesNotVerifyPersistedUser(): void
     {
-        $user = $this->userRepository->findOneBy([
-            'email' => UserFixtures::USER_1_EMAIL,
-        ]);
-        $user->setIsVerified(false);
+        $user = $this->findPersistedUnverifiedUser();
+        $signedUrl = $this->emailVerifier->generateEmailSignature('main_verify_email', $user)->getSignedUrl();
+        $request = self::createRequestWithQuery($signedUrl, ['signature' => 'tampered']);
 
-        $currentDateTime = new DateTimeImmutable();
-        $emailSignature = $this->emailVerifier->generateEmailSignature('main_verify_email', $user);
-
-        $this->assertGreaterThan($currentDateTime, $emailSignature->getExpiresAt());
+        $this->assertRejectedConfirmationDoesNotVerifyPersistedUser($request, $user);
     }
 
-    public function testHandleEmailConfirmation(): void
+    #[TestDox('Просроченная ссылка подтверждения не верифицирует пользователя')]
+    public function testExpiredConfirmationDoesNotVerifyPersistedUser(): void
+    {
+        $user = $this->findPersistedUnverifiedUser();
+        $signedUrl = $this->emailVerifier->generateEmailSignature('main_verify_email', $user)->getSignedUrl();
+        $unsignedUrl = self::createUrlWithQuery($signedUrl, [
+            'expires' => (string) (time() - 1),
+            'signature' => null,
+        ]);
+        $request = Request::create($this->verifyEmailUriSigner->sign($unsignedUrl));
+
+        self::assertTrue($this->verifyEmailUriSigner->checkRequest($request));
+
+        $this->assertRejectedConfirmationDoesNotVerifyPersistedUser($request, $user);
+    }
+
+    private function findPersistedUnverifiedUser(): User
     {
         $user = $this->userRepository->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
+        self::assertNotNull($user);
+
         $user->setIsVerified(false);
+        $this->entityManager->flush();
 
-        $emailSignature = $this->emailVerifier->generateEmailSignature('main_verify_email', $user);
-
-        $this->emailVerifier->handleEmailConfirmation(
-            self::getRequest($emailSignature->getSignedUrl()),
-            $user
-        );
-        $this->assertTrue($user->isVerified());
+        return $user;
     }
 
-    public function testGenerateEmailSignatureAndHandleEmailConfirmation(): void
+    private function assertRejectedConfirmationDoesNotVerifyPersistedUser(Request $request, User $user): void
     {
-        $user = $this->userRepository->findOneBy([
-            'email' => UserFixtures::USER_1_EMAIL,
-        ]);
-        $user->setIsVerified(false);
+        try {
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
+            self::fail('The confirmation request was not rejected.');
+        } catch (VerifyEmailExceptionInterface) {
+        }
 
-        $emailSignature = $this->checkGenerateEmailSignature($user);
+        $this->entityManager->clear();
+        $persistedUser = $this->userRepository->find($user->getId());
 
-        $this->checkHandleEmailConfirmation($emailSignature, $user);
+        self::assertNotNull($persistedUser);
+        self::assertFalse($persistedUser->isVerified());
     }
 
-    private function checkGenerateEmailSignature(User $user): VerifyEmailSignatureComponents
+    /**
+     * @param array<string, string|null> $changes
+     */
+    private static function createRequestWithQuery(string $url, array $changes): Request
     {
-        $currentDateTime = new DateTimeImmutable();
-        $emailSignature = $this->emailVerifier->generateEmailSignature('main_verify_email', $user);
-
-        $this->assertGreaterThan($currentDateTime, $emailSignature->getExpiresAt());
-
-        return $emailSignature;
+        return Request::create(self::createUrlWithQuery($url, $changes));
     }
 
-    private function checkHandleEmailConfirmation(VerifyEmailSignatureComponents $signatureComponents, User $user): void
+    /**
+     * @param array<string, string|null> $changes
+     */
+    private static function createUrlWithQuery(string $url, array $changes): string
     {
-        $this->assertFalse($user->isVerified());
+        $parts = parse_url($url);
+        parse_str($parts['query'] ?? '', $query);
 
-        $this->emailVerifier->handleEmailConfirmation(
-            self::getRequest($signatureComponents->getSignedUrl()),
-            $user
-        );
+        foreach ($changes as $name => $value) {
+            if (null === $value) {
+                unset($query[$name]);
 
-        $this->assertTrue($user->isVerified());
-    }
+                continue;
+            }
 
-    private static function getRequest(string $signedUrl): Request
-    {
-        return Request::create($signedUrl);
+            $query[$name] = $value;
+        }
+
+        $authority = $parts['host'];
+        if (isset($parts['port'])) {
+            $authority .= ':'.$parts['port'];
+        }
+
+        return $parts['scheme'].'://'.$authority.($parts['path'] ?? '').'?'.http_build_query($query);
     }
 }
