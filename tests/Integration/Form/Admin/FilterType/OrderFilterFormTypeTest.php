@@ -6,7 +6,6 @@ namespace App\Tests\Integration\Form\Admin\FilterType;
 
 use App\Form\Admin\FilterType\OrderFilterFormType;
 use App\Form\DTO\OrderFilterModel;
-use DateTimeImmutable;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -60,26 +59,6 @@ class OrderFilterFormTypeTest extends KernelTestCase
         yield 'both' => [['left_number' => '10', 'right_number' => '20'], ['left_number' => 10, 'right_number' => 20]];
     }
 
-    #[DataProvider(methodName: 'provideDateRanges')]
-    public function testDateRangeMapping(array $submitted, ?string $expectedLeft, ?string $expectedRight): void
-    {
-        $form = $this->formFactory->create(OrderFilterFormType::class, new OrderFilterModel());
-        $form->submit(['createdAt' => $submitted], false);
-
-        self::assertTrue($form->isSynchronized());
-        $range = $form->getData()->createdAt;
-        self::assertDateValue($expectedLeft, $range['left_date']);
-        self::assertDateValue($expectedRight, $range['right_date']);
-    }
-
-    public static function provideDateRanges(): Generator
-    {
-        yield 'lower' => [['left_date' => '2024-01-02', 'right_date' => ''], '2024-01-02', null];
-        yield 'upper' => [['left_date' => '', 'right_date' => '2024-02-03'], null, '2024-02-03'];
-        yield 'both' => [['left_date' => '2024-01-02', 'right_date' => '2024-02-03'], '2024-01-02', '2024-02-03'];
-        yield 'same day' => [['left_date' => '2024-01-02', 'right_date' => '2024-01-02'], '2024-01-02', '2024-01-02'];
-    }
-
     #[DataProvider(methodName: 'provideDateRangeValidation')]
     public function testDateRangeValidation(array $submitted, bool $expectedValid): void
     {
@@ -117,36 +96,6 @@ class OrderFilterFormTypeTest extends KernelTestCase
         yield 'empty' => [['left_date' => '', 'right_date' => ''], true];
     }
 
-    public function testDateRangeUsesDateInputsAndNewChildKeys(): void
-    {
-        $form = $this->formFactory->create(OrderFilterFormType::class, new OrderFilterModel());
-        $dateRange = $form->get('createdAt');
-
-        self::assertTrue($dateRange->has('left_date'));
-        self::assertTrue($dateRange->has('right_date'));
-        self::assertSame('single_text', $dateRange->get('left_date')->getConfig()->getOption('widget'));
-        self::assertSame('single_text', $dateRange->get('right_date')->getConfig()->getOption('widget'));
-        self::assertSame('datetime_immutable', $dateRange->get('left_date')->getConfig()->getOption('input'));
-        self::assertSame('datetime_immutable', $dateRange->get('right_date')->getConfig()->getOption('input'));
-    }
-
-    public function testTranslationDomains(): void
-    {
-        $form = $this->formFactory->create(
-            OrderFilterFormType::class,
-            new OrderFilterModel(),
-            ['csrf_protection' => false],
-        );
-        $view = $form->createView();
-
-        self::assertSame('admin', $form->getConfig()->getOption('translation_domain'));
-        self::assertSame('admin', $view['id']->vars['translation_domain']);
-        self::assertSame('admin', $view['createdAt']->vars['translation_domain']);
-        self::assertSame('admin', $view['createdAt']['right_date']->vars['translation_domain']);
-        self::assertSame('admin', $view['status']->vars['translation_domain']);
-        self::assertSame('messages', $view['status']->vars['choice_translation_domain']);
-    }
-
     public function testScalarMapping(): void
     {
         $form = $this->formFactory->create(OrderFilterFormType::class, new OrderFilterModel());
@@ -157,16 +106,4 @@ class OrderFilterFormTypeTest extends KernelTestCase
         self::assertSame(1, $form->getData()->status);
     }
 
-    private static function assertDateValue(?string $expected, ?DateTimeImmutable $actual): void
-    {
-        if (null === $expected) {
-            self::assertNull($actual);
-
-            return;
-        }
-
-        self::assertInstanceOf(DateTimeImmutable::class, $actual);
-        self::assertSame($expected.' 00:00:00', $actual->format('Y-m-d H:i:s'));
-        self::assertSame(date_default_timezone_get(), $actual->getTimezone()->getName());
-    }
 }

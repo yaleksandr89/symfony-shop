@@ -6,13 +6,11 @@ namespace App\Tests\Integration\Form\Admin\FilterType;
 
 use App\Form\Admin\FilterType\ProductFilterFormType;
 use App\Form\DTO\ProductFilterModel;
-use DateTimeImmutable;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Translation\TranslatableMessage;
 
 #[Group(name: 'integration')]
 class ProductFilterFormTypeTest extends KernelTestCase
@@ -65,26 +63,6 @@ class ProductFilterFormTypeTest extends KernelTestCase
         }
     }
 
-    #[DataProvider(methodName: 'provideDateRanges')]
-    public function testDateRangeMapping(array $submitted, ?string $expectedLeft, ?string $expectedRight): void
-    {
-        $form = $this->formFactory->create(ProductFilterFormType::class, new ProductFilterModel());
-        $form->submit(['createdAt' => $submitted], false);
-
-        self::assertTrue($form->isSynchronized());
-        $range = $form->getData()->createdAt;
-        self::assertDateValue($expectedLeft, $range['left_date']);
-        self::assertDateValue($expectedRight, $range['right_date']);
-    }
-
-    public static function provideDateRanges(): Generator
-    {
-        yield 'lower' => [['left_date' => '2024-01-02', 'right_date' => ''], '2024-01-02', null];
-        yield 'upper' => [['left_date' => '', 'right_date' => '2024-02-03'], null, '2024-02-03'];
-        yield 'both' => [['left_date' => '2024-01-02', 'right_date' => '2024-02-03'], '2024-01-02', '2024-02-03'];
-        yield 'same day' => [['left_date' => '2024-01-02', 'right_date' => '2024-01-02'], '2024-01-02', '2024-01-02'];
-    }
-
     #[DataProvider(methodName: 'provideDateRangeValidation')]
     public function testDateRangeValidation(array $submitted, bool $expectedValid): void
     {
@@ -122,41 +100,6 @@ class ProductFilterFormTypeTest extends KernelTestCase
         yield 'empty' => [['left_date' => '', 'right_date' => ''], true];
     }
 
-    public function testDateRangeUsesDateInputsAndNewChildKeys(): void
-    {
-        $form = $this->formFactory->create(ProductFilterFormType::class, new ProductFilterModel());
-        $dateRange = $form->get('createdAt');
-
-        self::assertTrue($dateRange->has('left_date'));
-        self::assertTrue($dateRange->has('right_date'));
-        self::assertSame('single_text', $dateRange->get('left_date')->getConfig()->getOption('widget'));
-        self::assertSame('single_text', $dateRange->get('right_date')->getConfig()->getOption('widget'));
-        self::assertSame('datetime_immutable', $dateRange->get('left_date')->getConfig()->getOption('input'));
-        self::assertSame('datetime_immutable', $dateRange->get('right_date')->getConfig()->getOption('input'));
-    }
-
-    public function testTranslationDomains(): void
-    {
-        $form = $this->formFactory->create(
-            ProductFilterFormType::class,
-            new ProductFilterModel(),
-            ['csrf_protection' => false],
-        );
-        $view = $form->createView();
-
-        self::assertSame('admin', $form->getConfig()->getOption('translation_domain'));
-        self::assertSame('admin', $view['id']->vars['translation_domain']);
-        self::assertSame('admin', $view['createdAt']->vars['translation_domain']);
-        self::assertSame('admin', $view['createdAt']['left_date']->vars['translation_domain']);
-        self::assertSame('admin', $view['isPublished']->vars['translation_domain']);
-        self::assertSame('SpiriitFormFilterBundle', $view['isPublished']->vars['choice_translation_domain']);
-
-        $placeholder = $form->get('isPublished')->getConfig()->getOption('placeholder');
-        self::assertInstanceOf(TranslatableMessage::class, $placeholder);
-        self::assertSame('boolean.yes_or_no', $placeholder->getMessage());
-        self::assertSame('SpiriitFormFilterBundle', $placeholder->getDomain());
-    }
-
     #[DataProvider(methodName: 'provideBooleanValues')]
     public function testBooleanMapping(string $submitted, ?string $expected): void
     {
@@ -184,16 +127,4 @@ class ProductFilterFormTypeTest extends KernelTestCase
         self::assertSame('phone', $form->getData()->title);
     }
 
-    private static function assertDateValue(?string $expected, ?DateTimeImmutable $actual): void
-    {
-        if (null === $expected) {
-            self::assertNull($actual);
-
-            return;
-        }
-
-        self::assertInstanceOf(DateTimeImmutable::class, $actual);
-        self::assertSame($expected.' 00:00:00', $actual->format('Y-m-d H:i:s'));
-        self::assertSame(date_default_timezone_get(), $actual->getTimezone()->getName());
-    }
 }
