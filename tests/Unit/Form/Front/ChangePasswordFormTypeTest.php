@@ -4,6 +4,7 @@ namespace App\Tests\Unit\Form\Front;
 
 use App\Form\Front\ChangePasswordFormType;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormExtensionInterface;
 use Symfony\Component\Form\Test\FormIntegrationTestCase;
@@ -57,5 +58,19 @@ class ChangePasswordFormTypeTest extends FormIntegrationTestCase
         ]);
 
         self::assertTrue($form->isValid());
+    }
+
+    #[TestDox('Несовпадающие пароли отклоняются')]
+    public function testMismatchedPasswordsAreInvalid(): void
+    {
+        $form = $this->factory->create(ChangePasswordFormType::class);
+        $form->submit([
+            'plainPassword' => [
+                'first' => 'valid-password',
+                'second' => 'different-password',
+            ],
+        ]);
+
+        self::assertFalse($form->isValid());
     }
 }

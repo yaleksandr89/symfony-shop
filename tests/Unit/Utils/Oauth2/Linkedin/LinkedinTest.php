@@ -6,11 +6,14 @@ namespace App\Tests\Unit\Utils\Oauth2\Linkedin;
 
 use App\Utils\Oauth2\Linkedin\Linkedin;
 use App\Utils\Oauth2\Linkedin\LinkedinUser;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
 
 #[Group(name: 'unit')]
 final class LinkedinTest extends TestCase
@@ -39,30 +42,36 @@ final class LinkedinTest extends TestCase
         self::assertStringNotContainsString('r_emailaddress', $authorizationUrl);
     }
 
-    public function testCreatesLinkedinResourceOwnerFromSuccessfulResponse(): void
+    #[TestDox('LinkedIn resource owner создаётся через публичный HTTP-поток без изменения регистра subject')]
+    public function testCreatesLinkedinResourceOwnerThroughPublicProviderFlow(): void
     {
-        $provider = new Linkedin();
-        $method = new \ReflectionMethod($provider, 'createResourceOwner');
-        $user = $method->invoke($provider, ['sub' => 'LiNkEdIn-sub'], new AccessToken(['access_token' => 'token']));
+        $provider = $this->providerWithResponse(new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            '{"sub":"LiNkEdIn-sub"}'
+        ));
+        $user = $provider->getResourceOwner(new AccessToken(['access_token' => 'token']));
 
         self::assertInstanceOf(LinkedinUser::class, $user);
         self::assertSame('LiNkEdIn-sub', $user->getId());
     }
 
+    #[TestDox('Ошибка LinkedIn через публичный HTTP-поток не раскрывает данные провайдера')]
     public function testProviderErrorIsSanitized(): void
     {
-        $provider = new Linkedin();
-        $method = new \ReflectionMethod($provider, 'checkResponse');
-        $response = $this->createStub(ResponseInterface::class);
-        $response->method('getStatusCode')->willReturn(401);
         $secret = 'client-secret-not-for-output';
         $token = 'access-token-not-for-output';
-
-        try {
-            $method->invoke($provider, $response, [
+        $provider = $this->providerWithResponse(new Response(
+            401,
+            ['Content-Type' => 'application/json'],
+            json_encode([
                 'error' => 'invalid_token',
                 'error_description' => $secret.' '.$token,
-            ]);
+            ], JSON_THROW_ON_ERROR)
+        ));
+
+        try {
+            $provider->getResourceOwner(new AccessToken(['access_token' => 'token']));
             self::fail('A LinkedIn provider error must throw.');
         } catch (IdentityProviderException $exception) {
             self::assertSame('LinkedIn OAuth request failed.', $exception->getMessage());
@@ -71,5 +80,12 @@ final class LinkedinTest extends TestCase
             self::assertStringNotContainsString($secret, $exception->getMessage());
             self::assertStringNotContainsString($token, $exception->getMessage());
         }
+    }
+
+    private function providerWithResponse(Response $response): Linkedin
+    {
+        return new Linkedin([], [
+            'httpClient' => new Client(['handler' => new MockHandler([$response])]),
+        ]);
     }
 }

@@ -90,6 +90,8 @@ final class OAuthAccountLinkerTest extends KernelTestCase
         yield 'Vkontakte' => [OAuthProvider::Vkontakte];
         yield 'GitHub EN' => [OAuthProvider::GithubEn];
         yield 'GitHub RU' => [OAuthProvider::GithubRus];
+        yield 'Facebook' => [OAuthProvider::Facebook];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin];
     }
 
     private function persistUser(string $suffix): User
@@ -102,6 +104,8 @@ final class OAuthAccountLinkerTest extends KernelTestCase
         $user->setYandexId(null);
         $user->setVkontakteId(null);
         $user->setGithubId(null);
+        $user->setFacebookId(null);
+        $user->setLinkedinId(null);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
@@ -115,6 +119,8 @@ final class OAuthAccountLinkerTest extends KernelTestCase
             OAuthProvider::Yandex => $user->getYandexId(),
             OAuthProvider::Vkontakte => $user->getVkontakteId(),
             OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->getGithubId(),
+            OAuthProvider::Facebook => $user->getFacebookId(),
+            OAuthProvider::Linkedin => $user->getLinkedinId(),
             default => null,
         };
     }

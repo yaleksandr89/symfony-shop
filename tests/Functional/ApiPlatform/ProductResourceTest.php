@@ -172,6 +172,16 @@ class ProductResourceTest extends ResourceTestUtils
 
         $client->request('PATCH', $uri, [], [], self::REQUEST_HEADERS_PATCH, json_encode(['title' => 'Updated admin draft'], JSON_THROW_ON_ERROR));
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $document = $this->getResponseDecodedContent($client);
+        self::assertSame('Updated admin draft', $document['title']);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $reloaded = self::getContainer()->get(ProductRepository::class)->findOneBy([
+            'uuid' => (string) $unpublished->getUuid(),
+        ]);
+        self::assertInstanceOf(Product::class, $reloaded);
+        self::assertSame('Updated admin draft', $reloaded->getTitle());
 
         $client->request('GET', $this->uriKey.'/'.$deleted->getUuid(), [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
@@ -208,6 +218,8 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame('Product', $document['@type']);
         self::assertStringStartsWith($this->uriKey.'/', $document['@id']);
         self::assertSame($context['title'], $document['title']);
+        self::assertSame($context['price'], $document['price']);
+        self::assertSame(5, $document['quantity']);
         self::assertTrue($document['isNew']);
         self::assertFalse($document['isOnSale']);
         self::assertResponseHeaderSame('location', $document['@id']);
@@ -215,6 +227,20 @@ class ProductResourceTest extends ResourceTestUtils
             $productCount + 1,
             self::getContainer()->get(ProductRepository::class)->count([])
         );
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $created = self::getContainer()->get(ProductRepository::class)->findOneBy([
+            'uuid' => basename($document['@id']),
+        ]);
+        self::assertInstanceOf(Product::class, $created);
+        self::assertSame($context['title'], $created->getTitle());
+        self::assertSame($context['price'], $created->getPrice());
+        self::assertSame(5, $created->getQuantity());
+        self::assertTrue($created->getIsNew());
+        self::assertFalse($created->getIsOnSale());
+        self::assertFalse($created->getIsPublished());
+        self::assertFalse($created->getIsDeleted());
     }
 
     public function testCreatedProductWithoutAccess(): void

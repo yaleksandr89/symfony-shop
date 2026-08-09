@@ -192,7 +192,11 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client->request('GET', '/ru/connect/yandex');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
-        self::assertTrue($client->getResponse()->isRedirect());
+        $location = $client->getResponse()->headers->get('Location');
+        self::assertIsString($location);
+        self::assertSame('https', parse_url($location, PHP_URL_SCHEME));
+        self::assertSame('oauth.yandex.com', parse_url($location, PHP_URL_HOST));
+        self::assertSame('/authorize', parse_url($location, PHP_URL_PATH));
     }
 
     public function testConfiguredEnabledFacebookReachesVersionedStartFlowWithoutNetworkRequest(): void

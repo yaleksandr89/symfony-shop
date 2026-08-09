@@ -7,110 +7,93 @@ namespace App\Tests\Functional\Controller\Admin;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
 
 #[Group(name: 'functional')]
 class UserControllerTest extends WebTestCase
 {
     #[DataProvider(methodName: 'provideLocales')]
-    public function testListAddEditAndDuplicateValidationAreLocalized(
+    #[TestDox('Суперадминистратор управляет пользователями с локализованной проверкой дубликатов')]
+    public function testSuperAdminCanListAddEditAndRejectDuplicatesInSelectedLocale(
         string $locale,
-        array $expected,
-        array $unexpected,
+        string $listTitle,
+        string $editTitle,
+        string $duplicateMessage,
+        string $oppositeDuplicateMessage,
     ): void {
         $client = $this->createSuperAdminClient();
-        $editableUser = $this->getUser(UserFixtures::USER_1_EMAIL);
 
         $list = $client->request('GET', sprintf('/%s/admin/user/list', $locale));
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString($expected['listTitle'], $list->filter('title')->text());
-        self::assertSame($expected['heading'], trim($list->filter('.card-header h6')->text()));
-        self::assertSame($expected['headers'], $list->filter('#main_table thead th')->each(
-            static fn (Crawler $header): string => trim($header->text()),
-        ));
-        self::assertStringContainsString($expected['profileLabels'], $list->filter('#main_table tbody')->text());
-        self::assertStringContainsString($expected['verified'], $list->filter('#main_table tbody')->text());
-        self::assertStringContainsString($expected['general'], $list->filter('#accordionSidebar')->text());
-
-        $superAdminRow = $list->filterXPath(sprintf('//table[@id="main_table"]//tr[td[2][contains(., "%s")]]', UserFixtures::USER_SUPER_ADMIN_1_EMAIL));
-        self::assertCount(1, $superAdminRow);
-        self::assertStringContainsString($expected['superAdmin'], $superAdminRow->filter('td')->eq(2)->text());
-        self::assertStringContainsString('ROLE_SUPER_ADMIN', $superAdminRow->filter('td')->eq(2)->text());
+        self::assertStringContainsString($listTitle, $list->filter('title')->text());
+        self::assertStringContainsString(UserFixtures::USER_SUPER_ADMIN_1_EMAIL, $list->filter('#main_table')->text());
 
         $add = $client->request('GET', sprintf('/%s/admin/user/add', $locale));
         self::assertResponseIsSuccessful();
-        $this->assertFormUi($add, $expected, false);
-        self::assertSame(
-            $expected['roles'],
-            $add->filter('select[name="edit_user_form[roles][]"] option')->each(
-                static fn (Crawler $option): string => trim($option->text()),
-            ),
-        );
+        self::assertStringContainsString($editTitle, $add->filter('title')->text());
+        self::assertCount(1, $add->filter('form[name="edit_user_form"]'));
 
         $invalid = $client->submit($add->filter('form[name="edit_user_form"]')->form([
             'edit_user_form[email]' => UserFixtures::USER_ADMIN_1_EMAIL,
         ]));
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString($expected['duplicate'], $invalid->filter('form')->text());
+        self::assertStringContainsString($duplicateMessage, $invalid->filter('form')->text());
+        self::assertStringNotContainsString($oppositeDuplicateMessage, $invalid->filter('form')->text());
 
-        $edit = $client->request('GET', sprintf('/%s/admin/user/edit/%d', $locale, $editableUser->getId()));
+        $suffix = str_replace('.', '', uniqid('', true));
+        $createdEmail = sprintf('managed-%s-%s@example.test', $locale, $suffix);
+        $rawPassword = 'managed-password';
+        $add = $client->request('GET', sprintf('/%s/admin/user/add', $locale));
+        $client->submit($add->filter('form[name="edit_user_form"]')->form([
+            'edit_user_form[email]' => $createdEmail,
+            'edit_user_form[plainPassword]' => $rawPassword,
+            'edit_user_form[roles]' => ['ROLE_USER'],
+            'edit_user_form[fullName]' => 'Managed User',
+        ]));
+        self::assertResponseRedirects();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $created = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => $createdEmail]);
+        self::assertInstanceOf(User::class, $created);
+        self::assertContains('ROLE_USER', $created->getRoles());
+        self::assertNotSame($rawPassword, $created->getPassword());
+
+        $edit = $client->request('GET', sprintf('/%s/admin/user/edit/%d', $locale, $created->getId()));
         self::assertResponseIsSuccessful();
-        $this->assertFormUi($edit, $expected, true);
-        self::assertSame($editableUser->getEmail(), trim($edit->filter('.form-group')->first()->filter('.col-md-11')->text()));
+        self::assertStringContainsString($editTitle, $edit->filter('title')->text());
 
-        $scoped = $list->filter('.card')->text().' '.$add->filter('.card')->text().' '.$invalid->filter('.card')->text().' '.$edit->filter('.card, .modal')->text();
-        foreach ($unexpected as $text) {
-            self::assertStringNotContainsString($text, $scoped);
-        }
-    }
-
-    private function assertFormUi(Crawler $crawler, array $expected, bool $withModal): void
-    {
-        self::assertStringContainsString($expected['editTitle'], $crawler->filter('title')->text());
-        $cardText = $crawler->filter('.card')->text();
-        foreach ($expected['formLabels'] as $label) {
-            self::assertStringContainsString($label, $cardText);
-        }
-        self::assertSame($expected['save'], trim($crawler->filter('button[type="submit"]')->text()));
-
-        if ($withModal) {
-            $modal = $crawler->filter('#approveDeleteModal');
-            self::assertSame($expected['delete'], trim($crawler->filter('[data-target="#approveDeleteModal"]')->text()));
-            self::assertSame($expected['modalTitle'], trim($modal->filter('.modal-title')->text()));
-            self::assertSame($expected['modalText'], trim($modal->filter('.modal-body')->text()));
-            self::assertSame($expected['cancel'], trim($modal->filter('.btn-secondary')->text()));
-            self::assertSame($expected['close'], $modal->filter('button.close')->attr('aria-label'));
-        }
+        $client->submit($edit->filter('form[name="edit_user_form"]')->form([
+            'edit_user_form[fullName]' => 'Updated Managed User',
+        ]));
+        self::assertResponseRedirects();
+        $entityManager->clear();
+        $updated = self::getContainer()->get(UserRepository::class)->find($created->getId());
+        self::assertInstanceOf(User::class, $updated);
+        self::assertSame($createdEmail, $updated->getEmail());
+        self::assertSame('Updated Managed User', $updated->getFullName());
     }
 
     public static function provideLocales(): Generator
     {
-        yield 'Russian' => ['ru', [
-            'listTitle' => 'Все пользователи', 'editTitle' => 'Редактирование пользователя', 'heading' => 'Пользователи',
-            'headers' => ['ID', 'Электронная почта', 'Роль', 'Данные профиля', 'Электронная почта подтверждена', 'Из Google', 'Из Яндекса', 'Из VK', 'Из GitHub', ''],
-            'profileLabels' => 'ФИО', 'verified' => 'Подтверждено', 'superAdmin' => 'Суперадминистратор',
-            'general' => 'Общее',
-            'formLabels' => ['Электронная почта', 'Новый пароль', 'ФИО', 'Телефон', 'Адрес', 'Почтовый индекс', 'Роли', 'Удалён'],
-            'roles' => ['Пользователь', 'Администратор', 'Суперадминистратор'], 'save' => 'Сохранить изменения',
-            'duplicate' => 'Эта электронная почта уже зарегистрирована.', 'delete' => 'Удалить запись',
-            'modalTitle' => 'Вы уверены?', 'modalText' => 'Пользователь будет удалён.', 'cancel' => 'Отмена', 'close' => 'Закрыть',
-        ], ['All users', 'Edit user', 'Users', 'Super Administrator', 'New password', 'This email is already registered.']];
+        yield 'Russian' => ['ru', 'Все пользователи', 'Редактирование пользователя', 'Эта электронная почта уже зарегистрирована.', 'This email is already registered.'];
+        yield 'English' => ['en', 'All users', 'Edit user', 'This email is already registered.', 'Эта электронная почта уже зарегистрирована.'];
+    }
 
-        yield 'English' => ['en', [
-            'listTitle' => 'All users', 'editTitle' => 'Edit user', 'heading' => 'Users',
-            'headers' => ['ID', 'Email', 'Role', 'Profile info', 'Verified email', 'From Google', 'From Yandex', 'From VK', 'From GitHub', ''],
-            'profileLabels' => 'Full name', 'verified' => 'Verified', 'superAdmin' => 'Super Administrator',
-            'general' => 'General',
-            'formLabels' => ['Email', 'New password', 'Full name', 'Phone', 'Address', 'Zip code', 'Roles', 'Deleted'],
-            'roles' => ['User', 'Administrator', 'Super Administrator'], 'save' => 'Save changes',
-            'duplicate' => 'This email is already registered.', 'delete' => 'Delete row',
-            'modalTitle' => 'Are you sure?', 'modalText' => 'User will be deleted.', 'cancel' => 'Cancel', 'close' => 'Close',
-        ], ['Все пользователи', 'Редактирование пользователя', 'Пользователи', 'Суперадминистратор', 'Новый пароль', 'Эта электронная почта уже зарегистрирована.']];
+    #[TestDox('Обычный администратор не получает прямой доступ к управлению пользователями')]
+    public function testOrdinaryAdminIsDeniedDirectUserManagementAccess(): void
+    {
+        $client = static::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+
+        $client->request('GET', '/ru/admin/user/list');
+
+        self::assertResponseRedirects('/ru/admin/login');
     }
 
     private function getUser(string $email): User

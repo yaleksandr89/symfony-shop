@@ -9,6 +9,7 @@ use App\Security\OAuth\OAuthIdentityAccessor;
 use App\Security\OAuth\OAuthProvider;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[Group(name: 'unit')]
@@ -41,24 +42,25 @@ final class OAuthIdentityAccessorTest extends TestCase
         self::assertSame($identityField, $accessor->identityField($provider));
     }
 
-    #[DataProvider('unsupportedProviders')]
-    public function testRejectsUnsupportedProviders(OAuthProvider $provider): void
+    #[TestDox('Неподдерживаемый провайдер отклоняется всеми операциями без изменения идентификаторов')]
+    #[DataProvider('unsupportedOperations')]
+    public function testUnsupportedProviderIsRejectedWithoutMutatingIdentities(string $operation): void
     {
         $accessor = new OAuthIdentityAccessor();
         $user = $this->userWithIdentities();
+        $before = $this->identities($user);
 
-        $this->expectException(\LogicException::class);
-        $accessor->getExternalId($user, $provider);
-    }
-
-    #[DataProvider('unsupportedProviders')]
-    public function testUnlinkRejectsUnsupportedProviders(OAuthProvider $provider): void
-    {
-        $accessor = new OAuthIdentityAccessor();
-        $user = $this->userWithIdentities();
-
-        $this->expectException(\LogicException::class);
-        $accessor->unlink($user, $provider);
+        try {
+            match ($operation) {
+                'getExternalId' => $accessor->getExternalId($user, OAuthProvider::Mailru),
+                'link' => $accessor->link($user, OAuthProvider::Mailru, 'mailru-id'),
+                'unlink' => $accessor->unlink($user, OAuthProvider::Mailru),
+                'identityField' => $accessor->identityField(OAuthProvider::Mailru),
+            };
+            self::fail(sprintf('%s must reject an unsupported provider.', $operation));
+        } catch (\LogicException) {
+            self::assertSame($before, $this->identities($user));
+        }
     }
 
     /** @return iterable<string, array{OAuthProvider, string, string}> */
@@ -73,10 +75,13 @@ final class OAuthIdentityAccessorTest extends TestCase
         yield 'LinkedIn' => [OAuthProvider::Linkedin, 'LiNkEdIn-sub', 'linkedinId'];
     }
 
-    /** @return iterable<string, array{OAuthProvider}> */
-    public static function unsupportedProviders(): iterable
+    /** @return iterable<string, array{string}> */
+    public static function unsupportedOperations(): iterable
     {
-        yield 'Mailru' => [OAuthProvider::Mailru];
+        yield 'read' => ['getExternalId'];
+        yield 'link' => ['link'];
+        yield 'unlink' => ['unlink'];
+        yield 'field mapping' => ['identityField'];
     }
 
     private function userWithIdentities(): User

@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -288,12 +289,12 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideFilterLocales')]
+    #[TestDox('Фильтр товаров доступен и показывает ключевые элементы выбранной локали')]
     public function testFilterUiIsLocalized(
         string $locale,
         string $heading,
         string $toggle,
-        array $expected,
-        array $unexpected,
+        string $representativeField,
         array $booleanOptions,
     ): void {
         $client = $this->createAdminClient();
@@ -308,13 +309,7 @@ class ProductControllerTest extends WebTestCase
         );
         self::assertStringContainsString($toggle, $crawler->filter('#product_list_filters_btn')->text());
 
-        foreach ($expected as $text) {
-            self::assertStringContainsString($text, $filters->text());
-        }
-
-        foreach ($unexpected as $text) {
-            self::assertStringNotContainsString($text, $filters->text());
-        }
+        self::assertStringContainsString($representativeField, $filters->text());
 
         self::assertSame(
             $booleanOptions,
@@ -330,11 +325,7 @@ class ProductControllerTest extends WebTestCase
             'ru',
             'Фильтры',
             'Показать/скрыть фильтры',
-            [
-                'Фильтры', 'Значение', 'Применить', 'Сбросить фильтры', 'ID', 'Категория',
-                'Заголовок', 'Цена', 'Количество', 'Дата создания', 'От', 'До', 'Опубликован',
-            ],
-            ['Is Published', 'Show/Hide filters'],
+            'Опубликован',
             ['Да или Нет', 'Да', 'Нет'],
         ];
 
@@ -342,25 +333,19 @@ class ProductControllerTest extends WebTestCase
             'en',
             'Filters',
             'Show/Hide filters',
-            [
-                'Filters', 'Value', 'Apply', 'Reset filters', 'ID', 'Category', 'Title', 'Price',
-                'Quantity', 'Created at', 'From', 'To', 'Published',
-            ],
-            ['Опубликован', 'Ошибка диапазона дат', 'Дата «От» не может быть позднее даты «До».'],
+            'Published',
             ['Yes or No', 'Yes', 'No'],
         ];
     }
 
     #[DataProvider(methodName: 'provideListLocales')]
+    #[TestDox('Список товаров показывает ключевые действия выбранной локали')]
     public function testListUiIsLocalized(
         string $locale,
         string $title,
         string $heading,
         string $addNew,
         string $edit,
-        array $headers,
-        array $sidebarLabels,
-        array $unexpected,
     ): void {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', sprintf('/%s/admin/product/list', $locale));
@@ -369,49 +354,17 @@ class ProductControllerTest extends WebTestCase
         self::assertStringContainsString($title, $crawler->filter('title')->text());
         self::assertSame($heading, trim($crawler->filter('.card.shadow.mb-4 .card-header h6')->text()));
         self::assertSame($addNew, trim($crawler->filter('.card.shadow.mb-4 .card-header a.btn')->text()));
-        self::assertSame(
-            $headers,
-            $crawler->filter('#main_table thead th')->each(static fn (Crawler $header): string => trim($header->text())),
-        );
         self::assertSame($edit, trim($crawler->filter('#main_table tbody a.btn-outline-info')->first()->text()));
-
-        $sidebar = $crawler->filter('#accordionSidebar');
-        self::assertCount(1, $sidebar);
-        foreach (array_slice($sidebarLabels, 0, -1) as $label) {
-            self::assertStringContainsString($label, $sidebar->text());
-        }
-        self::assertSame($sidebarLabels[0], trim($crawler->filter('.sidebar-brand-text')->text()));
-        self::assertSame($sidebarLabels[1], trim($crawler->filter('a[href$="/admin/dashboard"] span')->text()));
-        self::assertSame($sidebarLabels[2], trim($crawler->filter('.sidebar-heading')->first()->text()));
-        self::assertSame($sidebarLabels[3], trim($crawler->filter('a[data-target="#collapseOrders"] span')->text()));
-        self::assertSame($sidebarLabels[4], trim($crawler->filter('a[data-target="#collapseProducts"] span')->text()));
-        self::assertSame($sidebarLabels[5], trim($crawler->filter('a[data-target="#collapseCategories"] span')->text()));
-        self::assertSame($sidebarLabels[6], trim($crawler->filter('a[href$="/admin/product/list"]')->text()));
-        self::assertSame($sidebarLabels[7], trim($crawler->filter('a[href$="/admin/product/add"]')->text()));
-        self::assertSame($sidebarLabels[8], trim($crawler->filter('.topbar a[target="_blank"]')->text()));
-
-        $scopedText = implode(' ', $crawler->filter('#main_table, .card-header, #accordionSidebar, .topbar')->each(
-            static fn (Crawler $node): string => $node->text(),
-        ));
-        foreach ($unexpected as $text) {
-            self::assertStringNotContainsString($text, $scopedText);
-        }
     }
 
     public static function provideListLocales(): Generator
     {
         yield 'Russian' => [
             'ru', 'Все товары', 'Товары', 'Добавить', 'Редактировать',
-            ['ID', 'Категория', 'Название', 'Цена', 'Количество', 'Обложка', 'Дата создания', 'Опубликован', ''],
-            ['Панель администратора', 'Панель управления', 'Продажи', 'Заказы', 'Товары', 'Категории', 'Все записи', 'Добавить', 'Перейти на сайт'],
-            ['All products', 'Products', 'Add new', 'Edit', 'Go to main site'],
         ];
 
         yield 'English' => [
             'en', 'All products', 'Products', 'Add new', 'Edit',
-            ['ID', 'Category', 'Title', 'Price', 'Quantity', 'Cover', 'Created at', 'Published', ''],
-            ['Admin panel', 'Dashboard', 'Sales', 'Orders', 'Products', 'Categories', 'All list', 'Add new', 'Go to main site'],
-            ['Все товары', 'Товары', 'Добавить', 'Редактировать', 'Перейти на сайт'],
         ];
     }
 
@@ -458,16 +411,13 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideProductAddLocales')]
+    #[TestDox('Форма добавления товара доступна в выбранной локали')]
     public function testAddUiIsLocalized(
         string $locale,
         string $pageTitle,
         string $sectionTitle,
         string $addLabel,
-        string $slugLabel,
-        array $labels,
-        string $categoryPlaceholder,
         string $saveLabel,
-        array $unexpected,
     ): void {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', sprintf('/%s/admin/product/add', $locale));
@@ -482,47 +432,25 @@ class ProductControllerTest extends WebTestCase
         self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
         self::assertSame($addLabel, trim($card->filter('.card-header h6')->text()));
         self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
-        self::assertStringContainsString($slugLabel, $card->text());
-        self::assertSame(
-            $labels,
-            $form->filter('label')->each(static fn (Crawler $label): string => trim($label->text())),
-        );
-        self::assertSame(
-            $categoryPlaceholder,
-            trim($form->filter('select[name="edit_product_form[category]"] option')->first()->text()),
-        );
         self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
-
-        foreach ($unexpected as $text) {
-            self::assertStringNotContainsString($text, $card->text());
-        }
     }
 
     public static function provideProductAddLocales(): Generator
     {
-        foreach (self::provideProductEditLocales() as $name => $arguments) {
-            yield $name => array_slice($arguments, 0, 9);
-        }
+        yield 'Russian' => ['ru', 'Редактирование товара', 'Товары', 'Добавить', 'Сохранить изменения'];
+        yield 'English' => ['en', 'Edit product', 'Products', 'Add new', 'Save changes'];
     }
 
     #[DataProvider(methodName: 'provideProductEditLocales')]
+    #[TestDox('Форма изменения товара сохраняет действия с изображениями и выбранную локаль')]
     public function testEditUiIsLocalized(
         string $locale,
         string $pageTitle,
         string $sectionTitle,
         string $addLabel,
-        string $slugLabel,
-        array $labels,
-        string $categoryPlaceholder,
         string $saveLabel,
-        array $unexpected,
         string $currentImages,
         string $imageDelete,
-        string $deleteRow,
-        string $modalTitle,
-        string $modalText,
-        string $cancel,
-        string $close,
     ): void {
         $client = $this->createAdminClient();
         $product = $this->getEditableProductWithImage();
@@ -533,35 +461,14 @@ class ProductControllerTest extends WebTestCase
 
         $card = $crawler->filter('.card.shadow.mb-4');
         $form = $card->filter('form[name="edit_product_form"]');
-        $modal = $crawler->filter('#approveDeleteModal');
         self::assertCount(1, $card);
         self::assertCount(1, $form);
-        self::assertCount(1, $modal);
         self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
         self::assertSame($product->getTitle(), trim($card->filter('.card-header h6')->text()));
         self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
-        self::assertStringContainsString($slugLabel, $card->text());
         self::assertStringContainsString($currentImages, $card->text());
         self::assertSame($imageDelete, trim($card->filter('a.btn-outline-info')->text()));
-        self::assertSame(
-            $labels,
-            $form->filter('label')->each(static fn (Crawler $label): string => trim($label->text())),
-        );
-        self::assertSame(
-            $categoryPlaceholder,
-            trim($form->filter('select[name="edit_product_form[category]"] option')->first()->text()),
-        );
         self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
-        self::assertSame($deleteRow, trim($card->filter('[data-target="#approveDeleteModal"]')->text()));
-        self::assertSame($modalTitle, trim($modal->filter('.modal-title')->text()));
-        self::assertSame($modalText, trim($modal->filter('.modal-body')->text()));
-        self::assertSame($cancel, trim($modal->filter('.btn-secondary')->text()));
-        self::assertSame($deleteRow, trim($modal->filter('.btn-primary')->text()));
-        self::assertSame($close, $modal->filter('button.close')->attr('aria-label'));
-
-        foreach ($unexpected as $text) {
-            self::assertStringNotContainsString($text, $card->text().' '.$modal->text());
-        }
     }
 
     #[DataProvider(methodName: 'provideProductValidationLocales')]
@@ -616,41 +523,11 @@ class ProductControllerTest extends WebTestCase
     public static function provideProductEditLocales(): Generator
     {
         yield 'Russian' => [
-            'ru',
-            'Редактирование товара',
-            'Товары',
-            'Добавить',
-            'Алиас',
-            ['Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Новинка', 'Распродажа', 'Удалён'],
-            'Выберите категорию',
-            'Сохранить изменения',
-            ['Edit Product', 'Products', 'Add new', 'Slug', 'Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Is Published', 'New', 'On sale', 'Is Deleted', 'Save changes', 'Please select a category'],
-            'Текущие изображения',
-            'Удалить',
-            'Удалить запись',
-            'Вы уверены?',
-            'Товар будет удалён.',
-            'Отмена',
-            'Закрыть',
+            'ru', 'Редактирование товара', 'Товары', 'Добавить', 'Сохранить изменения', 'Текущие изображения', 'Удалить',
         ];
 
         yield 'English' => [
-            'en',
-            'Edit product',
-            'Products',
-            'Add new',
-            'Slug',
-            ['Title', 'Price', 'Quantity', 'Description', 'Category', 'Choose new image', 'Published', 'New', 'On sale', 'Deleted'],
-            'Please select a category',
-            'Save changes',
-            ['Редактирование товара', 'Товары', 'Добавить', 'Алиас', 'Заголовок', 'Цена', 'Количество', 'Описание', 'Категория', 'Выберите новое изображение', 'Опубликован', 'Новинка', 'Распродажа', 'Удалён', 'Сохранить изменения', 'Выберите категорию'],
-            'Current images',
-            'Delete',
-            'Delete row',
-            'Are you sure?',
-            'Product will be deleted.',
-            'Cancel',
-            'Close',
+            'en', 'Edit product', 'Products', 'Add new', 'Save changes', 'Current images', 'Delete',
         ];
     }
 

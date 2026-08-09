@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Controller\Front;
 
 use App\Entity\User;
+use App\Messenger\Message\Event\EventUserRegisteredEvent;
 use App\Repository\UserRepository;
 use App\Security\Verifier\EmailVerifier;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
@@ -11,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Group(name: 'functional')]
 class RegistrationControllerTest extends WebTestCase
@@ -34,14 +36,24 @@ class RegistrationControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertSelectorTextContains('div', 'Было отправлено электронное письмо. Пожалуйста, проверьте свой почтовый ящик, чтобы завершить регистрацию.');
 
-        /** @var User $user */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => self::$uniqueEmail]);
-        self::assertNotNull($user);
+        self::assertInstanceOf(User::class, $user);
         self::assertSame(self::$uniqueEmail, $user->getEmail());
+        self::assertFalse($user->isVerified());
+        self::assertNotSame($newUserPassword, $user->getPassword());
+        self::assertTrue(static::getContainer()->get(UserPasswordHasherInterface::class)->isPasswordValid($user, $newUserPassword));
+        $userId = $user->getId();
+        self::assertIsInt($userId);
 
         /** @var InMemoryTransport $transport */
         $transport = self::getContainer()->get('messenger.transport.async');
-        self::assertCount(1, $transport->get());
+        $envelopes = $transport->get();
+        self::assertCount(1, $envelopes);
+        $message = $envelopes[0]->getMessage();
+        self::assertInstanceOf(EventUserRegisteredEvent::class, $message);
+        self::assertSame($userId, $message->getUserId());
     }
 
     public function testRegistrationEmailDuplicate(): void

@@ -49,6 +49,44 @@ final class ProductReadModelRepositoryTest extends KernelTestCase
             $entityManager->persist($product);
             $products[] = $product;
         }
+        $unpublished = (new Product())
+            ->setTitle('Unpublished '.$suffix)
+            ->setSlug('unpublished-'.$suffix)
+            ->setPrice('10.00')
+            ->setQuantity(1)
+            ->setIsPublished(false)
+            ->setCategory($category);
+        $deleted = (new Product())
+            ->setTitle('Deleted '.$suffix)
+            ->setSlug('deleted-'.$suffix)
+            ->setPrice('10.00')
+            ->setQuantity(1)
+            ->setIsPublished(true)
+            ->setIsDeleted(true)
+            ->setCategory($category);
+        $deletedCategory = (new Category())
+            ->setTitle('Deleted category '.$suffix)
+            ->setSlug('deleted-category-'.$suffix)
+            ->setIsDeleted(true);
+        $productInDeletedCategory = (new Product())
+            ->setTitle('Product in deleted category '.$suffix)
+            ->setSlug('product-in-deleted-category-'.$suffix)
+            ->setPrice('10.00')
+            ->setQuantity(1)
+            ->setIsPublished(true)
+            ->setCategory($deletedCategory);
+        $hiddenProducts = [$unpublished, $deleted, $productInDeletedCategory];
+        foreach ($hiddenProducts as $hiddenProduct) {
+            $filename = 'hidden-'.$hiddenProduct->getSlug().'.jpg';
+            $hiddenProduct->addProductImage(
+                (new ProductImage())
+                    ->setFilenameBig($filename)
+                    ->setFilenameMiddle($filename)
+                    ->setFilenameSmall($filename)
+            );
+            $entityManager->persist($hiddenProduct);
+        }
+        $entityManager->persist($deletedCategory);
         $entityManager->flush();
 
         $productRepository = self::getContainer()->get(ProductRepository::class);
@@ -59,6 +97,10 @@ final class ProductReadModelRepositoryTest extends KernelTestCase
         self::assertStringStartsWith('first-3-', $rows[1]['cover']['filenameMiddle']);
         self::assertTrue($rows[3]['isNew']);
         self::assertTrue($rows[2]['isOnSale']);
+        self::assertSame([], array_intersect(
+            array_map(static fn (Product $product): ?int => $product->getId(), $hiddenProducts),
+            array_column($rows, 'id'),
+        ));
 
         $limitedRows = $productRepository->findCardRowsByCategoryAndCount($category->getId(), 2);
         self::assertCount(2, $limitedRows);
@@ -79,5 +121,9 @@ final class ProductReadModelRepositoryTest extends KernelTestCase
         ));
         self::assertCount(3, $ownCandidates);
         self::assertNotContains($products[3]->getId(), array_column($ownCandidates, 'productId'));
+        self::assertSame([], array_intersect(
+            array_map(static fn (Product $product): ?int => $product->getId(), $hiddenProducts),
+            array_column($candidates, 'productId'),
+        ));
     }
 }

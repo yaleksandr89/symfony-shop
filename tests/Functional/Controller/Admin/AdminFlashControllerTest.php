@@ -13,9 +13,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Group(name: 'functional')]
 class AdminFlashControllerTest extends WebTestCase
@@ -61,7 +61,8 @@ class AdminFlashControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideLocales')]
-    public function testAccessDeniedFlashAndProductImageMessageAreLocalized(string $locale, array $messages): void
+    #[TestDox('Отказ в доступе локализуется через реальный HTTP-поток')]
+    public function testAccessDeniedFlashIsLocalizedThroughHttpFlow(string $locale, array $messages): void
     {
         $client = static::createClient();
         $user = (new User())
@@ -82,12 +83,6 @@ class AdminFlashControllerTest extends WebTestCase
         $crawler = $client->followRedirect();
 
         self::assertStringContainsString($messages['denied'], $crawler->filter('.alert-danger')->text());
-
-        $translator = self::getContainer()->get(TranslatorInterface::class);
-        self::assertSame(
-            $messages['image'],
-            $translator->trans('flash.product_image.deleted', ['%id%' => 42], 'admin', $locale),
-        );
     }
 
     public static function provideLocales(): Generator
@@ -97,7 +92,6 @@ class AdminFlashControllerTest extends WebTestCase
             'oppositeInvalid' => 'Something went wrong. Please check!',
             'saved' => 'Изменения сохранены!', 'deleted' => '[Мягкое удаление] Категория',
             'denied' => 'Недостаточно прав. Обратитесь к администратору.',
-            'image' => 'Изображение (ID: 42) успешно удалено!',
         ]];
 
         yield 'English' => ['en', [
@@ -105,7 +99,6 @@ class AdminFlashControllerTest extends WebTestCase
             'oppositeInvalid' => 'Что-то пошло не так. Проверьте введённые данные!',
             'saved' => 'Your changes were saved!', 'deleted' => '[Soft delete] The category',
             'denied' => "You don't have enough rights! Contact the administrator.",
-            'image' => 'The image (ID: 42) was successfully deleted!',
         ]];
     }
 

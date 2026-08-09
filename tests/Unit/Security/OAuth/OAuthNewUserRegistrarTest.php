@@ -14,6 +14,8 @@ use Doctrine\DBAL\Driver\Exception as DriverExceptionInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
@@ -126,24 +128,64 @@ final class OAuthNewUserRegistrarTest extends TestCase
         }
     }
 
-    public function testUnexpectedFlushFailureIsNotSwallowedAndSendsNoEmail(): void
+    #[TestDox('Неожиданный сбой сохранения пробрасывается без подмены до подписи и письма')]
+    public function testUnexpectedFlushFailureRethrowsSameInstanceBeforeSignatureOrEmail(): void
     {
         $user = (new User())->setEmail('failure@example.test');
         $user->setVkontakteId('vk-id');
         $passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
         $passwordHasher->method('hashPassword')->willReturn('hashed-password');
+        $failure = new \RuntimeException('storage unavailable');
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist')->with($user);
-        $entityManager->expects(self::once())->method('flush')->willThrowException(new \RuntimeException('storage unavailable'));
+        $entityManager->expects(self::once())->method('flush')->willThrowException($failure);
         $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
         $verifyEmailHelper->expects(self::never())->method('generateSignature');
         $emailSender = $this->createMock(UserRegisteredEmailSender::class);
         $emailSender->expects(self::never())->method('sendEmailToClient');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('storage unavailable');
+        try {
+            $this->registrar($passwordHasher, $entityManager, $verifyEmailHelper, $emailSender)
+                ->register($user, OAuthProvider::Vkontakte);
+            self::fail('The storage failure must be rethrown.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame($failure, $exception);
+        }
+    }
+
+    #[TestDox('Отсутствующий email отклоняется до хеширования, сохранения, подписи и письма')]
+    #[DataProvider('missingEmails')]
+    public function testMissingEmailIsDeniedBeforeAnyRegistrationSideEffect(?string $email): void
+    {
+        $user = new class() extends User {
+            public function assignNullableEmail(?string $email): void
+            {
+                $this->email = $email;
+            }
+        };
+        $user->assignNullableEmail($email);
+        $user->setFacebookId('facebook-id');
+        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
+        $passwordHasher->expects(self::never())->method('hashPassword');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('persist');
+        $entityManager->expects(self::never())->method('flush');
+        $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
+        $verifyEmailHelper->expects(self::never())->method('generateSignature');
+        $emailSender = $this->createMock(UserRegisteredEmailSender::class);
+        $emailSender->expects(self::never())->method('sendEmailToClient');
+
+        $this->expectException(OAuthLoginDeniedException::class);
         $this->registrar($passwordHasher, $entityManager, $verifyEmailHelper, $emailSender)
-            ->register($user, OAuthProvider::Vkontakte);
+            ->register($user, OAuthProvider::Facebook);
+    }
+
+    /** @return iterable<string, array{?string}> */
+    public static function missingEmails(): iterable
+    {
+        yield 'null' => [null];
+        yield 'empty' => [''];
+        yield 'whitespace' => ['   '];
     }
 
     public function testMissingAuthoritativeIdentityIsDeniedBeforePasswordOrPersistence(): void

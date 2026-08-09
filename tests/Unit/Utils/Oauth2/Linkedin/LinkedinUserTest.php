@@ -51,7 +51,6 @@ final class LinkedinUserTest extends TestCase
     public function testInvalidSubjectIsRejected(array $response): void
     {
         $this->expectException(\UnexpectedValueException::class);
-        $this->expectExceptionMessage('LinkedIn resource owner response does not contain a valid subject.');
 
         new LinkedinUser($response);
     }

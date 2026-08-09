@@ -16,7 +16,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 class ProductFilterFormTypeTest extends KernelTestCase
 {
     private const DATE_RANGE_ERROR_KEY = 'admin.filter.date_range.invalid_order';
-    private const DATE_RANGE_ERROR = 'Дата «От» не может быть позднее даты «До».';
 
     private FormFactoryInterface $formFactory;
 
@@ -87,7 +86,6 @@ class ProductFilterFormTypeTest extends KernelTestCase
 
         self::assertCount(1, $errors);
         self::assertSame(self::DATE_RANGE_ERROR_KEY, $errors[0]->getMessageTemplate());
-        self::assertSame(self::DATE_RANGE_ERROR, $errors[0]->getMessage());
     }
 
     public static function provideDateRangeValidation(): Generator

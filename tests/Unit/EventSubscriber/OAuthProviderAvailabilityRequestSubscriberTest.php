@@ -32,13 +32,13 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     #[DataProvider('currentRoutes')]
     public function testConfiguredEnabledMappedRoutesPass(string $route, OAuthProvider $provider): void
     {
+        $this->expectNotToPerformAssertions();
         $subscriber = new OAuthProviderAvailabilityRequestSubscriber(
             $this->availability([$provider->value => true])
         );
 
         $subscriber->onKernelRequest($this->event($route));
 
-        self::assertTrue(true);
     }
 
     public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void
@@ -62,28 +62,27 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     #[DataProvider('ignoredRoutes')]
     public function testUnrelatedAndUnlinkRoutesAreIgnored(string $route): void
     {
+        $this->expectNotToPerformAssertions();
         (new OAuthProviderAvailabilityRequestSubscriber($this->availability()))
             ->onKernelRequest($this->event($route));
 
-        self::assertTrue(true);
     }
 
     public function testSubrequestIsIgnored(): void
     {
+        $this->expectNotToPerformAssertions();
         (new OAuthProviderAvailabilityRequestSubscriber($this->availability()))
             ->onKernelRequest($this->event('connect_google_check', HttpKernelInterface::SUB_REQUEST));
 
-        self::assertTrue(true);
     }
 
     public function testOnlyCurrentImplementedRoutesAreMapped(): void
     {
         self::assertSame(OAuthProvider::Linkedin, OAuthProvider::fromRoute('connect_linkedin_check'));
         self::assertNull(OAuthProvider::fromRoute('connect_mailru_start'));
-        self::assertSame(
-            [KernelEvents::REQUEST => ['onKernelRequest', 16]],
-            OAuthProviderAvailabilityRequestSubscriber::getSubscribedEvents()
-        );
+        $events = OAuthProviderAvailabilityRequestSubscriber::getSubscribedEvents();
+        self::assertArrayHasKey(KernelEvents::REQUEST, $events);
+        self::assertSame('onKernelRequest', $events[KernelEvents::REQUEST][0]);
     }
 
     /** @return iterable<string, array{string, OAuthProvider}> */

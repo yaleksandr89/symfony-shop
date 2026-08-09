@@ -15,6 +15,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[Group(name: 'unit')]
@@ -111,21 +112,25 @@ final class OAuthAccountLinkerTest extends TestCase
         }
     }
 
-    public function testOtherFlushFailureRestoresInMemoryIdentity(): void
+    #[TestDox('Сбой сохранения пробрасывается без подмены и восстанавливает все OAuth-идентификаторы')]
+    public function testFlushFailureRethrowsSameExceptionAndRestoresAllIdentities(): void
     {
         $user = $this->user();
+        $user->setYandexId('existing-yandex-id');
+        $before = $this->identities($user);
+        $failure = new \RuntimeException('database failure');
         $repository = $this->createMock(UserRepository::class);
         $repository->expects(self::once())->method('findOneBy')->willReturn(null);
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects(self::once())->method('flush')->willThrowException(new \RuntimeException('database failure'));
+        $entityManager->expects(self::once())->method('flush')->willThrowException($failure);
 
         try {
             (new OAuthAccountLinker(new OAuthIdentityAccessor(), $repository, $entityManager))
                 ->link($user, OAuthProvider::Google, 'external-id');
             self::fail('A failed flush must not leave an in-memory identity.');
         } catch (\RuntimeException $exception) {
-            self::assertSame('database failure', $exception->getMessage());
-            self::assertNull($user->getGoogleId());
+            self::assertSame($failure, $exception);
+            self::assertSame($before, $this->identities($user));
         }
     }
 
@@ -137,6 +142,8 @@ final class OAuthAccountLinkerTest extends TestCase
         yield 'Vkontakte' => [OAuthProvider::Vkontakte, 'vkontakteId'];
         yield 'GitHub EN shared field' => [OAuthProvider::GithubEn, 'githubId'];
         yield 'GitHub RU shared field' => [OAuthProvider::GithubRus, 'githubId'];
+        yield 'Facebook' => [OAuthProvider::Facebook, 'facebookId'];
+        yield 'LinkedIn' => [OAuthProvider::Linkedin, 'linkedinId'];
     }
 
     /** @return iterable<string, array{mixed}> */
@@ -155,6 +162,8 @@ final class OAuthAccountLinkerTest extends TestCase
             'yandex' => $user->getYandexId(),
             'vkontakte' => $user->getVkontakteId(),
             'github' => $user->getGithubId(),
+            'facebook' => $user->getFacebookId(),
+            'linkedin' => $user->getLinkedinId(),
         ];
     }
 
@@ -165,6 +174,8 @@ final class OAuthAccountLinkerTest extends TestCase
         $user->setYandexId(null);
         $user->setVkontakteId(null);
         $user->setGithubId(null);
+        $user->setFacebookId(null);
+        $user->setLinkedinId(null);
 
         return $user;
     }

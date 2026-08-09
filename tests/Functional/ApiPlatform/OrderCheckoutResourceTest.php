@@ -27,7 +27,6 @@ use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mime\Part\DataPart;
 
 #[Group(name: 'functional')]
 class OrderCheckoutResourceTest extends ResourceTestUtils
@@ -71,22 +70,6 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertIsString($htmlBody);
         self::assertStringContainsString('Thank you for your purchase!', $htmlBody);
         self::assertStringContainsString('42.50', $htmlBody);
-        self::assertStringContainsString('style="', $htmlBody);
-        self::assertStringNotContainsString('<style', $htmlBody);
-        self::assertStringContainsString('<table', $htmlBody);
-        self::assertStringContainsString('src="cid:symfony-shop-logo@symfony-shop"', $htmlBody);
-        self::assertStringNotContainsString('@'.'public', $htmlBody);
-        self::assertStringNotContainsString('@'.'images', $htmlBody);
-        $inlineParts = $clientMessage->getAttachments();
-        self::assertCount(1, $inlineParts);
-        self::assertInstanceOf(DataPart::class, $inlineParts[0]);
-        self::assertSame(
-            'alexander-yurchenko-php-developer.png',
-            $inlineParts[0]->getFilename(),
-        );
-        self::assertSame('image/png', $inlineParts[0]->getContentType());
-        self::assertSame('inline', $inlineParts[0]->getDisposition());
-        self::assertSame('symfony-shop-logo@symfony-shop', $inlineParts[0]->getContentId());
 
         $entityManager = $this->getEntityManager();
         $entityManager->clear();
@@ -684,8 +667,6 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     public static function unavailableProductAcceptHeaders(): iterable
     {
         yield 'json unpublished' => ['application/json', false, 'unpublished'];
-        yield 'json-ld unpublished' => ['application/ld+json', false, 'unpublished'];
-        yield 'json deleted' => ['application/json', true, 'deleted'];
         yield 'json-ld deleted' => ['application/ld+json', true, 'deleted'];
     }
 

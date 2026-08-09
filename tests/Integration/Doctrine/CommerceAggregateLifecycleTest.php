@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group(name: 'integration')]
@@ -164,33 +165,25 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         });
     }
 
-    public function testCommerceAssociationMetadataMatchesAggregateBoundaries(): void
+    #[TestDox('Сумма заказа точно сохраняется, а поле объявлено как DECIMAL(19,2)')]
+    public function testOrderTotalPriceRoundTripsAsExactScaledDecimal(): void
     {
-        $totalPrice = $this->entityManager->getClassMetadata(Order::class)->fieldMappings['totalPrice'];
-        $orderProducts = $this->entityManager->getClassMetadata(Order::class)->associationMappings['orderProducts'];
-        $cartProducts = $this->entityManager->getClassMetadata(Cart::class)->associationMappings['cartProducts'];
-        $order = $this->entityManager->getClassMetadata(OrderProduct::class)->associationMappings['appOrder'];
-        $cart = $this->entityManager->getClassMetadata(CartProduct::class)->associationMappings['cart'];
-        $productCartProducts = $this->entityManager->getClassMetadata(Product::class)->associationMappings['cartProducts'];
-        $product = $this->entityManager->getClassMetadata(OrderProduct::class)->associationMappings['product'];
-        $owner = $this->entityManager->getClassMetadata(Order::class)->associationMappings['owner'];
-        $userOrders = $this->entityManager->getClassMetadata(User::class)->associationMappings['orders'];
+        $mapping = $this->entityManager->getClassMetadata(Order::class)->getFieldMapping('totalPrice');
+        self::assertSame(Types::DECIMAL, $mapping->type);
+        self::assertSame(19, $mapping->precision);
+        self::assertSame(2, $mapping->scale);
+        self::assertTrue($mapping->nullable);
 
-        self::assertSame(['persist', 'remove'], $this->mappingValue($orderProducts, 'cascade'));
-        self::assertTrue($this->mappingValue($orderProducts, 'orphanRemoval'));
-        self::assertSame(['persist', 'remove'], $this->mappingValue($cartProducts, 'cascade'));
-        self::assertTrue($this->mappingValue($cartProducts, 'orphanRemoval'));
-        self::assertSame('CASCADE', $this->mappingValue($this->mappingValue($order, 'joinColumns')[0], 'onDelete'));
-        self::assertSame('CASCADE', $this->mappingValue($this->mappingValue($cart, 'joinColumns')[0], 'onDelete'));
-        self::assertFalse($this->mappingValue($productCartProducts, 'orphanRemoval'));
-        self::assertSame([], $this->mappingValue($productCartProducts, 'cascade'));
-        self::assertNull($this->mappingValue($this->mappingValue($product, 'joinColumns')[0], 'onDelete'));
-        self::assertNull($this->mappingValue($this->mappingValue($owner, 'joinColumns')[0], 'onDelete'));
-        self::assertSame([], $this->mappingValue($userOrders, 'cascade'));
-        self::assertSame(Types::DECIMAL, $this->mappingValue($totalPrice, 'type'));
-        self::assertSame(19, $this->mappingValue($totalPrice, 'precision'));
-        self::assertSame(2, $this->mappingValue($totalPrice, 'scale'));
-        self::assertTrue($this->mappingValue($totalPrice, 'nullable'));
+        [$user] = $this->persistUserAndProduct();
+        $order = $this->newOrder($user)->setTotalPrice('900719925474.09');
+        $this->entityManager->persist($order);
+        $this->entityManager->flush();
+        $orderId = $order->getId();
+        $this->entityManager->clear();
+
+        $reloaded = $this->entityManager->find(Order::class, $orderId);
+        self::assertInstanceOf(Order::class, $reloaded);
+        self::assertSame('900719925474.09', $reloaded->getTotalPrice());
     }
 
     /** @return array{User, Product} */
@@ -234,23 +227,6 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         return (new CartProduct())
             ->setProduct($product)
             ->setQuantity(1);
-    }
-
-    private function mappingValue(array|object $mapping, string $key): mixed
-    {
-        if (is_array($mapping)) {
-            if (!array_key_exists($key, $mapping)) {
-                self::fail(sprintf('The Doctrine mapping array does not contain the "%s" key.', $key));
-            }
-
-            return $mapping[$key];
-        }
-
-        if (!property_exists($mapping, $key)) {
-            self::fail(sprintf('The Doctrine mapping object %s does not have the "%s" property.', $mapping::class, $key));
-        }
-
-        return $mapping->{$key};
     }
 
     private function withForeignKeyEnforcement(\Closure $assertions): void

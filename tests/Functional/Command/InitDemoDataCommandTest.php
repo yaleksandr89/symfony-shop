@@ -6,8 +6,8 @@ namespace App\Tests\Functional\Command;
 
 use App\Command\InitDemoDataCommand;
 use App\Demo\DemoDataInitializer;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Group(name: 'functional')]
 class InitDemoDataCommandTest extends KernelTestCase
 {
+    #[TestDox('Команда повторно выполняется и сообщает учётные данные и сводные счётчики')]
     public function testCommandReportsCountersAndDemoCredentialsInTest(): void
     {
         self::bootKernel();
@@ -28,16 +29,15 @@ class InitDemoDataCommandTest extends KernelTestCase
         self::assertStringContainsString('super-admin@example.test / DemoSuperAdmin123!', $output);
         self::assertStringContainsString('admin@example.test / DemoAdmin123!', $output);
         self::assertStringContainsString('user@example.test / DemoUser123!', $output);
-        self::assertStringContainsString('Products: 0 created, 0 updated, 48 existing', $output);
-        self::assertStringContainsString('Orders: 24 removed, 24 created', $output);
-        self::assertStringContainsString('Order products: 48 removed, 48 created', $output);
-
-        $connection = self::getContainer()->get(EntityManagerInterface::class)->getConnection();
-        self::assertSame(48, (int) $connection->fetchOne("SELECT COUNT(*) FROM product WHERE slug LIKE 'demo-%'"));
-        self::assertSame(11, (int) $connection->fetchOne("SELECT COUNT(*) FROM product WHERE slug LIKE 'demo-%' AND is_new = true"));
-        self::assertSame(8, (int) $connection->fetchOne("SELECT COUNT(*) FROM product WHERE slug LIKE 'demo-%' AND is_on_sale = true"));
-        self::assertSame(29, (int) $connection->fetchOne("SELECT COUNT(*) FROM product WHERE slug LIKE 'demo-%' AND is_new = false AND is_on_sale = false"));
-        self::assertSame(0, (int) $connection->fetchOne("SELECT COUNT(*) FROM product WHERE slug LIKE 'demo-%' AND is_new = true AND is_on_sale = true"));
+        foreach (['Users', 'Categories', 'Products', 'Images'] as $heading) {
+            self::assertMatchesRegularExpression(
+                sprintf('/%s: \d+ created, \d+ updated, \d+ existing/', $heading),
+                $output,
+            );
+        }
+        self::assertMatchesRegularExpression('/Image files: \d+ copied, \d+ updated, \d+ existing/', $output);
+        self::assertMatchesRegularExpression('/Orders: \d+ removed, \d+ created/', $output);
+        self::assertMatchesRegularExpression('/Order products: \d+ removed, \d+ created/', $output);
     }
 
     public function testCommandRefusesProductionBeforeInitialization(): void

@@ -8,6 +8,7 @@ use App\Utils\Money\DecimalMoney;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[Group(name: 'unit')]
@@ -83,5 +84,31 @@ class DecimalMoneyTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         DecimalMoney::multiplyToCents('92233720368547758.07', 2);
+    }
+
+    #[TestDox('Отрицательное количество центов отклоняется при форматировании')]
+    public function testFromCentsRejectsNegativeValue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        DecimalMoney::fromCents(-1);
+    }
+
+    #[TestDox('Сложение отклоняет отрицательные операнды')]
+    #[TestWith([-1, 0])]
+    #[TestWith([0, -1])]
+    public function testAddCentsRejectsNegativeOperands(int $totalCents, int $lineCents): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        DecimalMoney::addCents($totalCents, $lineCents);
+    }
+
+    #[TestDox('Переполнение при сложении центов отклоняется без оборачивания')]
+    public function testAddCentsRejectsIntegerOverflow(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        DecimalMoney::addCents(PHP_INT_MAX, 1);
     }
 }
