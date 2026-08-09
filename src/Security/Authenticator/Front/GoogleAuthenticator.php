@@ -10,7 +10,6 @@ use App\Security\OAuth\OAuthLoginHandler;
 use App\Security\OAuth\OAuthProvider;
 use App\Utils\Factory\UserFactory;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use League\OAuth2\Client\Provider\GoogleUser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +24,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class GoogleAuthenticator extends OAuth2Authenticator
+class GoogleAuthenticator extends AbstractOAuthAuthenticator
 {
     public function __construct(
         private ClientRegistry $clientRegistry,
@@ -53,12 +52,12 @@ class GoogleAuthenticator extends OAuth2Authenticator
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('google_main');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessTokenFromProvider($client);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
                 /** @var GoogleUser $googleUser */
-                $googleUser = $client->fetchUserFromToken($accessToken);
+                $googleUser = $this->fetchResourceOwnerFromProvider($client, $accessToken);
                 $email = $googleUser->getEmail();
 
                 return $this->oauthLoginHandler->handle(

@@ -11,7 +11,6 @@ use App\Security\OAuth\OAuthProvider;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Oauth2\Linkedin\LinkedinUser;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +24,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class LinkedinAuthenticator extends OAuth2Authenticator
+final class LinkedinAuthenticator extends AbstractOAuthAuthenticator
 {
     private OAuthCallbackModeResolver $callbackModeResolver;
 
@@ -52,11 +51,11 @@ final class LinkedinAuthenticator extends OAuth2Authenticator
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('linkedin_main');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessTokenFromProvider($client);
 
         return new SelfValidatingPassport(new UserBadge($accessToken->getToken(), function () use ($accessToken, $client): User {
             /** @var LinkedinUser $linkedinUser */
-            $linkedinUser = $client->fetchUserFromToken($accessToken);
+            $linkedinUser = $this->fetchResourceOwnerFromProvider($client, $accessToken);
             $email = $linkedinUser->getEmail();
 
             return $this->oauthLoginHandler->handle(

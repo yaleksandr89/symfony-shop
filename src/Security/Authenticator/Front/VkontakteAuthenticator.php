@@ -11,7 +11,6 @@ use App\Security\OAuth\OAuthProvider;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Oauth2\Vk\VkUser;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +24,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class VkontakteAuthenticator extends OAuth2Authenticator
+class VkontakteAuthenticator extends AbstractOAuthAuthenticator
 {
     public function __construct(
         private ClientRegistry $clientRegistry,
@@ -53,12 +52,12 @@ class VkontakteAuthenticator extends OAuth2Authenticator
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('vkontakte_main');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessTokenFromProvider($client);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
                 /** @var VkUser $vkUser */
-                $vkUser = $client->fetchUserFromToken($accessToken);
+                $vkUser = $this->fetchResourceOwnerFromProvider($client, $accessToken);
                 $email = $vkUser->getEmail();
 
                 return $this->oauthLoginHandler->handle(

@@ -10,7 +10,6 @@ use App\Security\OAuth\OAuthLoginHandler;
 use App\Security\OAuth\OAuthProvider;
 use App\Utils\Factory\UserFactory;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +24,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class GithubEnAuthenticator extends OAuth2Authenticator
+class GithubEnAuthenticator extends AbstractOAuthAuthenticator
 {
     public function __construct(
         private ClientRegistry $clientRegistry,
@@ -53,12 +52,12 @@ class GithubEnAuthenticator extends OAuth2Authenticator
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('github_en');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessTokenFromProvider($client);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
                 /** @var GithubResourceOwner $githubUser */
-                $githubUser = $client->fetchUserFromToken($accessToken);
+                $githubUser = $this->fetchResourceOwnerFromProvider($client, $accessToken);
                 $email = $githubUser->getEmail();
 
                 return $this->oauthLoginHandler->handle(

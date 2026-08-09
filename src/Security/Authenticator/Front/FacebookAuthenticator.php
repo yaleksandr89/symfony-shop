@@ -11,7 +11,6 @@ use App\Security\OAuth\OAuthProvider;
 use App\Utils\Factory\UserFactory;
 use App\Utils\Oauth2\Facebook\FacebookUser;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +24,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class FacebookAuthenticator extends OAuth2Authenticator
+final class FacebookAuthenticator extends AbstractOAuthAuthenticator
 {
     private OAuthCallbackModeResolver $callbackModeResolver;
 
@@ -52,11 +51,11 @@ final class FacebookAuthenticator extends OAuth2Authenticator
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('facebook_main');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessTokenFromProvider($client);
 
         return new SelfValidatingPassport(new UserBadge($accessToken->getToken(), function () use ($accessToken, $client): User {
             /** @var FacebookUser $facebookUser */
-            $facebookUser = $client->fetchUserFromToken($accessToken);
+            $facebookUser = $this->fetchResourceOwnerFromProvider($client, $accessToken);
             $email = $facebookUser->getEmail();
 
             return $this->oauthLoginHandler->handle(

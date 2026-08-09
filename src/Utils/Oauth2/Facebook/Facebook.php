@@ -41,15 +41,13 @@ final class Facebook extends AbstractProvider
 
     protected function checkResponse(ResponseInterface $response, $data): void
     {
-        if (!is_array($data) || empty($data['error'])) {
+        $hasProviderError = is_array($data) && array_key_exists('error', $data);
+        if (!$hasProviderError && $response->getStatusCode() < 400) {
             return;
         }
 
-        $error = $data['error'];
-        $message = is_array($error) ? (string) ($error['message'] ?? 'Facebook OAuth request failed.') : (string) $error;
-        $code = is_array($error) && is_numeric($error['code'] ?? null) ? (int) $error['code'] : 0;
-
-        throw new IdentityProviderException($message, $code, $data);
+        $statusCode = $response->getStatusCode();
+        throw new IdentityProviderException('Facebook OAuth request failed.', $statusCode >= 400 ? $statusCode : 0, ['status_code' => $statusCode]);
     }
 
     protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface

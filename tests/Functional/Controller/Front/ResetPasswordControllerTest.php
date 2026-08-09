@@ -27,6 +27,7 @@ class ResetPasswordControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('form[name="reset_password_request_form"]');
         self::assertSelectorExists('input[name="reset_password_request_form[email]"]');
+        self::assertSelectorTextContains('form[name="reset_password_request_form"]', 'Please enter your email');
 
         /** @var InMemoryTransport $transport */
         $transport = static::getContainer()->get('messenger.transport.async');

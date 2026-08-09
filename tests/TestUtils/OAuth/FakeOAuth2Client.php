@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 final class FakeOAuth2Client implements OAuth2ClientInterface
 {
+    public const TOKEN_FAILURE_MARKER = 'OAUTH-TOKEN-UPSTREAM-SECRET-7ac4';
+    public const USER_INFO_FAILURE_MARKER = 'OAUTH-USERINFO-UPSTREAM-SECRET-91ef';
+
     public int $redirectCalls = 0;
     public int $registryAccesses = 0;
     public int $tokenRequests = 0;
@@ -23,6 +26,8 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
         private readonly RequestStack $requestStack,
         private readonly ResourceOwnerInterface $resourceOwner,
         private readonly string $state = 'fake-oauth-state',
+        private readonly bool $failTokenRequest = false,
+        private readonly bool $failUserInfoRequest = false,
     ) {
     }
 
@@ -47,6 +52,9 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
         if ($expectedState !== $actualState) {
             throw new \RuntimeException('Invalid state.');
         }
+        if ($this->failTokenRequest) {
+            throw new \RuntimeException('Token exchange exposed '.self::TOKEN_FAILURE_MARKER);
+        }
 
         return new AccessToken(['access_token' => 'fake-token']);
     }
@@ -54,6 +62,9 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
     public function fetchUserFromToken(AccessToken $accessToken): ResourceOwnerInterface
     {
         ++$this->userInfoRequests;
+        if ($this->failUserInfoRequest) {
+            throw new \RuntimeException('Resource owner fetch exposed '.self::USER_INFO_FAILURE_MARKER);
+        }
 
         return $this->resourceOwner;
     }

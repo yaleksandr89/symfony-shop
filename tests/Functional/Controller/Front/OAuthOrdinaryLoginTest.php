@@ -18,6 +18,7 @@ use League\OAuth2\Client\Provider\GoogleUser;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
@@ -159,6 +160,113 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         self::assertEmailHtmlBodyNotContains($message, 'new password');
     }
 
+    #[TestDox('Сбой обмена OAuth-токена завершается нейтрально без входа и побочных эффектов')]
+    public function testTokenExchangeFailureIsNeutralAndHasNoSideEffects(): void
+    {
+        $externalId = 'failed-token-facebook-id';
+        $providerEmail = 'failed-token-provider@example.test';
+        $sentinelEmail = 'failed-token-sentinel@example.test';
+        [$client, $fake] = $this->ordinaryClient(
+            $this->resourceOwner(OAuthProvider::Facebook, $externalId, $providerEmail),
+            failTokenRequest: true,
+        );
+        $sentinel = $this->createUser($sentinelEmail);
+        $beforePassword = $sentinel->getPassword();
+        $beforeCount = $this->userCount();
+
+        $this->completeCallback($client, '/ru/connect/facebook', '/ru/connect/facebook/check');
+
+        $this->assertNeutralExternalFailure(
+            $client,
+            $fake,
+            $sentinel,
+            $sentinelEmail,
+            $beforePassword,
+            $beforeCount,
+            FakeOAuth2Client::TOKEN_FAILURE_MARKER,
+            $externalId,
+            $providerEmail,
+            1,
+            0,
+        );
+    }
+
+    #[TestDox('Сбой получения OAuth-профиля завершается нейтрально без входа и побочных эффектов')]
+    public function testUserInfoFailureIsNeutralAndHasNoSideEffects(): void
+    {
+        $externalId = 'failed-user-info-facebook-id';
+        $providerEmail = 'failed-user-info-provider@example.test';
+        $sentinelEmail = 'failed-user-info-sentinel@example.test';
+        [$client, $fake] = $this->ordinaryClient(
+            $this->resourceOwner(OAuthProvider::Facebook, $externalId, $providerEmail),
+            failUserInfoRequest: true,
+        );
+        $sentinel = $this->createUser($sentinelEmail);
+        $beforePassword = $sentinel->getPassword();
+        $beforeCount = $this->userCount();
+
+        $this->completeCallback($client, '/ru/connect/facebook', '/ru/connect/facebook/check');
+
+        $this->assertNeutralExternalFailure(
+            $client,
+            $fake,
+            $sentinel,
+            $sentinelEmail,
+            $beforePassword,
+            $beforeCount,
+            FakeOAuth2Client::USER_INFO_FAILURE_MARKER,
+            $externalId,
+            $providerEmail,
+            1,
+            1,
+        );
+    }
+
+    #[TestDox('Связанный удалённый пользователь не входит через обычный Facebook callback')]
+    public function testLinkedDeletedUserIsDeniedNeutrallyWithoutMutation(): void
+    {
+        $externalId = 'deleted-facebook-id';
+        $localEmail = 'deleted-facebook-local@example.test';
+        $providerEmail = 'deleted-facebook-provider@example.test';
+        [$client, $fake] = $this->ordinaryClient($this->resourceOwner(OAuthProvider::Facebook, $externalId, $providerEmail));
+        $user = $this->createUser($localEmail, OAuthProvider::Facebook, $externalId);
+        $user->setIsDeleted(true);
+        $this->entityManager()->flush();
+        $beforePassword = $user->getPassword();
+        $beforeCount = $this->userCount();
+
+        $this->completeCallback($client, '/ru/connect/facebook', '/ru/connect/facebook/check');
+
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        self::assertSame(1, $fake->tokenRequests);
+        self::assertSame(1, $fake->userInfoRequests);
+        self::assertFalse($client->getContainer()->get('security.token_storage')->getToken()?->getUser() instanceof User);
+        self::assertSame($beforeCount, $this->userCount());
+        $reloaded = $this->reload($user);
+        self::assertSame($localEmail, $reloaded->getEmail());
+        self::assertSame($externalId, $reloaded->getFacebookId());
+        self::assertSame($beforePassword, $reloaded->getPassword());
+        self::assertTrue($reloaded->getIsDeleted());
+        self::assertEmailCount(0);
+
+        $dangerFlashes = $client->getRequest()->getSession()->getFlashBag()->peek('danger');
+        self::assertCount(1, $dangerFlashes);
+        self::assertStringContainsString('Не удалось выполнить вход через социальную сеть.', $dangerFlashes[0]);
+        self::assertStringNotContainsString($externalId, $dangerFlashes[0]);
+        self::assertStringNotContainsString($providerEmail, $dangerFlashes[0]);
+        self::assertStringNotContainsString('Invalid credentials.', $dangerFlashes[0]);
+
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '.alert-danger');
+        self::assertSelectorTextContains('.alert-danger', 'Не удалось выполнить вход через социальную сеть.');
+        $content = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString($externalId, $content);
+        self::assertStringNotContainsString($providerEmail, $content);
+        self::assertStringNotContainsString('fake-token', $content);
+        self::assertStringNotContainsString('Invalid credentials.', $content);
+    }
+
     /** @return iterable<string, array{OAuthProvider, string, string}> */
     public static function providerCallbacks(): iterable
     {
@@ -179,11 +287,20 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
     }
 
     /** @return array{KernelBrowser, FakeOAuth2Client} */
-    private function ordinaryClient(ResourceOwnerInterface $resourceOwner): array
+    private function ordinaryClient(
+        ResourceOwnerInterface $resourceOwner,
+        bool $failTokenRequest = false,
+        bool $failUserInfoRequest = false,
+    ): array
     {
         $client = self::createClient();
         $client->disableReboot();
-        $fake = new FakeOAuth2Client(self::getContainer()->get(RequestStack::class), $resourceOwner);
+        $fake = new FakeOAuth2Client(
+            self::getContainer()->get(RequestStack::class),
+            $resourceOwner,
+            failTokenRequest: $failTokenRequest,
+            failUserInfoRequest: $failUserInfoRequest,
+        );
         $container = new class($fake) extends Container {
             public function __construct(private readonly FakeOAuth2Client $fake)
             {
@@ -208,6 +325,49 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         $this->enableAllProviders();
 
         return [$client, $fake];
+    }
+
+    private function assertNeutralExternalFailure(
+        KernelBrowser $client,
+        FakeOAuth2Client $fake,
+        User $sentinel,
+        string $beforeEmail,
+        string $beforePassword,
+        int $beforeCount,
+        string $secretMarker,
+        string $externalId,
+        string $providerEmail,
+        int $expectedTokenRequests,
+        int $expectedUserInfoRequests,
+    ): void
+    {
+        self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
+        self::assertSame($expectedTokenRequests, $fake->tokenRequests);
+        self::assertSame($expectedUserInfoRequests, $fake->userInfoRequests);
+        self::assertFalse($client->getContainer()->get('security.token_storage')->getToken()?->getUser() instanceof User);
+        self::assertSame($beforeCount, $this->userCount());
+        $reloaded = $this->reload($sentinel);
+        self::assertSame($beforeEmail, $reloaded->getEmail());
+        self::assertNull($reloaded->getFacebookId());
+        self::assertSame($beforePassword, $reloaded->getPassword());
+        self::assertEmailCount(0);
+
+        $dangerFlashes = $client->getRequest()->getSession()->getFlashBag()->peek('danger');
+        self::assertCount(1, $dangerFlashes);
+        self::assertStringContainsString('Не удалось выполнить вход через социальную сеть.', $dangerFlashes[0]);
+        self::assertStringNotContainsString($secretMarker, $dangerFlashes[0]);
+        self::assertStringNotContainsString($externalId, $dangerFlashes[0]);
+        self::assertStringNotContainsString($providerEmail, $dangerFlashes[0]);
+
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '.alert-danger');
+        self::assertSelectorTextContains('.alert-danger', 'Не удалось выполнить вход через социальную сеть.');
+        $content = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString($secretMarker, $content);
+        self::assertStringNotContainsString($externalId, $content);
+        self::assertStringNotContainsString($providerEmail, $content);
+        self::assertStringNotContainsString('fake-token', $content);
     }
 
     private function completeCallback(KernelBrowser $client, string $startPath, string $callbackPath): void
