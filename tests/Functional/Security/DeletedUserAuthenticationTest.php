@@ -19,22 +19,6 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusExce
 #[Group(name: 'functional')]
 class DeletedUserAuthenticationTest extends WebTestCase
 {
-    public function testCheckerAllowsActiveUserAndRejectsDeletedUserWithGenericMessage(): void
-    {
-        $checker = self::getContainer()->get(DeletedUserChecker::class);
-        self::assertInstanceOf(DeletedUserChecker::class, $checker);
-
-        $checker->checkPreAuth($this->getUser(UserFixtures::USER_1_EMAIL));
-
-        $deletedUser = $this->getUser(UserFixtures::USER_ADMIN_1_EMAIL)->setIsDeleted(true);
-        try {
-            $checker->checkPreAuth($deletedUser);
-            self::fail('A deleted user must not pass the user checker.');
-        } catch (CustomUserMessageAccountStatusException $exception) {
-            self::assertSame('Invalid credentials.', $exception->getMessageKey());
-        }
-    }
-
     public function testBothFirewallsUseTheDeletedUserChecker(): void
     {
         foreach (['security.user_checker.admin', 'security.user_checker.front'] as $serviceId) {

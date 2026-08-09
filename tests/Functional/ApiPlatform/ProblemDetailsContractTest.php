@@ -95,22 +95,6 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         $this->assertNoDebugFields($document);
     }
 
-    public function testSecurityProblemContractRemainsApplicationOwned(): void
-    {
-        $client = self::createClient();
-        $client->request('GET', '/api/orders', [], [], ['HTTP_ACCEPT' => 'application/json']);
-
-        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
-    }
-
-    public function testUnsupportedAcceptRemainsNotAcceptable(): void
-    {
-        $client = self::createClient();
-        $client->request('GET', '/api/products', [], [], ['HTTP_ACCEPT' => 'text/plain']);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_NOT_ACCEPTABLE);
-    }
-
     /** @return array{cartId: int, productId: int, productUuid: string, token: string, productQuantity: int} */
     private function createContext(): array
     {

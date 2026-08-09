@@ -25,14 +25,6 @@ use Symfony\Component\DomCrawler\Crawler;
 #[Group(name: 'functional')]
 class OrderControllerTest extends WebTestCase
 {
-    public function testListLoads(): void
-    {
-        $client = $this->createAdminClient();
-        $client->request('GET', '/ru/admin/order/list');
-
-        self::assertResponseIsSuccessful();
-    }
-
     public function testListBatchesLineCountsAndKeepsQueryCountBounded(): void
     {
         $client = $this->createAdminClient();

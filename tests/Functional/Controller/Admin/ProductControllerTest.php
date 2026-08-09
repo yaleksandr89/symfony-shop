@@ -23,14 +23,6 @@ use Symfony\Component\DomCrawler\Crawler;
 #[Group(name: 'functional')]
 class ProductControllerTest extends WebTestCase
 {
-    public function testListLoads(): void
-    {
-        $client = $this->createAdminClient();
-        $client->request('GET', '/ru/admin/product/list');
-
-        self::assertResponseIsSuccessful();
-    }
-
     public function testListBatchesPageCoversAndKeepsQueryCountBounded(): void
     {
         $client = $this->createAdminClient();

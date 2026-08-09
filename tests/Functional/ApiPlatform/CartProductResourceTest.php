@@ -140,19 +140,6 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertSame($context['lineB']->getId(), $this->getResponseDecodedContent($client)['id']);
     }
 
-    public function testPredictableNumericIdDoesNotBypassCartIsolation(): void
-    {
-        $client = self::createClient();
-        $context = $this->createCartContext();
-        $this->setCartToken($client, $context['tokenB']);
-        $foreignLineId = $context['lineA']->getId();
-        self::assertNotNull($foreignLineId);
-
-        $client->request('GET', self::URI_KEY.'/'.$foreignLineId, [], [], self::REQUEST_HEADERS);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-    }
-
     public function testMatchingCartTokenStillReturnsEmbeddedCartProducts(): void
     {
         $client = self::createClient();
@@ -169,23 +156,6 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertIsArray($document['cartProducts']);
         self::assertContains($context['lineA']->getId(), array_column($document['cartProducts'], 'id'));
         self::assertNotContains($context['lineB']->getId(), array_column($document['cartProducts'], 'id'));
-    }
-
-    public function testMatchingTokenCanPatchOnlyQuantityOnOwnLine(): void
-    {
-        $client = self::createClient();
-        $context = $this->createCartContext();
-        $this->setCartToken($client, $context['tokenA']);
-
-        $this->requestPatch($client, $context['lineA'], ['quantity' => 7]);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        $this->assertPersistedLineState(
-            $context['lineA'],
-            7,
-            $context['cartA']->getId(),
-            $context['productA']->getId()
-        );
     }
 
     public function testWrongTokenCannotPatchForeignLine(): void

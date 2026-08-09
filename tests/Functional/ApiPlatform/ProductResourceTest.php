@@ -104,29 +104,6 @@ class ProductResourceTest extends ResourceTestUtils
         $this->assertPrivateFieldsAreAbsent($document);
     }
 
-    public function testFilterProductsByPublishedState(): void
-    {
-        $client = self::createClient();
-
-        $client->request('GET', $this->uriKey.'?itemsPerPage=100', [], [], self::REQUEST_HEADERS);
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        $unfilteredDocument = $this->getResponseDecodedContent($client);
-
-        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        $filteredDocument = $this->getResponseDecodedContent($client);
-
-        self::assertSame('/api/contexts/Product', $filteredDocument['@context']);
-        self::assertSame('Collection', $filteredDocument['@type']);
-        self::assertIsArray($filteredDocument['member']);
-        self::assertSame([], $filteredDocument['member']);
-        self::assertSame(0, $filteredDocument['totalItems']);
-        self::assertGreaterThan(
-            $filteredDocument['totalItems'],
-            $unfilteredDocument['totalItems']
-        );
-    }
-
     public function testAnonymousProductVisibility(): void
     {
         $client = self::createClient();

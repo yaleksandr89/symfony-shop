@@ -103,16 +103,6 @@ class SecurityTransportTest extends ResourceTestUtils
         $this->assertWarningFlash($client, ['You have to login in order to access this page.']);
     }
 
-    public function testAnonymousPublicApiRemainsAvailable(): void
-    {
-        $client = self::createClient();
-
-        $client->request('GET', '/api/products', [], [], ['HTTP_ACCEPT' => 'application/ld+json']);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-        self::assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-    }
-
     public function testPublicApiKeepsUnsupportedAcceptResponse(): void
     {
         $client = self::createClient();

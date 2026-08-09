@@ -11,21 +11,6 @@ class AuthLoginControllerTest extends BasePantherTestCase
     private string $email = 'test2@test.com';
     private string $password = 'test2test2';
 
-    #[Group(name: 'functional')]
-    public function testLogin(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/ru/login');
-        $client->submitForm('Авторизоваться', [
-            'email' => $this->email,
-            'password' => $this->password,
-        ]);
-
-        self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
-        $client->followRedirect();
-        self::assertResponseIsSuccessful();
-    }
-
     #[Group(name: 'functional-panther')]
     public function testLoginWithPantherClient(): void
     {

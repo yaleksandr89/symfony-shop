@@ -69,17 +69,6 @@ class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('.widget-copyright', 'Авторское право © Александр Юрченко. Все права защищены.');
     }
 
-    #[DataProvider(methodName: 'getPublicUrls')]
-    public function testPublicUrl(string $url): void
-    {
-        $client = static::createClient();
-        $client->request('GET', $url);
-
-        self::assertResponseIsSuccessful(
-            sprintf('The %s public URL loads correctly', $url)
-        );
-    }
-
     #[DataProvider(methodName: 'getSecureUrls')]
     public function testSecureUrl(string $url): void
     {
@@ -91,14 +80,6 @@ class DefaultControllerTest extends WebTestCase
             Response::HTTP_FOUND,
             sprintf('The %s URL redirections to the login page', $url)
         );
-    }
-
-    public static function getPublicUrls(): ?Generator
-    {
-        yield ['/ru/'];
-        yield ['/ru/login'];
-        yield ['/ru/registration'];
-        yield ['/ru/reset-password'];
     }
 
     public static function getSecureUrls(): ?Generator

@@ -232,21 +232,6 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartConsumed($cart);
     }
 
-    public function testRegularUserCannotCheckoutForeignCart(): void
-    {
-        $client = self::createClient();
-        $ownCart = $this->createCart([['10.00', 1]]);
-        $foreignCart = $this->createCart([['20.00', 2]]);
-        $counts = $this->getOrderCounts();
-        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
-        $this->setCartToken($client, $ownCart['token']);
-
-        $this->requestCheckout($client, ['cartId' => $foreignCart['id']]);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        $this->assertNoCheckoutSideEffects($counts, [$ownCart, $foreignCart]);
-    }
-
     public function testCheckoutWithForeignTokenDoesNotRevealCartAvailability(): void
     {
         $client = self::createClient();

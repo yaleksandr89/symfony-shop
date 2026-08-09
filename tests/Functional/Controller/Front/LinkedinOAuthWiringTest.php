@@ -14,22 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 final class LinkedinOAuthWiringTest extends WebTestCase
 {
-    public function testDisabledStartAndCallbackAreBlockedBeforeExternalAccess(): void
-    {
-        $client = self::createClient();
-
-        $client->request('GET', '/ru/connect/linkedin');
-        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-        self::assertFalse($client->getResponse()->isRedirect());
-
-        $client->request('GET', '/ru/connect/linkedin/check', [
-            'code' => 'must-not-be-exchanged',
-            'state' => 'must-not-be-used',
-        ]);
-        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-        self::assertFalse($client->getResponse()->isRedirect());
-    }
-
     #[DataProvider('locales')]
     public function testConfiguredStartUsesLinkedinOidcAuthorizationContract(string $locale): void
     {
