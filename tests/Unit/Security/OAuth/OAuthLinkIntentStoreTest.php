@@ -10,6 +10,7 @@ use App\Security\OAuth\OAuthLinkIntentStore;
 use App\Security\OAuth\OAuthProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,13 +116,79 @@ final class OAuthLinkIntentStoreTest extends TestCase
         self::assertSame(OAuthProvider::Vkontakte, $intent->provider);
     }
 
-    public function testSecondFlowReplacesFirst(): void
+    #[TestDox('Второй OAuth flow заменяет первый и остаётся доступным для consume')]
+    public function testSecondFlowReplacesFirstAndRemainsConsumable(): void
     {
         $this->store->store($this->user, OAuthProvider::Google, 'old-state');
         $this->store->store($this->user, OAuthProvider::GithubEn, 'new-state');
 
+        self::assertTrue($this->store->hasPending());
+
+        $intent = $this->store->consume($this->user, OAuthProvider::GithubEn, 'new-state');
+
+        self::assertSame(41, $intent->userId);
+        self::assertSame(OAuthProvider::GithubEn, $intent->provider);
+        self::assertSame(hash('sha256', 'new-state'), $intent->stateHash);
+        self::assertFalse($this->store->hasPending());
+
         $this->expectException(OAuthLinkIntentException::class);
         $this->store->consume($this->user, OAuthProvider::Google, 'old-state');
+    }
+
+    #[TestDox('Несохранённый пользователь не может создать OAuth link intent')]
+    public function testStoreRejectsUnsavedUser(): void
+    {
+        $this->expectException(OAuthLinkIntentException::class);
+
+        try {
+            $this->store->store(new User(), OAuthProvider::Google, 'state');
+        } finally {
+            self::assertFalse($this->store->hasPending());
+        }
+    }
+
+    #[DataProvider('blankStoreStates')]
+    #[TestDox('Пустой OAuth state не создаёт link intent')]
+    public function testStoreRejectsBlankState(string $state): void
+    {
+        $this->expectException(OAuthLinkIntentException::class);
+
+        try {
+            $this->store->store($this->user, OAuthProvider::Google, $state);
+        } finally {
+            self::assertFalse($this->store->hasPending());
+        }
+    }
+
+    #[DataProvider('operationsRequiringSession')]
+    #[TestDox('Изменение OAuth link intent требует HTTP-сессию')]
+    public function testStateChangingOperationsRequireSession(string $operation): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request());
+        $store = new OAuthLinkIntentStore($requestStack, $this->clock);
+
+        self::assertFalse($store->hasPending());
+        $this->expectException(OAuthLinkIntentException::class);
+
+        match ($operation) {
+            'store' => $store->store($this->user, OAuthProvider::Google, 'state'),
+            'consume' => $store->consume($this->user, OAuthProvider::Google, 'state'),
+            'clear' => $store->clear(),
+        };
+    }
+
+    #[TestDox('Очистка OAuth link intent делает его непригодным для consume')]
+    public function testClearRemovesPendingIntent(): void
+    {
+        $this->store->store($this->user, OAuthProvider::Google, 'state');
+        self::assertTrue($this->store->hasPending());
+
+        $this->store->clear();
+
+        self::assertFalse($this->store->hasPending());
+        $this->expectException(OAuthLinkIntentException::class);
+        $this->store->consume($this->user, OAuthProvider::Google, 'state');
     }
 
     /** @return iterable<string, array{string}> */
@@ -130,6 +197,21 @@ final class OAuthLinkIntentStoreTest extends TestCase
         foreach (['missing', 'malformed', 'malformed-hash', 'wrong-user', 'wrong-provider', 'missing-state', 'blank-state', 'wrong-state', 'expired'] as $case) {
             yield $case => [$case];
         }
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function blankStoreStates(): iterable
+    {
+        yield 'empty' => [''];
+        yield 'whitespace' => ['   '];
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function operationsRequiringSession(): iterable
+    {
+        yield 'store' => ['store'];
+        yield 'consume' => ['consume'];
+        yield 'clear' => ['clear'];
     }
 
     private function user(int $id): User
