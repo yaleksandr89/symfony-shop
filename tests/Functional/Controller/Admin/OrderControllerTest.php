@@ -13,6 +13,7 @@ use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
 use Generator;
@@ -115,26 +116,73 @@ class OrderControllerTest extends WebTestCase
         self::assertLessThanOrEqual(1, abs($fullPageQueryCount - $partialPageQueryCount));
     }
 
-    public function testEmptyFilterSubmitDoesNotFail(): void
+    public function testEmptyFilterSubmitKeepsVisibleOrderIds(): void
     {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/ru/admin/order/list');
-        $client->submit($crawler->filter('#order_list_filters_block form button[type="submit"]')->form());
+        self::assertResponseIsSuccessful();
+        $beforeSubmitIds = $this->visibleListIds($crawler);
+        self::assertNotSame([], $beforeSubmitIds);
+
+        $crawler = $client->submit($crawler->filter('#order_list_filters_block form button[type="submit"]')->form());
 
         self::assertResponseIsSuccessful();
+        self::assertSame($beforeSubmitIds, $this->visibleListIds($crawler));
     }
 
-    public function testTotalPriceRangeFilterDoesNotFail(): void
+    #[DataProvider(methodName: 'provideTotalPriceRanges')]
+    public function testTotalPriceRangeFiltersControlledOrders(
+        array $submitted,
+        array $includedPrices,
+        array $excludedPrices,
+    ): void
     {
         $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $owner = (new User())
+            ->setEmail('admin-filter-owner-'.$suffix.'@example.test')
+            ->setPassword('not-used-in-functional-test')
+            ->setRoles(['ROLE_USER'])
+            ->setIsVerified(true)
+            ->setFullName('Admin Filter Owner '.$suffix)
+            ->setPhone('+7 900 123-45-67');
+        $entityManager->persist($owner);
+
+        $ordersByPrice = [];
+        foreach (['9.99', '10.00', '15.00', '20.00', '20.01'] as $price) {
+            $order = (new Order())
+                ->setOwner($owner)
+                ->setStatus(0)
+                ->setTotalPrice($price);
+            $entityManager->persist($order);
+            $ordersByPrice[$price] = $order;
+        }
+        $entityManager->flush();
+
         $crawler = $client->request('GET', '/ru/admin/order/list');
-        $form = $crawler->filter('#order_list_filters_block form button[type="submit"]')->form([
-            'order_filter_form[totalPrice][left_number]' => '10',
-            'order_filter_form[totalPrice][right_number]' => '100',
-        ]);
-        $client->submit($form);
+        $crawler = $client->submit($crawler->filter('#order_list_filters_block form button[type="submit"]')->form([
+            'order_filter_form[owner]' => (string) $owner->getId(),
+            ...$submitted,
+        ]));
 
         self::assertResponseIsSuccessful();
+        $visibleIds = $this->visibleListIds($crawler);
+        $this->assertVisibleIdsMatchPrices($visibleIds, $ordersByPrice, $includedPrices, $excludedPrices);
+    }
+
+    public static function provideTotalPriceRanges(): Generator
+    {
+        yield 'lower only' => [[
+            'order_filter_form[totalPrice][left_number]' => '10.00',
+        ], ['10.00', '15.00', '20.00', '20.01'], ['9.99']];
+        yield 'upper only' => [[
+            'order_filter_form[totalPrice][right_number]' => '20.00',
+        ], ['9.99', '10.00', '15.00', '20.00'], ['20.01']];
+        yield 'both inclusive' => [[
+            'order_filter_form[totalPrice][left_number]' => '10.00',
+            'order_filter_form[totalPrice][right_number]' => '20.00',
+        ], ['10.00', '15.00', '20.00'], ['9.99', '20.01']];
     }
 
     public function testTotalPriceSortingIsNumericAndListRendersCurrency(): void
@@ -169,27 +217,68 @@ class OrderControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideDateRanges')]
-    public function testDateRangeFilterDoesNotFail(array $submitted): void
+    public function testDateRangeFiltersControlledOrders(
+        array $submitted,
+        array $includedDates,
+        array $excludedDates,
+    ): void
     {
         $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $owner = (new User())
+            ->setEmail('admin-date-filter-owner-'.$suffix.'@example.test')
+            ->setPassword('not-used-in-functional-test')
+            ->setRoles(['ROLE_USER'])
+            ->setIsVerified(true)
+            ->setFullName('Admin Date Filter Owner '.$suffix)
+            ->setPhone('+7 900 123-45-68');
+        $entityManager->persist($owner);
+
+        $ordersByDate = [];
+        foreach ([
+            'previous day' => '2026-04-09 23:59:59',
+            'selected day early' => '2026-04-10 00:00:00',
+            'selected day late' => '2026-04-10 23:59:59',
+            'next day midnight' => '2026-04-11 00:00:00',
+            'after upper day' => '2026-04-12 00:00:00',
+        ] as $label => $createdAt) {
+            $order = (new Order())
+                ->setOwner($owner)
+                ->setStatus(0)
+                ->setTotalPrice('10.00')
+                ->setCreatedAt(new DateTimeImmutable($createdAt));
+            $entityManager->persist($order);
+            $ordersByDate[$label] = $order;
+        }
+        $entityManager->flush();
+
         $crawler = $client->request('GET', '/ru/admin/order/list');
-        $crawler = $client->submit($crawler->filter('#order_list_filters_block form button[type="submit"]')->form($submitted));
+        $crawler = $client->submit($crawler->filter('#order_list_filters_block form button[type="submit"]')->form([
+            'order_filter_form[owner]' => (string) $owner->getId(),
+            ...$submitted,
+        ]));
 
         self::assertResponseIsSuccessful();
-        self::assertCount(
-            0,
-            $crawler->filter('#order_list_filters_block .alert.alert-danger[role="alert"]'),
-        );
+        $this->assertVisibleIdsMatchDates($this->visibleListIds($crawler), $ordersByDate, $includedDates, $excludedDates);
     }
 
     public static function provideDateRanges(): Generator
     {
-        yield 'lower only' => [['order_filter_form[createdAt][left_date]' => '2024-01-02']];
-        yield 'upper only' => [['order_filter_form[createdAt][right_date]' => '2024-01-03']];
+        yield 'lower only' => [[
+            'order_filter_form[createdAt][left_date]' => '2026-04-10',
+        ], ['selected day early', 'selected day late', 'next day midnight', 'after upper day'], ['previous day']];
+        yield 'upper only' => [[
+            'order_filter_form[createdAt][right_date]' => '2026-04-10',
+        ], ['previous day', 'selected day early', 'selected day late'], ['next day midnight', 'after upper day']];
         yield 'both' => [[
-            'order_filter_form[createdAt][left_date]' => '2024-01-02',
-            'order_filter_form[createdAt][right_date]' => '2024-01-03',
-        ]];
+            'order_filter_form[createdAt][left_date]' => '2026-04-10',
+            'order_filter_form[createdAt][right_date]' => '2026-04-11',
+        ], ['selected day early', 'selected day late', 'next day midnight'], ['previous day', 'after upper day']];
+        yield 'same day includes the whole calendar day' => [[
+            'order_filter_form[createdAt][left_date]' => '2026-04-10',
+            'order_filter_form[createdAt][right_date]' => '2026-04-10',
+        ], ['selected day early', 'selected day late'], ['previous day', 'next day midnight', 'after upper day']];
     }
 
     #[DataProvider(methodName: 'provideFilterLocales')]
@@ -683,6 +772,56 @@ class OrderControllerTest extends WebTestCase
         return $crawler->filter('#main_table tbody tr')->each(
             static fn (Crawler $row): int => self::currencyTextToCents($row->filter('td')->eq(6)->text()),
         );
+    }
+
+    /** @return list<int> */
+    private function visibleListIds(Crawler $crawler): array
+    {
+        return $crawler->filter('#main_table tbody tr')->each(
+            static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text()),
+        );
+    }
+
+    /**
+     * @param list<int> $visibleIds
+     * @param array<string, Order> $ordersByPrice
+     * @param list<string> $includedPrices
+     * @param list<string> $excludedPrices
+     */
+    private function assertVisibleIdsMatchPrices(
+        array $visibleIds,
+        array $ordersByPrice,
+        array $includedPrices,
+        array $excludedPrices,
+    ): void {
+        foreach ($includedPrices as $price) {
+            self::assertContains($ordersByPrice[$price]->getId(), $visibleIds, sprintf('Expected %s order to be visible.', $price));
+        }
+
+        foreach ($excludedPrices as $price) {
+            self::assertNotContains($ordersByPrice[$price]->getId(), $visibleIds, sprintf('Expected %s order to be absent.', $price));
+        }
+    }
+
+    /**
+     * @param list<int> $visibleIds
+     * @param array<string, Order> $ordersByDate
+     * @param list<string> $includedDates
+     * @param list<string> $excludedDates
+     */
+    private function assertVisibleIdsMatchDates(
+        array $visibleIds,
+        array $ordersByDate,
+        array $includedDates,
+        array $excludedDates,
+    ): void {
+        foreach ($includedDates as $date) {
+            self::assertContains($ordersByDate[$date]->getId(), $visibleIds, sprintf('Expected %s order to be visible.', $date));
+        }
+
+        foreach ($excludedDates as $date) {
+            self::assertNotContains($ordersByDate[$date]->getId(), $visibleIds, sprintf('Expected %s order to be absent.', $date));
+        }
     }
 
     private static function currencyTextToCents(string $currencyText): int

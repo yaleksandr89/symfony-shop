@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
 use Generator;
@@ -118,13 +119,18 @@ class ProductControllerTest extends WebTestCase
         self::assertLessThanOrEqual(1, abs($fullPageQueryCount - $partialPageQueryCount));
     }
 
-    public function testEmptyFilterSubmitDoesNotFail(): void
+    public function testEmptyFilterSubmitKeepsVisibleProductIds(): void
     {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', '/ru/admin/product/list');
-        $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form());
+        self::assertResponseIsSuccessful();
+        $beforeSubmitIds = $this->visibleListIds($crawler);
+        self::assertNotSame([], $beforeSubmitIds);
+
+        $crawler = $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form());
 
         self::assertResponseIsSuccessful();
+        self::assertSame($beforeSubmitIds, $this->visibleListIds($crawler));
     }
 
     public function testEditPersistsMerchandisingFlags(): void
@@ -149,17 +155,62 @@ class ProductControllerTest extends WebTestCase
         self::assertTrue($updatedProduct->getIsOnSale());
     }
 
-    public function testPriceRangeFilterDoesNotFail(): void
+    #[DataProvider(methodName: 'providePriceRanges')]
+    public function testPriceRangeFiltersControlledProducts(
+        array $submitted,
+        array $includedPrices,
+        array $excludedPrices,
+    ): void
     {
         $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $category = (new Category())
+            ->setTitle('Admin price filter category '.$suffix)
+            ->setSlug('admin-price-filter-category-'.$suffix);
+        $entityManager->persist($category);
+
+        $productsByPrice = [];
+        foreach (['9.99', '10.00', '15.00', '20.00', '20.01'] as $price) {
+            $product = (new Product())
+                ->setTitle('Admin price filter product '.$price.' '.$suffix)
+                ->setSlug('admin-price-filter-product-'.str_replace('.', '-', $price).'-'.$suffix)
+                ->setPrice($price)
+                ->setQuantity(1)
+                ->setIsPublished(true)
+                ->setCategory($category);
+            $entityManager->persist($product);
+            $productsByPrice[$price] = $product;
+        }
+        $entityManager->flush();
+
         $crawler = $client->request('GET', '/ru/admin/product/list');
-        $form = $crawler->filter('#product_list_filters_block form button[type="submit"]')->form([
-            'order_filter_form[price][left_number]' => '10',
-            'order_filter_form[price][right_number]' => '100',
-        ]);
-        $client->submit($form);
+        $crawler = $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form([
+            'order_filter_form[category]' => (string) $category->getId(),
+            ...$submitted,
+        ]));
 
         self::assertResponseIsSuccessful();
+        $this->assertVisibleIdsMatchPrices(
+            $this->visibleListIds($crawler),
+            $productsByPrice,
+            $includedPrices,
+            $excludedPrices,
+        );
+    }
+
+    public static function providePriceRanges(): Generator
+    {
+        yield 'lower only' => [[
+            'order_filter_form[price][left_number]' => '10.00',
+        ], ['10.00', '15.00', '20.00', '20.01'], ['9.99']];
+        yield 'upper only' => [[
+            'order_filter_form[price][right_number]' => '20.00',
+        ], ['9.99', '10.00', '15.00', '20.00'], ['20.01']];
+        yield 'both inclusive' => [[
+            'order_filter_form[price][left_number]' => '10.00',
+            'order_filter_form[price][right_number]' => '20.00',
+        ], ['10.00', '15.00', '20.00'], ['9.99', '20.01']];
     }
 
     public function testDateFilterControlsUseDateInputs(): void
@@ -173,27 +224,67 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideDateRanges')]
-    public function testDateRangeFilterDoesNotFail(array $submitted): void
+    public function testDateRangeFiltersControlledProducts(
+        array $submitted,
+        array $includedDates,
+        array $excludedDates,
+    ): void
     {
         $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $category = (new Category())
+            ->setTitle('Admin date filter category '.$suffix)
+            ->setSlug('admin-date-filter-category-'.$suffix);
+        $entityManager->persist($category);
+
+        $productsByDate = [];
+        foreach ([
+            'previous day' => '2026-04-09 23:59:59',
+            'selected day early' => '2026-04-10 00:00:00',
+            'selected day late' => '2026-04-10 23:59:59',
+            'next day midnight' => '2026-04-11 00:00:00',
+            'after upper day' => '2026-04-12 00:00:00',
+        ] as $label => $createdAt) {
+            $product = (new Product())
+                ->setTitle('Admin date filter product '.$label.' '.$suffix)
+                ->setSlug('admin-date-filter-product-'.str_replace(' ', '-', $label).'-'.$suffix)
+                ->setPrice('10.00')
+                ->setQuantity(1)
+                ->setIsPublished(true)
+                ->setCategory($category)
+                ->setCreatedAt(new DateTimeImmutable($createdAt));
+            $entityManager->persist($product);
+            $productsByDate[$label] = $product;
+        }
+        $entityManager->flush();
+
         $crawler = $client->request('GET', '/ru/admin/product/list');
-        $crawler = $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form($submitted));
+        $crawler = $client->submit($crawler->filter('#product_list_filters_block form button[type="submit"]')->form([
+            'order_filter_form[category]' => (string) $category->getId(),
+            ...$submitted,
+        ]));
 
         self::assertResponseIsSuccessful();
-        self::assertCount(
-            0,
-            $crawler->filter('#product_list_filters_block .alert.alert-danger[role="alert"]'),
-        );
+        $this->assertVisibleIdsMatchDates($this->visibleListIds($crawler), $productsByDate, $includedDates, $excludedDates);
     }
 
     public static function provideDateRanges(): Generator
     {
-        yield 'lower only' => [['order_filter_form[createdAt][left_date]' => '2024-01-02']];
-        yield 'upper only' => [['order_filter_form[createdAt][right_date]' => '2024-01-03']];
+        yield 'lower only' => [[
+            'order_filter_form[createdAt][left_date]' => '2026-04-10',
+        ], ['selected day early', 'selected day late', 'next day midnight', 'after upper day'], ['previous day']];
+        yield 'upper only' => [[
+            'order_filter_form[createdAt][right_date]' => '2026-04-10',
+        ], ['previous day', 'selected day early', 'selected day late'], ['next day midnight', 'after upper day']];
         yield 'both' => [[
-            'order_filter_form[createdAt][left_date]' => '2024-01-02',
-            'order_filter_form[createdAt][right_date]' => '2024-01-03',
-        ]];
+            'order_filter_form[createdAt][left_date]' => '2026-04-10',
+            'order_filter_form[createdAt][right_date]' => '2026-04-11',
+        ], ['selected day early', 'selected day late', 'next day midnight'], ['previous day', 'after upper day']];
+        yield 'same day includes the whole calendar day' => [[
+            'order_filter_form[createdAt][left_date]' => '2026-04-10',
+            'order_filter_form[createdAt][right_date]' => '2026-04-10',
+        ], ['selected day early', 'selected day late'], ['previous day', 'next day midnight', 'after upper day']];
     }
 
     #[DataProvider(methodName: 'provideFilterLocales')]
@@ -596,6 +687,56 @@ class ProductControllerTest extends WebTestCase
         $entityManager->flush();
 
         return $product;
+    }
+
+    /** @return list<int> */
+    private function visibleListIds(Crawler $crawler): array
+    {
+        return $crawler->filter('#main_table tbody tr')->each(
+            static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text()),
+        );
+    }
+
+    /**
+     * @param list<int> $visibleIds
+     * @param array<string, Product> $productsByPrice
+     * @param list<string> $includedPrices
+     * @param list<string> $excludedPrices
+     */
+    private function assertVisibleIdsMatchPrices(
+        array $visibleIds,
+        array $productsByPrice,
+        array $includedPrices,
+        array $excludedPrices,
+    ): void {
+        foreach ($includedPrices as $price) {
+            self::assertContains($productsByPrice[$price]->getId(), $visibleIds, sprintf('Expected %s product to be visible.', $price));
+        }
+
+        foreach ($excludedPrices as $price) {
+            self::assertNotContains($productsByPrice[$price]->getId(), $visibleIds, sprintf('Expected %s product to be absent.', $price));
+        }
+    }
+
+    /**
+     * @param list<int> $visibleIds
+     * @param array<string, Product> $productsByDate
+     * @param list<string> $includedDates
+     * @param list<string> $excludedDates
+     */
+    private function assertVisibleIdsMatchDates(
+        array $visibleIds,
+        array $productsByDate,
+        array $includedDates,
+        array $excludedDates,
+    ): void {
+        foreach ($includedDates as $date) {
+            self::assertContains($productsByDate[$date]->getId(), $visibleIds, sprintf('Expected %s product to be visible.', $date));
+        }
+
+        foreach ($excludedDates as $date) {
+            self::assertNotContains($productsByDate[$date]->getId(), $visibleIds, sprintf('Expected %s product to be absent.', $date));
+        }
     }
 
     private function createAdminClient(): KernelBrowser
