@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26a4266af2be1f392f18ea62e827034c",
+    "content-hash": "ac5ba0d10e0ced0069b940dbff9e124b",
     "packages": [
         {
             "name": "api-platform/core",
@@ -10425,55 +10425,6 @@
                 "source": "https://github.com/dmaicher/doctrine-test-bundle/tree/v8.6.0"
             },
             "time": "2026-01-21T07:39:44+00:00"
-        },
-        {
-            "name": "dbrekelmans/bdi",
-            "version": "1.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dbrekelmans/bdi.git",
-                "reference": "c2b77127d7aa3fad25d57575c207b54b108ab300"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dbrekelmans/bdi/zipball/c2b77127d7aa3fad25d57575c207b54b108ab300",
-                "reference": "c2b77127d7aa3fad25d57575c207b54b108ab300",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-zip": "*",
-                "ext-zlib": "*",
-                "php": "^8.1"
-            },
-            "bin": [
-                "bdi",
-                "bdi.phar"
-            ],
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniël Brekelmans",
-                    "homepage": "https://github.com/dbrekelmans"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/dbrekelmans/bdi/graphs/contributors"
-                }
-            ],
-            "description": "PHAR distribution of dbrekelmans/browser-driver-installer.",
-            "homepage": "https://github.com/dbrekelmans/bdi",
-            "keywords": [
-                "browser-driver-installer"
-            ],
-            "support": {
-                "source": "https://github.com/dbrekelmans/bdi/tree/1.4.1"
-            },
-            "time": "2025-11-03T11:32:28+00:00"
         },
         {
             "name": "doctrine/data-fixtures",

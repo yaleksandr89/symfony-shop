@@ -10,7 +10,6 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Tests\SymfonyPanther\BasePantherTestCase;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
 use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
@@ -23,23 +22,15 @@ use Facebook\WebDriver\WebDriverWait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\Panther\Client;
+use Symfony\Component\Panther\PantherTestCase;
 
-class OrderEditorBrowserTest extends BasePantherTestCase
+class OrderEditorBrowserTest extends PantherTestCase
 {
     #[Group(name: 'functional-panther')]
     #[TestDox('Администратор через интерфейс добавляет и удаляет позицию заказа в Panther')]
     public function testAdminOrderEditorMutatesControlledLinesWithPanther(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
-
-        $this->assertAdminOrderEditorMutatesLines($client);
-    }
-
-    #[Group(name: 'functional-selenium')]
-    #[TestDox('Администратор через интерфейс добавляет и удаляет позицию заказа в Selenium')]
-    public function testAdminOrderEditorMutatesControlledLinesWithSelenium(): void
-    {
-        $client = $this->initSeleniumClient();
 
         $this->assertAdminOrderEditorMutatesLines($client);
     }

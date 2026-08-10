@@ -4,7 +4,7 @@ VENDOR = ./vendor
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps cache-prod-reset logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther test-functional-selenium
+.PHONY: help init check-env config build up down restart ps cache-prod-reset logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
 
 help:
 	@printf '%s\n' 'Docker local development:'
@@ -26,9 +26,8 @@ help:
 	@printf '%s\n' '  make test-integration  Run PHPUnit integration group without result cache'
 	@printf '%s\n' '  make test-functional   Run PHPUnit functional group without result cache'
 	@printf '%s\n' '  make test-functional-panther  Run PHPUnit functional-panther group without result cache'
-	@printf '%s\n' '  make test-functional-selenium Run PHPUnit functional-selenium group without result cache'
 	@printf '%s\n' '  make test-all-core CONFIRM=testdb  Build assets and run unit, test DB reset, integration and functional tests'
-	@printf '%s\n' '  make test-all CONFIRM=testdb       Run the full baseline, including Panther and Selenium'
+	@printf '%s\n' '  make test-all CONFIRM=testdb       Run the full baseline, including Panther'
 	@printf '%s\n' '  make run-test CONFIRM=testdb       Deprecated compatibility alias for test-all'
 	@printf '%s\n' '  make phpstan-check     Run PHPStan read-only analysis'
 	@printf '%s\n' '  make php-cs-fixer-check Check PHP-CS-Fixer rules without writing files'
@@ -186,7 +185,6 @@ test-all-core:
 test-all:
 	$(MAKE) test-all-core CONFIRM="$(CONFIRM)"
 	$(MAKE) test-functional-panther
-	$(MAKE) test-functional-selenium
 
 run-test:
 	$(MAKE) test-all CONFIRM="$(CONFIRM)"
@@ -217,16 +215,3 @@ test-functional:
 
 test-functional-panther:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-cache-result --no-coverage
-
-test-functional-selenium:
-	@set -e; \
-	cleanup() { $(COMPOSE) rm -sf selenium >/dev/null 2>&1 || true; }; \
-	trap 'status=$$?; cleanup; exit $$status' EXIT INT TERM; \
-	$(COMPOSE) up -d selenium; \
-	i=0; \
-	until $(COMPOSE) exec -T --user app php php -r '$$json = @file_get_contents("http://selenium:4444/status"); if (!$$json) exit(1); $$data = json_decode($$json, true); exit(($$data["value"]["ready"] ?? false) ? 0 : 1);'; do \
-		i=$$((i + 1)); \
-		if [ "$$i" -ge 60 ]; then printf '%s\n' 'Selenium did not become ready'; exit 1; fi; \
-		sleep 1; \
-	done; \
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-selenium --do-not-cache-result --no-coverage

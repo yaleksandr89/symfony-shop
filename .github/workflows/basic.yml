@@ -23,7 +23,6 @@ jobs:
           git lfs ls-files
           test -s bin/chrome-linux64-150.0.7871.46.zip
           unzip -tq bin/chrome-linux64-150.0.7871.46.zip
-          test -s bin/selenium-server.jar
 
       - name: Prepare Docker environment
         run: |
@@ -44,7 +43,6 @@ jobs:
           make test-integration
           make test-functional
           make test-functional-panther
-          make test-functional-selenium
           make phpstan-check
 
       - name: Cleanup Docker

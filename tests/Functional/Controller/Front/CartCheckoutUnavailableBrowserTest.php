@@ -9,7 +9,6 @@ use App\Entity\CartProduct;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\ProductImage;
-use App\Tests\SymfonyPanther\BasePantherTestCase;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Generator\TokenGenerator;
 use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
@@ -21,8 +20,9 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\Panther\Client;
+use Symfony\Component\Panther\PantherTestCase;
 
-class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
+class CartCheckoutUnavailableBrowserTest extends PantherTestCase
 {
     #[Group(name: 'functional-panther')]
     #[TestDox('Покупатель через интерфейс удаляет недоступные товары и оформляет оставшийся')]

@@ -73,7 +73,6 @@
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.6",
-        "dbrekelmans/bdi": "^1.0",
         "friendsofphp/php-cs-fixer": "^3.0",
         "hautelook/alice-bundle": "~2.17.3",
         "phpstan/phpstan": "^2.2",
