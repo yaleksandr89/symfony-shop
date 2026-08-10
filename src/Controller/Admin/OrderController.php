@@ -81,10 +81,14 @@ class OrderController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Order $order, OrderManager $orderManager): Response
     {
         $id = $order->getId();
+
+        if (!$this->isCsrfTokenValid('delete_order_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));

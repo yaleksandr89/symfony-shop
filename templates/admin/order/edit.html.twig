@@ -138,6 +138,7 @@
             'modalText': 'order.modal.delete_text'|trans({}, 'admin'),
             'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_order_delete', {'id': order.id}),
+            'csrfTokenId': 'delete_order_' ~ order.id,
             'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
             'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}

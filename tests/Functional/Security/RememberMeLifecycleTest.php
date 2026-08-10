@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
@@ -16,6 +17,18 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 class RememberMeLifecycleTest extends WebTestCase
 {
+    #[TestDox('HTTPS-вход front выдаёт hardened remember-me cookie')]
+    public function testFrontHttpsLoginIssuesHardenedRememberMeCookie(): void
+    {
+        $this->issueFrontRememberMeCookie(static::createClient());
+    }
+
+    #[TestDox('HTTPS-вход admin выдаёт отдельную hardened remember-me cookie')]
+    public function testAdminHttpsLoginIssuesHardenedRememberMeCookie(): void
+    {
+        $this->issueAdminRememberMeCookie(static::createClient());
+    }
+
     public function testFrontRememberMeCookieRestoresOnlyFrontAuthentication(): void
     {
         $client = static::createClient();
@@ -124,7 +137,7 @@ class RememberMeLifecycleTest extends WebTestCase
 
     private function issueFrontRememberMeCookie(KernelBrowser $client): Cookie
     {
-        $client->request('GET', '/ru/login');
+        $client->request('GET', 'https://localhost/ru/login');
         $client->submitForm('Авторизоваться', [
             'email' => UserFixtures::USER_1_EMAIL,
             'password' => 'test3test3',
@@ -135,7 +148,7 @@ class RememberMeLifecycleTest extends WebTestCase
 
         $rememberMeCookie = $client->getCookieJar()->get('REMEMBERME');
         self::assertInstanceOf(Cookie::class, $rememberMeCookie);
-        self::assertSame('/', $rememberMeCookie->getPath());
+        $this->assertRememberMeCookieAttributes($client, $rememberMeCookie, 'REMEMBERME');
         self::assertNull($client->getCookieJar()->get('ADMIN_REMEMBERME'));
 
         return $rememberMeCookie;
@@ -143,7 +156,7 @@ class RememberMeLifecycleTest extends WebTestCase
 
     private function issueAdminRememberMeCookie(KernelBrowser $client): Cookie
     {
-        $client->request('GET', '/ru/admin/login');
+        $client->request('GET', 'https://localhost/ru/admin/login');
         $client->submitForm('Войти', [
             'email' => UserFixtures::USER_ADMIN_1_EMAIL,
             'password' => 'test2test2',
@@ -154,7 +167,7 @@ class RememberMeLifecycleTest extends WebTestCase
 
         $rememberMeCookie = $client->getCookieJar()->get('ADMIN_REMEMBERME');
         self::assertInstanceOf(Cookie::class, $rememberMeCookie);
-        self::assertSame('/', $rememberMeCookie->getPath());
+        $this->assertRememberMeCookieAttributes($client, $rememberMeCookie, 'ADMIN_REMEMBERME');
         self::assertNull($client->getCookieJar()->get('REMEMBERME'));
 
         return $rememberMeCookie;
@@ -188,6 +201,26 @@ class RememberMeLifecycleTest extends WebTestCase
             }
             self::assertNull($client->getCookieJar()->get($name));
         }
+    }
+
+    private function assertRememberMeCookieAttributes(KernelBrowser $client, Cookie $browserCookie, string $name): void
+    {
+        self::assertSame($name, $browserCookie->getName());
+        self::assertSame('/', $browserCookie->getPath());
+        self::assertTrue($browserCookie->isSecure());
+        self::assertTrue($browserCookie->isHttpOnly());
+        self::assertSame('lax', $browserCookie->getSameSite());
+
+        $responseCookies = array_values(array_filter(
+            $client->getResponse()->headers->getCookies(),
+            static fn ($cookie): bool => $name === $cookie->getName(),
+        ));
+        self::assertCount(1, $responseCookies);
+        $responseCookie = $responseCookies[0];
+        self::assertSame('/', $responseCookie->getPath());
+        self::assertTrue($responseCookie->isSecure());
+        self::assertTrue($responseCookie->isHttpOnly());
+        self::assertSame('lax', $responseCookie->getSameSite());
     }
 
     private function getUser(string $email): User

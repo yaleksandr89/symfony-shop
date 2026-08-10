@@ -8,7 +8,7 @@ use App\Entity\User;
 use App\Form\Front\ChangePasswordFormType;
 use App\Form\Front\ResetPasswordRequestFormType;
 use App\Messenger\Message\Command\ResetUserPasswordCommand;
-use Doctrine\Persistence\ManagerRegistry as Doctrine;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +27,7 @@ class ResetPasswordController extends AbstractController
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private Doctrine $doctrine,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -101,18 +101,15 @@ class ResetPasswordController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // A password reset token should be used only once, remove it.
-            $this->resetPasswordHelper->removeResetRequest($token);
-
-            // Encode(hash) the plain password, and set it.
             $encodedPassword = $userPasswordHasherInterface->hashPassword(
                 $user,
                 $form->get('plainPassword')->getData()
             );
 
-            $user->setPassword($encodedPassword);
-
-            $this->doctrine->getManager()->flush();
+            $this->entityManager->wrapInTransaction(function () use ($encodedPassword, $token, $user): void {
+                $this->resetPasswordHelper->removeResetRequest($token);
+                $user->setPassword($encodedPassword);
+            });
 
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();

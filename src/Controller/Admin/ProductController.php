@@ -77,11 +77,15 @@ class ProductController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Product $product, ProductManager $productManager): Response
     {
         $id = $product->getId();
         $title = $product->getTitle();
+
+        if (!$this->isCsrfTokenValid('delete_product_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));

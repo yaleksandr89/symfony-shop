@@ -68,11 +68,15 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
     {
         $id = $category->getId();
         $title = $category->getTitle();
+
+        if (!$this->isCsrfTokenValid('delete_category_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));

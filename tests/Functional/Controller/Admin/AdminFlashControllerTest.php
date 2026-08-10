@@ -50,7 +50,10 @@ class AdminFlashControllerTest extends WebTestCase
 
         $category = self::getContainer()->get(CategoryRepository::class)->findOneBy(['title' => ucfirst(strtolower($title))]);
         self::assertInstanceOf(Category::class, $category);
-        $client->request('GET', sprintf('/%s/admin/category/delete/%d', $locale, $category->getId()));
+        $deletePath = sprintf('/%s/admin/category/delete/%d', $locale, $category->getId());
+        $deleteForm = $crawler->filter(sprintf('form[action="%s"]', $deletePath));
+        self::assertCount(1, $deleteForm);
+        $client->submit($deleteForm->form());
         self::assertResponseRedirects();
 
         $crawler = $client->followRedirect();

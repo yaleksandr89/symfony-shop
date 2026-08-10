@@ -69,11 +69,15 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, User $user, UserManager $userManager): Response
     {
         $id = $user->getId();
         $fullName = $user->getFullName();
+
+        if (!$this->isCsrfTokenValid('delete_user_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));

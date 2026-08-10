@@ -10,7 +10,10 @@
             <div class="modal-body">{{ modalText }}</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">{{ cancelLabel|default('modal.cancel'|trans({}, 'admin')) }}</button>
-                <a class="btn btn-primary" href="{{ actionUrl }}">{{ modalBtnText }}</a>
+                <form method="post" action="{{ actionUrl }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token(csrfTokenId) }}">
+                    <button class="btn btn-primary" type="submit">{{ modalBtnText }}</button>
+                </form>
             </div>
         </div>
     </div>

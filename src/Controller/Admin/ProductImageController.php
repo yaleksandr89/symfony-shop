@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/product-image', name: 'admin_product_image_')]
 class ProductImageController extends BaseAdminController
 {
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(
         Request $request,
         ProductImage $productImage,
@@ -24,14 +24,17 @@ class ProductImageController extends BaseAdminController
     ): Response {
         /** @var Product $product */
         $product = $productImage->getProduct();
+        $imgId = $productImage->getId();
+
+        if (!$this->isCsrfTokenValid('delete_product_image_'.$imgId, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));
         }
 
         $productImageDir = $productManager->getProductImagesDir($product);
-        $imgId = $productImage->getId();
-
         $productImageManager->removeImageFromProduct($productImage, $productImageDir);
         $this->addTranslatedFlash('warning', 'flash.product_image.deleted', ['%id%' => $imgId]);
 

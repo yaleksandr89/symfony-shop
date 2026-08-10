@@ -113,9 +113,9 @@
                             <img src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.filenameMiddle) }}" alt="{{ image.filenameMiddle }}">
                         </div>
                         <div class="col-md-7">
-                            <a href="{{ path('admin_product_image_delete', {'id': image.id}) }}" class="btn btn-outline-info">
+                            <button type="submit" form="delete-product-image-{{ image.id }}" class="btn btn-outline-info">
                                 {{ 'product.image.delete'|trans({}, 'admin') }}
-                            </a>
+                            </button>
                         </div>
                     </div>
                 {% endfor %}
@@ -177,6 +177,12 @@
 
             {{ form_rest(form) }}
             {{ form_end(form) }}
+
+            {% for image in images %}
+                <form id="delete-product-image-{{ image.id }}" method="post" action="{{ path('admin_product_image_delete', {'id': image.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_product_image_' ~ image.id) }}">
+                </form>
+            {% endfor %}
         </div>
     </div>
     {% if product and product.id %}
@@ -186,6 +192,7 @@
             'modalText': 'product.modal.delete_text'|trans({}, 'admin'),
             'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_product_delete', {'id': product.id}),
+            'csrfTokenId': 'delete_product_' ~ product.id,
             'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
             'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}

@@ -432,7 +432,7 @@ class ProductControllerTest extends WebTestCase
         self::assertSame($sectionTitle, trim($card->filter('.card-header a.font-weight-bold')->text()));
         self::assertSame($addLabel, trim($card->filter('.card-header h6')->text()));
         self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
-        self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
+        self::assertSame($saveLabel, trim($form->filter('button[name="edit_product_form[submit]"]')->text()));
     }
 
     public static function provideProductAddLocales(): Generator
@@ -467,8 +467,12 @@ class ProductControllerTest extends WebTestCase
         self::assertSame($product->getTitle(), trim($card->filter('.card-header h6')->text()));
         self::assertSame($addLabel, trim($card->filter('.card-header a.btn')->text()));
         self::assertStringContainsString($currentImages, $card->text());
-        self::assertSame($imageDelete, trim($card->filter('a.btn-outline-info')->text()));
-        self::assertSame($saveLabel, trim($form->filter('button[type="submit"]')->text()));
+        $imageDeleteButton = $card->filter('button.btn-outline-info[form^="delete-product-image-"]');
+        self::assertCount(1, $imageDeleteButton);
+        self::assertSame($imageDelete, trim($imageDeleteButton->text()));
+        $externalFormId = (string) $imageDeleteButton->attr('form');
+        self::assertCount(1, $card->filter(sprintf('form#%s[action*="/admin/product-image/delete/"]', $externalFormId)));
+        self::assertSame($saveLabel, trim($form->filter('button[name="edit_product_form[submit]"]')->text()));
     }
 
     #[DataProvider(methodName: 'provideProductValidationLocales')]

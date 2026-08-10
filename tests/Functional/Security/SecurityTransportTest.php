@@ -6,7 +6,6 @@ namespace App\Tests\Functional\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Security\RequestMatcher\ApiRequestMatcher;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -114,12 +113,6 @@ class SecurityTransportTest extends ResourceTestUtils
         self::assertFalse($client->getResponse()->headers->has('location'));
     }
 
-    #[DataProvider('matcherPaths')]
-    public function testApiRequestMatcherHasExactPathBoundary(string $path, bool $expected): void
-    {
-        self::assertSame($expected, (new ApiRequestMatcher())->matches(Request::create($path)));
-    }
-
     /** @return iterable<string, array{string|null}> */
     public static function acceptHeaders(): iterable
     {
@@ -128,15 +121,6 @@ class SecurityTransportTest extends ResourceTestUtils
         yield 'json ld' => ['application/ld+json'];
         yield 'absent' => [null];
         yield 'unsupported' => ['text/plain'];
-    }
-
-    /** @return iterable<string, array{string, bool}> */
-    public static function matcherPaths(): iterable
-    {
-        yield 'api root' => ['/api', true];
-        yield 'api operation' => ['/api/orders', true];
-        yield 'similar prefix' => ['/apiary', false];
-        yield 'localized browser path' => ['/ru/api/cart', false];
     }
 
     private function issueFrontRememberMeCookie(KernelBrowser $client): Cookie

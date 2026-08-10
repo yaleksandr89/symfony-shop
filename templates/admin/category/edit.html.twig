@@ -61,6 +61,7 @@
             'modalText': 'category.modal.delete_text'|trans({}, 'admin'),
             'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_category_delete', {'id': category.id}),
+            'csrfTokenId': 'delete_category_' ~ category.id,
             'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
             'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}
