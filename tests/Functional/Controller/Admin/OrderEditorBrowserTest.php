@@ -15,13 +15,19 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
 use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
 use Doctrine\ORM\EntityManagerInterface;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverElement;
+use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverSelect;
 use Facebook\WebDriver\WebDriverWait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\Panther\Client;
 
 class OrderEditorBrowserTest extends BasePantherTestCase
 {
     #[Group(name: 'functional-panther')]
+    #[TestDox('Администратор через интерфейс добавляет и удаляет позицию заказа в Panther')]
     public function testAdminOrderEditorMutatesControlledLinesWithPanther(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
@@ -30,6 +36,7 @@ class OrderEditorBrowserTest extends BasePantherTestCase
     }
 
     #[Group(name: 'functional-selenium')]
+    #[TestDox('Администратор через интерфейс добавляет и удаляет позицию заказа в Selenium')]
     public function testAdminOrderEditorMutatesControlledLinesWithSelenium(): void
     {
         $client = $this->initSeleniumClient();
@@ -69,38 +76,63 @@ class OrderEditorBrowserTest extends BasePantherTestCase
             self::assertCount(1, $computedTotal);
             self::assertSame('$274.88', trim($computedTotal->text()));
             $this->assertStoredTotal($crawler, 27488);
+            $this->selectOptionByValue(
+                $client,
+                'select[name="add_product_category_select"]',
+                (string) $context['addedCategoryId']
+            );
+            $this->selectOptionByValue(
+                $client,
+                'select[name="add_product_product_select"]',
+                $context['addedProductUuid']
+            );
+            $inputSelector = '.table-additional-selection > .row.mb-2 input[type="number"]';
+            $this->setVueBoundInputValue($client, $inputSelector, 0, '3');
+            $this->setVueBoundInputValue($client, $inputSelector, 1, '12.34');
+            $driver = $client->getWebDriver();
+            $categorySelect = $driver->findElement(WebDriverBy::cssSelector('select[name="add_product_category_select"]'));
+            $productSelect = $driver->findElement(WebDriverBy::cssSelector('select[name="add_product_product_select"]'));
+            $inputs = $driver->findElements(
+                WebDriverBy::cssSelector('.table-additional-selection > .row.mb-2 input[type="number"]')
+            );
+            $addButton = $driver->findElement(
+                WebDriverBy::cssSelector('.table-additional-selection > .row.mb-2 .btn-outline-success')
+            );
+            self::assertSame((string) $context['addedCategoryId'], $categorySelect->getDomProperty('value'));
+            self::assertSame($context['addedProductUuid'], $productSelect->getDomProperty('value'));
+            self::assertSame('3', $inputs[0]->getDomProperty('value'));
+            self::assertSame('12.34', $inputs[1]->getDomProperty('value'));
+            self::assertTrue($addButton->isDisplayed());
+            self::assertTrue($addButton->isEnabled());
+            $this->activateRenderedControl(
+                $client,
+                '.table-additional-selection > .row.mb-2 .btn-outline-success'
+            );
 
-            $linesAfterAdd = $this->dispatchOrderProductAction($client, 'add', [
-                'categoryId' => $context['addedCategoryId'],
-                'productId' => $context['addedProductUuid'],
-                'quantity' => 3,
-                'pricePerOne' => '0.01',
-            ]);
-            $addedLines = array_values(array_filter(
-                $linesAfterAdd,
-                static fn (array $line): bool => $context['addedProductId'] === ($line['product']['id'] ?? null)
-            ));
-            self::assertCount(1, $addedLines);
-            self::assertSame('12.34', $addedLines[0]['pricePerOne']);
-            self::assertSame(3, $addedLines[0]['quantity']);
-            self::assertIsInt($addedLines[0]['id']);
+            $addedRow = $this->waitForOrderProductRow($client, $context['addedProductTitle']);
+            self::assertStringContainsString('3', $addedRow->getText());
+            self::assertSame(1234, $this->productPriceTextToCents($addedRow->getText()));
+            $this->assertComputedTotal($client, 31190, '$311.9');
 
-            $client->waitForElementToContain('body', $context['addedProductTitle']);
-            $client->waitForElementToContain('body', '$311.9');
             $client->request('GET', $editorUri);
             $crawler = $client->waitForElementToContain('body', $context['addedProductTitle']);
+            $addedRow = $this->waitForOrderProductRow($client, $context['addedProductTitle']);
+            self::assertStringContainsString('3', $addedRow->getText());
+            self::assertSame(1234, $this->productPriceTextToCents($addedRow->getText()));
+            $this->assertComputedTotal($client, 31190, '$311.9');
             $this->assertStoredTotal($crawler, 31190);
 
-            $linesAfterDelete = $this->dispatchOrderProductAction($client, 'remove', $addedLines[0]['id']);
-            self::assertCount(2, $linesAfterDelete);
-            self::assertNotContains($context['addedProductId'], array_column(array_column($linesAfterDelete, 'product'), 'id'));
-            (new WebDriverWait($client->getWebDriver(), 30))->until(
-                fn (): bool => !str_contains($client->getPageSource(), $context['addedProductTitle'])
+            $this->activateRenderedElement(
+                $client,
+                $addedRow->findElement(WebDriverBy::cssSelector('.btn-outline-danger'))
             );
-            $client->waitForElementToContain('body', '$274.88');
+            $this->waitForOrderProductRowAbsence($client, $context['addedProductTitle']);
+            $this->assertComputedTotal($client, 27488, '$274.88');
 
             $client->request('GET', $editorUri);
             $crawler = $client->waitForElementToContain('body', $context['expectedLines'][1]['productTitle']);
+            self::assertNull($this->findOrderProductRow($client, $context['addedProductTitle']));
+            $this->assertComputedTotal($client, 27488, '$274.88');
             $this->assertStoredTotal($crawler, 27488);
 
             $this->assertBrowserLogHasNoApplicationErrors($client);
@@ -137,7 +169,6 @@ class OrderEditorBrowserTest extends BasePantherTestCase
      *     orderId: int,
      *     expectedLines: list<array{productTitle: string, quantity: int, pricePerOneCents: int}>,
      *     addedCategoryId: int,
-     *     addedProductId: int,
      *     addedProductUuid: string,
      *     addedProductTitle: string,
      *     productIds: list<int>,
@@ -165,6 +196,7 @@ class OrderEditorBrowserTest extends BasePantherTestCase
             ->setTitle('Browser Summer Sandal '.$suffix)
             ->setPrice('12.34')
             ->setQuantity(25)
+            ->setIsPublished(true)
             ->setCategory($addedCategory);
         $firstLine = (new OrderProduct())
             ->setProduct($firstProduct)
@@ -212,7 +244,6 @@ class OrderEditorBrowserTest extends BasePantherTestCase
                 ['productTitle' => $secondProductTitle, 'quantity' => 1, 'pricePerOneCents' => 9490],
             ],
             'addedCategoryId' => $addedCategory->getId(),
-            'addedProductId' => $addedProduct->getId(),
             'addedProductUuid' => (string) $addedProduct->getUuid(),
             'addedProductTitle' => $addedProductTitle,
             'productIds' => [$firstProduct->getId(), $secondProduct->getId(), $addedProduct->getId()],
@@ -275,56 +306,132 @@ class OrderEditorBrowserTest extends BasePantherTestCase
         }
     }
 
-    /** @return list<array<string, mixed>> */
-    private function dispatchOrderProductAction(Client $client, string $action, mixed $payload): array
+    private function selectOptionByValue(Client $client, string $selector, string $value): void
     {
-        $result = $client->getWebDriver()->executeAsyncScript(
-            <<<'JS'
-            const action = arguments[0];
-            const payload = arguments[1];
-            const done = arguments[arguments.length - 1];
-            const storeOwner = Array.from(document.querySelectorAll("*")).find(
-                (element) => element.__vue__ && element.__vue__.$store
-            );
+        $driver = $client->getWebDriver();
+        $by = WebDriverBy::cssSelector($selector);
 
-            if (!storeOwner || !storeOwner.__vue__ || !storeOwner.__vue__.$store) {
-                done({ status: "error", message: "Order editor Vuex store was not found." });
-                return;
+        (new WebDriverWait($driver, 30))->until(
+            static function () use ($driver, $by, $value): bool {
+                $selects = $driver->findElements($by);
+                if ([] === $selects) {
+                    return false;
+                }
+
+                foreach ($selects[0]->findElements(WebDriverBy::tagName('option')) as $option) {
+                    if ($value === $option->getDomProperty('value')) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
-
-            const store = storeOwner.__vue__.$store;
-            let command;
-            if ("add" === action) {
-                store.commit("products/setNewProductInfo", payload);
-                command = store.dispatch("products/addNewOrderProduct");
-            } else if ("remove" === action) {
-                command = store.dispatch("products/removeOrderProduct", payload);
-            } else {
-                done({ status: "error", message: "Unknown order editor action." });
-                return;
-            }
-
-            Promise.resolve(command)
-                .then(() => store.dispatch("products/getOrderProducts"))
-                .then(
-                    () => done({
-                        status: "ok",
-                        lines: store.state.products.orderProducts,
-                    }),
-                    (error) => done({
-                        status: "error",
-                        message: error && error.message ? error.message : "Order editor action failed.",
-                    })
-                );
-            JS,
-            [$action, $payload]
         );
 
-        self::assertIsArray($result);
-        self::assertSame('ok', $result['status'] ?? null, (string) ($result['message'] ?? ''));
-        self::assertIsArray($result['lines'] ?? null);
+        (new WebDriverSelect($driver->findElement($by)))->selectByValue($value);
+        (new WebDriverWait($driver, 30))->until(
+            static fn (): bool => $value === $driver->findElement($by)->getDomProperty('value')
+        );
+    }
 
-        return $result['lines'];
+    private function setVueBoundInputValue(
+        Client $client,
+        string $selector,
+        int $index,
+        string $value
+    ): void {
+        $driver = $client->getWebDriver();
+        $by = WebDriverBy::cssSelector($selector);
+
+        (new WebDriverWait($driver, 30))->until(
+            static fn (): bool => count($driver->findElements($by)) > $index
+        );
+
+        $element = $driver->findElements($by)[$index];
+        self::assertTrue($element->isDisplayed());
+        self::assertTrue($element->isEnabled());
+        self::assertSame('number', $element->getDomProperty('type'));
+
+        // Manual smoke proves physical usability; automation stays at the rendered DOM → Vue boundary.
+        $client->executeScript(
+            <<<'JS'
+            const element = arguments[0];
+            const value = arguments[1];
+
+            element.focus();
+            element.value = value;
+            element.dispatchEvent(new Event("input", { bubbles: true }));
+            element.dispatchEvent(new Event("change", { bubbles: true }));
+            element.blur();
+            JS,
+            [$element, $value]
+        );
+
+        (new WebDriverWait($driver, 30))->until(
+            static fn (): bool => $value === $driver->findElements($by)[$index]->getDomProperty('value')
+        );
+    }
+
+    private function activateRenderedControl(Client $client, string $selector): void
+    {
+        $driver = $client->getWebDriver();
+        $by = WebDriverBy::cssSelector($selector);
+        $element = (new WebDriverWait($driver, 30))->until(
+            WebDriverExpectedCondition::presenceOfElementLocated($by)
+        );
+
+        $this->activateRenderedElement($client, $element);
+    }
+
+    private function activateRenderedElement(Client $client, WebDriverElement $element): void
+    {
+        self::assertTrue($element->isDisplayed());
+        self::assertTrue($element->isEnabled());
+        $client->executeScript(
+            'arguments[0].scrollIntoView({block: "center", inline: "nearest"});',
+            [$element]
+        );
+        $client->executeScript('arguments[0].click();', [$element]);
+    }
+
+    private function waitForOrderProductRow(Client $client, string $productTitle): WebDriverElement
+    {
+        $row = (new WebDriverWait($client->getWebDriver(), 30))->until(
+            fn (): ?WebDriverElement => $this->findOrderProductRow($client, $productTitle)
+        );
+        self::assertInstanceOf(WebDriverElement::class, $row);
+
+        return $row;
+    }
+
+    private function waitForOrderProductRowAbsence(Client $client, string $productTitle): void
+    {
+        (new WebDriverWait($client->getWebDriver(), 30))->until(
+            fn (): bool => null === $this->findOrderProductRow($client, $productTitle)
+        );
+    }
+
+    private function findOrderProductRow(Client $client, string $productTitle): ?WebDriverElement
+    {
+        $rows = $client->getWebDriver()->findElements(
+            WebDriverBy::cssSelector('.table-additional-selection > .row.mb-1')
+        );
+        foreach ($rows as $row) {
+            if (str_contains($row->getText(), $productTitle)) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    private function assertComputedTotal(Client $client, int $expectedCents, string $visibleAmount): void
+    {
+        $selector = '.table-additional-selection span.font-weight-bold.ml-2';
+        $client->waitForElementToContain($selector, $visibleAmount);
+        $text = $client->getWebDriver()->findElement(WebDriverBy::cssSelector($selector))->getText();
+
+        self::assertSame($expectedCents, $this->currencyTextToCents($text));
     }
 
     private function assertStoredTotal(\Symfony\Component\DomCrawler\Crawler $crawler, int $expectedCents): void

@@ -18,12 +18,14 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\Panther\Client;
 
 class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
 {
     #[Group(name: 'functional-panther')]
+    #[TestDox('Покупатель через интерфейс удаляет недоступные товары и оформляет оставшийся')]
     public function testCheckoutHighlightsUnavailableProductsUntilTheyAreRemoved(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);
@@ -41,22 +43,17 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
             $client->waitFor($activeRow);
             $client->waitFor($unpublishedRow);
             $client->waitFor($deletedRow);
-
             self::assertSelectorIsEnabled('[data-checkout-button]');
             self::assertSelectorNotExists('[data-cart-unavailable-alert]');
+            $checkoutButton = $client->getWebDriver()->findElement(
+                WebDriverBy::cssSelector('[data-checkout-button]')
+            );
+            self::assertTrue($checkoutButton->isDisplayed());
+            self::assertTrue($checkoutButton->isEnabled());
+            self::assertCount(3, $client->getWebDriver()->findElements(WebDriverBy::cssSelector('[data-cart-product-id]')));
 
             $this->makeProductsUnavailable($context);
-            $checkoutResult = $this->dispatchCartAction($client, 'makeOrder');
-            self::assertFalse($checkoutResult['result']);
-            self::assertFalse($checkoutResult['isSentForm']);
-            self::assertSame(
-                'unpublished',
-                $checkoutResult['unavailableItemsByCartProductId'][(string) $context['unpublishedCartProductId']]
-            );
-            self::assertSame(
-                'deleted',
-                $checkoutResult['unavailableItemsByCartProductId'][(string) $context['deletedCartProductId']]
-            );
+            $this->activateRenderedControl($client, '[data-checkout-button]');
             $client->waitFor('[data-cart-unavailable-alert]');
 
             self::assertSelectorNotExists($activeRow.'[data-unavailable-reason]');
@@ -86,11 +83,7 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
             $this->assertCartExists($context['cartId']);
             self::assertSame($context['orderCount'], $this->getOrderCount());
 
-            $this->dispatchCartAction(
-                $client,
-                'removeCartProduct',
-                $context['unpublishedCartProductId']
-            );
+            $this->activateRenderedControl($client, $unpublishedRow.' [data-remove-cart-product]');
             $this->waitForSelectorAbsence($client, $unpublishedRow);
 
             self::assertSelectorNotExists($unpublishedRow);
@@ -98,11 +91,7 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
             self::assertSelectorExists('[data-cart-unavailable-alert]');
             self::assertSelectorIsDisabled('[data-checkout-button]');
 
-            $this->dispatchCartAction(
-                $client,
-                'removeCartProduct',
-                $context['deletedCartProductId']
-            );
+            $this->activateRenderedControl($client, $deletedRow.' [data-remove-cart-product]');
             $this->waitForSelectorAbsence($client, $deletedRow);
             $this->waitForSelectorAbsence($client, '[data-cart-unavailable-alert]');
 
@@ -110,12 +99,13 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
             self::assertSelectorNotExists('[data-cart-unavailable-alert]');
             self::assertSelectorIsEnabled('[data-checkout-button]');
 
-            self::assertTrue($this->dispatchCartAction($client, 'makeOrder')['result']);
+            $this->activateRenderedControl($client, '[data-checkout-button]');
             $client->waitForElementToContain('.alert', 'Thank you for your purchase!');
 
             self::assertSame($context['orderCount'] + 1, $this->getOrderCount());
             $this->assertOrderContainsOnlyActiveProduct($context['activeProductId']);
             $this->assertCartWasConsumed($context['cartId']);
+            $this->assertBrowserLogHasNoApplicationErrors($client);
         } catch (\Throwable $exception) {
             $testFailure = $exception;
         } finally {
@@ -234,7 +224,7 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
         $client->getWebDriver()
             ->findElement(WebDriverBy::cssSelector('#inputPassword'))
             ->sendKeys('test3test3');
-        $this->click($client, '#form button[type="submit"]');
+        $this->activateRenderedControl($client, '#form button[type="submit"]');
         $client->waitFor('#page_header_title');
         self::assertSame(self::$baseUri.'/ru/profile', $client->getCurrentURL());
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $token));
@@ -257,20 +247,20 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
         $this->commitCurrentTestTransactionForBrowser(false);
     }
 
-    private function click(Client $client, string $selector): void
+    private function activateRenderedControl(Client $client, string $selector): void
     {
-        $client->waitFor($selector);
         $driver = $client->getWebDriver();
         $by = WebDriverBy::cssSelector($selector);
-        $element = $driver->findElement($by);
+        $element = (new WebDriverWait($driver, 30))->until(
+            WebDriverExpectedCondition::presenceOfElementLocated($by)
+        );
+        self::assertTrue($element->isDisplayed());
+        self::assertTrue($element->isEnabled());
         $client->executeScript(
             'arguments[0].scrollIntoView({block: "center", inline: "nearest"});',
             [$element]
         );
-        (new WebDriverWait($driver))->until(
-            WebDriverExpectedCondition::elementToBeClickable($by)
-        );
-        $driver->findElement($by)->click();
+        $client->executeScript('arguments[0].click();', [$element]);
     }
 
     private function waitForSelectorAbsence(Client $client, string $selector): void
@@ -283,52 +273,20 @@ class CartCheckoutUnavailableBrowserTest extends BasePantherTestCase
         );
     }
 
-    private function dispatchCartAction(
-        Client $client,
-        string $action,
-        mixed $payload = null
-    ): array {
-        $result = $client->getWebDriver()->executeAsyncScript(
-            <<<'JS'
-            const action = arguments[0];
-            const payload = arguments[1];
-            const done = arguments[arguments.length - 1];
-            const storeOwner = document.querySelector(".main-cart-show");
-
-            if (!storeOwner || !storeOwner.__vue__ || !storeOwner.__vue__.$store) {
-                done({ status: "error", message: "Cart Vuex store was not found." });
-                return;
-            }
-
-            const store = storeOwner.__vue__.$store;
-            Promise.resolve(store.dispatch("cart/" + action, payload)).then(
-                (result) => done({
-                    status: "ok",
-                    result,
-                    isSentForm: store.state.cart.isSentForm,
-                    unavailableItemsByCartProductId:
-                        store.state.cart.unavailableItemsByCartProductId,
-                }),
-                (error) => done({
-                    status: "error",
-                    message: error && error.message
-                        ? error.message
-                        : "Vuex action failed.",
-                })
-            );
-            JS,
-            [$action, $payload]
-        );
-
-        self::assertIsArray($result);
-        self::assertSame('ok', $result['status'] ?? null, (string) ($result['message'] ?? ''));
-
-        return $result;
-    }
-
     private function cartProductSelector(int $cartProductId): string
     {
         return '[data-cart-product-id="'.$cartProductId.'"]';
+    }
+
+    private function assertBrowserLogHasNoApplicationErrors(Client $client): void
+    {
+        foreach ($client->getWebDriver()->manage()->getLog('browser') as $entry) {
+            $message = (string) ($entry['message'] ?? '');
+            self::assertDoesNotMatchRegularExpression(
+                '/Uncaught|Unhandled|TypeError|status (?:code |of )?5\\d\\d/i',
+                $message
+            );
+        }
     }
 
     private function assertCartExists(int $cartId): void

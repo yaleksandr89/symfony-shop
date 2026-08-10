@@ -21,9 +21,14 @@ class AuthLoginControllerTest extends BasePantherTestCase
             'password' => $this->password,
         ]);
 
+        $crawler = $client->waitForElementToContain(
+            '#page_header_title',
+            'Добро пожаловать в ЛК!'
+        );
+
         self::assertSame(self::$baseUri.'/ru/profile', $client->getCurrentURL());
         self::assertPageTitleContains('Добро пожаловать в ЛК');
-        self::assertSelectorTextContains('#page_header_title', 'Добро пожаловать в ЛК!');
+        self::assertSame('Добро пожаловать в ЛК!', $crawler->filter('#page_header_title')->text());
     }
 
     #[Group(name: 'functional-selenium')]
