@@ -1,49 +1,99 @@
-NODE_MODULES = ./node_modules
-VENDOR = ./vendor
-
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 
-.PHONY: help init check-env config build up down restart ps cache-prod-reset logs shell console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit del-log del-cache deploy check refactoring eslint eslint-check php-cs-fixer php-cs-fixer-check phpstan phpstan-check run-test test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
+INTERACTIVE_TARGETS = restart log in
+IN_SERVICES = php nginx postgres node
+RESTART_SERVICES = php nginx postgres
+LOG_SERVICES = php nginx postgres
+
+ifneq ($(filter $(INTERACTIVE_TARGETS),$(MAKECMDGOALS)),)
+ifeq ($(filter $(INTERACTIVE_TARGETS),$(firstword $(MAKECMDGOALS))),)
+$(error Service target must be the first goal)
+endif
+SERVICE := $(word 2,$(MAKECMDGOALS))
+ifeq ($(strip $(SERVICE)),)
+$(error Usage: make $(firstword $(MAKECMDGOALS)) <service>)
+endif
+ifneq ($(strip $(word 3,$(MAKECMDGOALS))),)
+$(error Expected exactly one service argument)
+endif
+ifeq ($(firstword $(MAKECMDGOALS)),in)
+ifeq ($(filter $(SERVICE),$(IN_SERVICES)),)
+$(error Unknown service '$(SERVICE)'. Allowed: $(IN_SERVICES))
+endif
+endif
+ifeq ($(firstword $(MAKECMDGOALS)),restart)
+ifeq ($(filter $(SERVICE),$(RESTART_SERVICES)),)
+$(error Unknown service '$(SERVICE)'. Allowed: $(RESTART_SERVICES))
+endif
+endif
+ifeq ($(firstword $(MAKECMDGOALS)),log)
+ifeq ($(filter $(SERVICE),$(LOG_SERVICES)),)
+$(error Unknown service '$(SERVICE)'. Allowed: $(LOG_SERVICES))
+endif
+endif
+.PHONY: $(SERVICE)
+$(SERVICE): ;
+endif
+
+.PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit deploy check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
 
 help:
-	@printf '%s\n' 'Docker local development:'
-	@printf '%s\n' '  make init              Create .env.docker and writable local directories'
-	@printf '%s\n' '  make config            Validate and print Docker Compose config'
-	@printf '%s\n' '  make build             Build PHP development image'
-	@printf '%s\n' '  make up                Start php, nginx and postgres'
-	@printf '%s\n' '  make down              Stop containers'
-	@printf '%s\n' '  make logs [SERVICE=x]  Follow logs for all services or one service'
-	@printf '%s\n' '  make cache-prod-reset  Remove generated prod cache in php container as app'
-	@printf '%s\n' '  make shell [SERVICE=x] Open a shell in a running service'
-	@printf '%s\n' '  make console CMD=about Run Symfony console in php as app'
-	@printf '%s\n' '  make composer CMD=...  Run Composer in php as app'
-	@printf '%s\n' '  make npm CMD=...       Run npm command in one-off Node container'
-	@printf '%s\n' '  make test-groups       List available PHPUnit groups'
-	@printf '%s\n' '  make test-list         List available PHPUnit tests'
-	@printf '%s\n' '  make test-unit         Run PHPUnit unit group without result cache'
-	@printf '%s\n' '  make test-db-reset CONFIRM=testdb  destructive: reset APP_ENV=test SQLite DB var/db_for_test.db'
-	@printf '%s\n' '  make test-integration  Run PHPUnit integration group without result cache'
-	@printf '%s\n' '  make test-functional   Run PHPUnit functional group without result cache'
-	@printf '%s\n' '  make test-functional-panther  Run PHPUnit functional-panther group without result cache'
-	@printf '%s\n' '  make test-all-core CONFIRM=testdb  Build assets and run unit, test DB reset, integration and functional tests'
-	@printf '%s\n' '  make test-all CONFIRM=testdb       Run the full baseline, including Panther'
-	@printf '%s\n' '  make run-test CONFIRM=testdb       Deprecated compatibility alias for test-all'
-	@printf '%s\n' '  make phpstan-check     Run PHPStan read-only analysis'
-	@printf '%s\n' '  make php-cs-fixer-check Check PHP-CS-Fixer rules without writing files'
-	@printf '%s\n' '  make eslint-check      Run ESLint without --fix'
-	@printf '%s\n' '  make demo-init         Initialize reproducible dev/test demo data'
-	@printf '%s\n' '  make postgres-reinit CONFIRM=postgres18  destructive: stop stack and remove local PostgreSQL volume'
+	@printf '%s\n' 'Bootstrap:'
+	@printf '%s\n' '  make init                              Create .env.docker and writable local directories'
+	@printf '%s\n' '  make check-env                         Verify .env.docker exists'
 	@printf '%s\n' ''
-	@printf '%s\n' 'First run:'
-	@printf '%s\n' '  make init'
-	@printf '%s\n' '  make build'
-	@printf '%s\n' '  make up'
-	@printf '%s\n' '  make composer-install'
-	@printf '%s\n' '  make npm-install'
-	@printf '%s\n' '  make assets-build'
-	@printf '%s\n' '  make migrate'
-	@printf '%s\n' '  make demo-init'
+	@printf '%s\n' 'Docker lifecycle:'
+	@printf '%s\n' '  make config                            Validate and print Docker Compose config'
+	@printf '%s\n' '  make build                             Build PHP development image'
+	@printf '%s\n' '  make up                                Start php, nginx and postgres'
+	@printf '%s\n' '  make down                              Stop project containers and remove orphans'
+	@printf '%s\n' '  make restart <php|nginx|postgres>      Restart one running service'
+	@printf '%s\n' '  make ps                                Show project containers'
+	@printf '%s\n' ''
+	@printf '%s\n' 'Interactive / diagnostics:'
+	@printf '%s\n' '  make in <php|nginx|postgres|node>      Open a non-root service shell'
+	@printf '%s\n' '  make log <php|nginx|postgres>          Follow logs for one service'
+	@printf '%s\n' '  make log-all                           Follow project logs'
+	@printf '%s\n' ''
+	@printf '%s\n' 'PHP / Symfony / Composer:'
+	@printf '%s\n' '  make console CMD=about                 Run Symfony console in php as app'
+	@printf '%s\n' '  make composer CMD=...                  Run Composer in php as app'
+	@printf '%s\n' '  make composer-install                  Install locked Composer dependencies'
+	@printf '%s\n' '  make migrate                           Run Doctrine migrations'
+	@printf '%s\n' '  make demo-init                         Initialize reproducible dev/test demo data'
+	@printf '%s\n' ''
+	@printf '%s\n' 'Frontend:'
+	@printf '%s\n' '  make npm CMD=...                       Run npm command in one-off Node container'
+	@printf '%s\n' '  make npm-install                       Install locked npm dependencies'
+	@printf '%s\n' '  make assets-build                      Build frontend assets'
+	@printf '%s\n' '  make watch                             Run frontend watcher'
+	@printf '%s\n' ''
+	@printf '%s\n' 'Quality:'
+	@printf '%s\n' '  make check                             Run all read-only quality checks'
+	@printf '%s\n' '  make eslint-check                      Run ESLint without writing files'
+	@printf '%s\n' '  make eslint-fix                        Fix ESLint issues through Node container'
+	@printf '%s\n' '  make php-cs-fixer                      Fix src/ formatting in php as app'
+	@printf '%s\n' '  make php-cs-fixer-check                Check PHP-CS-Fixer rules without writing files'
+	@printf '%s\n' '  make phpstan-check                     Run PHPStan read-only analysis'
+	@printf '%s\n' ''
+	@printf '%s\n' 'Tests:'
+	@printf '%s\n' '  make test-groups                       List available PHPUnit groups'
+	@printf '%s\n' '  make test-list                         List available PHPUnit tests'
+	@printf '%s\n' '  make test-unit                         Run PHPUnit unit group without result cache'
+	@printf '%s\n' '  make test-integration                  Run PHPUnit integration group without result cache'
+	@printf '%s\n' '  make test-functional                   Run PHPUnit functional group without result cache'
+	@printf '%s\n' '  make test-functional-panther           Run PHPUnit functional-panther group without result cache'
+	@printf '%s\n' '  make test-all-core CONFIRM=testdb       Build assets and run the core test baseline'
+	@printf '%s\n' '  make test-all CONFIRM=testdb            Run the full baseline, including Panther'
+	@printf '%s\n' ''
+	@printf '%s\n' 'Destructive maintenance:'
+	@printf '%s\n' '  make cache-prod-clear                   Remove generated prod cache in php as app'
+	@printf '%s\n' '  make test-db-reset CONFIRM=testdb       Reset APP_ENV=test SQLite DB var/db_for_test.db'
+	@printf '%s\n' '  make postgres-reinit CONFIRM=postgres18 Stop stack and remove local PostgreSQL volume'
+	@printf '%s\n' ''
+	@printf '%s\n' 'Deployment (legacy/deferred):'
+	@printf '%s\n' '  make deploy                            Run the existing Deployer target'
 
 init:
 	@if [ ! -f .env.docker ]; then \
@@ -72,7 +122,7 @@ up: check-env
 	$(COMPOSE) up -d php nginx postgres
 
 down: check-env
-	$(COMPOSE) down
+	$(COMPOSE) --profile tools down --remove-orphans
 
 restart: check-env
 	$(COMPOSE) restart $(SERVICE)
@@ -80,14 +130,17 @@ restart: check-env
 ps: check-env
 	$(COMPOSE) ps
 
-cache-prod-reset: check-env
-	$(COMPOSE) exec --user app php rm -rf /var/www/html/var/cache/prod
-
-logs: check-env
+log: check-env
 	$(COMPOSE) logs -f $(SERVICE)
 
-shell: check-env
-	$(COMPOSE) exec $(if $(SERVICE),$(SERVICE),php) sh
+log-all: check-env
+	$(COMPOSE) logs -f
+
+in: check-env
+	$(if $(filter php,$(SERVICE)),$(COMPOSE) exec --user app php bash,$(if $(filter nginx,$(SERVICE)),$(COMPOSE) exec --user nginx nginx sh,$(if $(filter postgres,$(SERVICE)),$(COMPOSE) exec --user postgres postgres sh,$(COMPOSE) run --rm --no-deps node sh)))
+
+cache-prod-clear: check-env
+	$(COMPOSE) exec --user app php rm -rf /var/www/html/var/cache/prod
 
 console: check-env
 	$(COMPOSE) exec --user app php php bin/console $(CMD)
@@ -121,55 +174,32 @@ postgres-reinit: check-env
 		printf '%s\n' 'Refusing to reinitialize PostgreSQL volume. Re-run with: make postgres-reinit CONFIRM=postgres18'; \
 		exit 1; \
 	fi
-	$(COMPOSE) down
+	$(MAKE) down
 	@if docker volume inspect symfony-shop_postgres-data >/dev/null 2>&1; then \
 		docker volume rm symfony-shop_postgres-data; \
 	else \
 		printf '%s\n' 'PostgreSQL volume symfony-shop_postgres-data does not exist; nothing to remove'; \
 	fi
 
-##
-## UTILS
-## ----------
-del-log:
-	rm -rf ./var/log
-
-del-cache:
-	rm -rf ./var/cache
-
 deploy:
 	php deployer7 deploy
 
-##
-## REFACTORING
-## -----------
+check: eslint-check php-cs-fixer-check phpstan-check
 
-check:
-	make refactoring --keep-going
-
-refactoring: eslint php-cs-fixer
-
-eslint:
-	${NODE_MODULES}/.bin/eslint assets/js/ --ext .js,.vue --fix
+eslint-fix:
+	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue --fix'
 
 eslint-check:
 	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue'
 
 php-cs-fixer:
-	${VENDOR}/bin/php-cs-fixer fix src/  --verbose
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --verbose
 
 php-cs-fixer-check:
 	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --dry-run --diff --using-cache=no --verbose
 
-phpstan:
-	${VENDOR}/bin/phpstan analyse src --level 4
-
 phpstan-check:
 	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src --level 4
-
-##
-## TESTING
-## -----------
 
 test-all-core:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
@@ -185,9 +215,6 @@ test-all-core:
 test-all:
 	$(MAKE) test-all-core CONFIRM="$(CONFIRM)"
 	$(MAKE) test-functional-panther
-
-run-test:
-	$(MAKE) test-all CONFIRM="$(CONFIRM)"
 
 test-groups:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-groups

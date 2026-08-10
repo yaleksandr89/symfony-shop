@@ -47,4 +47,4 @@ jobs:
 
       - name: Cleanup Docker
         if: always()
-        run: docker compose -p symfony-shop --env-file .env.docker --profile tools down --remove-orphans
+        run: make down

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac5ba0d10e0ced0069b940dbff9e124b",
+    "content-hash": "925e8badec0673efb4a097c9f2634c37",
     "packages": [
         {
             "name": "api-platform/core",
@@ -10892,10 +10892,10 @@
             },
             "type": "symfony-bundle",
             "extra": {
+                "bin-dir": "bin",
                 "branch-alias": {
                     "dev-master": "2.x-dev"
                 },
-                "bin-dir": "bin",
                 "sort-packages": true
             },
             "autoload": {
@@ -10903,14 +10903,7 @@
                     "Hautelook\\AliceBundle\\": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Hautelook\\AliceBundle\\": [
-                        "fixtures",
-                        "tests"
-                    ]
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -10927,15 +10920,15 @@
             ],
             "description": "Symfony bundle to manage fixtures with Alice and Faker.",
             "keywords": [
-                "Alice",
-                "Faker",
                 "Fixture",
-                "ORM",
-                "Symfony"
+                "alice",
+                "faker",
+                "orm",
+                "symfony"
             ],
             "support": {
-                "source": "https://github.com/theofidry/AliceBundle/tree/2.17.3",
-                "issues": "https://github.com/theofidry/AliceBundle/issues"
+                "issues": "https://github.com/theofidry/AliceBundle/issues",
+                "source": "https://github.com/theofidry/AliceBundle/tree/2.17.3"
             },
             "time": "2026-03-21T21:21:40+00:00"
         },
