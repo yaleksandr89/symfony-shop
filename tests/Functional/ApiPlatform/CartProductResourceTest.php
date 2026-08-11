@@ -14,6 +14,7 @@ use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +24,7 @@ class CartProductResourceTest extends ResourceTestUtils
 {
     private const URI_KEY = '/api/cart_products';
 
+    #[TestDox('Коллекция позиций доступна только владельцу корзины с токеном A')]
     public function testAnonymousTokenACollectionContainsOnlyCartALines(): void
     {
         $client = self::createClient();
@@ -35,6 +37,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertCollectionDoesNotContainLine($document, $context['lineB']);
     }
 
+    #[TestDox('Коллекция позиций доступна только владельцу корзины с токеном B')]
     public function testAnonymousTokenBCollectionContainsOnlyCartBLines(): void
     {
         $client = self::createClient();
@@ -47,6 +50,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertCollectionDoesNotContainLine($document, $context['lineA']);
     }
 
+    #[TestDox('Без токена коллекция позиций корзины пуста')]
     public function testCollectionWithoutTokenIsEmpty(): void
     {
         $client = self::createClient();
@@ -58,6 +62,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertSame(0, $document['totalItems']);
     }
 
+    #[TestDox('Владелец по токену может получить свою позицию корзины')]
     public function testMatchingTokenCanReadOwnItem(): void
     {
         $client = self::createClient();
@@ -73,6 +78,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertSame($context['lineA']->getId(), $document['id']);
     }
 
+    #[TestDox('Чужой токен не даёт прочитать позицию корзины')]
     public function testWrongTokenCannotReadForeignItem(): void
     {
         $client = self::createClient();
@@ -84,6 +90,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Без токена нельзя прочитать позицию корзины')]
     public function testMissingTokenCannotReadItem(): void
     {
         $client = self::createClient();
@@ -94,6 +101,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Доступ обычного пользователя ограничен токеном корзины')]
     public function testRegularUserRemainsTokenScoped(): void
     {
         $client = self::createClient();
@@ -109,6 +117,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Администратор вне административного контекста ограничен токеном корзины')]
     public function testAdminWithoutAdminContextRemainsTokenScoped(): void
     {
         $client = self::createClient();
@@ -124,6 +133,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Администратор в административном контексте видит все позиции корзин')]
     public function testAdminWithAdminContextCanReadAllLinesAndItems(): void
     {
         $client = self::createClient();
@@ -140,6 +150,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertSame($context['lineB']->getId(), $this->getResponseDecodedContent($client)['id']);
     }
 
+    #[TestDox('Токен корзины возвращает вложенные позиции этой корзины')]
     public function testMatchingCartTokenStillReturnsEmbeddedCartProducts(): void
     {
         $client = self::createClient();
@@ -158,6 +169,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertNotContains($context['lineB']->getId(), array_column($document['cartProducts'], 'id'));
     }
 
+    #[TestDox('Чужой токен не позволяет изменить позицию корзины')]
     public function testWrongTokenCannotPatchForeignLine(): void
     {
         $client = self::createClient();
@@ -176,6 +188,7 @@ class CartProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Без токена нельзя изменить существующую позицию корзины')]
     public function testMissingTokenCannotPatchExistingLine(): void
     {
         $client = self::createClient();
@@ -192,6 +205,7 @@ class CartProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Токен позиции не даёт изменить саму корзину')]
     public function testMatchingTokenCannotPatchCart(): void
     {
         $client = self::createClient();
@@ -211,6 +225,7 @@ class CartProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Токен позиции не даёт изменить товар')]
     public function testMatchingTokenCannotPatchProduct(): void
     {
         $client = self::createClient();
@@ -230,6 +245,7 @@ class CartProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Подмена связей не обходит проверку владения при PATCH')]
     public function testCombinedReassignmentPayloadCannotBypassPatchOwnership(): void
     {
         $client = self::createClient();
@@ -252,6 +268,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('validPostQuantities')]
+    #[TestDox('Владелец по токену создаёт позицию с допустимым количеством')]
     public function testMatchingTokenCanCreateLineWithValidQuantity(int $quantity): void
     {
         $client = self::createClient();
@@ -290,6 +307,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('hiddenProducts')]
+    #[TestDox('Скрытый товар нельзя добавить в корзину по IRI')]
     public function testHiddenProductIriCannotCreateCartLine(bool $isPublished, bool $isDeleted): void
     {
         $client = self::createClient();
@@ -310,6 +328,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Повторное добавление того же товара возвращает конфликт без изменения состояния')]
     public function testFirstThenDuplicateCartProductReturnsConflictWithoutChangingState(): void
     {
         $client = self::createClient();
@@ -344,6 +363,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('В одну корзину можно добавить разные товары')]
     public function testSameCartCanCreateLinesForDifferentProducts(): void
     {
         $client = self::createClient();
@@ -367,6 +387,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Один товар можно добавить в разные корзины')]
     public function testSameProductCanCreateLinesForDifferentCarts(): void
     {
         $client = self::createClient();
@@ -397,6 +418,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Чужой токен не превращает существующую пару в ответ о конфликте')]
     public function testWrongTokenCannotTurnAnExistingPairIntoAConflictResponse(): void
     {
         $client = self::createClient();
@@ -415,6 +437,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Отсутствующий токен не превращает существующую пару в ответ о конфликте')]
     public function testMissingTokenCannotTurnAnExistingPairIntoAConflictResponse(): void
     {
         $client = self::createClient();
@@ -433,6 +456,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('invalidPostSemanticQuantities')]
+    #[TestDox('POST отклоняет недопустимое количество товара')]
     public function testPostRejectsSemanticInvalidQuantity(mixed $quantity, string $message): void
     {
         $client = self::createClient();
@@ -456,6 +480,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('invalidTypeQuantities')]
+    #[TestDox('POST отклоняет количество нецелого типа')]
     public function testPostRejectsNonIntegerQuantityTypes(mixed $quantity): void
     {
         $client = self::createClient();
@@ -474,6 +499,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Некорректный JSON в POST не меняет состояние')]
     public function testPostRejectsMalformedJsonWithoutChangingState(): void
     {
         $client = self::createClient();
@@ -488,6 +514,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Неизвестное доступное для записи поле в POST не меняет состояние')]
     public function testPostRejectsUnknownWritableFieldWithoutChangingState(): void
     {
         $client = self::createClient();
@@ -508,6 +535,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('validPatchQuantities')]
+    #[TestDox('Владелец по токену изменяет свою позицию с допустимым количеством')]
     public function testMatchingTokenCanPatchOwnLineWithValidQuantity(int $quantity): void
     {
         $client = self::createClient();
@@ -526,6 +554,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('invalidPatchSemanticQuantities')]
+    #[TestDox('PATCH отклоняет недопустимое количество товара')]
     public function testPatchRejectsSemanticInvalidQuantity(mixed $quantity, string $message): void
     {
         $client = self::createClient();
@@ -540,6 +569,7 @@ class CartProductResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('invalidTypeQuantities')]
+    #[TestDox('PATCH отклоняет количество нецелого типа')]
     public function testPatchRejectsNonIntegerQuantityTypes(mixed $quantity): void
     {
         $client = self::createClient();
@@ -552,6 +582,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Некорректный JSON в PATCH не меняет состояние')]
     public function testPatchRejectsMalformedJsonWithoutChangingState(): void
     {
         $client = self::createClient();
@@ -564,6 +595,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Неизвестное доступное для записи поле в PATCH не меняет состояние')]
     public function testPatchRejectsUnknownWritableFieldWithoutChangingState(): void
     {
         $client = self::createClient();
@@ -576,6 +608,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('PATCH без количества сохраняет прежнее состояние позиции')]
     public function testPatchWithoutQuantityKeepsCurrentState(): void
     {
         $client = self::createClient();
@@ -588,6 +621,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('Схема OpenAPI для количества соответствует правилам корзины')]
     public function testCartProductOpenApiQuantitySchemaMatchesPolicy(): void
     {
         $client = self::createClient();

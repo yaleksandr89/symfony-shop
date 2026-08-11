@@ -217,7 +217,7 @@ test-list:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-tests
 
 test-unit:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group unit --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group unit --do-not-record-test-run-history --no-coverage
 
 test-db-reset:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
@@ -229,10 +229,10 @@ test-db-reset:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console hautelook:fixtures:load --no-interaction
 
 test-integration:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group integration --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group integration --do-not-record-test-run-history --no-coverage
 
 test-functional:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional --do-not-record-test-run-history --no-coverage
 
 test-functional-panther:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-cache-result --no-coverage
+	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-record-test-run-history --no-coverage

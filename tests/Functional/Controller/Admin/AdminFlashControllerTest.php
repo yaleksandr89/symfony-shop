@@ -21,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class AdminFlashControllerTest extends WebTestCase
 {
     #[DataProvider(methodName: 'provideLocales')]
+    #[TestDox('Ошибка некорректной формы локализована')]
     public function testInvalidFormFlashIsLocalized(string $locale, array $messages): void
     {
         $client = $this->createAdminClient();
@@ -35,6 +36,7 @@ class AdminFlashControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideLocales')]
+    #[TestDox('Сообщения об успешном сохранении и динамическом удалении локализованы')]
     public function testSaveAndDynamicDeleteFlashesAreLocalized(string $locale, array $messages): void
     {
         $client = $this->createAdminClient();

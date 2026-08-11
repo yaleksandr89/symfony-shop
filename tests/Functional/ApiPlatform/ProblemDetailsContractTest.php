@@ -9,6 +9,7 @@ use App\Entity\CartProduct;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         'CONTENT_TYPE' => 'application/json',
     ];
 
+    #[TestDox('Ошибка валидации JSON возвращается как Problem Details без изменений')]
     public function testValidationFailureForJsonUsesProblemDetailsWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -41,6 +43,7 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         $this->assertNoSideEffects($context, $counts);
     }
 
+    #[TestDox('Ошибка валидации JSON-LD возвращается как Problem Details без изменений')]
     public function testValidationFailureForJsonLdUsesProblemDetailsWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -56,6 +59,7 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         $this->assertNoSideEffects($context, $counts);
     }
 
+    #[TestDox('Некорректный JSON в отладке возвращается как Problem Details без изменений')]
     public function testMalformedJsonUsesProblemDetailsInDebugWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -71,6 +75,7 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         $this->assertNoSideEffects($context, $counts);
     }
 
+    #[TestDox('Отсутствующий товар в отладке возвращается как Problem Details')]
     public function testMissingProductUsesProblemDetailsInDebug(): void
     {
         $client = self::createClient();
@@ -82,6 +87,7 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         $this->assertProblemDetails($this->getResponseDecodedContent($client), Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('При отключённой отладке ответ об отсутствующем товаре не раскрывает служебные поля')]
     public function testMissingProductDoesNotExposeDebugFieldsWhenKernelDebugIsDisabled(): void
     {
         $client = self::createClient(['debug' => false]);

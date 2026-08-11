@@ -8,6 +8,7 @@ use App\Security\OAuth\OAuthProvider;
 use App\Security\OAuth\OAuthProviderAvailability;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class LinkedinOAuthWiringTest extends WebTestCase
 {
     #[DataProvider('locales')]
+    #[TestDox('Настроенный старт LinkedIn соответствует контракту авторизации OIDC')]
     public function testConfiguredStartUsesLinkedinOidcAuthorizationContract(string $locale): void
     {
         $client = self::createClient();
@@ -39,6 +41,7 @@ final class LinkedinOAuthWiringTest extends WebTestCase
         self::assertNotSame('', trim((string) $query['state']));
     }
 
+    #[TestDox('Провайдер без учётных данных возвращает безопасную серверную ошибку')]
     public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void
     {
         $client = self::createClient(['debug' => false]);

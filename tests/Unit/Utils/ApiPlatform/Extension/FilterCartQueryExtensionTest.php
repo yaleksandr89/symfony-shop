@@ -12,6 +12,7 @@ use App\Utils\ApiPlatform\Extension\FilterCartQueryExtension;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[Group(name: 'unit')]
 class FilterCartQueryExtensionTest extends TestCase
 {
+    #[TestDox('Коллекция корзины использует привязку параметров')]
     public function testCollectionCartUsesParameterBinding(): void
     {
         $token = "opaque-token-'quoted";
@@ -35,6 +37,7 @@ class FilterCartQueryExtensionTest extends TestCase
         self::assertSame($token, $queryBuilder->getParameter('cart_token_p1')?->getValue());
     }
 
+    #[TestDox('Элемент корзины использует привязку параметров')]
     public function testItemCartUsesParameterBinding(): void
     {
         $token = "opaque-token-'quoted";
@@ -49,6 +52,7 @@ class FilterCartQueryExtensionTest extends TestCase
         self::assertSame($token, $queryBuilder->getParameter('cart_token_p1')?->getValue());
     }
 
+    #[TestDox('Другие ресурсы не изменяются')]
     public function testOtherResourceIsUntouched(): void
     {
         $queryBuilder = $this->queryBuilder('product');
@@ -62,6 +66,7 @@ class FilterCartQueryExtensionTest extends TestCase
         self::assertCount(0, $queryBuilder->getParameters());
     }
 
+    #[TestDox('Без cookie передаётся пустой параметр')]
     public function testMissingCookieUsesAnEmptyParameter(): void
     {
         $queryBuilder = $this->queryBuilder('cart');
@@ -73,6 +78,7 @@ class FilterCartQueryExtensionTest extends TestCase
         self::assertSame('', $queryBuilder->getParameter('cart_token_p1')?->getValue());
     }
 
+    #[TestDox('Без текущего запроса передаётся пустой параметр')]
     public function testMissingCurrentRequestUsesAnEmptyParameter(): void
     {
         $queryBuilder = $this->queryBuilder('cart');
@@ -84,6 +90,7 @@ class FilterCartQueryExtensionTest extends TestCase
         self::assertSame('', $queryBuilder->getParameter('cart_token_p1')?->getValue());
     }
 
+    #[TestDox('Административный контекст обходит фильтр')]
     public function testAdminContextBypassesFilter(): void
     {
         $queryBuilder = $this->queryBuilder('cart');
@@ -98,6 +105,7 @@ class FilterCartQueryExtensionTest extends TestCase
         self::assertCount(0, $queryBuilder->getParameters());
     }
 
+    #[TestDox('Не-администратор не обходит фильтр')]
     public function testNonAdminsCannotBypassFilter(): void
     {
         foreach ([null, (new User())->setRoles(['ROLE_USER'])] as $user) {

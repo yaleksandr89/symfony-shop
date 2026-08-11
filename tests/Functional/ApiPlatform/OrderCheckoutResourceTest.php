@@ -22,6 +22,7 @@ use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,6 +34,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
 {
     private const URI = '/api/orders';
 
+    #[TestDox('Анонимный пользователь не может оформить заказ и не меняет данные')]
     public function testAnonymousCheckoutIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -46,6 +48,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Пользователь оформляет заказ из собственной непустой корзины')]
     public function testRegularUserCanCheckoutOwnNonEmptyCart(): void
     {
         $client = self::createClient();
@@ -105,6 +108,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartConsumed($cart);
     }
 
+    #[TestDox('Повторное оформление уже использованной корзины запрещено')]
     public function testSequentialReplayCannotCheckoutConsumedCartAgain(): void
     {
         $client = self::createClient();
@@ -147,6 +151,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Сбой flush откатывает создание заказа и погашение корзины')]
     public function testCheckoutFlushFailureRollsBackOrderAndCartConsumption(): void
     {
         $client = self::createClient();
@@ -184,6 +189,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Ошибка события оформления возникает после коммита базы данных')]
     public function testCheckoutEventFailureOccursAfterDatabaseCommit(): void
     {
         $client = self::createClient();
@@ -215,6 +221,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartConsumed($cart);
     }
 
+    #[TestDox('Чужой токен не раскрывает доступность корзины при оформлении')]
     public function testCheckoutWithForeignTokenDoesNotRevealCartAvailability(): void
     {
         $client = self::createClient();
@@ -231,6 +238,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$ownCart, $foreignCart]);
     }
 
+    #[TestDox('Оформление без токена корзины отклоняется без побочных эффектов')]
     public function testCheckoutWithoutCartTokenIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -244,6 +252,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Оформление с неверным токеном корзины отклоняется без побочных эффектов')]
     public function testCheckoutWithWrongCartTokenIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -259,6 +268,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('invalidCartIdPayloads')]
+    #[TestDox('Валидация отклоняет отсутствующий или неположительный идентификатор корзины')]
     public function testMissingOrNonPositiveCartIdIsRejectedByValidationWithoutSideEffects(array $payload): void
     {
         $client = self::createClient();
@@ -273,6 +283,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Строковый идентификатор корзины отклоняется без побочных эффектов')]
     public function testStringCartIdIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -287,6 +298,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Несуществующую корзину нельзя оформить без побочных эффектов')]
     public function testCheckoutWithNonexistentCartIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -302,6 +314,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$existingCart]);
     }
 
+    #[TestDox('Пустую корзину нельзя оформить без побочных эффектов')]
     public function testCheckoutWithEmptyCartIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -317,6 +330,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Администратор не обходит проверку чужого токена корзины')]
     public function testAdminCannotBypassForeignCartTokenRequirement(): void
     {
         $client = self::createClient();
@@ -332,6 +346,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$adminCart, $foreignCart]);
     }
 
+    #[TestDox('Администратор не обходит требование токена корзины')]
     public function testAdminCannotBypassMissingCartTokenRequirement(): void
     {
         $client = self::createClient();
@@ -346,6 +361,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('forbiddenOrderFields')]
+    #[TestDox('Запрещённые поля заказа отклоняются до оформления')]
     public function testForbiddenOrderFieldsAreRejectedBeforeCheckoutSideEffects(string $field, mixed $value): void
     {
         $client = self::createClient();
@@ -360,6 +376,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Массовое присваивание не выполняется до оформления заказа')]
     public function testCombinedMassAssignmentPayloadIsRejectedBeforeCheckoutSideEffects(): void
     {
         $client = self::createClient();
@@ -383,6 +400,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Некорректный JSON отклоняется без побочных эффектов')]
     public function testMalformedJsonIsRejectedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -397,6 +415,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Оформление отклоняет сохранённую позицию с нулевым количеством')]
     public function testCheckoutRejectsPersistedZeroQuantityWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -418,6 +437,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductQuantity($lineId, 0);
     }
 
+    #[TestDox('Оформление отклоняет позицию после уменьшения остатка товара')]
     public function testCheckoutRejectsLineAfterProductStockIsLoweredWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -441,6 +461,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductQuantity($lineId, 2);
     }
 
+    #[TestDox('Оформление отклоняет неопубликованный товар')]
     public function testCheckoutRejectsUnpublishedProductWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -481,6 +502,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductVisibilityState($lineId, false, false);
     }
 
+    #[TestDox('Оформление отклоняет удалённый товар')]
     public function testCheckoutRejectsDeletedProductWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -507,6 +529,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductVisibilityState($lineId, true, true);
     }
 
+    #[TestDox('При двух флагах недоступности сообщается причина удаления товара')]
     public function testCheckoutPrefersDeletedReasonWhenProductHasBothVisibilityFlags(): void
     {
         $client = self::createClient();
@@ -533,6 +556,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductVisibilityState($lineId, false, true);
     }
 
+    #[TestDox('Недоступные товары перечисляются в порядке идентификаторов позиций корзины')]
     public function testCheckoutReportsEveryUnavailableProductInCartProductIdOrder(): void
     {
         $client = self::createClient();
@@ -566,6 +590,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertCartProductVisibilityState($deletedLineId, true, true);
     }
 
+    #[TestDox('Администратор не обходит проверку доступности товара')]
     public function testAdminCannotBypassUnavailableProductCheck(): void
     {
         $client = self::createClient();
@@ -590,6 +615,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     }
 
     #[DataProvider('unavailableProductAcceptHeaders')]
+    #[TestDox('Недоступный товар при оформлении всегда описывается Problem Details')]
     public function testCheckoutUnavailableProductAlwaysUsesProblemDetails(string $accept, bool $isDeleted, string $reason): void
     {
         $client = self::createClient();
@@ -620,6 +646,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    #[TestDox('Схема OpenAPI оформления принимает только обязательный идентификатор корзины')]
     public function testCheckoutOpenApiInputSchemaOnlyAllowsRequiredCartId(): void
     {
         $client = self::createClient();

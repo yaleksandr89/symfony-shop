@@ -25,6 +25,7 @@ use Symfony\Component\DomCrawler\Crawler;
 #[Group(name: 'functional')]
 class ProductControllerTest extends WebTestCase
 {
+    #[TestDox('Список товаров загружает обложки пакетно и не раздувает число запросов')]
     public function testListBatchesPageCoversAndKeepsQueryCountBounded(): void
     {
         $client = $this->createAdminClient();
@@ -120,6 +121,7 @@ class ProductControllerTest extends WebTestCase
         self::assertLessThanOrEqual(1, abs($fullPageQueryCount - $partialPageQueryCount));
     }
 
+    #[TestDox('Пустая отправка фильтра сохраняет видимый набор товаров')]
     public function testEmptyFilterSubmitKeepsVisibleProductIds(): void
     {
         $client = $this->createAdminClient();
@@ -134,6 +136,7 @@ class ProductControllerTest extends WebTestCase
         self::assertSame($beforeSubmitIds, $this->visibleListIds($crawler));
     }
 
+    #[TestDox('Редактирование сохраняет флаги мерчандайзинга товара')]
     public function testEditPersistsMerchandisingFlags(): void
     {
         $client = $this->createAdminClient();
@@ -157,6 +160,7 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'providePriceRanges')]
+    #[TestDox('Диапазон цены отбирает заданные товары')]
     public function testPriceRangeFiltersControlledProducts(
         array $submitted,
         array $includedPrices,
@@ -214,6 +218,7 @@ class ProductControllerTest extends WebTestCase
         ], ['10.00', '15.00', '20.00'], ['9.99', '20.01']];
     }
 
+    #[TestDox('Элементы управления фильтром даты используют поля даты')]
     public function testDateFilterControlsUseDateInputs(): void
     {
         $client = $this->createAdminClient();
@@ -225,6 +230,7 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideDateRanges')]
+    #[TestDox('Диапазон дат отбирает заданные товары')]
     public function testDateRangeFiltersControlledProducts(
         array $submitted,
         array $includedDates,
@@ -369,6 +375,7 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideReversedDateRangeLocales')]
+    #[TestDox('Обратный диапазон дат показывает ошибку и не применяет фильтр')]
     public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(
         string $locale,
         string $title,
@@ -476,6 +483,7 @@ class ProductControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideProductValidationLocales')]
+    #[TestDox('Сообщения валидации фильтра локализованы')]
     public function testValidationMessagesAreLocalized(
         string $locale,
         array $requiredMessages,

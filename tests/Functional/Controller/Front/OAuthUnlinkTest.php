@@ -9,6 +9,7 @@ use App\Security\OAuth\OAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -18,6 +19,7 @@ final class OAuthUnlinkTest extends WebTestCase
 {
     private const PASSWORD = 'current-password';
 
+    #[TestDox('Неаутентифицированный запрос не отвязывает идентификатор')]
     public function testUnauthenticatedRequestsDoNotUnlinkAnIdentity(): void
     {
         $client = self::createClient();
@@ -35,6 +37,7 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
+    #[TestDox('GET показывает форму подтверждения, не раскрывая и не меняя внешний идентификатор')]
     public function testGetRendersAConfirmationFormWithoutRenderingOrChangingTheExternalId(): void
     {
         $externalId = 'sensitive-google-id';
@@ -54,6 +57,7 @@ final class OAuthUnlinkTest extends WebTestCase
     }
 
     #[DataProvider('invalidCsrfSubmissions')]
+    #[TestDox('Отсутствующий или неверный CSRF-токен не отвязывает идентификатор')]
     public function testMissingOrInvalidCsrfDoesNotUnlink(?string $csrfToken): void
     {
         $client = self::createClient();
@@ -71,6 +75,7 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Пустой пароль не отвязывает идентификатор')]
     public function testBlankPasswordDoesNotUnlink(): void
     {
         $client = self::createClient();
@@ -88,6 +93,7 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Неверный пароль не отвязывает идентификатор')]
     public function testWrongPasswordDoesNotUnlink(): void
     {
         $client = self::createClient();
@@ -106,6 +112,7 @@ final class OAuthUnlinkTest extends WebTestCase
     }
 
     #[DataProvider('providers')]
+    #[TestDox('Корректный текущий пароль отвязывает только выбранный идентификатор')]
     public function testValidCurrentPasswordUnlinksOnlyTheSelectedIdentity(OAuthProvider $provider): void
     {
         $identities = [
@@ -136,6 +143,7 @@ final class OAuthUnlinkTest extends WebTestCase
     }
 
     #[DataProvider('disabledLinkedProviders')]
+    #[TestDox('Отключённый, но связанный провайдер можно отвязать')]
     public function testDisabledButLinkedProviderCanBeUnlinked(OAuthProvider $provider, string $externalId): void
     {
         $client = self::createClient();
@@ -153,6 +161,7 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Будущий, неизвестный или несвязанный идентификатор возвращает 404')]
     public function testFutureAndUnknownProvidersAndUnlinkedIdentityAreNotFound(): void
     {
         $client = self::createClient();
@@ -168,6 +177,7 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Устаревший GET URL возвращает 404 и не отвязывает идентификатор')]
     public function testLegacyGetUrlIsNotFoundAndDoesNotUnlink(): void
     {
         $client = self::createClient();

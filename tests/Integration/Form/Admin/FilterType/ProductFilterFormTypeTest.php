@@ -9,6 +9,7 @@ use App\Form\DTO\ProductFilterModel;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
 
@@ -27,6 +28,7 @@ class ProductFilterFormTypeTest extends KernelTestCase
         $this->formFactory = self::getContainer()->get('form.factory');
     }
 
+    #[TestDox('Пустая отправка формы задаёт пустые значения всех диапазонов')]
     public function testEmptySubmitMapsCompleteRangeShapes(): void
     {
         $form = $this->formFactory->create(ProductFilterFormType::class, new ProductFilterModel());
@@ -44,6 +46,7 @@ class ProductFilterFormTypeTest extends KernelTestCase
     }
 
     #[DataProvider(methodName: 'provideNumberRanges')]
+    #[TestDox('Сопоставляет числовые границы фильтра')]
     public function testNumberRangeMapping(string $field, array $submitted, array $expected): void
     {
         $form = $this->formFactory->create(ProductFilterFormType::class, new ProductFilterModel());
@@ -63,6 +66,7 @@ class ProductFilterFormTypeTest extends KernelTestCase
     }
 
     #[DataProvider(methodName: 'provideDateRangeValidation')]
+    #[TestDox('Валидация диапазона дат')]
     public function testDateRangeValidation(array $submitted, bool $expectedValid): void
     {
         $form = $this->formFactory->create(
@@ -99,6 +103,7 @@ class ProductFilterFormTypeTest extends KernelTestCase
     }
 
     #[DataProvider(methodName: 'provideBooleanValues')]
+    #[TestDox('Сопоставление логического поля')]
     public function testBooleanMapping(string $submitted, ?string $expected): void
     {
         $form = $this->formFactory->create(ProductFilterFormType::class, new ProductFilterModel());
@@ -115,6 +120,7 @@ class ProductFilterFormTypeTest extends KernelTestCase
         yield 'empty' => ['', null];
     }
 
+    #[TestDox('Сопоставление скалярных полей')]
     public function testScalarMapping(): void
     {
         $form = $this->formFactory->create(ProductFilterFormType::class, new ProductFilterModel());

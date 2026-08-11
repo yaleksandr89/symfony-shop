@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
@@ -25,6 +26,7 @@ final class OAuthLinkTest extends WebTestCase
 {
     private const PASSWORD = 'current-password';
 
+    #[TestDox('Неаутентифицированные запросы подтверждения отклоняются')]
     public function testUnauthenticatedConfirmationRequestsAreDenied(): void
     {
         $client = self::createClient();
@@ -38,6 +40,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertResponseRedirects('/ru/login');
     }
 
+    #[TestDox('Отключённый, связанный в будущем и неизвестный провайдеры отклоняются до вызова клиента')]
     public function testDisabledLinkedFutureAndUnknownProvidersFailBeforeClientAccess(): void
     {
         $client = self::createClient();
@@ -56,6 +59,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertSame(0, $fake->tokenRequests);
     }
 
+    #[TestDox('Провайдер без учётных данных очищается до вызова клиента')]
     public function testEnabledProviderWithMissingCredentialsIsSanitizedBeforeClientAccess(): void
     {
         $client = self::createClient(['debug' => false]);
@@ -76,6 +80,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertSame(0, $fake->registryAccesses);
     }
 
+    #[TestDox('GET показывает форму подтверждения пароля, не создавая намерение')]
     public function testGetRendersPasswordConfirmationWithoutCreatingIntent(): void
     {
         [$client, $user, $fake] = $this->linkClient(OAuthProvider::Google, 'external-id');
@@ -94,6 +99,7 @@ final class OAuthLinkTest extends WebTestCase
     }
 
     #[DataProvider('invalidConfirmationCases')]
+    #[TestDox('Некорректное подтверждение не создаёт намерение и не перенаправляет к провайдеру')]
     public function testInvalidConfirmationCreatesNoIntentOrProviderRedirect(string $case): void
     {
         [$client, , $fake] = $this->linkClient(OAuthProvider::Google, 'external-id');
@@ -117,6 +123,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertSame(0, $fake->tokenRequests);
     }
 
+    #[TestDox('Корректное подтверждение создаёт связанное хешированное намерение без изменений')]
     public function testValidConfirmationCreatesBoundHashedIntentWithoutMutation(): void
     {
         [$client, $user, $fake] = $this->linkClient(OAuthProvider::Google, 'external-id');
@@ -143,6 +150,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Обычный старт и прямой callback аутентифицированного пользователя отклоняются до вызова клиента')]
     public function testAuthenticatedOrdinaryStartAndDirectCallbackAreDeniedBeforeClientAccess(): void
     {
         [$client, , $fake] = $this->linkClient(OAuthProvider::Yandex, 'external-id');
@@ -158,6 +166,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertSame(0, $fake->registryAccesses);
     }
 
+    #[TestDox('Неверное состояние и несовпавший провайдер погашают намерение до вызова клиента')]
     public function testWrongStateAndProviderMismatchConsumeIntentBeforeClientAccess(): void
     {
         foreach ([
@@ -179,6 +188,7 @@ final class OAuthLinkTest extends WebTestCase
     }
 
     #[DataProvider('invalidCallbackCases')]
+    #[TestDox('Отсутствующее, массивное, истёкшее и чужое состояние отклоняются до вызова клиента')]
     public function testMissingArrayExpiredAndWrongUserStateAreDeniedBeforeClientAccess(string $case): void
     {
         [$client, , $fake] = $this->linkClient(OAuthProvider::Google, 'external-id');
@@ -211,6 +221,7 @@ final class OAuthLinkTest extends WebTestCase
     }
 
     #[DataProvider('providerCallbacks')]
+    #[TestDox('Успешный callback связывает текущего пользователя, а повтор отклоняется до обмена')]
     public function testSuccessfulCallbackLinksCurrentUserAndReplayFailsBeforeExchange(
         OAuthProvider $provider,
         string $callbackPath,
@@ -250,6 +261,7 @@ final class OAuthLinkTest extends WebTestCase
         self::assertSame($beforeCount, $this->userCount());
     }
 
+    #[TestDox('Чужой внешний идентификатор даёт нейтральную ошибку без изменения текущего пользователя')]
     public function testOwnedExternalIdentityProducesGenericFailureWithoutCurrentUserMutation(): void
     {
         $externalId = 'owned-'.str_replace('.', '', uniqid('', true));

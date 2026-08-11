@@ -6,11 +6,13 @@ namespace App\Tests\Functional\Controller\Front;
 
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 #[Group(name: 'functional')]
 final class RobotsTxtControllerTest extends WebTestCase
 {
+    #[TestDox('Вывод robots.txt не обращается к каталогу')]
     public function testRobotsOutputDoesNotQueryCatalog(): void
     {
         $client = self::createClient();

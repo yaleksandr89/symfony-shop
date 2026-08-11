@@ -20,6 +20,7 @@ use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +39,7 @@ use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 final class YandexAuthenticatorTest extends TestCase
 {
     #[DataProvider('invalidEmails')]
+    #[TestDox('Отсутствующий основной email даёт общий нейтральный отказ без сохранения')]
     public function testMissingDefaultEmailUsesCommonGenericDenialWithoutPersistence(?string $email): void
     {
         $repository = $this->createMock(UserRepository::class);
@@ -55,6 +57,7 @@ final class YandexAuthenticatorTest extends TestCase
         $badge->getUser();
     }
 
+    #[TestDox('Данные провайдера нормализуются и регистрируются общим обработчиком')]
     public function testProviderDataIsNormalizedAndRegisteredThroughCommonHandler(): void
     {
         $repository = $this->createMock(UserRepository::class);
@@ -102,6 +105,7 @@ final class YandexAuthenticatorTest extends TestCase
         self::assertSame('hashed-password', $user->getPassword());
     }
 
+    #[TestDox('Сбой перенаправляет на локализованную страницу входа с нейтральным flash-сообщением')]
     public function testFailureRedirectsToLocalizedLoginWithNeutralDangerFlash(): void
     {
         $router = $this->createMock(RouterInterface::class);

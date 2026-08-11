@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 #[Group(name: 'unit')]
 final class FacebookTest extends TestCase
 {
+    #[TestDox('Использует только версионированные конечные точки Meta и область email')]
     public function testUsesOnlyVersionedMetaEndpointsAndEmailScope(): void
     {
         $provider = new Facebook(['clientId' => 'client-id', 'clientSecret' => 'client-secret', 'redirectUri' => 'https://app.example/check']);
@@ -33,7 +34,7 @@ final class FacebookTest extends TestCase
         self::assertStringNotContainsString('graph.facebook.com/me', $resourceUrl);
     }
 
-    #[TestDox('Facebook resource owner создаётся через публичный HTTP-поток с нормализованным ID')]
+    #[TestDox('Владелец ресурса Facebook создаётся через публичный HTTP-поток с нормализованным ID')]
     public function testCreatesFacebookResourceOwnerThroughPublicProviderFlow(): void
     {
         $provider = $this->providerWithResponse(new Response(200, ['Content-Type' => 'application/json'], '{"id":"  facebook-id  "}'));

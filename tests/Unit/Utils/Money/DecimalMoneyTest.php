@@ -19,6 +19,7 @@ class DecimalMoneyTest extends TestCase
     #[TestWith(['19.99', 7, 13993, '139.93'])]
     #[TestWith(['90.60', 1, 9060, '90.60'])]
     #[TestWith(['0.00', 0, 0, '0.00'])]
+    #[TestDox('Умножение и форматирование возвращают канонические суммы')]
     public function testMultipliesAndFormatsCanonicalAmounts(string $amount, int $quantity, int $expectedCents, string $expectedAmount): void
     {
         $cents = DecimalMoney::multiplyToCents($amount, $quantity);
@@ -27,6 +28,7 @@ class DecimalMoneyTest extends TestCase
         self::assertSame($expectedAmount, DecimalMoney::fromCents($cents));
     }
 
+    #[TestDox('Итоги позиций складываются в центах')]
     public function testAddsLineTotalsInCents(): void
     {
         $totalCents = DecimalMoney::addCents(
@@ -44,6 +46,7 @@ class DecimalMoneyTest extends TestCase
     #[TestWith(['0', 0, '0.00'])]
     #[TestWith(['0.1', 10, '0.10'])]
     #[TestWith(['0.10', 10, '0.10'])]
+    #[TestDox('Эквивалентные фиксированные суммы нормализуются одинаково')]
     public function testNormalizesEquivalentFixedPointAmounts(string $amount, int $expectedCents, string $expectedAmount): void
     {
         self::assertSame($expectedCents, DecimalMoney::toCents($amount));
@@ -59,6 +62,7 @@ class DecimalMoneyTest extends TestCase
     #[TestWith(['1e2'])]
     #[TestWith([''])]
     #[TestWith(['not-a-price'])]
+    #[TestDox('Некорректные десятичные суммы отклоняются')]
     public function testRejectsInvalidDecimalAmounts(string $amount): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -66,6 +70,7 @@ class DecimalMoneyTest extends TestCase
         DecimalMoney::toCents($amount);
     }
 
+    #[TestDox('Отрицательное количество отклоняется')]
     public function testRejectsNegativeQuantity(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -73,6 +78,7 @@ class DecimalMoneyTest extends TestCase
         DecimalMoney::multiplyToCents('1.00', -1);
     }
 
+    #[TestDox('Суммы и итоги позиций за пределами целого диапазона отклоняются')]
     public function testRejectsAmountsAndLineTotalsOutsideTheIntegerRange(): void
     {
         try {

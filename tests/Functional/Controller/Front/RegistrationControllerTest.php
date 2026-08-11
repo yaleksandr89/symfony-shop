@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Security\Verifier\EmailVerifier;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,7 @@ class RegistrationControllerTest extends WebTestCase
 {
     private static string $uniqueEmail = 'new_test_user_1@gmail.com';
 
+    #[TestDox('Регистрация')]
     public function testRegistration(): void
     {
         $client = static::createClient();
@@ -56,6 +58,7 @@ class RegistrationControllerTest extends WebTestCase
         self::assertSame($userId, $message->getUserId());
     }
 
+    #[TestDox('Повторный email при регистрации отклоняется')]
     public function testRegistrationEmailDuplicate(): void
     {
         $client = static::createClient();
@@ -75,6 +78,7 @@ class RegistrationControllerTest extends WebTestCase
         self::assertSelectorTextContains('div', 'У данной электронной почты уже зарегистрирована учетная запись');
     }
 
+    #[TestDox('Слишком короткий пароль при регистрации отклоняется')]
     public function testRegistrationPasswordToShort(): void
     {
         $client = static::createClient();
@@ -93,6 +97,7 @@ class RegistrationControllerTest extends WebTestCase
         self::assertSelectorTextContains('div', 'Значение слишком короткое. Должно быть равно 6 символам или больше.');
     }
 
+    #[TestDox('Ссылка верификации подтверждает пользователя по идентификатору в запросе')]
     public function testVerificationLinkVerifiesTheUserSelectedByQueryId(): void
     {
         $client = static::createClient();

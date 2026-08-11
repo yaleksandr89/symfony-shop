@@ -14,6 +14,7 @@ use App\Entity\User;
 use App\Utils\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group(name: 'integration')]
@@ -27,6 +28,7 @@ class DemoDataInitializerTest extends KernelTestCase
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
     }
 
+    #[TestDox('Инициализатор строит идемпотентный каталог и заменяемые заказы')]
     public function testInitializerBuildsIdempotentCatalogAndReplaceableOrders(): void
     {
         $initializer = self::getContainer()->get(DemoDataInitializer::class);

@@ -11,6 +11,7 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class OAuthProviderAvailabilityTest extends WebTestCase
 {
     #[DataProvider('locales')]
+    #[TestDox('Вход и регистрация скрывают отключённые актуальные провайдеры')]
     public function testLoginAndRegistrationHideDisabledCurrentProviders(string $locale): void
     {
         $client = self::createClient();
@@ -40,6 +42,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     }
 
     #[DataProvider('locales')]
+    #[TestDox('Настроенный Facebook показывает социальный блок и только кнопку Facebook')]
     public function testConfiguredEnabledFacebookRendersSocialWrapperAndOnlyFacebookButton(string $locale): void
     {
         foreach (['/login', '/registration'] as $path) {
@@ -55,6 +58,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     }
 
     #[DataProvider('locales')]
+    #[TestDox('Настроенный LinkedIn показывает социальный блок и только кнопку LinkedIn')]
     public function testConfiguredEnabledLinkedinRendersSocialWrapperAndOnlyLinkedinButton(string $locale): void
     {
         foreach (['/login', '/registration'] as $path) {
@@ -70,6 +74,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         }
     }
 
+    #[TestDox('Отключённые маршруты возвращают 404 без перенаправления и изменений пользователя')]
     public function testDisabledRoutesAreNotFoundWithoutRedirectOrUserMutation(): void
     {
         $client = self::createClient();
@@ -86,6 +91,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertSame($before, (int) $entityManager->getRepository(User::class)->count([]));
     }
 
+    #[TestDox('Профиль скрывает отключённые кнопки подключения, сохраняя отвязку связанного идентификатора')]
     public function testProfileHidesDisabledConnectButtonsButKeepsLinkedIdentityUnlinkAction(): void
     {
         $client = self::createClient();
@@ -115,6 +121,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         }
     }
 
+    #[TestDox('Профиль с отключённым несвязанным LinkedIn скрывает действия связи и отвязки')]
     public function testDisabledUnlinkedLinkedinProfileHidesLinkAndUnlinkActions(): void
     {
         $client = self::createClient();
@@ -131,6 +138,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertSelectorNotExists('a[href="/ru/profile/oauth/linkedin/unlink"]');
     }
 
+    #[TestDox('Профиль с включённым несвязанным LinkedIn показывает только действие привязки')]
     public function testEnabledUnlinkedLinkedinProfileRendersOnlyLinkAction(): void
     {
         $client = self::createClient();
@@ -153,6 +161,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertSelectorNotExists('a[href="/ru/profile/oauth/linkedin/unlink"]');
     }
 
+    #[TestDox('Профиль со связанным включённым провайдером показывает только действие отвязки')]
     public function testEnabledLinkedProfileProviderRendersOnlyUnlinkAction(): void
     {
         $client = self::createClient();
@@ -181,6 +190,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         }
     }
 
+    #[TestDox('Настроенный Яндекс использует существующий поток старта без сетевого запроса')]
     public function testConfiguredEnabledYandexReachesExistingStartFlowWithoutNetworkRequest(): void
     {
         $client = self::createClient();
@@ -199,6 +209,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertSame('/authorize', parse_url($location, PHP_URL_PATH));
     }
 
+    #[TestDox('Настроенный Facebook использует версионированный поток старта без сетевого запроса')]
     public function testConfiguredEnabledFacebookReachesVersionedStartFlowWithoutNetworkRequest(): void
     {
         $client = self::createClient();
@@ -213,6 +224,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertStringStartsWith('https://www.facebook.com/v26.0/dialog/oauth?', (string) $client->getResponse()->headers->get('Location'));
     }
 
+    #[TestDox('Несвязанный Facebook в профиле требует подтверждение, а вход использует публичный старт')]
     public function testEnabledUnlinkedFacebookProfileUsesExplicitConfirmationWhileLoginUsesPublicStart(): void
     {
         $client = self::createClient();
@@ -241,6 +253,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertSelectorExists('a[href="/ru/connect/facebook"]');
     }
 
+    #[TestDox('Провайдер без учётных данных возвращает безопасную серверную ошибку')]
     public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void
     {
         $client = self::createClient(['debug' => false]);

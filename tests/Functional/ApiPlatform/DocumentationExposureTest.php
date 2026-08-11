@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\ApiPlatform;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ final class DocumentationExposureTest extends WebTestCase
         '/api/docs.foo',
     ];
 
+    #[TestDox('Документация доступна в тестовом окружении')]
     public function testDocumentationRemainsAvailableInTestEnvironment(): void
     {
         $client = self::createClient();
@@ -64,6 +66,7 @@ final class DocumentationExposureTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Документация скрыта только в production-окружении')]
     public function testDocumentationIsNotFoundOnlyInProduction(): void
     {
         self::ensureKernelShutdown();

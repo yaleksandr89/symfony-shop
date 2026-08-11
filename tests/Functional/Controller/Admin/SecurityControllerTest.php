@@ -7,12 +7,14 @@ namespace App\Tests\Functional\Controller\Admin;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 #[Group(name: 'functional')]
 class SecurityControllerTest extends WebTestCase
 {
     #[DataProvider(methodName: 'provideLocales')]
+    #[TestDox('Страница входа администратора локализована')]
     public function testLoginPageIsLocalized(string $locale, array $expected, array $unexpected): void
     {
         $crawler = static::createClient()->request('GET', sprintf('/%s/admin/login', $locale));

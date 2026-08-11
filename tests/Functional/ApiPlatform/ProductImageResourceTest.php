@@ -11,6 +11,7 @@ use App\Entity\ProductImage;
 use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -20,6 +21,7 @@ class ProductImageResourceTest extends ResourceTestUtils
 {
     private const COLLECTION_URI = '/api/product_images';
 
+    #[TestDox('Отдельные маршруты чтения и пути OpenAPI отсутствуют, изображения корзины остаются вложенными')]
     public function testStandaloneReadRoutesAndOpenApiPathsAreAbsentWhileCartImagesRemainEmbedded(): void
     {
         $client = self::createClient();

@@ -15,6 +15,7 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Generator\TokenGenerator;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[\PHPUnit\Framework\Attributes\Group(name: 'functional')]
 class CartControllerTest extends WebTestCase
 {
+    #[TestDox('HTML-страница корзины не загружает сущность корзины')]
     public function testCartHtmlDoesNotLoadCartEntity(): void
     {
         $client = self::createClient();
@@ -39,6 +41,7 @@ class CartControllerTest extends WebTestCase
         self::assertLessThanOrEqual(1, $collector->getQueryCount());
     }
 
+    #[TestDox('Устаревшие маршруты создания удалены и не меняют данные')]
     public function testLegacyCreateRoutesAreRemovedWithoutSideEffects(): void
     {
         $client = self::createClient();
@@ -68,6 +71,7 @@ class CartControllerTest extends WebTestCase
         self::assertInstanceOf(CartProduct::class, $entityManager->find(CartProduct::class, $cart['cartProductId']));
     }
 
+    #[TestDox('Устаревшие API-маршруты удалены и не меняют данные')]
     public function testLegacyApiRoutesAreRemovedWithoutSideEffects(): void
     {
         $client = self::createClient();

@@ -9,6 +9,7 @@ use App\Security\OAuth\OAuthProvider;
 use App\Security\OAuth\OAuthProviderAvailability;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 {
     #[DataProvider('currentRoutes')]
+    #[TestDox('Отключённые сопоставленные маршруты возвращают 404')]
     public function testDisabledMappedRoutesAreNotFound(string $route, OAuthProvider $provider): void
     {
         $subscriber = new OAuthProviderAvailabilityRequestSubscriber($this->availability());
@@ -30,6 +32,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     }
 
     #[DataProvider('currentRoutes')]
+    #[TestDox('Настроенные включённые маршруты передаются дальше')]
     public function testConfiguredEnabledMappedRoutesPass(string $route, OAuthProvider $provider): void
     {
         $this->expectNotToPerformAssertions();
@@ -41,6 +44,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 
     }
 
+    #[TestDox('Провайдер без учётных данных возвращает безопасную серверную ошибку')]
     public function testEnabledProviderWithMissingCredentialsReturnsSanitizedServerError(): void
     {
         $subscriber = new OAuthProviderAvailabilityRequestSubscriber(
@@ -60,6 +64,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     }
 
     #[DataProvider('ignoredRoutes')]
+    #[TestDox('Посторонние маршруты и маршруты отвязки игнорируются')]
     public function testUnrelatedAndUnlinkRoutesAreIgnored(string $route): void
     {
         $this->expectNotToPerformAssertions();
@@ -68,6 +73,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 
     }
 
+    #[TestDox('Подзапрос игнорируется')]
     public function testSubrequestIsIgnored(): void
     {
         $this->expectNotToPerformAssertions();
@@ -76,6 +82,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 
     }
 
+    #[TestDox('Сопоставляются только текущие реализованные маршруты')]
     public function testOnlyCurrentImplementedRoutesAreMapped(): void
     {
         self::assertSame(OAuthProvider::Linkedin, OAuthProvider::fromRoute('connect_linkedin_check'));

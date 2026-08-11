@@ -40,6 +40,7 @@ class InitDemoDataCommandTest extends KernelTestCase
         self::assertMatchesRegularExpression('/Order products: \d+ removed, \d+ created/', $output);
     }
 
+    #[TestDox('Команда не запускается в production до инициализации данных')]
     public function testCommandRefusesProductionBeforeInitialization(): void
     {
         self::bootKernel();

@@ -9,6 +9,7 @@ use App\Form\DTO\OrderFilterModel;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
 
@@ -27,6 +28,7 @@ class OrderFilterFormTypeTest extends KernelTestCase
         $this->formFactory = self::getContainer()->get('form.factory');
     }
 
+    #[TestDox('Пустая отправка формы задаёт пустые значения всех диапазонов')]
     public function testEmptySubmitMapsCompleteRangeShapes(): void
     {
         $form = $this->formFactory->create(OrderFilterFormType::class, new OrderFilterModel());
@@ -42,6 +44,7 @@ class OrderFilterFormTypeTest extends KernelTestCase
     }
 
     #[DataProvider(methodName: 'provideNumberRanges')]
+    #[TestDox('Сопоставляет границы итоговой суммы')]
     public function testTotalPriceMapping(array $submitted, array $expected): void
     {
         $form = $this->formFactory->create(OrderFilterFormType::class, new OrderFilterModel());
@@ -59,6 +62,7 @@ class OrderFilterFormTypeTest extends KernelTestCase
     }
 
     #[DataProvider(methodName: 'provideDateRangeValidation')]
+    #[TestDox('Проверяет корректность диапазона дат')]
     public function testDateRangeValidation(array $submitted, bool $expectedValid): void
     {
         $form = $this->formFactory->create(
@@ -94,6 +98,7 @@ class OrderFilterFormTypeTest extends KernelTestCase
         yield 'empty' => [['left_date' => '', 'right_date' => ''], true];
     }
 
+    #[TestDox('Сопоставляет скалярные поля фильтра')]
     public function testScalarMapping(): void
     {
         $form = $this->formFactory->create(OrderFilterFormType::class, new OrderFilterModel());

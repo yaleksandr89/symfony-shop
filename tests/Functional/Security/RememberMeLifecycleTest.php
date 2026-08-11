@@ -17,18 +17,19 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 class RememberMeLifecycleTest extends WebTestCase
 {
-    #[TestDox('HTTPS-вход front выдаёт hardened remember-me cookie')]
+    #[TestDox('HTTPS-вход на фронтенде создаёт защищённую remember-me cookie')]
     public function testFrontHttpsLoginIssuesHardenedRememberMeCookie(): void
     {
         $this->issueFrontRememberMeCookie(static::createClient());
     }
 
-    #[TestDox('HTTPS-вход admin выдаёт отдельную hardened remember-me cookie')]
+    #[TestDox('HTTPS-вход в админ-панели создаёт отдельную защищённую remember-me cookie')]
     public function testAdminHttpsLoginIssuesHardenedRememberMeCookie(): void
     {
         $this->issueAdminRememberMeCookie(static::createClient());
     }
 
+    #[TestDox('Фронтальная cookie «запомнить меня» восстанавливает только фронтальную аутентификацию')]
     public function testFrontRememberMeCookieRestoresOnlyFrontAuthentication(): void
     {
         $client = static::createClient();
@@ -41,6 +42,7 @@ class RememberMeLifecycleTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    #[TestDox('Фронтальная cookie «запомнить меня» не аутентифицирует административный firewall')]
     public function testFrontRememberMeCookieCannotAuthenticateAdminFirewall(): void
     {
         $client = static::createClient();
@@ -53,6 +55,7 @@ class RememberMeLifecycleTest extends WebTestCase
         self::assertResponseRedirects('/ru/admin/login', Response::HTTP_FOUND);
     }
 
+    #[TestDox('Административная cookie «запомнить меня» восстанавливает оба локализованных админ-маршрута')]
     public function testAdminRememberMeCookieRestoresBothLocalizedAdminRoutes(): void
     {
         $client = static::createClient();
@@ -67,6 +70,7 @@ class RememberMeLifecycleTest extends WebTestCase
         }
     }
 
+    #[TestDox('Административная cookie «запомнить меня» не аутентифицирует фронтальный firewall')]
     public function testAdminRememberMeCookieCannotAuthenticateFrontFirewall(): void
     {
         $client = static::createClient();
@@ -79,6 +83,7 @@ class RememberMeLifecycleTest extends WebTestCase
         self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
     }
 
+    #[TestDox('Общая сессия сайта сохраняет доступ, соответствующий роли')]
     public function testSharedWebsiteSessionRetainsRoleAppropriateAccess(): void
     {
         $client = static::createClient();
@@ -95,6 +100,7 @@ class RememberMeLifecycleTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    #[TestDox('Выход из фронтенда удаляет обе cookie «запомнить меня»')]
     public function testFrontLogoutDeletesBothRememberMeCookies(): void
     {
         $client = static::createClient();
@@ -115,6 +121,7 @@ class RememberMeLifecycleTest extends WebTestCase
         self::assertResponseRedirects('/ru/admin/login', Response::HTTP_FOUND);
     }
 
+    #[TestDox('Выход из админ-панели удаляет обе cookie «запомнить меня»')]
     public function testAdminLogoutDeletesBothRememberMeCookies(): void
     {
         $client = static::createClient();

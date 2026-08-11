@@ -22,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 final class OAuthAccountLinkerTest extends TestCase
 {
     #[DataProvider('providers')]
+    #[TestDox('Связывает только запрошенный идентификатор одним сохранением')]
     public function testLinksOnlyRequestedIdentityWithOneFlush(OAuthProvider $provider, string $field): void
     {
         $user = $this->user();
@@ -40,6 +41,7 @@ final class OAuthAccountLinkerTest extends TestCase
     }
 
     #[DataProvider('invalidExternalIds')]
+    #[TestDox('Пустой или неверный внешний идентификатор отклоняется')]
     public function testRejectsBlankOrInvalidExternalId(mixed $externalId): void
     {
         $repository = $this->createMock(UserRepository::class);
@@ -52,6 +54,7 @@ final class OAuthAccountLinkerTest extends TestCase
             ->link($this->user(), OAuthProvider::Google, $externalId);
     }
 
+    #[TestDox('Уже связанный у текущего пользователя идентификатор отклоняется до поиска')]
     public function testRejectsIdentityAlreadyLinkedOnCurrentUserBeforeLookup(): void
     {
         $user = $this->user();
@@ -66,6 +69,7 @@ final class OAuthAccountLinkerTest extends TestCase
             ->link($user, OAuthProvider::Yandex, 'new-id');
     }
 
+    #[TestDox('Идентификатор другого пользователя отклоняется без изменений')]
     public function testRejectsIdentityOwnedByAnotherUserWithoutMutation(): void
     {
         $user = $this->user();
@@ -85,6 +89,7 @@ final class OAuthAccountLinkerTest extends TestCase
         }
     }
 
+    #[TestDox('Гонка уникальности даёт нейтральный отказ и восстанавливает идентификатор в памяти')]
     public function testUniqueConstraintRaceIsGenericAndRestoresInMemoryIdentity(): void
     {
         $user = $this->user();

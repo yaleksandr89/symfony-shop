@@ -10,6 +10,7 @@ use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SecurityTransportTest extends ResourceTestUtils
 {
     #[DataProvider('acceptHeaders')]
+    #[TestDox('Анонимный API возвращает Problem Details для любого Accept')]
     public function testAnonymousApiUsesProblemDetailsForEveryAccept(?string $accept): void
     {
         $client = self::createClient();
@@ -31,6 +33,7 @@ class SecurityTransportTest extends ResourceTestUtils
         self::assertFalse($client->getResponse()->headers->has('vary'));
     }
 
+    #[TestDox('Запрещённый API для полностью аутентифицированного пользователя возвращает Problem Details без flash-сообщения')]
     public function testFullyAuthenticatedForbiddenApiUsesProblemDetailsWithoutFlash(): void
     {
         $client = self::createClient();
@@ -42,6 +45,7 @@ class SecurityTransportTest extends ResourceTestUtils
         $this->assertWarningFlash($client, []);
     }
 
+    #[TestDox('Аутентификации только по cookie «запомнить меня» недостаточно для административной операции API')]
     public function testRememberMeOnlyAuthenticationIsInsufficientForAdminApiOperation(): void
     {
         $client = self::createClient();
@@ -58,6 +62,7 @@ class SecurityTransportTest extends ResourceTestUtils
         $this->assertWarningFlash($client, []);
     }
 
+    #[TestDox('Полная административная аутентификация сохраняется для API')]
     public function testFullAdminSessionAuthenticationIsPreservedForApi(): void
     {
         $client = self::createClient();
@@ -68,6 +73,7 @@ class SecurityTransportTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
+    #[TestDox('Авторизованный защищённый API сохраняет ответ для неподдерживаемого Accept')]
     public function testFullyAuthorizedProtectedApiKeepsUnsupportedAcceptResponse(): void
     {
         $client = self::createClient();
@@ -80,6 +86,7 @@ class SecurityTransportTest extends ResourceTestUtils
         self::assertFalse($client->getResponse()->headers->has('location'));
     }
 
+    #[TestDox('Анонимный запрос фронтенда сохраняет редирект и предупреждающее flash-сообщение')]
     public function testAnonymousFrontBrowserRequestKeepsRedirectAndWarningFlash(): void
     {
         $client = self::createClient();
@@ -91,6 +98,7 @@ class SecurityTransportTest extends ResourceTestUtils
         $this->assertWarningFlash($client, ['You have to login in order to access this page.']);
     }
 
+    #[TestDox('Анонимный запрос админ-панели сохраняет редирект и предупреждающее flash-сообщение')]
     public function testAnonymousAdminBrowserRequestKeepsRedirectAndWarningFlash(): void
     {
         $client = self::createClient();
@@ -102,6 +110,7 @@ class SecurityTransportTest extends ResourceTestUtils
         $this->assertWarningFlash($client, ['You have to login in order to access this page.']);
     }
 
+    #[TestDox('Публичный API сохраняет ответ для неподдерживаемого Accept')]
     public function testPublicApiKeepsUnsupportedAcceptResponse(): void
     {
         $client = self::createClient();

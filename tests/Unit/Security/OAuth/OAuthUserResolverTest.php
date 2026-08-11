@@ -13,6 +13,7 @@ use App\Security\OAuth\OAuthUserResolver;
 use App\Security\UserChecker\DeletedUserChecker;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 
@@ -20,6 +21,7 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusExce
 final class OAuthUserResolverTest extends TestCase
 {
     #[DataProvider('providers')]
+    #[TestDox('Связанный идентификатор возвращает того же активного пользователя без поиска email и изменений')]
     public function testLinkedIdentityReturnsSameActiveUserWithoutEmailLookupOrMutation(
         OAuthProvider $provider,
         string $identityField,
@@ -52,6 +54,7 @@ final class OAuthUserResolverTest extends TestCase
     }
 
     #[DataProvider('providers')]
+    #[TestDox('Удалённый связанный идентификатор отклоняется без изменений')]
     public function testDeletedLinkedIdentityIsRejectedWithoutMutation(
         OAuthProvider $provider,
         string $identityField,
@@ -84,6 +87,7 @@ final class OAuthUserResolverTest extends TestCase
     }
 
     #[DataProvider('providers')]
+    #[TestDox('Коллизия существующего email даёт нейтральный ответ и не создаёт связь')]
     public function testExistingEmailCollisionIsGenericAndNeverLinks(
         OAuthProvider $provider,
         string $identityField,
@@ -123,6 +127,7 @@ final class OAuthUserResolverTest extends TestCase
     }
 
     #[DataProvider('invalidEmails')]
+    #[TestDox('Отсутствующий email отклоняется до поиска email и вызова фабрики')]
     public function testMissingEmailIsRejectedBeforeEmailLookupOrFactory(?string $email): void
     {
         $repository = $this->createMock(UserRepository::class);
@@ -144,6 +149,7 @@ final class OAuthUserResolverTest extends TestCase
     }
 
     #[DataProvider('providers')]
+    #[TestDox('Новый пользователь получает авторитетный email идентификатора и неверифицированный статус')]
     public function testNewUserGetsAuthoritativeIdentityEmailAndUnverifiedState(
         OAuthProvider $provider,
         string $identityField,
@@ -177,6 +183,7 @@ final class OAuthUserResolverTest extends TestCase
     }
 
     #[DataProvider('invalidExternalIds')]
+    #[TestDox('Некорректный внешний идентификатор отклоняется до поиска')]
     public function testInvalidExternalIdIsRejectedBeforeLookup(mixed $externalId): void
     {
         $repository = $this->createMock(UserRepository::class);
@@ -189,6 +196,7 @@ final class OAuthUserResolverTest extends TestCase
     }
 
     #[DataProvider('futureProviders')]
+    #[TestDox('Нереализованный провайдер отклоняется до поиска')]
     public function testUnimplementedProviderIsRejectedBeforeLookup(OAuthProvider $provider): void
     {
         $repository = $this->createMock(UserRepository::class);

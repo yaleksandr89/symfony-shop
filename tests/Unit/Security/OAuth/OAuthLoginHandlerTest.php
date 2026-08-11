@@ -15,6 +15,7 @@ use App\Security\UserChecker\DeletedUserChecker;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
@@ -23,6 +24,7 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 #[Group(name: 'unit')]
 final class OAuthLoginHandlerTest extends TestCase
 {
+    #[TestDox('Связанный пользователь возвращается без регистрации')]
     public function testLinkedUserIsReturnedWithoutRegistration(): void
     {
         $user = new User();
@@ -47,6 +49,7 @@ final class OAuthLoginHandlerTest extends TestCase
         self::assertSame(0, $factoryCalls);
     }
 
+    #[TestDox('Новый пользователь регистрируется однократно и возвращается')]
     public function testNewUserIsRegisteredOnceAndReturned(): void
     {
         $user = new class() extends User {

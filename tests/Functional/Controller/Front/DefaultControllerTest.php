@@ -10,12 +10,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Group(name: 'functional')]
 class DefaultControllerTest extends WebTestCase
 {
+    #[TestDox('Число запросов главной страницы не растёт с числом товаров')]
     public function testHomepageQueryCountDoesNotGrowWithProducts(): void
     {
         $client = static::createClient();
@@ -37,6 +39,7 @@ class DefaultControllerTest extends WebTestCase
         self::assertSame($initialCount, $this->doctrineQueryCount($client));
     }
 
+    #[TestDox('Пустой URL перенаправляется на URL с локалью')]
     public function testRedirectEmptyUrlToLocale(): void
     {
         $client = static::createClient();
@@ -49,6 +52,7 @@ class DefaultControllerTest extends WebTestCase
         );
     }
 
+    #[TestDox('Главная страница использует текущую идентичность и метаданные favicon')]
     public function testHomepageUsesCurrentIdentityAndFaviconMetadata(): void
     {
         $client = static::createClient();
@@ -70,6 +74,7 @@ class DefaultControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'getSecureUrls')]
+    #[TestDox('Защищённые URL перенаправляют на страницу входа')]
     public function testSecureUrl(string $url): void
     {
         $client = static::createClient();

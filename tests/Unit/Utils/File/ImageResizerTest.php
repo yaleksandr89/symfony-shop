@@ -19,6 +19,7 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Group(name: 'unit')]
 class ImageResizerTest extends TestCase
 {
+    #[TestDox('Некорректное изображение отклоняется до открытия Imagine')]
     public function testInvalidImageIsRejectedBeforeImagineIsOpened(): void
     {
         $invalidImagePath = tempnam(sys_get_temp_dir(), 'invalid-image-');

@@ -24,6 +24,7 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 #[Group(name: 'unit')]
 final class OAuthNewUserRegistrarTest extends TestCase
 {
+    #[TestDox('Сохраняет пользователя, затем формирует подпись и отправляет письмо')]
     public function testPersistsBeforeOneFlushThenBuildsSignatureAndSendsStandardEmail(): void
     {
         $user = new class() extends User {
@@ -94,6 +95,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
         self::assertStringNotContainsString($rawSecret, $signature->getSignedUrl());
     }
 
+    #[TestDox('Сбой уникальности превращается в нейтральный отказ без подписи и письма')]
     public function testUniqueConstraintFailureBecomesGenericDenialWithoutSignatureOrEmail(): void
     {
         $user = (new User())->setEmail('race@example.test');
@@ -188,6 +190,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
         yield 'whitespace' => ['   '];
     }
 
+    #[TestDox('Без авторитетного идентификатора обработка останавливается до пароля и сохранения')]
     public function testMissingAuthoritativeIdentityIsDeniedBeforePasswordOrPersistence(): void
     {
         $user = (new User())->setEmail('missing-identity@example.test');

@@ -16,6 +16,7 @@ use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -49,6 +50,7 @@ class OrderManagerMoneyTest extends KernelTestCase
         ['0.10', '19.99'],
         '140.23',
     ])]
+    #[TestDox('Итоги заказа и снимки цен рассчитываются точно до цента')]
     public function testCreatesCentCorrectOrderTotalsAndPriceSnapshots(array $lines, array $expectedSnapshots, string $expectedTotal): void
     {
         $user = (new User())

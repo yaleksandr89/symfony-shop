@@ -35,6 +35,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
     }
 
+    #[TestDox('Корень заказа сохраняет и удаляет осиротевшие позиции')]
     public function testOrderRootPersistsAndOrphanRemovesItsLines(): void
     {
         [$user, $product] = $this->persistUserAndProduct();
@@ -56,6 +57,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         self::assertNotNull($this->entityManager->find(Product::class, $product->getId()));
     }
 
+    #[TestDox('Корень корзины сохраняет и удаляет осиротевшие позиции')]
     public function testCartRootPersistsAndOrphanRemovesItsLines(): void
     {
         [, $product] = $this->persistUserAndProduct();
@@ -76,6 +78,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         self::assertNotNull($this->entityManager->find(Product::class, $product->getId()));
     }
 
+    #[TestDox('Удаление заказа удаляет его позиции, но сохраняет пользователя и товар')]
     public function testRemovingOrderRemovesItsLinesButKeepsUserAndProduct(): void
     {
         [$user, $product] = $this->persistUserAndProduct();
@@ -96,6 +99,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         self::assertNotNull($this->entityManager->find(Product::class, $product->getId()));
     }
 
+    #[TestDox('Удаление корзины удаляет её позиции, но сохраняет товар')]
     public function testRemovingCartRemovesItsLinesButKeepsProduct(): void
     {
         [, $product] = $this->persistUserAndProduct();
@@ -115,6 +119,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         self::assertNotNull($this->entityManager->find(Product::class, $product->getId()));
     }
 
+    #[TestDox('Прямое удаление заказа каскадно удаляет его позиции')]
     public function testRawOrderDeletionCascadesToItsLines(): void
     {
         $this->withForeignKeyEnforcement(function (Connection $connection): void {
@@ -125,6 +130,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         });
     }
 
+    #[TestDox('Прямое удаление корзины каскадно удаляет её позиции')]
     public function testRawCartDeletionCascadesToItsLines(): void
     {
         $this->withForeignKeyEnforcement(function (Connection $connection): void {
@@ -135,6 +141,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         });
     }
 
+    #[TestDox('Удаление товара запрещено при наличии позиции заказа')]
     public function testProductDeletionIsRestrictedByOrderProduct(): void
     {
         $this->withForeignKeyEnforcement(function (Connection $connection): void {
@@ -145,6 +152,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         });
     }
 
+    #[TestDox('Удаление товара запрещено при наличии позиции корзины')]
     public function testProductDeletionIsRestrictedByCartProduct(): void
     {
         $this->withForeignKeyEnforcement(function (Connection $connection): void {
@@ -155,6 +163,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         });
     }
 
+    #[TestDox('Удаление пользователя запрещено при наличии заказа')]
     public function testUserDeletionIsRestrictedByOrder(): void
     {
         $this->withForeignKeyEnforcement(function (Connection $connection): void {

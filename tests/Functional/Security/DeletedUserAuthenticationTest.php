@@ -10,6 +10,7 @@ use App\Security\UserChecker\DeletedUserChecker;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
@@ -19,6 +20,7 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusExce
 #[Group(name: 'functional')]
 class DeletedUserAuthenticationTest extends WebTestCase
 {
+    #[TestDox('Оба firewall используют проверку удалённого пользователя')]
     public function testBothFirewallsUseTheDeletedUserChecker(): void
     {
         foreach (['security.user_checker.admin', 'security.user_checker.front'] as $serviceId) {
@@ -34,6 +36,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
         }
     }
 
+    #[TestDox('Активные пользователи по-прежнему входят через фронтальную и административную формы')]
     public function testActiveUsersCanStillLogInThroughFrontAndAdminForms(): void
     {
         $frontClient = static::createClient();
@@ -44,6 +47,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
         self::assertResponseRedirects('/ru/admin/dashboard', Response::HTTP_FOUND);
     }
 
+    #[TestDox('Удалённый фронтальный пользователь получает ту же нейтральную ошибку, что и при неверном пароле')]
     public function testDeletedFrontUserGetsTheSameGenericFailureAsAnInvalidPassword(): void
     {
         $client = static::createClient();
@@ -57,6 +61,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
         $this->assertGenericFailureMessage($deletedUserMessage, UserFixtures::USER_1_EMAIL);
     }
 
+    #[TestDox('Удалённый администратор получает ту же нейтральную ошибку, что и при неверном пароле')]
     public function testDeletedAdminUserGetsTheSameGenericFailureAsAnInvalidPassword(): void
     {
         $client = static::createClient();
@@ -70,6 +75,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
         $this->assertGenericFailureMessage($deletedUserMessage, UserFixtures::USER_ADMIN_1_EMAIL);
     }
 
+    #[TestDox('Существующая сессия деаутентифицируется после мягкого удаления пользователя')]
     public function testExistingSessionIsDeauthenticatedAfterUserIsSoftDeleted(): void
     {
         $client = static::createClient();
@@ -82,6 +88,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
         self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
     }
 
+    #[TestDox('Удалённый фронтальный пользователь не восстанавливается из cookie «запомнить меня»')]
     public function testDeletedFrontUserCannotBeRestoredFromRememberMeCookie(): void
     {
         $client = static::createClient();
@@ -95,6 +102,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
         self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
     }
 
+    #[TestDox('Удалённый администратор не восстанавливается из cookie «запомнить меня»')]
     public function testDeletedAdminUserCannotBeRestoredFromRememberMeCookie(): void
     {
         $client = static::createClient();

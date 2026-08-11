@@ -16,6 +16,7 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -24,6 +25,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class SidebarControllerTest extends WebTestCase
 {
     #[DataProvider(methodName: 'provideRouteScenarios')]
+    #[TestDox('Боковая панель отмечает текущий маршрут')]
     public function testSidebarReflectsCurrentRoute(string $route, string $activeSection, ?string $activeChild): void
     {
         $client = $this->createAdminClient();
@@ -82,6 +84,7 @@ class SidebarControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideUserRouteScenarios')]
+    #[TestDox('Боковая панель супер-администратора отмечает текущий маршрут')]
     public function testSuperAdminUserSidebarReflectsCurrentRoute(string $route, ?string $activeChild): void
     {
         $client = $this->createUserClient(UserFixtures::USER_SUPER_ADMIN_1_EMAIL);
@@ -114,6 +117,7 @@ class SidebarControllerTest extends WebTestCase
         yield 'users edit' => ['admin_user_edit', null];
     }
 
+    #[TestDox('Обычный администратор не видит раздел пользователей')]
     public function testOrdinaryAdminDoesNotSeeUsersSection(): void
     {
         $crawler = $this->createAdminClient()->request('GET', '/ru/admin/dashboard');

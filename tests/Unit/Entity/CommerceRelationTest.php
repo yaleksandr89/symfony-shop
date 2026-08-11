@@ -11,11 +11,13 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[Group(name: 'unit')]
 class CommerceRelationTest extends TestCase
 {
+    #[TestDox('Коллекции сущностей инициализированы')]
     public function testCollectionsAreInitialized(): void
     {
         self::assertCount(0, (new Order())->getOrderProducts());
@@ -25,6 +27,7 @@ class CommerceRelationTest extends TestCase
         self::assertCount(0, (new User())->getOrders());
     }
 
+    #[TestDox('Корень заказа синхронизирует и удаляет позицию без обнуления владельца')]
     public function testOrderRootSynchronizesAndRemovesOrderProductWithoutNullingOwner(): void
     {
         $order = new Order();
@@ -42,6 +45,7 @@ class CommerceRelationTest extends TestCase
         self::assertSame($order, $orderProduct->getAppOrder());
     }
 
+    #[TestDox('Корень корзины синхронизирует и удаляет позицию без обнуления владельца')]
     public function testCartRootSynchronizesAndRemovesCartProductWithoutNullingOwner(): void
     {
         $cart = new Cart();

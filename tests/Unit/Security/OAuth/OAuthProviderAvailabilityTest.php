@@ -9,6 +9,7 @@ use App\Security\OAuth\OAuthProviderAvailability;
 use App\Security\OAuth\OAuthProviderConfigurationException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 final class OAuthProviderAvailabilityTest extends TestCase
 {
     #[DataProvider('providers')]
+    #[TestDox('Каждый жёсткий переключатель сопоставляется независимо')]
     public function testEveryHardSwitchIsMappedIndependently(OAuthProvider $provider): void
     {
         $availability = $this->availability([$provider->value => true]);
@@ -28,6 +30,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
         }
     }
 
+    #[TestDox('Возвращаются только включённые провайдеры')]
     public function testEnabledProvidersReturnsOnlyEnabledProviders(): void
     {
         $availability = $this->availability([
@@ -41,6 +44,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
         );
     }
 
+    #[TestDox('Отключённый провайдер возвращает 404')]
     public function testDisabledProviderIsNotFound(): void
     {
         $this->expectException(NotFoundHttpException::class);
@@ -49,6 +53,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
     }
 
     #[DataProvider('implementedProviders')]
+    #[TestDox('Настроенный и включённый провайдер работает')]
     public function testConfiguredEnabledImplementedProviderIsOperational(OAuthProvider $provider): void
     {
         $this->availability([$provider->value => true])->assertOperational($provider);
@@ -57,6 +62,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
     }
 
     #[DataProvider('blankCredentialSets')]
+    #[TestDox('Включённый провайдер с пустыми учётными данными возвращает безопасную ошибку')]
     public function testEnabledImplementedProviderWithBlankCredentialsIsSanitized(array $credentials): void
     {
         $secret = 'not-for-error-output';
@@ -79,6 +85,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
     }
 
     #[DataProvider('futureProviders')]
+    #[TestDox('Будущий провайдер не имеет контракта конфигурации клиента')]
     public function testFutureProviderHasNoClientConfigurationContract(OAuthProvider $provider): void
     {
         $availability = new OAuthProviderAvailability([$provider->value => true], []);

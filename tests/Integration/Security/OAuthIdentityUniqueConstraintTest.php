@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group(name: 'integration')]
@@ -38,6 +39,7 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
     #[TestWith(['github'])]
     #[TestWith(['facebook'])]
     #[TestWith(['linkedin'])]
+    #[TestDox('Внешний идентификатор провайдера уникален')]
     public function testProviderExternalIdMustBeUnique(string $provider): void
     {
         $externalId = 'linkedin' === $provider ? 'LiNkEdIn-Sub' : 'external-id-'.$provider;
@@ -59,6 +61,7 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
         }
     }
 
+    #[TestDox('Несколько пользователей могут иметь пустой внешний идентификатор провайдера')]
     public function testMultipleUsersCanHaveNullProviderExternalIds(): void
     {
         $firstUser = $this->newUser('null-first');

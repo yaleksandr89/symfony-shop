@@ -21,6 +21,7 @@ class ChangePasswordFormTypeTest extends FormIntegrationTestCase
         return [new ValidatorExtension(Validation::createValidator())];
     }
 
+    #[TestDox('Пустой пароль считается недопустимым')]
     public function testBlankPasswordIsInvalid(): void
     {
         $form = $this->factory->create(ChangePasswordFormType::class);
@@ -34,6 +35,7 @@ class ChangePasswordFormTypeTest extends FormIntegrationTestCase
         self::assertFalse($form->isValid());
     }
 
+    #[TestDox('Слишком короткий пароль считается недопустимым')]
     public function testTooShortPasswordIsInvalid(): void
     {
         $form = $this->factory->create(ChangePasswordFormType::class);
@@ -47,6 +49,7 @@ class ChangePasswordFormTypeTest extends FormIntegrationTestCase
         self::assertFalse($form->isValid());
     }
 
+    #[TestDox('Совпадающий корректный пароль принимается')]
     public function testMatchingValidPasswordIsAccepted(): void
     {
         $form = $this->factory->create(ChangePasswordFormType::class);

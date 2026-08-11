@@ -11,12 +11,14 @@ use App\Security\OAuth\OAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group(name: 'integration')]
 final class OAuthOrdinaryLoginTest extends KernelTestCase
 {
     #[DataProvider('uniqueRaces')]
+    #[TestDox('Гонка уникальности в базе данных даёт нейтральный ответ без письма верификации')]
     public function testDatabaseUniqueRaceIsGenericAndSendsNoVerificationEmail(string $race): void
     {
         self::bootKernel();

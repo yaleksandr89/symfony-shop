@@ -14,11 +14,13 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Group(name: 'functional')]
 class OrderResourceTest extends ResourceTestUtils
 {
+    #[TestDox('Анонимный пользователь не получает коллекцию заказов')]
     public function testAnonymousUserCannotGetOrderCollection(): void
     {
         $client = self::createClient();
@@ -28,6 +30,7 @@ class OrderResourceTest extends ResourceTestUtils
         $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
     }
 
+    #[TestDox('Обычный пользователь не получает коллекцию заказов')]
     public function testRegularUserCannotGetOrderCollection(): void
     {
         $client = self::createClient();
@@ -38,6 +41,7 @@ class OrderResourceTest extends ResourceTestUtils
         $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
     }
 
+    #[TestDox('Администратор получает коллекцию заказов')]
     public function testAdminCanGetOrderCollection(): void
     {
         $client = self::createClient();
@@ -48,6 +52,7 @@ class OrderResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
+    #[TestDox('Администратор получает заказ с вложенными товарами и категориями')]
     public function testAdminCanGetOrderItemWithEmbeddedProductsAndCategories(): void
     {
         $client = self::createClient();
@@ -99,6 +104,7 @@ class OrderResourceTest extends ResourceTestUtils
         }
     }
 
+    #[TestDox('Обычный пользователь не получает отдельный заказ')]
     public function testRegularUserCannotGetOrderItem(): void
     {
         $client = self::createClient();
@@ -112,6 +118,7 @@ class OrderResourceTest extends ResourceTestUtils
         $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
     }
 
+    #[TestDox('Анонимный пользователь не получает отдельный заказ')]
     public function testAnonymousUserCannotGetOrderItem(): void
     {
         $client = self::createClient();

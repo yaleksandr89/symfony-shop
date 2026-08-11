@@ -38,6 +38,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
         $this->user = $this->user(41);
     }
 
+    #[TestDox('Хранилище держит только хеш состояния и погашает его однократно')]
     public function testStoresOnlyAStateHashAndConsumesOnce(): void
     {
         $rawState = 'sensitive-oauth-state';
@@ -61,6 +62,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
     }
 
     #[DataProvider('invalidIntentCases')]
+    #[TestDox('Некорректное намерение отклоняется и погашается')]
     public function testInvalidIntentIsRejectedAndConsumed(string $case): void
     {
         $state = 'correct-state';
@@ -106,6 +108,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
         $this->store->consume($this->user, OAuthProvider::Yandex, $state);
     }
 
+    #[TestDox('Граница TTL принимается')]
     public function testTtlBoundaryIsAccepted(): void
     {
         $this->store->store($this->user, OAuthProvider::Vkontakte, 'state');
@@ -116,7 +119,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
         self::assertSame(OAuthProvider::Vkontakte, $intent->provider);
     }
 
-    #[TestDox('Второй OAuth flow заменяет первый и остаётся доступным для consume')]
+    #[TestDox('Второй OAuth-поток заменяет первый и остаётся доступным для погашения')]
     public function testSecondFlowReplacesFirstAndRemainsConsumable(): void
     {
         $this->store->store($this->user, OAuthProvider::Google, 'old-state');
@@ -135,7 +138,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
         $this->store->consume($this->user, OAuthProvider::Google, 'old-state');
     }
 
-    #[TestDox('Несохранённый пользователь не может создать OAuth link intent')]
+    #[TestDox('Несохранённый пользователь не создаёт намерение привязки OAuth')]
     public function testStoreRejectsUnsavedUser(): void
     {
         $this->expectException(OAuthLinkIntentException::class);
@@ -148,7 +151,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
     }
 
     #[DataProvider('blankStoreStates')]
-    #[TestDox('Пустой OAuth state не создаёт link intent')]
+    #[TestDox('Пустое состояние OAuth не создаёт намерение привязки')]
     public function testStoreRejectsBlankState(string $state): void
     {
         $this->expectException(OAuthLinkIntentException::class);
@@ -161,7 +164,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
     }
 
     #[DataProvider('operationsRequiringSession')]
-    #[TestDox('Изменение OAuth link intent требует HTTP-сессию')]
+    #[TestDox('Изменение намерения привязки OAuth требует HTTP-сессию')]
     public function testStateChangingOperationsRequireSession(string $operation): void
     {
         $requestStack = new RequestStack();
@@ -178,7 +181,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
         };
     }
 
-    #[TestDox('Очистка OAuth link intent делает его непригодным для consume')]
+    #[TestDox('Очистка намерения привязки OAuth делает его непригодным для погашения')]
     public function testClearRemovesPendingIntent(): void
     {
         $this->store->store($this->user, OAuthProvider::Google, 'state');

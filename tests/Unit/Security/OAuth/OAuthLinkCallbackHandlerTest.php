@@ -40,6 +40,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[Group(name: 'unit')]
 final class OAuthLinkCallbackHandlerTest extends TestCase
 {
+    #[TestDox('Аутентифицированный callback без намерения отклоняется до внешнего доступа')]
     public function testAuthenticatedCallbackWithoutIntentIsDeniedBeforeExternalAccess(): void
     {
         [$handler, $fake] = $this->handler(true, false);
@@ -54,6 +55,7 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         }
     }
 
+    #[TestDox('Callback вышедшего пользователя с намерением отклоняется до внешнего доступа')]
     public function testLoggedOutCallbackWithIntentIsDeniedBeforeExternalAccess(): void
     {
         [$handler, $fake] = $this->handler(false, true);
@@ -68,6 +70,7 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         }
     }
 
+    #[TestDox('Корректный callback связывает без замены токена, повтор отклоняется')]
     public function testValidCallbackLinksWithoutReplacingTokenAndReplayIsDenied(): void
     {
         [$handler, $fake, $request, $user, $store, $tokenStorage] = $this->handler(true, true);

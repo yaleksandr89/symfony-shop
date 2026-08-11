@@ -9,6 +9,7 @@ use App\Entity\Product;
 use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -31,6 +32,7 @@ class DemoAssetInstallerTest extends TestCase
         $this->removeDirectory($this->directory);
     }
 
+    #[TestDox('Отсутствующие цели копируются, а повторный запуск ничего не меняет')]
     public function testMissingTargetsAreCopiedAndSecondRunIsUnchanged(): void
     {
         $installer = $this->installer();
@@ -47,6 +49,7 @@ class DemoAssetInstallerTest extends TestCase
         $installer->commit();
     }
 
+    #[TestDox('Отличающаяся цель обновляется и восстанавливается при откате')]
     public function testDifferentTargetIsUpdatedAndRollbackRestoresIt(): void
     {
         $installer = $this->installer();
@@ -62,6 +65,7 @@ class DemoAssetInstallerTest extends TestCase
         self::assertFileDoesNotExist($this->directory.'/uploads/102/demo-key_middle.jpg');
     }
 
+    #[TestDox('Один источник можно установить для разных идентификаторов товаров')]
     public function testSameSourceCanBeInstalledForDifferentProductIds(): void
     {
         $installer = $this->installer();
@@ -73,6 +77,7 @@ class DemoAssetInstallerTest extends TestCase
         $installer->rollback();
     }
 
+    #[TestDox('Отсутствующий источник завершается ошибкой до изменения цели')]
     public function testMissingSourceFailsBeforeTargetMutation(): void
     {
         unlink($this->directory.'/fixtures/demo/images/demo-key/demo-key_middle.jpg');
@@ -86,6 +91,7 @@ class DemoAssetInstallerTest extends TestCase
         }
     }
 
+    #[TestDox('Точный кортеж изображения товара не дублируется')]
     public function testExactProductImageTupleIsNotDuplicated(): void
     {
         $product = $this->product(105);

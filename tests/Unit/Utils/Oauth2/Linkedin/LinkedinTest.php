@@ -18,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[Group(name: 'unit')]
 final class LinkedinTest extends TestCase
 {
+    #[TestDox('Использует актуальные конечные точки OIDC, области и Bearer-запрос данных пользователя')]
     public function testUsesCurrentOidcEndpointsScopesAndBearerUserInfoRequest(): void
     {
         $provider = new Linkedin([
@@ -42,7 +43,7 @@ final class LinkedinTest extends TestCase
         self::assertStringNotContainsString('r_emailaddress', $authorizationUrl);
     }
 
-    #[TestDox('LinkedIn resource owner создаётся через публичный HTTP-поток без изменения регистра subject')]
+    #[TestDox('Владелец ресурса LinkedIn создаётся через публичный HTTP-поток без изменения регистра subject')]
     public function testCreatesLinkedinResourceOwnerThroughPublicProviderFlow(): void
     {
         $provider = $this->providerWithResponse(new Response(

@@ -9,6 +9,7 @@ use App\Utils\Oauth2\Facebook\FacebookUser;
 use App\Utils\Oauth2\Linkedin\LinkedinUser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
@@ -16,6 +17,7 @@ use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 final class UserFactoryTest extends TestCase
 {
     #[DataProvider('names')]
+    #[TestDox('Создание пользователя Яндекса использует проверенные email, ID и запасные имена')]
     public function testCreateUserFromYandexUsesValidatedEmailIdAndNameFallbacks(?string $realName, ?string $displayName, string $login, string $expectedName): void
     {
         $user = UserFactory::createUserFromYandex($this->yandexUser($realName, $displayName, $login), 'user@example.test');
@@ -32,6 +34,7 @@ final class UserFactoryTest extends TestCase
         yield 'login fallback' => [null, null, 'login', 'login'];
     }
 
+    #[TestDox('Создание пользователя Facebook использует проверенные email, имя и внешний ID')]
     public function testCreateUserFromFacebookUsesValidatedEmailNameAndExternalId(): void
     {
         $user = UserFactory::createUserFromFacebook(
@@ -45,6 +48,7 @@ final class UserFactoryTest extends TestCase
         self::assertFalse($user->isVerified());
     }
 
+    #[TestDox('Создание пользователя LinkedIn оставляет локальную верификацию выключенной')]
     public function testCreateUserFromLinkedinKeepsLocalVerificationFalse(): void
     {
         $user = UserFactory::createUserFromLinkedin(

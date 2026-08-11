@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -31,6 +32,7 @@ class ProductResourceTest extends ResourceTestUtils
         'orderProducts',
     ];
 
+    #[TestDox('Коллекция товаров возвращает публичные поля и пагинацию')]
     public function testGetProducts(): void
     {
         $client = self::createClient();
@@ -72,6 +74,7 @@ class ProductResourceTest extends ResourceTestUtils
         $this->assertPrivateFieldsAreAbsent($member);
     }
 
+    #[TestDox('Карточка товара возвращает публичные поля без внутреннего идентификатора')]
     public function testGetProduct(): void
     {
         $client = self::createClient();
@@ -104,6 +107,7 @@ class ProductResourceTest extends ResourceTestUtils
         $this->assertPrivateFieldsAreAbsent($document);
     }
 
+    #[TestDox('Анонимный пользователь видит только опубликованные и не удалённые товары')]
     public function testAnonymousProductVisibility(): void
     {
         $client = self::createClient();
@@ -131,6 +135,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame([], $this->getResponseDecodedContent($client)['member']);
     }
 
+    #[TestDox('Обычный пользователь видит только опубликованные и не удалённые товары')]
     public function testRegularUserProductVisibility(): void
     {
         $client = self::createClient();
@@ -152,6 +157,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame([], $this->getResponseDecodedContent($client)['member']);
     }
 
+    #[TestDox('Администратор читает и изменяет черновик, но не удалённый товар')]
     public function testAdminCanReadAndPatchUnpublishedProductButNotDeletedProduct(): void
     {
         $client = self::createClient();
@@ -187,6 +193,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Администратор создаёт товар с переданными публичными полями')]
     public function testCreatedProductWithAccess(): void
     {
         $client = self::createClient();
@@ -243,6 +250,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertFalse($created->getIsDeleted());
     }
 
+    #[TestDox('Обычный пользователь не создаёт товар')]
     public function testCreatedProductWithoutAccess(): void
     {
         $client = self::createClient();
@@ -273,6 +281,7 @@ class ProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Анонимный пользователь не создаёт товар')]
     public function testAnonymousUserCannotCreateProduct(): void
     {
         $client = self::createClient();
@@ -300,6 +309,7 @@ class ProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Администратор изменяет разрешённые поля товара, не подменяя системную дату')]
     public function testPathProductWithAccess(): void
     {
         $client = self::createClient();
@@ -345,6 +355,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertNotSame($context['updatedAt'], $updatedProduct->getUpdatedAt()->format(DATE_ATOM));
     }
 
+    #[TestDox('Обычный пользователь не изменяет товар')]
     public function testPathProductWithoutAccess(): void
     {
         $client = self::createClient();
@@ -377,6 +388,7 @@ class ProductResourceTest extends ResourceTestUtils
         self::assertSame($originalTitle, $unchangedProduct->getTitle());
     }
 
+    #[TestDox('Фильтр товаров принимает числовой идентификатор категории без отдельного маршрута')]
     public function testProductCategorySearchFilterAcceptsNumericIdWithoutCategoryItemRoute(): void
     {
         $client = self::createClient();

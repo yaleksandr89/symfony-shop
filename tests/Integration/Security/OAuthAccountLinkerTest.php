@@ -11,6 +11,7 @@ use App\Security\OAuth\OAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group(name: 'integration')]
@@ -28,6 +29,7 @@ final class OAuthAccountLinkerTest extends KernelTestCase
     }
 
     #[DataProvider('providers')]
+    #[TestDox('Для текущего пользователя сохраняется только запрошенный идентификатор')]
     public function testLinksManagedCurrentUserAndPersistsOnlyRequestedIdentity(OAuthProvider $provider): void
     {
         $user = $this->persistUser('success-'.$provider->value);
@@ -46,6 +48,7 @@ final class OAuthAccountLinkerTest extends KernelTestCase
         }
     }
 
+    #[TestDox('Клиенты GitHub разделяют одну границу владения')]
     public function testGithubClientsShareTheSameOwnershipBoundary(): void
     {
         $externalId = 'integration-github-shared-'.str_replace('.', '', uniqid('', true));
@@ -61,6 +64,7 @@ final class OAuthAccountLinkerTest extends KernelTestCase
         }
     }
 
+    #[TestDox('Идентификатор другого пользователя отклоняется без изменения базы данных')]
     public function testIdentityOwnedByAnotherUserIsRejectedWithoutDatabaseMutation(): void
     {
         $externalId = 'integration-owned-'.str_replace('.', '', uniqid('', true));

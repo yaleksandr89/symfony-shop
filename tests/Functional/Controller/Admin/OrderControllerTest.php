@@ -27,6 +27,7 @@ use Symfony\Component\DomCrawler\Crawler;
 #[Group(name: 'functional')]
 class OrderControllerTest extends WebTestCase
 {
+    #[TestDox('Список заказов загружает счётчики позиций пакетно и не раздувает число запросов')]
     public function testListBatchesLineCountsAndKeepsQueryCountBounded(): void
     {
         $client = $this->createAdminClient();
@@ -117,6 +118,7 @@ class OrderControllerTest extends WebTestCase
         self::assertLessThanOrEqual(1, abs($fullPageQueryCount - $partialPageQueryCount));
     }
 
+    #[TestDox('Пустая отправка фильтра сохраняет видимый набор заказов')]
     public function testEmptyFilterSubmitKeepsVisibleOrderIds(): void
     {
         $client = $this->createAdminClient();
@@ -132,6 +134,7 @@ class OrderControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideTotalPriceRanges')]
+    #[TestDox('Диапазон итоговой цены отбирает заданные заказы')]
     public function testTotalPriceRangeFiltersControlledOrders(
         array $submitted,
         array $includedPrices,
@@ -186,6 +189,7 @@ class OrderControllerTest extends WebTestCase
         ], ['10.00', '15.00', '20.00'], ['9.99', '20.01']];
     }
 
+    #[TestDox('Сортировка по итоговой цене числовая и выводит валюту')]
     public function testTotalPriceSortingIsNumericAndListRendersCurrency(): void
     {
         $client = $this->createAdminClient();
@@ -207,6 +211,7 @@ class OrderControllerTest extends WebTestCase
         self::assertSame($expectedDescending, $descendingCents);
     }
 
+    #[TestDox('Элементы управления фильтром даты используют поля даты')]
     public function testDateFilterControlsUseDateInputs(): void
     {
         $client = $this->createAdminClient();
@@ -218,6 +223,7 @@ class OrderControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideDateRanges')]
+    #[TestDox('Диапазон дат отбирает заданные заказы')]
     public function testDateRangeFiltersControlledOrders(
         array $submitted,
         array $includedDates,
@@ -365,6 +371,7 @@ class OrderControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideReversedDateRangeLocales')]
+    #[TestDox('Обратный диапазон дат показывает ошибку и не применяет фильтр')]
     public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(
         string $locale,
         string $title,
@@ -482,6 +489,7 @@ class OrderControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideOrderValidationLocales')]
+    #[TestDox('Сообщения валидации фильтра локализованы')]
     public function testValidationMessagesAreLocalized(
         string $locale,
         array $messages,
@@ -533,6 +541,7 @@ class OrderControllerTest extends WebTestCase
     }
 
     #[DataProvider(methodName: 'provideOrderProductTranslationLocales')]
+    #[TestDox('Переводы Vue для позиций заказа локализованы')]
     public function testOrderProductVueTranslationsAreLocalized(
         string $locale,
         array $expectedTranslations,

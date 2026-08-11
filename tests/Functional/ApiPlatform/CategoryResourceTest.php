@@ -13,6 +13,7 @@ use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -21,6 +22,7 @@ class CategoryResourceTest extends ResourceTestUtils
 {
     private const COLLECTION_URI = '/api/categories';
 
+    #[TestDox('Маршрут коллекции и OpenAPI не раскрывают чтение отдельной категории')]
     public function testCollectionRouteAndOpenApiContractExcludeItemRead(): void
     {
         $client = self::createClient();
@@ -40,6 +42,7 @@ class CategoryResourceTest extends ResourceTestUtils
         self::assertArrayNotHasKey(self::COLLECTION_URI.'/{id}', $document['paths']);
     }
 
+    #[TestDox('Коллекция категорий доступна только администратору')]
     public function testCategoryCollectionRequiresAdminRole(): void
     {
         $client = self::createClient();
@@ -52,6 +55,7 @@ class CategoryResourceTest extends ResourceTestUtils
         $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
     }
 
+    #[TestDox('Администраторы видят только активные категории в минимальном представлении')]
     public function testUnverifiedAndVerifiedAdminsCanReadOnlyActiveMinimalCategories(): void
     {
         $client = self::createClient();
@@ -102,6 +106,7 @@ class CategoryResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    #[TestDox('Отсутствие item-маршрута не меняет вложенное представление категорий')]
     public function testAbsentCategoryItemRouteKeepsProductAndOrderCategoryEmbedsShallow(): void
     {
         $client = self::createClient();

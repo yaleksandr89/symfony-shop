@@ -16,6 +16,7 @@ use PHPUnit\Framework\TestCase;
 final class OAuthIdentityAccessorTest extends TestCase
 {
     #[DataProvider('supportedProviders')]
+    #[TestDox('Получает и отвязывает только запрошенный идентификатор')]
     public function testGetsAndUnlinksOnlyTheRequestedIdentity(OAuthProvider $provider, string $expectedExternalId, string $expectedField): void
     {
         $user = $this->userWithIdentities();
@@ -31,6 +32,7 @@ final class OAuthIdentityAccessorTest extends TestCase
     }
 
     #[DataProvider('supportedProviders')]
+    #[TestDox('Связывает только запрошенный идентификатор')]
     public function testLinksOnlyTheRequestedIdentity(OAuthProvider $provider, string $externalId, string $identityField): void
     {
         $user = new User();

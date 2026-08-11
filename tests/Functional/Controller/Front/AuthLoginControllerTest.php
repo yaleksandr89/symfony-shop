@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Controller\Front;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Panther\PantherTestCase;
 
@@ -12,6 +13,7 @@ class AuthLoginControllerTest extends PantherTestCase
     private string $password = 'test2test2';
 
     #[Group(name: 'functional-panther')]
+    #[TestDox('Выполняет вход через Panther')]
     public function testLoginWithPantherClient(): void
     {
         $client = static::createPantherClient(['browser' => self::CHROME]);

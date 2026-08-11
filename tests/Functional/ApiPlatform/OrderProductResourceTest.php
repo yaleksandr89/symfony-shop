@@ -12,6 +12,7 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -21,6 +22,7 @@ class OrderProductResourceTest extends ResourceTestUtils
 {
     private const COLLECTION_URI = '/api/order_products';
 
+    #[TestDox('Отдельные GET-маршруты и операции OpenAPI отсутствуют, а команды остаются доступны')]
     public function testStandaloneGetRoutesAndOpenApiOperationsAreAbsentWhileCommandRoutesStayStable(): void
     {
         $client = self::createClient();
@@ -52,6 +54,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertArrayNotHasKey('get', $document['paths'][self::COLLECTION_URI.'/{id}']);
     }
 
+    #[TestDox('Анонимный пользователь не создаёт позиции заказа')]
     public function testAnonymousCannotPostWithoutMutatingAnyOrder(): void
     {
         $client = self::createClient();
@@ -65,6 +68,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Обычный пользователь не создаёт позиции заказа')]
     public function testRegularUserCannotPostWithoutMutatingAnyOrder(): void
     {
         $client = self::createClient();
@@ -79,6 +83,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Неверифицированный администратор не создаёт позиции заказа')]
     public function testUnverifiedAdminCannotPostWithoutMutatingAnyOrder(): void
     {
         $client = self::createClient();
@@ -94,6 +99,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Верифицированный администратор использует сохранённую цену и точно пересчитывает итог')]
     public function testVerifiedAdminPostUsesPersistedProductPriceAndRecalculatesTotalExactly(): void
     {
         $client = $this->createVerifiedAdminClient();
@@ -112,6 +118,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Отсутствующая связь отклоняется до изменения заказа')]
     public function testMissingRelationIsRejectedBeforeMutation(): void
     {
         $client = $this->createVerifiedAdminClient();
@@ -129,6 +136,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Недопустимое количество отклоняется до изменения заказа')]
     public function testInvalidQuantityIsRejectedBeforeMutation(): void
     {
         $client = $this->createVerifiedAdminClient();
@@ -142,6 +150,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Повторный POST возвращает конфликт без изменения позиции и итога')]
     public function testDuplicatePostReturnsConflictWithoutChangingLineOrTotal(): void
     {
         $client = $this->createVerifiedAdminClient();
@@ -160,6 +169,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Сбой транзакции откатывает частично созданную позицию и итог')]
     public function testTransactionFailureRollsBackPartialLineAndTotalChange(): void
     {
         $client = $this->createVerifiedAdminClient();
@@ -174,6 +184,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Анонимный пользователь не удаляет позиции заказа')]
     public function testAnonymousCannotDeleteWithoutMutatingAnyOrder(): void
     {
         $client = self::createClient();
@@ -187,6 +198,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Обычный пользователь не удаляет позиции заказа')]
     public function testRegularUserCannotDeleteWithoutMutatingAnyOrder(): void
     {
         $client = self::createClient();
@@ -201,6 +213,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Неверифицированный администратор не удаляет позиции заказа')]
     public function testUnverifiedAdminCannotDeleteWithoutMutatingAnyOrder(): void
     {
         $client = self::createClient();
@@ -216,6 +229,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Удаление позиции администратором пересчитывает итог по оставшимся позициям')]
     public function testVerifiedAdminDeleteRecalculatesTotalFromRemainingLines(): void
     {
         $client = $this->createVerifiedAdminClient();
@@ -232,6 +246,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertEmailCount(0);
     }
 
+    #[TestDox('Удаление последней позиции устанавливает канонический ноль, повтор возвращает 404')]
     public function testDeletingLastLineSetsCanonicalZeroAndReplayIs404WithoutMutation(): void
     {
         $client = $this->createVerifiedAdminClient();

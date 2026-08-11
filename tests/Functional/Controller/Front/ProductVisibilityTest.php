@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 final class ProductVisibilityTest extends WebTestCase
 {
+    #[TestDox('Публичная витрина показывает только доступные товары')]
     public function testPublicStorefrontProductVisibility(): void
     {
         $client = self::createClient();
@@ -37,6 +39,7 @@ final class ProductVisibilityTest extends WebTestCase
         }
     }
 
+    #[TestDox('Сессия администратора не даёт просмотреть неопубликованный товар')]
     public function testAdminSessionCannotPreviewUnpublishedProduct(): void
     {
         $client = self::createClient();
@@ -48,6 +51,7 @@ final class ProductVisibilityTest extends WebTestCase
         }
     }
 
+    #[TestDox('Страница товара и похожие карточки показывают бейджи мерчандайзинга')]
     public function testProductDetailAndSimilarCardsRenderMerchandisingBadges(): void
     {
         $client = self::createClient();

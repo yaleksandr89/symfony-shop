@@ -10,12 +10,14 @@ use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 #[Group(name: 'functional')]
 class DashboardControllerTest extends WebTestCase
 {
     #[DataProvider(methodName: 'provideLocales')]
+    #[TestDox('Панель управления и общий макет локализованы')]
     public function testDashboardAndSharedLayoutAreLocalized(string $locale, array $expected, array $unexpected): void
     {
         $client = static::createClient();

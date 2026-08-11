@@ -7,6 +7,7 @@ namespace App\Tests\Functional\ApiPlatform;
 use App\Entity\Cart;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 class CartResourceTest extends ResourceTestUtils
 {
+    #[TestDox('POST корзины создаёт разные корректные токены без cookie владения')]
     public function testCartPostGeneratesDistinctValidTokensWhenOwnershipCookiesAreMissing(): void
     {
         $client = self::createClient();
@@ -30,6 +32,7 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotSame($firstToken, $secondToken);
     }
 
+    #[TestDox('POST корзины повторно использует корректную cookie владения')]
     public function testCartPostReusesAValidOwnershipCookie(): void
     {
         $token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -41,6 +44,7 @@ class CartResourceTest extends ResourceTestUtils
         self::assertSame($token, $this->persistedCart($cart['token'])->getToken());
     }
 
+    #[TestDox('POST корзины заменяет некорректную cookie владения')]
     public function testCartPostReplacesAnInvalidOwnershipCookie(): void
     {
         $client = self::createClient();
@@ -54,6 +58,7 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotSame('wrong-token', $token);
     }
 
+    #[TestDox('POST корзины предпочитает токен из cookie токену из тела запроса')]
     public function testCartPostUsesOwnershipCookieInsteadOfBodyToken(): void
     {
         $cookieToken = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -67,6 +72,7 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotSame($bodyToken, $this->persistedCart($cart['token'])->getToken());
     }
 
+    #[TestDox('Повторный POST корзины возвращает конфликт без изменения сохранённых данных')]
     public function testDuplicateCartPostReturnsConflictWithoutChangingPersistedState(): void
     {
         $token = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';

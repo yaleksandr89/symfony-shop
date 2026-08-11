@@ -10,6 +10,7 @@ use App\Security\OAuth\OAuthLinkIntentStore;
 use App\Security\OAuth\OAuthProvider;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 final class OAuthCallbackModeResolverTest extends TestCase
 {
     #[DataProvider('modes')]
+    #[TestDox('Режим callback зависит от аутентификации пользователя и ожидающего намерения')]
     public function testModeDependsOnAuthenticatedUserAndPendingIntent(bool $loggedIn, bool $pending, bool $ordinary): void
     {
         $session = new Session(new MockArraySessionStorage());

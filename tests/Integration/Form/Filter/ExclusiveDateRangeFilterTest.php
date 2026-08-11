@@ -20,6 +20,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Spiriit\Bundle\FormFilterBundle\Filter\Condition\ConditionInterface;
 use Spiriit\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
@@ -39,6 +40,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
     }
 
+    #[TestDox('Пустой диапазон не создаёт условие фильтра')]
     public function testEmptyRangeDoesNotCreateCondition(): void
     {
         $condition = $this->filter()(
@@ -50,6 +52,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         self::assertNull($condition);
     }
 
+    #[TestDox('Нижняя граница диапазона включительна и нормализуется')]
     public function testLowerRangeIsInclusiveAndNormalized(): void
     {
         $original = new DateTimeImmutable('2024-03-10 17:42:31', new DateTimeZone('Europe/Moscow'));
@@ -64,6 +67,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         self::assertSame('2024-03-10 17:42:31', $original->format('Y-m-d H:i:s'));
     }
 
+    #[TestDox('Верхняя граница диапазона становится началом следующего дня и исключается')]
     public function testUpperRangeIsExclusiveNextCalendarDay(): void
     {
         $original = new DateTimeImmutable('2024-03-31 17:42:31', new DateTimeZone('Europe/Berlin'));
@@ -79,6 +83,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         self::assertSame('2024-03-31 17:42:31', $original->format('Y-m-d H:i:s'));
     }
 
+    #[TestDox('Границы диапазона используют разные параметры и произвольный алиас')]
     public function testBothBoundsUseDistinctParametersAndArbitraryAlias(): void
     {
         $condition = $this->condition(
@@ -94,6 +99,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         self::assertStringNotContainsString('o.createdAt', $condition->getExpression());
     }
 
+    #[TestDox('Одна дата обозначает полный календарный день')]
     public function testSameDateRepresentsOneWholeCalendarDay(): void
     {
         $date = new DateTimeImmutable('2024-03-10');
@@ -103,6 +109,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         self::assertSame('2024-03-11 00:00:00', $parameters[1][0]->format('Y-m-d H:i:s'));
     }
 
+    #[TestDox('Запросы товаров и заказов соблюдают исключающую границу дня')]
     public function testProductAndOrderQueriesRespectExclusiveDayBoundary(): void
     {
         $timestamps = [
@@ -139,6 +146,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         }
     }
 
+    #[TestDox('Диапазон итоговой цены заказа включает обе десятичные границы')]
     public function testOrderTotalPriceRangeIncludesBothDecimalBoundaries(): void
     {
         $owner = self::getContainer()->get(UserRepository::class)->findOneBy([

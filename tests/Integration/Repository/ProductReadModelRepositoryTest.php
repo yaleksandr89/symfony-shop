@@ -12,11 +12,13 @@ use App\Repository\ProductImageRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group(name: 'integration')]
 final class ProductReadModelRepositoryTest extends KernelTestCase
 {
+    #[TestDox('Карточки скалярной проекции учитывают лимиты и кандидатов главной страницы')]
     public function testScalarCardsCoversLimitsAndHomepageCandidates(): void
     {
         self::bootKernel();

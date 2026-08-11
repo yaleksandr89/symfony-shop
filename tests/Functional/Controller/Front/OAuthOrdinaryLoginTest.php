@@ -32,6 +32,7 @@ use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 final class OAuthOrdinaryLoginTest extends WebTestCase
 {
     #[DataProvider('providerCallbacks')]
+    #[TestDox('Связанный идентификатор выполняет вход того же пользователя без поиска email и регистрации')]
     public function testLinkedIdentityLogsIntoSameUserWithoutEmailLookupMutationOrRegistration(
         OAuthProvider $provider,
         string $startPath,
@@ -63,6 +64,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
     }
 
     #[DataProvider('optionalEmailProviders')]
+    #[TestDox('Совпавший email без идентификатора отклоняется нейтрально и не связывается')]
     public function testExistingEmailWithoutIdentityIsDeniedGenericallyAndNeverLinked(
         OAuthProvider $provider,
         string $startPath,
@@ -95,6 +97,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
     }
 
     #[DataProvider('optionalEmailProviders')]
+    #[TestDox('Отсутствующий email отклоняется без создания пользователя и входа')]
     public function testMissingEmailIsDeniedWithoutUserEmailOrLogin(
         OAuthProvider $provider,
         string $startPath,
@@ -122,6 +125,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
     }
 
     #[DataProvider('optionalEmailProviders')]
+    #[TestDox('Новый пользователь сохраняется неверифицированным до отправки стандартного письма и входа')]
     public function testNewUserIsPersistedUnverifiedBeforeStandardConfirmationEmailAndLogin(
         OAuthProvider $provider,
         string $startPath,

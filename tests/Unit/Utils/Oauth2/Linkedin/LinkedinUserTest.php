@@ -7,11 +7,13 @@ namespace App\Tests\Unit\Utils\Oauth2\Linkedin;
 use App\Utils\Oauth2\Linkedin\LinkedinUser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[Group(name: 'unit')]
 final class LinkedinUserTest extends TestCase
 {
+    #[TestDox('Раскрываются чувствительный к регистру subject, профиль и исходный ответ')]
     public function testExposesCaseSensitiveSubjectProfileAndOriginalResponse(): void
     {
         $response = [
@@ -28,6 +30,7 @@ final class LinkedinUserTest extends TestCase
         self::assertSame($response, $user->toArray());
     }
 
+    #[TestDox('Email и неверные необязательные поля профиля допускают null')]
     public function testEmailAndInvalidOptionalProfileValuesAreNullable(): void
     {
         self::assertNull((new LinkedinUser(['sub' => 'subject']))->getEmail());
@@ -35,6 +38,7 @@ final class LinkedinUserTest extends TestCase
         self::assertNull((new LinkedinUser(['sub' => 'subject', 'name' => [], 'email' => new \stdClass()]))->getEmail());
     }
 
+    #[TestDox('Строковый subject обрезается без нормализации регистра')]
     public function testStringableSubjectIsTrimmedWithoutCaseNormalization(): void
     {
         $subject = new class implements \Stringable {
@@ -48,6 +52,7 @@ final class LinkedinUserTest extends TestCase
     }
 
     #[DataProvider('invalidSubjects')]
+    #[TestDox('Некорректный subject отклоняется')]
     public function testInvalidSubjectIsRejected(array $response): void
     {
         $this->expectException(\UnexpectedValueException::class);

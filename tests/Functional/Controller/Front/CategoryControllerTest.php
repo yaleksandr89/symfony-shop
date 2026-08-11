@@ -10,6 +10,7 @@ use App\Entity\ProductImage;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\RouterInterface;
 #[Group(name: 'functional')]
 final class CategoryControllerTest extends WebTestCase
 {
+    #[TestDox('Активная категория находится по slug')]
     public function testActiveCategoryIsResolvedExplicitlyBySlug(): void
     {
         $client = self::createClient();
@@ -57,6 +59,7 @@ final class CategoryControllerTest extends WebTestCase
         self::assertSelectorTextContains('.page-title2', (string) $category->getTitle());
     }
 
+    #[TestDox('Неизвестный slug возвращает 404')]
     public function testUnknownSlugRemainsNotFound(): void
     {
         $slug = 'missing-category-'.str_replace('.', '', uniqid('', true));
@@ -70,6 +73,7 @@ final class CategoryControllerTest extends WebTestCase
         self::assertFalse($client->getResponse()->isRedirect());
     }
 
+    #[TestDox('Страница категории показывает все активные товары и заглушки изображений')]
     public function testCategoryRendersEveryActiveProductAndImagePlaceholder(): void
     {
         $client = self::createClient();
@@ -179,6 +183,7 @@ final class CategoryControllerTest extends WebTestCase
         self::assertSame($initialQueryCount, $this->doctrineQueryCount($client));
     }
 
+    #[TestDox('Удалённая категория перенаправляет на главную и показывает предупреждение')]
     public function testDeletedCategoryKeepsHomepageRedirectAndWarningFlash(): void
     {
         $client = self::createClient();
