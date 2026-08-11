@@ -76,7 +76,6 @@
         "symfony/debug-bundle": "7.4.*",
         "symfony/maker-bundle": "^1.0",
         "symfony/panther": "^2.0",
-        "symfony/phpunit-bridge": "7.4.*",
         "symfony/stopwatch": "7.4.*",
         "symfony/web-profiler-bundle": "7.4.*"
     },

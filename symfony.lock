@@ -558,21 +558,6 @@
     "symfony/password-hasher": {
         "version": "v5.3.7"
     },
-    "symfony/phpunit-bridge": {
-        "version": "5.3",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.3",
-            "ref": "97cb3dc7b0f39c7cfc4b7553504c9d7b7795de96"
-        },
-        "files": [
-            ".env.test",
-            "bin/phpunit",
-            "phpunit.xml.dist",
-            "tests/bootstrap.php"
-        ]
-    },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.23.1"
     },

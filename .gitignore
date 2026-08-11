@@ -1,11 +1,8 @@
 ###> Custom Rules ###
 /.env.docker
 /*.dump
-log-execute-phpunit.txt
-.phpunit.cache/
 uploads/
 uploads
-.php-cs-fixer.cache
 ### Custom Rules <###
 
 ###> symfony/framework-bundle ###
@@ -16,13 +13,11 @@ uploads
 /config/reference.php
 /public/bundles/
 /var/
-/vendor/
 ###< symfony/framework-bundle ###
 
 
 ###> phpunit/phpunit ###
 /phpunit.xml
-.phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ### Composer ###
@@ -191,5 +186,4 @@ yarn-error.log
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
-/.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
