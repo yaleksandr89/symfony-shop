@@ -36,7 +36,7 @@ endif
 $(SERVICE): ;
 endif
 
-.PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit deploy check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
+.PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
 
 help:
 	@printf '%s\n' 'Bootstrap:'
@@ -92,9 +92,6 @@ help:
 	@printf '%s\n' '  make test-db-reset CONFIRM=testdb       Reset APP_ENV=test SQLite DB var/db_for_test.db'
 	@printf '%s\n' '  make postgres-reinit CONFIRM=postgres18 Stop stack and remove local PostgreSQL volume'
 	@printf '%s\n' ''
-	@printf '%s\n' 'Deployment (legacy/deferred):'
-	@printf '%s\n' '  make deploy                            Run the existing Deployer target'
-
 init:
 	@if [ ! -f .env.docker ]; then \
 		cp .env.docker.example .env.docker; \
@@ -180,9 +177,6 @@ postgres-reinit: check-env
 	else \
 		printf '%s\n' 'PostgreSQL volume symfony-shop_postgres-data does not exist; nothing to remove'; \
 	fi
-
-deploy:
-	php deployer7 deploy
 
 check: eslint-check php-cs-fixer-check phpstan-check
 
