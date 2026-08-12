@@ -10,7 +10,7 @@ use App\Utils\Manager\OrderManager;
 use DateTimeImmutable;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
+use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,7 +19,7 @@ class OrderFormHandler
     public function __construct(
         private OrderManager $orderManager,
         private PaginatorInterface $paginator,
-        private FilterBuilderUpdater $filterBuilderUpdater
+        private FilterBuilderUpdater $filterBuilderUpdater,
     ) {
     }
 
@@ -45,10 +45,11 @@ class OrderFormHandler
         $queryBuilder = $this->orderManager
             ->getQueryBuilder()
             ->leftJoin('o.owner', 'u')
+            ->addSelect('u')
             ->where('o.isDeleted = :isDeleted')
             ->setParameter('isDeleted', false);
 
-        if ($filterForm->isSubmitted()) {
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             $this->filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
         }
 

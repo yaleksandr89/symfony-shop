@@ -6,6 +6,7 @@ $finder = (new PhpCsFixer\Finder())
     ->exclude('vendor');
 
 return (new PhpCsFixer\Config())
+    ->setCacheFile(__DIR__.'/var/php-cs-fixer.cache')
     ->setRules([
         '@Symfony' => true,
         'no_superfluous_phpdoc_tags' => true,

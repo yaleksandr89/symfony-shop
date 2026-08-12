@@ -1,7 +1,7 @@
 {% extends 'admin/base.html.twig' %}
 
 {% block title %}
-    Admin Panel - {% block title_detailed %} | RankedChoice{% endblock %}
+    {{ 'layout.page_title'|trans({}, 'admin') }} - {% block title_detailed %}{% endblock %} | {{ 'layout.brand'|trans({}, 'admin') }}
 {% endblock %}
 
 {% block layout_body %}
@@ -25,7 +25,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; RankedChoice</span>
+                        <span>{{ 'layout.copyright'|trans({}, 'admin') }}</span>
                     </div>
                 </div>
             </footer>

@@ -37,12 +37,57 @@ services:
       - '../src/Kernel.php'
       - '../src/Tests/'
 
-  doctrineMigrationDiffListener:
-    class: App\Utils\Event\Subscriber\MigrationEventSubscriber
-    tags:
-      - { name: doctrine.event_subscriber, connection: default }
-
   Imagine\Gd\Imagine:
     class: Imagine\Gd\Imagine
+
+  # Unsupported output-format errors for protected operations are coordinated
+  # with API Platform's own security providers by the application listener.
+  api_platform.listener.request.add_format:
+    class: ApiPlatform\Symfony\EventListener\AddFormatListener
+    arguments:
+      - '@api_platform.state_provider.content_negotiation'
+      - '@api_platform.metadata.resource.metadata_collection_factory'
+
+  App\Security\EventListener\ApiSecurityContentNegotiationListener:
+    arguments:
+      $addFormatListener: '@api_platform.listener.request.add_format'
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, method: onEarlyKernelRequest, priority: 28 }
+      - { name: kernel.event_listener, event: kernel.request, method: onPostReadKernelRequest, priority: 3 }
+      - { name: kernel.event_listener, event: kernel.request, method: onPostDeserializeKernelRequest, priority: 1 }
+
+  App\Security\OAuth\OAuthProviderAvailability:
+    arguments:
+      $enabled:
+        google: '%env(bool:OAUTH_GOOGLE_ENABLED)%'
+        yandex: '%env(bool:OAUTH_YANDEX_ENABLED)%'
+        vkontakte: '%env(bool:OAUTH_VK_ENABLED)%'
+        github_en: '%env(bool:OAUTH_GITHUB_EN_ENABLED)%'
+        github_rus: '%env(bool:OAUTH_GITHUB_RUS_ENABLED)%'
+        facebook: '%env(bool:OAUTH_FACEBOOK_ENABLED)%'
+        linkedin: '%env(bool:OAUTH_LINKEDIN_ENABLED)%'
+        mailru: '%env(bool:OAUTH_MAILRU_ENABLED)%'
+      $credentials:
+        google:
+          clientId: '%env(OAUTH_GOOGLE_ID)%'
+          clientSecret: '%env(OAUTH_GOOGLE_SECRET)%'
+        yandex:
+          clientId: '%env(OAUTH_YANDEX_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_YANDEX_CLIENT_SECRET)%'
+        vkontakte:
+          clientId: '%env(OAUTH_VK_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_VK_CLIENT_SECRET)%'
+        github_en:
+          clientId: '%env(OAUTH_GITHUB_EN_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_GITHUB_EN_CLIENT_SECRET)%'
+        github_rus:
+          clientId: '%env(OAUTH_GITHUB_RUS_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_GITHUB_RUS_CLIENT_SECRET)%'
+        facebook:
+          clientId: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
+        linkedin:
+          clientId: '%env(OAUTH_LINKEDIN_CLIENT_ID)%'
+          clientSecret: '%env(OAUTH_LINKEDIN_CLIENT_SECRET)%'
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

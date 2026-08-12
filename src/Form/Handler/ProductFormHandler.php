@@ -11,7 +11,7 @@ use App\Utils\FileSystem\FilesystemWorker;
 use App\Utils\Manager\ProductManager;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Lexik\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
+use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,7 +22,7 @@ class ProductFormHandler
         private FileSaver $fileSaver,
         private FilesystemWorker $filesystemWorker,
         private PaginatorInterface $paginator,
-        private FilterBuilderUpdater $filterBuilderUpdater
+        private FilterBuilderUpdater $filterBuilderUpdater,
     ) {
     }
 
@@ -62,10 +62,11 @@ class ProductFormHandler
         $queryBuilder = $this->productManager
             ->getQueryBuilder()
             ->leftJoin('p.category', 'c')
+            ->addSelect('c')
             ->where('p.isDeleted = :isDeleted')
             ->setParameter('isDeleted', false);
 
-        if ($filterForm->isSubmitted()) {
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             $this->filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
         }
 
@@ -103,6 +104,14 @@ class ProductFormHandler
             ? (bool) $editProductModel->isDeleted
             : $editProductModel->isDeleted;
 
+        $isNew = (!is_bool($editProductModel->isNew))
+            ? (bool) $editProductModel->isNew
+            : $editProductModel->isNew;
+
+        $isOnSale = (!is_bool($editProductModel->isOnSale))
+            ? (bool) $editProductModel->isOnSale
+            : $editProductModel->isOnSale;
+
         $product->setTitle($title);
         $product->setPrice($price);
         $product->setQuantity($quantity);
@@ -110,6 +119,8 @@ class ProductFormHandler
         $product->setCategory($category);
         $product->setIsPublished($isPublished);
         $product->setIsDeleted($isDeleted);
+        $product->setIsNew($isNew);
+        $product->setIsOnSale($isOnSale);
 
         return $product;
     }

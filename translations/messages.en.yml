@@ -17,6 +17,7 @@ login_form.create_account: 'Create an Account'
 login_form.reset_password: 'Reset password'
 login_form.placeholder.email: 'Please enter your email'
 login_form.placeholder.password: 'Please enter your password'
+oauth.authentication.failure: 'Unable to sign in with the social network. Sign in another way and link it from your profile if needed.'
 personal_account.head: 'Welcome, to your profile'
 personal_account.labels.email: 'Your email'
 personal_account.labels.full_name: 'Your full name'
@@ -33,11 +34,15 @@ personal_account.edit.labels.address: 'Enter address'
 personal_account.edit.labels.zipcode: 'Enter zipcode'
 personal_account.edit.save_changes: 'Save changes'
 login_social_network.google: 'Login with Google'
+login_social_network.facebook: 'Login with Facebook'
+login_social_network.linkedin: 'Sign in with LinkedIn'
 similar_products.head: 'We recommend'
 similar_products.new: New
+similar_products.sale: Sale
 product.add_to_cart: 'Add to cart'
 product.new: New
 product.products_not_fount: 'Products not fount'
+product.image_unavailable: 'Image unavailable'
 category.show_me: 'Show me'
 category.new_collection: 'New Collection'
 category.unique: Unique
@@ -53,6 +58,9 @@ cart.quantity: Quantity
 cart.price: Price
 cart.actions: Actions
 cart.total: Total
+cart.unavailable_products: 'Some products in your cart are unavailable. Remove them before checkout.'
+cart.product_deleted: 'This product has been removed and can no longer be ordered.'
+cart.product_unpublished: 'This product is no longer on sale and cannot be ordered.'
 header_menu.en: En
 header_menu.ru: Rus
 header_menu.profile: Profile
@@ -69,7 +77,9 @@ footer.my_account.my_profile: 'My profile'
 footer.сhange_language.head: 'Change language'
 footer.сhange_language.russian: Russian
 footer.сhange_language.english: English
-footer.copyright: 'Copyright © RankedChoice Team. All Rights Reserved.'
+footer.copyright.prefix: 'Copyright © '
+footer.copyright.owner: 'Alexander Yurchenko'
+footer.copyright.suffix: '. All rights reserved.'
 'You have to login in order to access this page.': 'You have to login in order to access this page.'
 'An email has been sent. Please check inbox to find password and verified your email': 'An email has been sent. Please check inbox to find password and verified your email'
 'Please log in to the site!': 'Please log in to the site!'
@@ -135,9 +145,22 @@ personal_account.social_group.google: Google
 personal_account.social_group.yandex: Yandex
 personal_account.social_group.vkontakte: Vkontakte
 personal_account.social_group.github: Github
+personal_account.social_group.facebook: Facebook
+personal_account.social_group.linkedin: LinkedIn
 personal_account.social_group.integration_service: 'Integration Service'
 personal_account.social_group.link: Link
 personal_account.social_group.unlink: Unlink
+personal_account.social_group.oauth_unlink.title: Confirm unlink
+personal_account.social_group.oauth_unlink.warning: 'To unlink %provider%, confirm your current password.'
+personal_account.social_group.oauth_unlink.current_password: Current password
+personal_account.social_group.oauth_unlink.submit: Unlink account
+personal_account.social_group.oauth_unlink.cancel: Cancel
+personal_account.social_group.oauth_link.title: 'Confirm account linking'
+personal_account.social_group.oauth_link.warning: 'To link %provider%, confirm your current password. You will then continue to the provider.'
+personal_account.social_group.oauth_link.current_password: 'Current password'
+personal_account.social_group.oauth_link.submit: 'Continue to provider'
+personal_account.social_group.oauth_link.cancel: Cancel
+personal_account.social_group.oauth_link.failure: 'The social account could not be linked.'
 'The social network has been successfully unlinked.': 'The social network has been successfully unlinked.'
 'The social network has been successfully linked.': 'The social network has been successfully linked.'
 'You have already logged in to the site under the username of this social network': 'You have already logged in to the site under the username of this social network'

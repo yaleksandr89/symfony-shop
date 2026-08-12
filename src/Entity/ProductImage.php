@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProductImageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -16,24 +15,8 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`product_image`'),
-    Entity(repositoryClass: ProductImageRepository::class)
-]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="product_image:list"}
- *       },
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="product_image:item"}
- *       },
- *     },
- * )
- */
+#[Table(name: '`product_image`'),
+    Entity(repositoryClass: ProductImageRepository::class)]
 class ProductImage
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

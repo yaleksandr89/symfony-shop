@@ -1,35 +1,23 @@
 ###> Custom Rules ###
 /.env.docker
 /*.dump
-log-execute-phpunit.txt
-.phpunit.cache/
 uploads/
 uploads
-deploy.php
-.php-cs-fixer.cache
-.env.prod
 ### Custom Rules <###
 
 ###> symfony/framework-bundle ###
-/.env
 /.env.local
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
+/config/reference.php
 /public/bundles/
 /var/
-/vendor/
 ###< symfony/framework-bundle ###
-
-###> symfony/phpunit-bridge ###
-.phpunit.result.cache
-/phpunit.xml
-###< symfony/phpunit-bridge ###
 
 
 ###> phpunit/phpunit ###
 /phpunit.xml
-.phpunit.result.cache
 ###< phpunit/phpunit ###
 
 ### Composer ###
@@ -198,5 +186,4 @@ yarn-error.log
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
-/.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###

@@ -1,33 +1,50 @@
 <template>
-  <tr>
+  <tr
+    :class="{ 'cart-product-unavailable': isUnavailable }"
+    :data-cart-product-id="cartProduct.id"
+    :data-unavailable-reason="unavailableReason || null"
+  >
     <td class="product-col">
       <div class="text-center">
         <figure>
-          <a :href="urlShowProduct" target="_blank">
+          <a v-if="!isUnavailable" :href="urlShowProduct" target="_blank">
             <img
               :src="getUrlProductImage(productImage)"
               :alt="cartProduct.product.title"
             />
           </a>
+          <img
+            v-else
+            :src="getUrlProductImage(productImage)"
+            :alt="cartProduct.product.title"
+          />
         </figure>
         <div class="product-title">
-          <a :href="urlShowProduct" target="_blank">{{
+          <a v-if="!isUnavailable" :href="urlShowProduct" target="_blank">{{
             cartProduct.product.title
           }}</a>
+          <span v-else>{{ cartProduct.product.title }}</span>
+          <p
+            v-if="isUnavailable"
+            class="cart-product-unavailable-message"
+            data-cart-product-unavailable-message
+          >
+            {{ unavailableMessage }}
+          </p>
         </div>
       </div>
     </td>
     <td class="price-col">${{ cartProduct.product.price }}</td>
     <td class="quantity-col">
       <input
-        v-model="quantity"
+        v-model.number="quantity"
         type="number"
         class="form-control"
         min="1"
         :max="productQuantityMax"
         step="1"
-        @focusout="updateQuantity"
-        @change="updateMaxValue($event, 'quantity', productQuantityMax)"
+        :disabled="isSaving || isUnavailable"
+        @change="saveQuantity"
       />
     </td>
     <td class="total-col">${{ productPrice }}</td>
@@ -36,6 +53,7 @@
         href="#"
         class="btn-remove"
         title="Remove product"
+        data-remove-cart-product
         @click.prevent="removeCartProduct(cartProduct.id)"
       >
         X
@@ -46,6 +64,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+import { formatCents, multiplyPriceToCents } from "../../../../utils/money";
 
 export default {
   name: "CartProductItem",
@@ -54,10 +73,15 @@ export default {
       type: Object,
       default: () => {},
     },
+    unavailableReason: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
       quantity: 1,
+      isSaving: false,
     };
   },
   computed: {
@@ -67,7 +91,9 @@ export default {
       return productImages.length ? productImages[0] : null;
     },
     productPrice() {
-      return this.quantity * this.cartProduct.product.price;
+      return formatCents(
+        multiplyPriceToCents(this.cartProduct.product.price, this.quantity)
+      );
     },
     urlShowProduct() {
       return (
@@ -75,11 +101,35 @@ export default {
       );
     },
     productQuantityMax() {
-      return parseInt(this.cartProduct.product.quantity);
+      return Number(this.cartProduct.product.quantity);
+    },
+    isUnavailable() {
+      return (
+        this.unavailableReason === "deleted" ||
+        this.unavailableReason === "unpublished"
+      );
+    },
+    unavailableMessage() {
+      if (this.unavailableReason === "deleted") {
+        return this.staticStore.localization.product_deleted;
+      }
+
+      if (this.unavailableReason === "unpublished") {
+        return this.staticStore.localization.product_unpublished;
+      }
+
+      return null;
     },
   },
-  created() {
-    this.quantity = this.cartProduct.quantity;
+  watch: {
+    "cartProduct.quantity": {
+      immediate: true,
+      handler(quantity) {
+        if (!this.isSaving) {
+          this.quantity = quantity;
+        }
+      },
+    },
   },
   methods: {
     ...mapActions("cart", ["removeCartProduct", "updateCartProductQuantity"]),
@@ -92,23 +142,44 @@ export default {
         productImage.filenameSmall
       );
     },
-    updateQuantity() {
-      const payload = {
-        cartProductId: this.cartProduct.id,
-        quantity: this.quantity,
-      };
-
-      this.updateCartProductQuantity(payload);
-    },
-    updateMaxValue(event, field, maxValue) {
-      const value = Number.parseFloat(event.target.value);
-      let updatedValue = 1;
-      if (value > 0 && value <= maxValue) {
-        updatedValue = value;
-      } else if (value > maxValue) {
-        updatedValue = maxValue;
+    async saveQuantity() {
+      if (this.isSaving || this.isUnavailable) {
+        return;
       }
-      this.$data[field] = updatedValue;
+
+      const requestedQuantity = Number(this.quantity);
+      const persistedQuantity = this.cartProduct.quantity;
+      const stock = this.productQuantityMax;
+
+      if (
+        !Number.isInteger(requestedQuantity) ||
+        requestedQuantity < 1 ||
+        !Number.isInteger(stock) ||
+        stock < 1
+      ) {
+        this.quantity = persistedQuantity;
+        return;
+      }
+
+      const quantity = Math.min(requestedQuantity, stock);
+      this.quantity = quantity;
+      if (quantity === persistedQuantity) {
+        return;
+      }
+
+      this.isSaving = true;
+      try {
+        const updated = await this.updateCartProductQuantity({
+          cartProductId: this.cartProduct.id,
+          quantity,
+          stock,
+        });
+        this.quantity = updated ? this.cartProduct.quantity : persistedQuantity;
+      } catch (error) {
+        this.quantity = this.cartProduct.quantity;
+      } finally {
+        this.isSaving = false;
+      }
     },
   },
 };

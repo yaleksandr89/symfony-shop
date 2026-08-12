@@ -13,7 +13,7 @@ class UserFormHandler
 {
     public function __construct(
         private UserManager $userManager,
-        private UserPasswordHasherInterface $hasher
+        private UserPasswordHasherInterface $hasher,
     ) {
     }
 

@@ -14,9 +14,9 @@ class EditOrderModel
         public ?int $id = null,
         public ?User $owner = null,
         public ?int $status = null,
-        public float|array|null $totalPrice = null, // Иза использования фильтров (в фильтрах можно выбирать диапазон, который передается в виде массива)
-        public DateTimeImmutable|array|null $createdAt = null, // Иза использования фильтров (в фильтрах можно выбирать диапазон, который передается в виде массива)
-        public ?bool $isDeleted = null
+        public ?string $totalPrice = null,
+        public ?DateTimeImmutable $createdAt = null,
+        public ?bool $isDeleted = null,
     ) {
     }
 

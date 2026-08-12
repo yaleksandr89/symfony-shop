@@ -23,12 +23,10 @@ jobs:
           git lfs ls-files
           test -s bin/chrome-linux64-150.0.7871.46.zip
           unzip -tq bin/chrome-linux64-150.0.7871.46.zip
-          test -s bin/selenium-server.jar
 
       - name: Prepare Docker environment
         run: |
           make init
-          touch .env
 
       - name: Docker baseline checks
         run: |
@@ -45,9 +43,8 @@ jobs:
           make test-integration
           make test-functional
           make test-functional-panther
-          make test-functional-selenium
           make phpstan-check
 
       - name: Cleanup Docker
         if: always()
-        run: docker compose -p symfony-shop --env-file .env.docker --profile tools down --remove-orphans
+        run: make down

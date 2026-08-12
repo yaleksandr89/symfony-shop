@@ -1,6 +1,9 @@
 api_platform:
+    use_symfony_listeners: true
     mapping:
-        paths: ['%kernel.project_dir%/src/Entity']
+        paths:
+            - '%kernel.project_dir%/src/Entity'
+            - '%kernel.project_dir%/src/ApiPlatform/Error'
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:

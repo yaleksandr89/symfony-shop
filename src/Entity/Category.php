@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,24 +19,15 @@ use Doctrine\ORM\Mapping\Table;
 use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`category`'),
-    Entity(repositoryClass: CategoryRepository::class)
-]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="category:list"}
- *       },
- *     },
- *     itemOperations={
- *        "get"={
- *           "normalization_context"={"groups"="category:item"}
- *       },
- *     }
- * )
- */
+#[Table(name: '`category`'),
+    Entity(repositoryClass: CategoryRepository::class)]
+#[ApiResource(operations: [
+    new GetCollection(
+        normalizationContext: ['groups' => ['category:list']],
+        security: "is_granted('ROLE_ADMIN')",
+        name: 'api_categories_get_collection'
+    ),
+])]
 class Category
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

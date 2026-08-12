@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Front;
 
-use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +25,7 @@ class EmbedController extends AbstractController
 
     public function showSimilarProducts(ProductRepository $productRepository, int $productCount = 2, ?int $categoryId = null): Response
     {
-        $products = $productRepository->findByCategoryAndCount($categoryId, $productCount);
+        $products = $productRepository->findCardRowsByCategoryAndCount($categoryId, $productCount);
 
         return $this->render('front/_embed/_similar_products.html.twig', [
             'products' => $products,
@@ -37,11 +36,10 @@ class EmbedController extends AbstractController
     {
         $preparedListCategory = [];
 
-        /** @var Category $category */
-        foreach ($categoryRepository->findActiveCategoryWithJoinProduct() as $category) {
+        foreach ($categoryRepository->findActiveNavigationRows() as $category) {
             $preparedListCategory[] = [
-                'title' => $category->getTitle(),
-                'url' => $this->urlGenerator->generate('main_category_show', ['slug' => $category->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL),
+                'title' => $category['title'],
+                'url' => $this->urlGenerator->generate('main_category_show', ['slug' => $category['slug']], UrlGeneratorInterface::ABSOLUTE_URL),
             ];
         }
 

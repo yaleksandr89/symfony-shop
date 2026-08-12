@@ -19,7 +19,7 @@ final class ProductManager extends AbstractBaseManager
     public function __construct(
         EntityManagerInterface $em,
         string $productImagesDir,
-        ProductImageManager $productImagesManager
+        ProductImageManager $productImagesManager,
     ) {
         parent::__construct($em);
 

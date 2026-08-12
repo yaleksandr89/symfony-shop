@@ -7,6 +7,7 @@ namespace App\Utils\File;
 use App\Utils\FileSystem\FilesystemWorker;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
+use RuntimeException;
 
 final class ImageResizer
 {
@@ -17,7 +18,11 @@ final class ImageResizer
     public function resizeImageAndSave(string $originalFileFolder, string $originalFilename, array $targetParams): string
     {
         $originalFilePath = $this->filesystemWorker->generatePathToFile($originalFileFolder, $originalFilename);
-        [$imageWidth, $imageHeight] = getimagesize($originalFilePath);
+        $imageSize = getimagesize($originalFilePath);
+        if (false === $imageSize) {
+            throw new RuntimeException(sprintf('Unable to determine image size for "%s".', $originalFilePath));
+        }
+        [$imageWidth, $imageHeight] = $imageSize;
 
         $ratio = $imageWidth / $imageHeight;
         $targetWidth = $targetParams['width'];

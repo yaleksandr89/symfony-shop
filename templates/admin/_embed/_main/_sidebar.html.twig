@@ -1,31 +1,38 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
+    {% set currentRoute = app.request.attributes.get('_route') %}
+    {% set isDashboardActive = currentRoute == 'admin_dashboard_show' %}
+    {% set isOrdersActive = currentRoute in ['admin_order_list', 'admin_order_add', 'admin_order_edit'] %}
+    {% set isProductsActive = currentRoute in ['admin_product_list', 'admin_product_add', 'admin_product_edit', 'admin_product_edit_blank'] %}
+    {% set isCategoriesActive = currentRoute in ['admin_category_list', 'admin_category_add', 'admin_category_edit'] %}
+    {% set isUsersActive = currentRoute in ['admin_user_list', 'admin_user_add', 'admin_user_edit'] %}
+
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('admin_dashboard_show') }}">
-        <div class="sidebar-brand-text mx-3">Admin panel</div>
+        <div class="sidebar-brand-text mx-3">{{ 'navigation.admin_panel'|trans({}, 'admin') }}</div>
     </a>
     <hr class="sidebar-divider my-0">
 
-    <li class="nav-item active">
+    <li class="nav-item{{ isDashboardActive ? ' active' }}">
         <a class="nav-link" href="{{ path('admin_dashboard_show') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span>{{ 'navigation.dashboard'|trans({}, 'admin') }}</span></a>
     </li>
     <hr class="sidebar-divider">
 
     {# >>>>>> Sale block #}
     <div class="sidebar-heading">
-        Sales
+        {{ 'navigation.sales'|trans({}, 'admin') }}
     </div>
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOrders"
-           aria-expanded="true" aria-controls="collapseOrders">
+    <li class="nav-item{{ isOrdersActive ? ' active' }}">
+        <a class="nav-link{{ isOrdersActive ? '' : ' collapsed' }}" href="#" data-toggle="collapse" data-target="#collapseOrders"
+           aria-expanded="{{ isOrdersActive ? 'true' : 'false' }}" aria-controls="collapseOrders">
             <i class="fas fa-fw fa-credit-card"></i>
-            <span>Orders</span>
+            <span>{{ 'navigation.orders'|trans({}, 'admin') }}</span>
         </a>
-        <div id="collapseOrders" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+        <div id="collapseOrders" class="collapse{{ isOrdersActive ? ' show' }}" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_order_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_order_add') }}">Add new</a>
+                <a class="collapse-item{{ currentRoute == 'admin_order_list' ? ' active' }}" href="{{ path('admin_order_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                <a class="collapse-item{{ currentRoute == 'admin_order_add' ? ' active' }}" href="{{ path('admin_order_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
             </div>
         </div>
     </li>
@@ -34,31 +41,31 @@
 
     {# >>>>>> Products block #}
     <div class="sidebar-heading">
-        Products
+        {{ 'navigation.products_section'|trans({}, 'admin') }}
     </div>
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
-           aria-expanded="true" aria-controls="collapseProducts">
+    <li class="nav-item{{ isProductsActive ? ' active' }}">
+        <a class="nav-link{{ isProductsActive ? '' : ' collapsed' }}" href="#" data-toggle="collapse" data-target="#collapseProducts"
+           aria-expanded="{{ isProductsActive ? 'true' : 'false' }}" aria-controls="collapseProducts">
             <i class="fas fa-fw fa-cubes"></i>
-            <span>Products</span>
+            <span>{{ 'navigation.products'|trans({}, 'admin') }}</span>
         </a>
-        <div id="collapseProducts" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+        <div id="collapseProducts" class="collapse{{ isProductsActive ? ' show' }}" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_product_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_product_add') }}">Add new</a>
+                <a class="collapse-item{{ currentRoute == 'admin_product_list' ? ' active' }}" href="{{ path('admin_product_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                <a class="collapse-item{{ currentRoute == 'admin_product_add' ? ' active' }}" href="{{ path('admin_product_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
             </div>
         </div>
     </li>
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCategories"
-           aria-expanded="true" aria-controls="collapseCategories">
+    <li class="nav-item{{ isCategoriesActive ? ' active' }}">
+        <a class="nav-link{{ isCategoriesActive ? '' : ' collapsed' }}" href="#" data-toggle="collapse" data-target="#collapseCategories"
+           aria-expanded="{{ isCategoriesActive ? 'true' : 'false' }}" aria-controls="collapseCategories">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Categories</span>
+            <span>{{ 'navigation.categories'|trans({}, 'admin') }}</span>
         </a>
-        <div id="collapseCategories" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+        <div id="collapseCategories" class="collapse{{ isCategoriesActive ? ' show' }}" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="py-2 collapse-inner">
-                <a class="collapse-item" href="{{ path('admin_category_list') }}">All list</a>
-                <a class="collapse-item" href="{{ path('admin_category_add') }}">Add new</a>
+                <a class="collapse-item{{ currentRoute == 'admin_category_list' ? ' active' }}" href="{{ path('admin_category_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                <a class="collapse-item{{ currentRoute == 'admin_category_add' ? ' active' }}" href="{{ path('admin_category_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
             </div>
         </div>
     </li>
@@ -68,18 +75,18 @@
     {% if is_granted('ROLE_SUPER_ADMIN') %}
         {# >>>>>> General block #}
         <div class="sidebar-heading">
-            General
+            {{ 'navigation.general'|trans({}, 'admin') }}
         </div>
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
-               aria-expanded="true" aria-controls="collapseUsers">
+        <li class="nav-item{{ isUsersActive ? ' active' }}">
+            <a class="nav-link{{ isUsersActive ? '' : ' collapsed' }}" href="#" data-toggle="collapse" data-target="#collapseUsers"
+               aria-expanded="{{ isUsersActive ? 'true' : 'false' }}" aria-controls="collapseUsers">
                 <i class="fas fa-fw fa-user"></i>
-                <span>Users</span>
+                <span>{{ 'navigation.users'|trans({}, 'admin') }}</span>
             </a>
-            <div id="collapseUsers" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div id="collapseUsers" class="collapse{{ isUsersActive ? ' show' }}" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="py-2 collapse-inner">
-                    <a class="collapse-item" href="{{ path('admin_user_list') }}">All list</a>
-                    <a class="collapse-item" href="{{ path('admin_user_add') }}">Add new</a>
+                    <a class="collapse-item{{ currentRoute == 'admin_user_list' ? ' active' }}" href="{{ path('admin_user_list') }}">{{ 'navigation.all_list'|trans({}, 'admin') }}</a>
+                    <a class="collapse-item{{ currentRoute == 'admin_user_add' ? ' active' }}" href="{{ path('admin_user_add') }}">{{ 'action.add_new'|trans({}, 'admin') }}</a>
                 </div>
             </div>
         </li>

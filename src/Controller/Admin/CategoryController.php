@@ -12,7 +12,7 @@ use App\Repository\CategoryRepository;
 use App\Utils\Manager\CategoryManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
 #[Route('/admin/category', name: 'admin_category_')]
@@ -38,10 +38,6 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    /**
-     * @{убрать}IsGranted("CAN_ADMIN_EDIT", subject="category") - если требуется редирект в случае если пользователь isVerified = false
-     * Используется избиратель src/Security/Voters/AdminOrderEditVoter
-     */
     #[Route('/edit/{id}', name: 'edit')]
     #[Route('/add', name: 'add')]
     public function edit(Request $request, CategoryFormHandler $categoryFormHandler, ?Category $category = null): Response
@@ -57,13 +53,13 @@ class CategoryController extends BaseAdminController
             }
 
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
-            $this->addFlash('success', 'Your changes were saved!');
+            $this->addTranslatedFlash('success', 'flash.save_success');
 
             return $this->redirectToRoute('admin_category_edit', ['id' => $category->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('warning', 'Something went wrong. Please check!');
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
         }
 
         return $this->render('admin/category/edit.html.twig', [
@@ -72,18 +68,25 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
     {
         $id = $category->getId();
         $title = $category->getTitle();
+
+        if (!$this->isCsrfTokenValid('delete_category_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));
         }
 
         $categoryManager->remove($category);
-        $this->addFlash('warning', "[Soft delete] The category (title: $title / ID: $id) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.category.deleted', [
+            '%title%' => $title,
+            '%id%' => $id,
+        ]);
 
         return $this->redirectToRoute('admin_category_list');
     }

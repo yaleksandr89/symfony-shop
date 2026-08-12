@@ -17,7 +17,7 @@ class InitDemoDataCommand extends Command
 
     public function __construct(
         private DemoDataInitializer $demoDataInitializer,
-        private KernelInterface $kernel
+        private KernelInterface $kernel,
     ) {
         parent::__construct();
     }
@@ -57,12 +57,14 @@ class InitDemoDataCommand extends Command
             $io->writeln(sprintf('%s / %s', $credentials['email'], $credentials['password']));
         }
 
-        $io->section('Created / updated');
-        $io->writeln(sprintf('Users: %d created, %d updated', $result['users']['created'], $result['users']['updated']));
-        $io->writeln(sprintf('Categories: %d created, %d updated', $result['categories']['created'], $result['categories']['updated']));
-        $io->writeln(sprintf('Products: %d created, %d updated', $result['products']['created'], $result['products']['updated']));
-        $io->writeln(sprintf('Images: %d created, %d already present', $result['images']['created'], $result['images']['existing']));
-        $io->writeln(sprintf('Image files copied: %d', $result['images']['files_copied']));
+        $io->section('Demo data results');
+        $io->writeln(sprintf('Users: %d created, %d updated, %d existing', $result['users']['created'], $result['users']['updated'], $result['users']['existing']));
+        $io->writeln(sprintf('Categories: %d created, %d updated, %d existing', $result['categories']['created'], $result['categories']['updated'], $result['categories']['existing']));
+        $io->writeln(sprintf('Products: %d created, %d updated, %d existing', $result['products']['created'], $result['products']['updated'], $result['products']['existing']));
+        $io->writeln(sprintf('Images: %d created, %d updated, %d existing', $result['images']['created'], $result['images']['updated'], $result['images']['existing']));
+        $io->writeln(sprintf('Image files: %d copied, %d updated, %d existing', $result['image_files']['copied'], $result['image_files']['updated'], $result['image_files']['existing']));
+        $io->writeln(sprintf('Orders: %d removed, %d created', $result['orders']['removed'], $result['orders']['created']));
+        $io->writeln(sprintf('Order products: %d removed, %d created', $result['order_products']['removed'], $result['order_products']['created']));
 
         return Command::SUCCESS;
     }

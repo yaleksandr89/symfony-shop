@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Post;
+use App\ApiPlatform\State\AdminOrderProductProcessor;
+use App\ApiPlatform\State\AdminOrderProductRemoveProcessor;
 use App\Repository\OrderProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -16,52 +20,41 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`order_product`'),
-    Entity(repositoryClass: OrderProductRepository::class)
-]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order_product:list"}
- *       },
- *       "post"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "normalization_context"={"groups"="order_product:list:write"}
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order_product:item"}
- *       },
- *       "delete"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *       },
- *     },
- * )
- */
+#[Table(name: '`order_product`'),
+    Entity(repositoryClass: OrderProductRepository::class)]
+#[ApiResource(operations: [
+    new Post(
+        normalizationContext: ['groups' => ['order_product:list:write']],
+        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()",
+        name: 'api_order_products_post_collection',
+        processor: AdminOrderProductProcessor::class
+    ),
+    new Delete(
+        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()",
+        name: 'api_order_products_delete_item',
+        processor: AdminOrderProductRemoveProcessor::class
+    ),
+])]
 class OrderProduct
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
     #[Groups(['order_product:list', 'order:item'])]
     protected ?int $id;
 
-    #[ManyToOne(targetEntity: Order::class, cascade: ['persist'], inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
-    #[Groups(['order:item'])]
-    protected ?Order $appOrder;
+    #[ManyToOne(targetEntity: Order::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    protected ?Order $appOrder = null;
 
     #[ManyToOne(targetEntity: Product::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
     #[Groups(['order:item'])]
-    protected ?Product $product;
+    protected ?Product $product = null;
 
     #[Column(type: Types::INTEGER)]
     #[Groups(['order:item'])]
-    protected ?int $quantity;
+    protected ?int $quantity = null;
 
     #[Column(type: Types::DECIMAL, precision: 15, scale: 2)]
     #[Groups(['order:item'])]
-    protected ?string $pricePerOne;
+    protected ?string $pricePerOne = null;
 
     public function __construct()
     {

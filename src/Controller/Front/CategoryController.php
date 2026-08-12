@@ -9,11 +9,11 @@ use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CategoryController extends AbstractController
 {
-    #[Route('/category/{slug}', name: 'main_category_show')]
+    #[Route('/category/{slug:category}', name: 'main_category_show')]
     public function show(ProductRepository $productRepository, ?Category $category = null): Response
     {
         if (!$category) {
@@ -26,7 +26,7 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('main_homepage');
         }
 
-        $products = $productRepository->findByCategoryAndCount($category->getId());
+        $products = $productRepository->findCardRowsByCategoryAndCount($category->getId());
 
         return $this->render('front/category/show.html.twig', [
             'category' => $category,

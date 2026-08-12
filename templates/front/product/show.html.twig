@@ -13,6 +13,16 @@
                 <div class="row">
                     <div class="col-md-6">
                         <figure class="product-media">
+                            {% if product.isNew or product.isOnSale %}
+                                <div class="product-merchandising-statuses">
+                                    {% if product.isNew %}
+                                        <span class="product-sale-status sale-status-new">{{ 'similar_products.new'|trans }}</span>
+                                    {% endif %}
+                                    {% if product.isOnSale %}
+                                        <span class="product-sale-status sale-status-sale">{{ 'similar_products.sale'|trans }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                             {% for image in product.getProductImages().getValues() %}
                                 <img
                                         src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.getFilenameBig()) }}" alt="{{ product.title }}"
@@ -79,28 +89,44 @@
 {% block javascripts %}
     <script>
         const productUuid = '{{ product.uuid }}';
+        const productStock = Number({{ product.quantity }});
         const productQuantityEl = document.getElementById('product_full_filter_quantity');
         const productShowAddCart = document.querySelector('[data-add-cart-product-page]');
 
         productShowAddCart.addEventListener('click', function (event) {
             event.preventDefault();
-            const quantity = parseInt(productQuantityEl.value);
+            const requestedQuantity = Number(productQuantityEl.value);
+            if (
+                !Number.isInteger(productStock) || productStock < 1 ||
+                !Number.isInteger(requestedQuantity) || requestedQuantity < 1
+            ) {
+                productQuantityEl.value = '1';
+                return;
+            }
+
+            const quantity = Math.min(requestedQuantity, productStock);
+            productQuantityEl.value = quantity.toString();
 
             window.vueMenuCartInstance.addCartProduct({
                 uuid: productUuid,
                 quantity: quantity,
+                stock: productStock,
             });
         });
 
         productQuantityEl.addEventListener('focusout', function (event) {
             event.preventDefault();
 
-            const maxQuantity = parseInt({{ product.quantity }});
-            const selectedQuantity = parseInt(event.target.value);
-
-            if (selectedQuantity > maxQuantity) {
-                productQuantityEl.value = maxQuantity.toString();
+            const selectedQuantity = Number(event.target.value);
+            if (!Number.isInteger(productStock) || productStock < 1) {
+                return;
             }
+
+            productQuantityEl.value = String(
+                !Number.isInteger(selectedQuantity) || selectedQuantity < 1
+                    ? 1
+                    : Math.min(selectedQuantity, productStock)
+            );
         });
     </script>
 {% endblock %}

@@ -14,6 +14,7 @@
         v-for="cartProduct in cart.cartProducts"
         :key="cartProduct.id"
         :cart-product="cartProduct"
+        :unavailable-reason="unavailableReason(cartProduct.id)"
       />
     </tbody>
   </table>
@@ -21,13 +22,14 @@
 
 <script>
 import CartProductItem from "./CartProductItem";
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default {
   name: "CartProductList",
   components: { CartProductItem },
   computed: {
     ...mapState("cart", ["cart", "staticStore"]),
+    ...mapGetters("cart", ["unavailableReason"]),
   },
 };
 </script>

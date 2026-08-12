@@ -18,7 +18,7 @@ class ResetUserPasswordHandler
     public function __construct(
         private UserManager $userManager,
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private ResetUserPasswordEmailSender $userPasswordEmailSender
+        private ResetUserPasswordEmailSender $userPasswordEmailSender,
     ) {
     }
 

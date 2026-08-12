@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace App\Security\Authenticator\Front;
 
 use App\Entity\User;
-use App\Event\UserLoggedInViaSocialNetworkEvent;
-use App\Utils\Authenticator\CheckingUserSocialNetworkBeforeAuthorization;
+use App\Security\OAuth\OAuthCallbackModeResolver;
+use App\Security\OAuth\OAuthLoginHandler;
+use App\Security\OAuth\OAuthProvider;
 use App\Utils\Factory\UserFactory;
-use App\Utils\Generator\PasswordGenerator;
-use App\Utils\Manager\UserManager;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use League\OAuth2\Client\Provider\GoogleUser;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,89 +21,51 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-class GoogleAuthenticator extends OAuth2Authenticator
+class GoogleAuthenticator extends AbstractOAuthAuthenticator
 {
-    use CheckingUserSocialNetworkBeforeAuthorization;
-
     public function __construct(
         private ClientRegistry $clientRegistry,
-        private UserManager $userManager,
+        private OAuthLoginHandler $oauthLoginHandler,
         private RouterInterface $router,
-        private EventDispatcherInterface $eventDispatcher,
-        private VerifyEmailHelperInterface $verifyEmailHelper,
-        private TranslatorInterface $translator
+        private TranslatorInterface $translator,
     ) {
+    }
+
+    private OAuthCallbackModeResolver $callbackModeResolver;
+
+    #[Required]
+    public function setCallbackModeResolver(OAuthCallbackModeResolver $callbackModeResolver): void
+    {
+        $this->callbackModeResolver = $callbackModeResolver;
     }
 
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_google_check' === $request->attributes->get('_route');
+        return 'connect_google_check' === $request->attributes->get('_route')
+            && $this->callbackModeResolver->useOrdinaryAuthenticator();
     }
 
     public function authenticate(Request $request): Passport
     {
         $client = $this->clientRegistry->getClient('google_main');
-        $accessToken = $this->fetchAccessToken($client);
+        $accessToken = $this->fetchAccessTokenFromProvider($client);
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($request, $accessToken, $client) {
-                /** @var Session $session */
-                $session = $request->getSession();
+            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
                 /** @var GoogleUser $googleUser */
-                $googleUser = $client->fetchUserFromToken($accessToken);
+                $googleUser = $this->fetchResourceOwnerFromProvider($client, $accessToken);
                 $email = $googleUser->getEmail();
 
-                // 1) have they logged in with Facebook before? Easy!
-                $existingUser = $this->userManager->getRepository()->findOneBy(['googleId' => $googleUser->getId()]);
-
-                if ($this->checkingUserSocialNetworkBeforeAuthorization($email)) {
-                    $session
-                        ->getFlashBag()
-                        ->add(
-                            'danger',
-                            $this->translator->trans('You have already logged in to the site under the username of this social network')
-                        );
-
-                    return $this->security->getUser();
-                }
-
-                if ($existingUser) {
-                    return $existingUser;
-                }
-
-                // 2) do we have a matching user by email?
-                $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
-
-                if (!$user) {
-                    $user = UserFactory::createUserFromGoogle($googleUser);
-
-                    $plainPassword = PasswordGenerator::generatePassword(15);
-                    $this->userManager->encodePassword($user, $plainPassword);
-
-                    $this->userManager->persist($user);
-                    $verifyEmail = $this->getDataForVerifyEmail($user);
-
-                    $event = new UserLoggedInViaSocialNetworkEvent($user, $plainPassword, $verifyEmail);
-                    $this->eventDispatcher->dispatch($event);
-
-                    $session
-                        ->getFlashBag()
-                        ->add(
-                            'success',
-                            $this->translator->trans('An email has been sent. Please check inbox to find password and verified your email')
-                        );
-                }
-
-                // 3) Maybe you just want to "register" them by creating
-                // a User object
-                $user->setGoogleId($googleUser->getId());
-                $this->userManager->flush();
-
-                return $user;
+                return $this->oauthLoginHandler->handle(
+                    OAuthProvider::Google,
+                    $googleUser->getId(),
+                    $email,
+                    static fn (): User => UserFactory::createUserFromGoogle($googleUser)
+                );
             })
         );
     }
@@ -124,24 +83,13 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        $message = strtr($exception->getMessageKey(), $exception->getMessageData());
-
-        return new Response($message, Response::HTTP_FORBIDDEN);
-    }
-
-    private function getDataForVerifyEmail(User $user): array
-    {
-        $signatureComponents = $this->verifyEmailHelper->generateSignature(
-            'main_verify_email',
-            (string) $user->getId(),
-            $user->getEmail(),
-            ['id' => (string) $user->getId()]
+        /** @var Session $session */
+        $session = $request->getSession();
+        $session->getFlashBag()->add(
+            'danger',
+            $this->translator->trans('oauth.authentication.failure')
         );
 
-        return [
-            'signedUrl' => $signatureComponents->getSignedUrl(),
-            'expiresAtMessageKey' => $signatureComponents->getExpirationMessageKey(),
-            'expiresAtMessageData' => $signatureComponents->getExpirationMessageData(),
-        ];
+        return new RedirectResponse($this->router->generate('main_login', ['_locale' => $request->getLocale()]));
     }
 }

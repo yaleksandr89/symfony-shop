@@ -19,7 +19,7 @@ class SetCartTokenSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::VIEW => [
-                'setCartTokenToCart', EventPriorities::PRE_WRITE,
+                'setCartTokenToCart', EventPriorities::PRE_VALIDATE,
             ],
         ];
     }
@@ -38,7 +38,7 @@ class SetCartTokenSubscriber implements EventSubscriberInterface
 
         $cartToken = $event->getRequest()->cookies->get('CART_TOKEN');
 
-        if (!$cartToken) {
+        if (!is_string($cartToken) || !preg_match('/\A[0-9a-f]{32}\z/', $cartToken)) {
             $cartToken = TokenGenerator::generateToken();
         }
 

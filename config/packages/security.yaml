@@ -22,6 +22,7 @@ security:
       pattern: ^/%app_locales.in_brackets%/admin
       lazy: true
       provider: app_user_provider
+      user_checker: App\Security\UserChecker\DeletedUserChecker
       access_denied_handler: App\Security\Handler\AccessAdminDeniedHandler
       entry_point: App\Security\EntryPoint\AuthenticationAdminEntryPoint
       custom_authenticators:
@@ -29,28 +30,43 @@ security:
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)
-        path: /admin/
+        name: ADMIN_REMEMBERME
+        path: /
       logout:
         path: admin_security_logout
+        delete_cookies:
+          REMEMBERME:
+            path: /
+          ADMIN_REMEMBERME:
+            path: /
     front:
       context: website
       lazy: true
       provider: app_user_provider
-      access_denied_handler: App\Security\Handler\AccessFrontDeniedHandler
-      entry_point: App\Security\EntryPoint\AuthenticationFrontEntryPoint
+      user_checker: App\Security\UserChecker\DeletedUserChecker
+      access_denied_handler: App\Security\Handler\RequestAwareAccessDeniedHandler
+      entry_point: App\Security\EntryPoint\RequestAwareAuthenticationEntryPoint
       custom_authenticator:
         - App\Security\Authenticator\Front\LoginFormAuthenticator
         - App\Security\Authenticator\Front\GoogleAuthenticator
         - App\Security\Authenticator\Front\YandexAuthenticator
         - App\Security\Authenticator\Front\VkontakteAuthenticator
+        - App\Security\Authenticator\Front\FacebookAuthenticator
+        - App\Security\Authenticator\Front\LinkedinAuthenticator
         - App\Security\Authenticator\Front\GithubEnAuthenticator
         - App\Security\Authenticator\Front\GithubRusAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)
+        name: REMEMBERME
         path: /
       logout:
         path: main_logout
+        delete_cookies:
+          REMEMBERME:
+            path: /
+          ADMIN_REMEMBERME:
+            path: /
         # where to redirect after logout
         # target: app_any_route
 

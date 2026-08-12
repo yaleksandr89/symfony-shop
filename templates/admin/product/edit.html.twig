@@ -1,15 +1,18 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}Edit Product{% endblock %}
+{% block title_detailed %}{{ 'product.edit.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block body %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
-                'sectionTitle': 'Products',
+                'sectionTitle': 'navigation.products'|trans({}, 'admin'),
                 'entity': product,
                 'actionUrl': path('admin_product_list'),
                 'addActionUrl': path('admin_product_add'),
+                'editLabel': 'action.edit'|trans({}, 'admin'),
+                'addLabel': 'action.add_new'|trans({}, 'admin'),
+                'addButtonLabel': 'action.add_new'|trans({}, 'admin'),
             } %}
         </div>
         <div class="card-body">
@@ -28,7 +31,7 @@
 
             <div class="form-group row">
                 <div class="col-md-1">
-                    Slug
+                    {{ 'product.form.slug'|trans({}, 'admin') }}
                 </div>
                 <div class="col-md-11">
                     {% if product %}
@@ -100,7 +103,7 @@
             {% if images|length %}
                 <div class="row">
                     <div class="col-md-12">
-                        <span class="text-gray-600">Current images:</span>
+                        <span class="text-gray-600">{{ 'product.image.current'|trans({}, 'admin') }}:</span>
                     </div>
                 </div>
 
@@ -110,9 +113,9 @@
                             <img src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ image.filenameMiddle) }}" alt="{{ image.filenameMiddle }}">
                         </div>
                         <div class="col-md-7">
-                            <a href="{{ path('admin_product_image_delete', {'id': image.id}) }}" class="btn btn-outline-info">
-                                DELETE
-                            </a>
+                            <button type="submit" form="delete-product-image-{{ image.id }}" class="btn btn-outline-info">
+                                {{ 'product.image.delete'|trans({}, 'admin') }}
+                            </button>
                         </div>
                     </div>
                 {% endfor %}
@@ -126,6 +129,28 @@
                     {{ form_label(form.isPublished) }}
                     <div class="form-error">
                         {{ form_errors(form.isPublished) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isNew) }}
+                    {{ form_label(form.isNew) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isNew) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isOnSale) }}
+                    {{ form_label(form.isOnSale) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isOnSale) }}
                     </div>
                 </div>
             </div>
@@ -147,19 +172,29 @@
                 'entity':product,
                 'catalogUrl':path('admin_product_list'),
                 'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+                'deleteLabel': 'modal.delete_row'|trans({}, 'admin'),
             } %}
 
             {{ form_rest(form) }}
             {{ form_end(form) }}
+
+            {% for image in images %}
+                <form id="delete-product-image-{{ image.id }}" method="post" action="{{ path('admin_product_image_delete', {'id': image.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_product_image_' ~ image.id) }}">
+                </form>
+            {% endfor %}
         </div>
     </div>
     {% if product and product.id %}
         {% include 'admin/_embed/_utils/_modal.html.twig' with {
             'modalId': 'approveDeleteModal',
-            'modalTitle': 'Are you sure?',
-            'modalText': 'Product will be deleted.',
-            'modalBtnText': 'Delete row',
+            'modalTitle': 'modal.confirm_delete'|trans({}, 'admin'),
+            'modalText': 'product.modal.delete_text'|trans({}, 'admin'),
+            'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_product_delete', {'id': product.id}),
+            'csrfTokenId': 'delete_product_' ~ product.id,
+            'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
+            'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}
     {% endif %}
 {% endblock %}

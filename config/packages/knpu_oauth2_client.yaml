@@ -11,20 +11,32 @@ knpu_oauth2_client:
             redirect_route: connect_google_check
             redirect_params: {}
 
-        # will create service: "knpu.oauth2.client.yandex_main"
-        # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\YandexClient
-        # composer require aego/oauth2-yandex
         yandex_main:
-            # must be "yandex" - it activates that type!
-            type: yandex
-            # add and set these environment variables in your .env files
+            type: generic
+            provider_class: Yaleksandr\OAuth2\Client\Provider\Yandex
             client_id: '%env(OAUTH_YANDEX_CLIENT_ID)%'
             client_secret: '%env(OAUTH_YANDEX_CLIENT_SECRET)%'
-            # a route name you'll create
             redirect_route: connect_yandex_check
             redirect_params: {}
-            # whether to check OAuth2 "state": defaults to true
-            # use_state: true
+            use_state: true
+
+        facebook_main:
+            type: generic
+            provider_class: App\Utils\Oauth2\Facebook\Facebook
+            client_id: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
+            redirect_route: connect_facebook_check
+            redirect_params: {}
+            use_state: true
+
+        linkedin_main:
+            type: generic
+            provider_class: App\Utils\Oauth2\Linkedin\Linkedin
+            client_id: '%env(OAUTH_LINKEDIN_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_LINKEDIN_CLIENT_SECRET)%'
+            redirect_route: connect_linkedin_check
+            redirect_params: {}
+            use_state: true
 
         # will create service: "knpu.oauth2.client.vkontakte_main"
         # an instance of: KnpU\OAuth2ClientBundle\Client\OAuth2Client

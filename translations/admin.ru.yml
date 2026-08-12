@@ -1,0 +1,169 @@
+filter.heading.filters: Фильтры
+filter.heading.value: Значение
+filter.action.toggle: Показать/скрыть фильтры
+filter.action.apply: Применить
+filter.action.reset: Сбросить фильтры
+filter.range.from: От
+filter.range.to: До
+filter.error.date_range_title: Ошибка диапазона дат
+
+product.filter.field.id: ID
+product.filter.field.category: Категория
+product.filter.field.title: Заголовок
+product.filter.field.price: Цена
+product.filter.field.quantity: Количество
+product.filter.field.created_at: Дата создания
+product.filter.field.is_published: Опубликован
+
+order.filter.field.id: ID
+order.filter.field.owner: Владелец
+order.filter.field.status: Статус
+order.filter.field.total_price: Общая стоимость
+order.filter.field.created_at: Дата создания
+
+navigation.admin_panel: Панель администратора
+navigation.dashboard: Панель управления
+navigation.sales: Продажи
+navigation.products_section: Товары
+navigation.orders: Заказы
+navigation.products: Товары
+navigation.categories: Категории
+navigation.all_list: Все записи
+navigation.go_to_main_site: Перейти на сайт
+navigation.general: Общее
+navigation.users: Пользователи
+
+action.add_new: Добавить
+action.edit: Редактировать
+action.save_changes: Сохранить изменения
+action.logout: Выйти
+
+layout.page_title: Панель администратора
+layout.brand: Александр Юрченко
+layout.copyright: 'Авторское право © Александр Юрченко'
+
+dashboard.page_title: Панель управления
+dashboard.heading: Панель управления
+
+modal.confirm_delete: Вы уверены?
+modal.delete_row: Удалить запись
+modal.cancel: Отмена
+modal.close: Закрыть
+
+login.page_title: Вход
+login.heading: Вход в панель администратора
+login.email_placeholder: Введите электронную почту...
+login.password_placeholder: Пароль
+login.remember_me: Запомнить меня
+login.submit: Войти
+
+category.list.page_title: Все категории
+category.list.heading: Категории
+category.list.column.id: ID
+category.list.column.title: Название
+category.list.column.slug: Алиас
+category.edit.page_title: Редактирование категории
+category.form.field.title: Название
+category.form.field.slug: Алиас
+category.modal.delete_text: Категория будет удалена.
+
+user.list.page_title: Все пользователи
+user.list.heading: Пользователи
+user.list.column.id: ID
+user.list.column.email: Электронная почта
+user.list.column.role: Роль
+user.list.column.profile_info: Данные профиля
+user.list.column.is_verified_email: Электронная почта подтверждена
+user.list.column.from_google: Из Google
+user.list.column.from_yandex: Из Яндекса
+user.list.column.from_vk: Из VK
+user.list.column.from_github: Из GitHub
+user.role.user: Пользователь
+user.role.admin: Администратор
+user.role.super_admin: Суперадминистратор
+user.profile.full_name: ФИО
+user.profile.phone: Телефон
+user.profile.address: Адрес
+user.profile.zip_code: Почтовый индекс
+user.state.verified: Подтверждено
+user.state.not_verified: Не подтверждено
+user.edit.page_title: Редактирование пользователя
+user.form.field.email: Электронная почта
+user.form.field.plain_password: Новый пароль
+user.form.field.roles: Роли
+user.form.field.full_name: ФИО
+user.form.field.phone: Телефон
+user.form.field.address: Адрес
+user.form.field.zip_code: Почтовый индекс
+user.form.field.is_deleted: Удалён
+user.modal.delete_text: Пользователь будет удалён.
+
+flash.access_denied: Недостаточно прав. Обратитесь к администратору.
+flash.save_success: Изменения сохранены!
+flash.form_invalid: Что-то пошло не так. Проверьте введённые данные!
+flash.product.deleted: '[Мягкое удаление] Товар (название: %title% / ID: %id%) успешно удалён!'
+flash.product_image.deleted: 'Изображение (ID: %id%) успешно удалено!'
+flash.order.deleted: '[Мягкое удаление] Заказ (ID: %id%) успешно удалён!'
+flash.category.deleted: '[Мягкое удаление] Категория (название: %title% / ID: %id%) успешно удалена!'
+flash.user.deleted: '[Мягкое удаление] Пользователь (ФИО: %full_name% / ID: %id%) успешно удалён!'
+
+product.list.page_title: Все товары
+product.list.heading: Товары
+product.list.column.id: ID
+product.list.column.category: Категория
+product.list.column.title: Название
+product.list.column.price: Цена
+product.list.column.quantity: Количество
+product.list.column.cover: Обложка
+product.list.column.created_at: Дата создания
+product.list.column.is_published: Опубликован
+
+product.edit.page_title: Редактирование товара
+product.form.slug: Алиас
+product.form.field.title: Заголовок
+product.form.field.price: Цена
+product.form.field.quantity: Количество
+product.form.field.description: Описание
+product.form.field.category: Категория
+product.form.field.new_image: Выберите новое изображение
+product.form.field.is_published: Опубликован
+product.form.field.is_new: Новинка
+product.form.field.is_on_sale: Распродажа
+product.form.field.is_deleted: Удалён
+product.form.category_placeholder: Выберите категорию
+product.image.current: Текущие изображения
+product.image.delete: Удалить
+product.modal.delete_text: Товар будет удалён.
+
+order.list.page_title: Все заказы
+order.list.heading: Заказы
+order.list.column.id: ID
+order.list.column.full_name: ФИО
+order.list.column.email: Электронная почта
+order.list.column.phone: Телефон
+order.list.column.created_at: Дата создания
+order.list.column.product_count: Количество товаров
+order.list.column.total_price: Общая стоимость
+order.list.column.status: Статус
+order.list.missing_full_name: ФИО не указано
+order.list.missing_phone: Телефон не указан
+
+order.edit.page_title: Редактирование заказа
+order.form.field.id: ID
+order.form.field.created_at: Дата создания
+order.form.field.updated_at: Дата обновления
+order.form.field.owner: Владелец
+order.form.field.status: Статус
+order.form.field.is_deleted: Удалён
+order.products.heading: Товары
+order.products.save_before_adding: 'Чтобы добавить товары, сначала нажмите «Сохранить изменения».'
+order.products.total_price: Общая стоимость
+order.products.choose_category: Выберите категорию
+order.products.choose_product: Выберите товар
+order.products.quantity_placeholder: Количество
+order.products.price_per_item_placeholder: Цена за единицу
+order.products.action.details: Подробнее
+order.products.action.add: Добавить
+order.products.action.remove: Удалить
+order.products.insufficient_rights: Недостаточно прав. Обратитесь к администратору.
+order.modal.delete_text: Заказ будет удалён.

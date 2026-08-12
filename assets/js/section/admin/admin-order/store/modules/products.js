@@ -21,6 +21,7 @@ const state = () => ({
   staticStore: {
     orderId: window.staticStore.orderId,
     userIsVerified: JSON.parse(window.staticStore.userIsVerified),
+    translations: window.staticStore.translations,
 
     url: {
       viewProduct: window.staticStore.urlViewProduct,
@@ -64,7 +65,7 @@ const actions = {
     const result = await axios.get(url, apiConfig);
 
     if (result.data && StatusCodes.OK === result.status) {
-      commit("setCategoryProducts", result.data["hydra:member"]);
+      commit("setCategoryProducts", result.data.member);
     }
   },
   async getCategories({ commit, state }) {
@@ -72,12 +73,12 @@ const actions = {
     const result = await axios.get(url, apiConfig);
 
     if (result.data && StatusCodes.OK === result.status) {
-      commit("setCategories", result.data["hydra:member"]);
+      commit("setCategories", result.data.member);
     }
   },
   async addNewOrderProduct({ state, dispatch }) {
     if (false === state.staticStore.userIsVerified) {
-      alert("You don't have enough rights! Contact the administrator.");
+      alert(state.staticStore.translations.insufficientRights);
       return;
     }
 
@@ -101,7 +102,7 @@ const actions = {
     );
 
     if (false === state.staticStore.userIsVerified) {
-      alert("You don't have enough rights! Contact the administrator.");
+      alert(state.staticStore.translations.insufficientRights);
       return;
     }
 

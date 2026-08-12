@@ -1,22 +1,25 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}Edit user{% endblock %}
+{% block title_detailed %}{{ 'user.edit.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block body %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
-                'sectionTitle': 'Users',
+                'sectionTitle': 'navigation.users'|trans({}, 'admin'),
                 'entity': user,
                 'actionUrl': path('admin_user_list'),
                 'addActionUrl': path('admin_user_add'),
+                'editLabel': 'action.edit'|trans({}, 'admin'),
+                'addLabel': 'action.add_new'|trans({}, 'admin'),
+                'addButtonLabel': 'action.add_new'|trans({}, 'admin'),
             } %}
         </div>
         <div class="card-body">
             {{ form_start(form) }}
             <div class="form-group row">
                 <div class="col-md-1">
-                    Email
+                    {{ 'user.form.field.email'|trans({}, 'admin') }}
                 </div>
                 <div class="col-md-11">
                     {% if user and user.id %}
@@ -120,6 +123,7 @@
                 'entity': user,
                 'catalogUrl': path('admin_user_list'),
                 'submitBtn': form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+                'deleteLabel': 'modal.delete_row'|trans({}, 'admin'),
             } %}
 
             {{ form_rest(form) }}
@@ -130,10 +134,13 @@
     {% if user and user.id %}
         {% include 'admin/_embed/_utils/_modal.html.twig' with {
             'modalId': 'approveDeleteModal',
-            'modalTitle': 'Are you sure?',
-            'modalText': 'User will be deleted.',
-            'modalBtnText': 'Delete row',
+            'modalTitle': 'modal.confirm_delete'|trans({}, 'admin'),
+            'modalText': 'user.modal.delete_text'|trans({}, 'admin'),
+            'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_user_delete', {'id': user.id}),
+            'csrfTokenId': 'delete_user_' ~ user.id,
+            'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
+            'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}
     {% endif %}
 

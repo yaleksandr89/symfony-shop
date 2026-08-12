@@ -17,8 +17,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CategoryRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private ProductImageRepository $productImageRepository,
+    ) {
         parent::__construct($registry, Category::class);
     }
 
@@ -45,5 +47,60 @@ class CategoryRepository extends ServiceEntityRepository
             ->andWhere('p.isPublished = TRUE')
             ->getQuery()
             ->getResult();
+    }
+
+    /** @return list<array{title: string, slug: string}> */
+    public function findActiveNavigationRows(): array
+    {
+        return $this->createQueryBuilder('category')
+            ->select('DISTINCT category.id AS id, category.title AS title, category.slug AS slug')
+            ->innerJoin('category.products', 'product')
+            ->andWhere('category.isDeleted = false')
+            ->andWhere('product.isDeleted = false')
+            ->andWhere('product.isPublished = true')
+            ->orderBy('category.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    /**
+     * @return list<array{categoryId: int, categoryTitle: string, categorySlug: string, productId: int, cover: array{filenameBig: string, filenameMiddle: string, filenameSmall: string}}>
+     */
+    public function findHomepageBannerCandidates(): array
+    {
+        $rows = $this->createQueryBuilder('category')
+            ->select('category.id AS categoryId')
+            ->addSelect('category.title AS categoryTitle')
+            ->addSelect('category.slug AS categorySlug')
+            ->addSelect('product.id AS productId')
+            ->innerJoin('category.products', 'product')
+            ->andWhere('category.isDeleted = false')
+            ->andWhere('product.isDeleted = false')
+            ->andWhere('product.isPublished = true')
+            ->orderBy('category.id', 'ASC')
+            ->addOrderBy('product.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+        $covers = $this->productImageRepository->findFirstCoversByProductIds(array_map(
+            static fn (array $row): int => (int) $row['productId'],
+            $rows,
+        ));
+
+        $candidates = [];
+        foreach ($rows as $row) {
+            $productId = (int) $row['productId'];
+            if (!isset($covers[$productId])) {
+                continue;
+            }
+            $candidates[] = [
+                'categoryId' => (int) $row['categoryId'],
+                'categoryTitle' => (string) $row['categoryTitle'],
+                'categorySlug' => (string) $row['categorySlug'],
+                'productId' => $productId,
+                'cover' => $covers[$productId],
+            ];
+        }
+
+        return $candidates;
     }
 }

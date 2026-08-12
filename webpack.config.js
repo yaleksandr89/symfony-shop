@@ -41,7 +41,12 @@ Encore
 
     .copyFiles({
         from: './assets/images',
+        pattern: /^(?!\.\/icons\/favicon\/).*/,
         to: 'images/[path][name].[hash:8].[ext]',
+    })
+    .copyFiles({
+        from: './assets/images/icons/favicon',
+        to: 'images/icons/favicon/[name].[ext]',
     })
     /*
      * FEATURE CONFIG

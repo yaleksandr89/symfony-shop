@@ -3,14 +3,17 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{{ modalTitle }}</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <button class="close" type="button" data-dismiss="modal" aria-label="{{ closeLabel|default('modal.close'|trans({}, 'admin')) }}">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
             <div class="modal-body">{{ modalText }}</div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="{{ actionUrl }}">{{ modalBtnText }}</a>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">{{ cancelLabel|default('modal.cancel'|trans({}, 'admin')) }}</button>
+                <form method="post" action="{{ actionUrl }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token(csrfTokenId) }}">
+                    <button class="btn btn-primary" type="submit">{{ modalBtnText }}</button>
+                </form>
             </div>
         </div>
     </div>

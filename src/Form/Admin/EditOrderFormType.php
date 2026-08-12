@@ -22,18 +22,19 @@ class EditOrderFormType extends AbstractType
     {
         $builder
             ->add('status', ChoiceType::class, [
-                'label' => 'Status',
+                'label' => 'order.form.field.status',
                 'required' => false,
                 'choices' => array_flip(OrderStaticStorage::getOrderStatusChoices()),
+                'choice_translation_domain' => 'messages',
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Please select status'),
+                    new NotBlank(message: 'order.validation.status.required'),
                 ],
             ])
             ->add('owner', EntityType::class, [
-                'label' => 'User',
+                'label' => 'order.form.field.owner',
                 'class' => User::class,
                 'required' => false,
                 'choice_label' => static function (User $user) {
@@ -44,15 +45,16 @@ class EditOrderFormType extends AbstractType
                         $user->getEmail(),
                     );
                 },
+                'choice_translation_domain' => false,
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
-                    new NotBlank(message: 'Please select user'),
+                    new NotBlank(message: 'order.validation.owner.required'),
                 ],
             ])
             ->add('isDeleted', CheckboxType::class, [
-                'label' => 'Is Deleted',
+                'label' => 'order.form.field.is_deleted',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
@@ -62,7 +64,7 @@ class EditOrderFormType extends AbstractType
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Save changes',
+                'label' => 'action.save_changes',
             ]);
     }
 
@@ -70,6 +72,7 @@ class EditOrderFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EditOrderModel::class,
+            'translation_domain' => 'admin',
         ]);
     }
 }

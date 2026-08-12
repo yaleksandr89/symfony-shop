@@ -38,3 +38,23 @@
 .table-cart td, .table-cart th {
     vertical-align: middle;
 }
+
+.table-cart .cart-product-unavailable {
+    background-color: #fff3cd;
+}
+
+.table-cart .cart-product-unavailable .product-title {
+    font-weight: 600;
+}
+
+.table-cart .cart-product-unavailable-message {
+    margin: 0.5rem 0 0;
+    color: #664d03;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.table-cart .cart-product-unavailable .form-control:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}

@@ -4,11 +4,39 @@
     height: auto;
 }
 
-.product-sale-status {
+.product-image-placeholder {
+    display: flex;
+    width: 100%;
+    aspect-ratio: 430 / 242;
+    align-items: center;
+    justify-content: center;
+    color: #a8adb2;
+    background-color: #eef0f2;
+}
+
+.product-image-placeholder:hover,
+.product-image-placeholder:focus {
+    color: #7b8187;
+    text-decoration: none;
+}
+
+.product-image-placeholder .far {
+    font-size: clamp(2rem, 6vw, 4rem);
+}
+
+.product-merchandising-statuses {
     position: absolute;
     z-index: 1;
     top: .5rem;
     left: .5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .25rem;
+}
+
+.product-sale-status {
+    display: inline-block;
     font-weight: 400;
     font-size: .9rem;
     line-height: 1.6rem;
@@ -23,6 +51,11 @@
 .product-sale-status.sale-status-new {
     color: #fff;
     background-color: #a6c76c;
+}
+
+.product-sale-status.sale-status-sale {
+    color: #fff;
+    background-color: #f13c76;
 }
 
 .product-full {

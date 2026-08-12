@@ -16,15 +16,14 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[
-    Table(name: '`user`'),
+#[Table(name: '`user`'),
     Entity(repositoryClass: UserRepository::class),
-    UniqueEntity(fields: ['email'], message: 'У данной электронной почты уже зарегистрирована учетная запись')
-]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+    UniqueEntity(fields: ['email'], message: 'У данной электронной почты уже зарегистрирована учетная запись')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
     protected ?int $id;
@@ -59,17 +58,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[OneToMany(mappedBy: 'owner', targetEntity: Order::class)]
     protected Collection $orders;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $googleId;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $yandexId;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $vkontakteId;
 
-    #[Column(type: Types::STRING, length: 50, nullable: true)]
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
     protected ?string $githubId;
+
+    #[Column(type: Types::STRING, length: 50, unique: true, nullable: true)]
+    protected ?string $facebookId = null;
+
+    #[Column(type: Types::STRING, length: 255, unique: true, nullable: true)]
+    protected ?string $linkedinId = null;
 
     public function __construct()
     {
@@ -190,10 +195,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
+    #[\Deprecated]
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+    }
+
+    public function isEqualTo(UserInterface $user): bool
+    {
+        if (!$user instanceof self) {
+            return false;
+        }
+
+        if ($this->getPassword() !== $user->getPassword()) {
+            return false;
+        }
+
+        $currentRoles = array_map('strval', $this->getRoles());
+        $newRoles = array_map('strval', $user->getRoles());
+        if (count($currentRoles) !== count($newRoles) || count($currentRoles) !== count(array_intersect($currentRoles, $newRoles))) {
+            return false;
+        }
+
+        if ($this->getUserIdentifier() !== $user->getUserIdentifier()) {
+            return false;
+        }
+
+        return $this->getIsDeleted() === $user->getIsDeleted();
     }
 
     public function isVerified(): bool
@@ -337,5 +364,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGithubId(?string $githubId): void
     {
         $this->githubId = $githubId;
+    }
+
+    public function getFacebookId(): ?string
+    {
+        return $this->facebookId;
+    }
+
+    public function setFacebookId(?string $facebookId): void
+    {
+        $this->facebookId = $facebookId;
+    }
+
+    public function getLinkedinId(): ?string
+    {
+        return $this->linkedinId;
+    }
+
+    public function setLinkedinId(?string $linkedinId): static
+    {
+        $this->linkedinId = $linkedinId;
+
+        return $this;
     }
 }

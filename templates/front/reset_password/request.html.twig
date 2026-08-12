@@ -17,6 +17,7 @@
                         <div class="form-group">
                             {{ form_label(requestForm.email) }}
                             {{ form_widget(requestForm.email) }}
+                            {{ form_errors(requestForm.email) }}
                             <small>
                                 Enter your email address and we will send you a
                                 link to reset your password.

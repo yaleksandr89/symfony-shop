@@ -24,8 +24,6 @@ final class Version20211006193743 extends AbstractMigration
         $this->addSql('CREATE SEQUENCE order_product_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE TABLE "order" (id INT NOT NULL, owner_id INT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, status INT NOT NULL, total_price DOUBLE PRECISION DEFAULT NULL, is_deleted BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_F52993987E3C61F9 ON "order" (owner_id)');
-        $this->addSql('COMMENT ON COLUMN "order".created_at IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('COMMENT ON COLUMN "order".updated_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE order_product (id INT NOT NULL, app_order_id INT NOT NULL, product_id INT NOT NULL, quantity INT NOT NULL, price_per_one NUMERIC(15, 2) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_2530ADE6851F0D95 ON order_product (app_order_id)');
         $this->addSql('CREATE INDEX IDX_2530ADE64584665A ON order_product (product_id)');

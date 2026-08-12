@@ -1,13 +1,13 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}All users{% endblock %}
+{% block title_detailed %}{{ 'user.list.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block body %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_header_action.html.twig' with
                 {
-                    'sectionTitle': 'Users',
+                    'sectionTitle': 'user.list.heading'|trans({}, 'admin'),
                     'actionUrl': path('admin_user_add')
                 } %}
         </div>
@@ -16,15 +16,15 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>{{ 'admin.user_list.id'|trans }}</th>
-                        <th>{{ 'admin.user_list.email'|trans }}</th>
-                        <th>{{ 'admin.user_list.role'|trans }}</th>
-                        <th>{{ 'admin.user_list.profile_info'|trans }}</th>
-                        <th>{{ 'admin.user_list.is_verified_email'|trans }}</th>
-                        <th>{{ 'admin.user_list.from_google'|trans }}</th>
-                        <th>{{ 'admin.user_list.from_yandex'|trans }}</th>
-                        <th>{{ 'admin.user_list.from_vk'|trans }}</th>
-                        <th>{{ 'admin.user_list.from_github'|trans }}</th>
+                        <th>{{ 'user.list.column.id'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.email'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.role'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.profile_info'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.is_verified_email'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.from_google'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.from_yandex'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.from_vk'|trans({}, 'admin') }}</th>
+                        <th>{{ 'user.list.column.from_github'|trans({}, 'admin') }}</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -34,57 +34,59 @@
                             <td>{{ user.id }}</td>
                             <td>{{ user.email }}</td>
                             <td>
-                                {% if 'ROLE_ADMIN' in user.roles %}
-                                    <strong>Admin</strong>
+                                {% if 'ROLE_SUPER_ADMIN' in user.roles %}
+                                    <strong>{{ 'user.role.super_admin'|trans({}, 'admin') }}</strong>
+                                {% elseif 'ROLE_ADMIN' in user.roles %}
+                                    <strong>{{ 'user.role.admin'|trans({}, 'admin') }}</strong>
                                 {% else %}
-                                    User
+                                    {{ 'user.role.user'|trans({}, 'admin') }}
                                 {% endif %}
                                 <br>
                                <code><small>{{ user.roles|join(', ', ' and ') }}</small></code>
                             </td>
                             <td>
-                                <code>Full name</code>: {{ user.fullName }}<br>
-                                <code>Phone</code>: {{ user.phone }}<br>
-                                <code>Address</code>: {{ user.address }}<br>
-                                <code>Zip code</code>: {{ user.zipcode }}<br>
+                                <code>{{ 'user.profile.full_name'|trans({}, 'admin') }}</code>: {{ user.fullName }}<br>
+                                <code>{{ 'user.profile.phone'|trans({}, 'admin') }}</code>: {{ user.phone }}<br>
+                                <code>{{ 'user.profile.address'|trans({}, 'admin') }}</code>: {{ user.address }}<br>
+                                <code>{{ 'user.profile.zip_code'|trans({}, 'admin') }}</code>: {{ user.zipcode }}<br>
                             </td>
                             <td>
                                 {% if user.isVerified %}
-                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                    <div class="alert alert-success">{{ 'user.state.verified'|trans({}, 'admin') }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                    <div class="alert alert-warning">{{ 'user.state.not_verified'|trans({}, 'admin') }}</div>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user.googleId %}
-                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                    <div class="alert alert-success">{{ 'user.state.verified'|trans({}, 'admin') }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                    <div class="alert alert-warning">{{ 'user.state.not_verified'|trans({}, 'admin') }}</div>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user.yandexId %}
-                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                    <div class="alert alert-success">{{ 'user.state.verified'|trans({}, 'admin') }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                    <div class="alert alert-warning">{{ 'user.state.not_verified'|trans({}, 'admin') }}</div>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user.vkontakteId %}
-                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                    <div class="alert alert-success">{{ 'user.state.verified'|trans({}, 'admin') }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                    <div class="alert alert-warning">{{ 'user.state.not_verified'|trans({}, 'admin') }}</div>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if user.githubId %}
-                                    <div class="alert alert-success">{{ 'admin.user_list.verified'|trans }}</div>
+                                    <div class="alert alert-success">{{ 'user.state.verified'|trans({}, 'admin') }}</div>
                                 {% else %}
-                                    <div class="alert alert-warning">{{ 'admin.user_list.not_verified'|trans }}</div>
+                                    <div class="alert alert-warning">{{ 'user.state.not_verified'|trans({}, 'admin') }}</div>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-outline-info">{{ 'admin.user_list.edit'|trans }}</a>
+                                <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-outline-info">{{ 'action.edit'|trans({}, 'admin') }}</a>
                             </td>
                         </tr>
                     {% endfor %}

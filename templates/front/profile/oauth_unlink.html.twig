@@ -1,0 +1,36 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ 'personal_account.social_group.oauth_unlink.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-content pt-4 pb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="page-details page-login mt-4">
+                        <h1 class="h3 mb-3 font-weight-normal title-gradient-1">
+                            {{ 'personal_account.social_group.oauth_unlink.title'|trans }}
+                        </h1>
+                        <div class="alert alert-warning" role="alert">
+                            {{ 'personal_account.social_group.oauth_unlink.warning'|trans({'%provider%': providerLabel}) }}
+                        </div>
+
+                        {{ form_start(oauthUnlinkForm) }}
+                        <div class="form-group">
+                            {{ form_label(oauthUnlinkForm.currentPassword) }}
+                            {{ form_widget(oauthUnlinkForm.currentPassword) }}
+                            {{ form_errors(oauthUnlinkForm.currentPassword) }}
+                        </div>
+                        <div class="form-footer-buttons">
+                            {{ form_widget(oauthUnlinkForm.submit) }}
+                            <a href="{{ path('main_profile_index') }}" class="btn btn-link btn-dark">
+                                {{ 'personal_account.social_group.oauth_unlink.cancel'|trans }}
+                            </a>
+                        </div>
+                        {{ form_end(oauthUnlinkForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,15 +1,18 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}Edit Category{% endblock %}
+{% block title_detailed %}{{ 'category.edit.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block body %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_breadcrumbs.html.twig' with {
-                'sectionTitle': 'Categories',
+                'sectionTitle': 'navigation.categories'|trans({}, 'admin'),
                 'entity': category,
                 'actionUrl': path('admin_category_list'),
                 'addActionUrl': path('admin_category_add'),
+                'editLabel': 'action.edit'|trans({}, 'admin'),
+                'addLabel': 'action.add_new'|trans({}, 'admin'),
+                'addButtonLabel': 'action.add_new'|trans({}, 'admin'),
             } %}
         </div>
         <div class="card-body">
@@ -28,7 +31,7 @@
 
             <div class="form-group row">
                 <div class="col-md-1">
-                    Slug
+                    {{ 'category.form.field.slug'|trans({}, 'admin') }}
                 </div>
                 <div class="col-md-11">
                     {% if category %}
@@ -43,6 +46,7 @@
                 'entity':category,
                 'catalogUrl':path('admin_category_list'),
                 'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+                'deleteLabel': 'modal.delete_row'|trans({}, 'admin'),
             } %}
 
             {{ form_rest(form) }}
@@ -53,10 +57,13 @@
     {% if category and category.id %}
         {% include 'admin/_embed/_utils/_modal.html.twig' with {
             'modalId': 'approveDeleteModal',
-            'modalTitle': 'Are you sure?',
-            'modalText': 'Category will be deleted.',
-            'modalBtnText': 'Delete row',
+            'modalTitle': 'modal.confirm_delete'|trans({}, 'admin'),
+            'modalText': 'category.modal.delete_text'|trans({}, 'admin'),
+            'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
             'actionUrl': path('admin_category_delete', {'id': category.id}),
+            'csrfTokenId': 'delete_category_' ~ category.id,
+            'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
+            'closeLabel': 'modal.close'|trans({}, 'admin'),
         } %}
     {% endif %}
 

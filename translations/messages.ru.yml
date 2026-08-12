@@ -17,6 +17,7 @@ login_form.create_account: 'Создать Аккаунт'
 login_form.reset_password: 'Сбросить пароль'
 login_form.placeholder.email: 'Пожалуйста, введите свой адрес электронной почты'
 login_form.placeholder.password: 'Пожалуйста, введите свой пароль'
+oauth.authentication.failure: 'Не удалось выполнить вход через социальную сеть. Войдите другим способом и при необходимости привяжите её в профиле.'
 personal_account.head: 'Добро пожаловать в ЛК'
 personal_account.labels.email: 'Адрес электронной почты'
 personal_account.labels.full_name: ФИО
@@ -33,11 +34,15 @@ personal_account.edit.labels.address: 'Введите адрес'
 personal_account.edit.labels.zipcode: 'Введите почтовый индекс'
 personal_account.edit.save_changes: 'Сохранить изменения'
 login_social_network.google: 'Авторизоваться через Гугл'
+login_social_network.facebook: 'Авторизоваться через Facebook'
+login_social_network.linkedin: 'Авторизоваться через LinkedIn'
 similar_products.head: 'Мы рекомендуем'
 similar_products.new: Новинка
+similar_products.sale: Распродажа
 product.add_to_cart: 'Добавить в корзину'
 product.new: Новинка
 product.products_not_fount: 'Продукты не найдены'
+product.image_unavailable: 'Изображение отсутствует'
 category.show_me: Перейти
 category.new_collection: 'Новая коллекция'
 category.unique: 'Уникальное предложение'
@@ -53,6 +58,9 @@ cart.quantity: Количество
 cart.price: Цена
 cart.actions: Действия
 cart.total: Всего
+cart.unavailable_products: 'В корзине есть недоступные товары. Удалите их перед оформлением заказа.'
+cart.product_deleted: 'Товар удалён и больше не может быть заказан.'
+cart.product_unpublished: 'Товар снят с продажи и недоступен для заказа.'
 header_menu.en: Англ
 header_menu.ru: Рус
 header_menu.profile: Профиль
@@ -69,7 +77,9 @@ footer.my_account.my_profile: 'Мой профиль'
 footer.сhange_language.head: 'Сменить язык'
 footer.сhange_language.russian: Русский
 footer.сhange_language.english: Английский
-footer.copyright: 'Авторское право © Команда RankedChoice. все права защищены.'
+footer.copyright.prefix: 'Авторское право © '
+footer.copyright.owner: 'Александр Юрченко'
+footer.copyright.suffix: '. Все права защищены.'
 'You have to login in order to access this page.': 'Вам необходимо войти в систему, чтобы получить доступ к этой странице.'
 'An email has been sent. Please check inbox to find password and verified your email': 'Было отправлено электронное письмо. Пожалуйста, проверьте входящие, чтобы найти пароль и подтвердить свой адрес электронной почты'
 'Please log in to the site!': 'Пожалуйста, авторизуйтесь на сайте!'
@@ -137,9 +147,22 @@ personal_account.social_group.google: Гугл
 personal_account.social_group.yandex: Яндекс
 personal_account.social_group.vkontakte: Вконтакте
 personal_account.social_group.github: Гитхаб
+personal_account.social_group.facebook: Facebook
+personal_account.social_group.linkedin: LinkedIn
 personal_account.social_group.integration_service: 'Сервис интеграции'
 personal_account.social_group.link: Привязать
 personal_account.social_group.unlink: Отвязать
+personal_account.social_group.oauth_unlink.title: Подтвердите отвязку
+personal_account.social_group.oauth_unlink.warning: 'Чтобы отвязать %provider%, подтвердите текущий пароль.'
+personal_account.social_group.oauth_unlink.current_password: Текущий пароль
+personal_account.social_group.oauth_unlink.submit: Отвязать аккаунт
+personal_account.social_group.oauth_unlink.cancel: Отмена
+personal_account.social_group.oauth_link.title: 'Подтвердите привязку'
+personal_account.social_group.oauth_link.warning: 'Чтобы привязать %provider%, подтвердите текущий пароль. Затем вы перейдёте на сайт провайдера.'
+personal_account.social_group.oauth_link.current_password: 'Текущий пароль'
+personal_account.social_group.oauth_link.submit: 'Продолжить у провайдера'
+personal_account.social_group.oauth_link.cancel: Отмена
+personal_account.social_group.oauth_link.failure: 'Не удалось привязать аккаунт социальной сети.'
 'The social network has been successfully unlinked.': 'Социальная сеть успешно отвязана.'
 'The social network has been successfully linked.': 'Социальная сеть успешно привязана.'
 'You have already logged in to the site under the username of this social network': 'Под логином этой социальной сети уже авторизовались на сайте'

@@ -1,13 +1,13 @@
 {% extends 'admin/layout/layout_main.html.twig' %}
 
-{% block title_detailed %}All Categories{% endblock %}
+{% block title_detailed %}{{ 'category.list.page_title'|trans({}, 'admin') }}{% endblock %}
 
 {% block body %}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             {% include 'admin/_embed/_card/_header_action.html.twig' with
                 {
-                    'sectionTitle': 'Categories',
+                    'sectionTitle': 'category.list.heading'|trans({}, 'admin'),
                     'actionUrl': path('admin_category_add')
                 } %}
         </div>
@@ -16,9 +16,9 @@
                 <table class="table table-bordered" id="main_table">
                     <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Title</th>
-                        <th>Slug</th>
+                        <th>{{ 'category.list.column.id'|trans({}, 'admin') }}</th>
+                        <th>{{ 'category.list.column.title'|trans({}, 'admin') }}</th>
+                        <th>{{ 'category.list.column.slug'|trans({}, 'admin') }}</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -29,7 +29,7 @@
                             <td>{{ category.title }}</td>
                             <td>{{ category.slug }}</td>
                             <td>
-                                <a href="{{ path('admin_category_edit', {'id': category.id}) }}" class="btn btn-outline-info">Edit</a>
+                                <a href="{{ path('admin_category_edit', {'id': category.id}) }}" class="btn btn-outline-info">{{ 'action.edit'|trans({}, 'admin') }}</a>
                             </td>
                         </tr>
                     {% endfor %}

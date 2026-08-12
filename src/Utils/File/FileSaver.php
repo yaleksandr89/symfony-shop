@@ -14,7 +14,7 @@ final class FileSaver
     public function __construct(
         private SluggerInterface $slugger,
         private FilesystemWorker $filesystemWorker,
-        private string $uploadsTempDir
+        private string $uploadsTempDir,
     ) {
     }
 

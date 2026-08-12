@@ -138,3 +138,14 @@ Error: Ошибка
 'Please indicate a quantity': 'Пожалуйста, укажите количество'
 'Please select a category': 'Пожалуйста, выберите категорию'
 'Price cannot be less than or equal to zero.': 'Цена не может быть меньше или равна нулю.'
+product.validation.title.required: Укажите заголовок.
+product.validation.price.required: Укажите цену.
+product.validation.price.greater_than_zero: Цена должна быть больше нуля.
+product.validation.quantity.required: Укажите количество.
+product.validation.category.required: Выберите категорию.
+product.validation.image.invalid_type: Загрузите изображение в формате JPG или PNG.
+admin.filter.date_range.invalid_order: 'Дата «От» не может быть позднее даты «До».'
+order.validation.status.required: Выберите статус.
+order.validation.owner.required: Выберите владельца.
+category.validation.title.required: Укажите название.
+user.validation.email.already_registered: Эта электронная почта уже зарегистрирована.

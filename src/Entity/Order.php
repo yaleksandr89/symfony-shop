@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\ApiPlatform\Error\CartProductsUnavailableException;
+use App\ApiPlatform\Input\CheckoutOrderInput;
+use App\ApiPlatform\State\CheckoutOrderProcessor;
 use App\Repository\OrderRepository;
+use App\Utils\Money\DecimalMoney;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,28 +27,29 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[
-    Table(name: '`order`'),
-    Entity(repositoryClass: OrderRepository::class)
-]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order:list"}
- *       },
- *       "post"={
- *          "security"="is_granted('ROLE_USER')",
- *          "normalization_context"={"groups"="order:list:write"}
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="order:item"}
- *       },
- *     },
- * )
- */
+#[Table(name: '`order`'),
+    Entity(repositoryClass: OrderRepository::class)]
+#[ApiResource(operations: [
+    new GetCollection(
+        normalizationContext: ['groups' => ['order:list']],
+        security: "is_granted('ROLE_ADMIN')",
+        name: 'api_orders_get_collection'
+    ),
+    new Post(
+        errors: [CartProductsUnavailableException::class],
+        normalizationContext: ['groups' => ['order:list:write']],
+        denormalizationContext: ['allow_extra_attributes' => false],
+        security: "is_granted('ROLE_USER')",
+        input: CheckoutOrderInput::class,
+        name: 'api_orders_post_collection',
+        processor: CheckoutOrderProcessor::class
+    ),
+    new Get(
+        normalizationContext: ['groups' => ['order:item']],
+        security: "is_granted('ROLE_ADMIN')",
+        name: 'api_orders_get_item'
+    ),
+])]
 class Order
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
@@ -61,14 +69,14 @@ class Order
     #[Groups(['order:item'])]
     protected ?int $status;
 
-    #[Column(type: Types::FLOAT, nullable: true)]
+    #[Column(type: Types::DECIMAL, precision: 19, scale: 2, nullable: true)]
     #[Groups(['order:item'])]
-    protected ?float $totalPrice;
+    protected ?string $totalPrice = null;
 
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
 
-    #[OneToMany(mappedBy: 'appOrder', targetEntity: OrderProduct::class)]
+    #[OneToMany(mappedBy: 'appOrder', targetEntity: OrderProduct::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['order:item'])]
     protected Collection $orderProducts;
 
@@ -122,14 +130,14 @@ class Order
         return $this;
     }
 
-    public function getTotalPrice(): ?float
+    public function getTotalPrice(): ?string
     {
-        return $this->totalPrice;
+        return null === $this->totalPrice ? null : DecimalMoney::normalize($this->totalPrice);
     }
 
-    public function setTotalPrice(?float $totalPrice): static
+    public function setTotalPrice(?string $totalPrice): static
     {
-        $this->totalPrice = $totalPrice;
+        $this->totalPrice = null === $totalPrice ? null : DecimalMoney::normalize($totalPrice);
 
         return $this;
     }
@@ -175,12 +183,7 @@ class Order
 
     public function removeOrderProduct(OrderProduct $orderProduct): self
     {
-        if ($this->orderProducts->removeElement($orderProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($orderProduct->getAppOrder() === $this) {
-                $orderProduct->setAppOrder(null);
-            }
-        }
+        $this->orderProducts->removeElement($orderProduct);
 
         return $this;
     }

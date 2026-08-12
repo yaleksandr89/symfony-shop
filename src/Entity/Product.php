@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\ProductRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,65 +21,57 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\PreUpdate;
 use Doctrine\ORM\Mapping\Table;
 use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV4;
 
-#[
-    Table(name: '`product`'),
-    Entity(repositoryClass: ProductRepository::class)
-]
-/**
- * @ApiResource(
- *     collectionOperations={
- *       "get"={
- *          "normalization_context"={"groups"="product:list"}
- *       },
- *       "post"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "normalization_context"={"groups"="product:list:write"}
- *       }
- *     },
- *     itemOperations={
- *       "get"={
- *          "normalization_context"={"groups"="product:item"}
- *       },
- *     "patch"={
- *          "security"="is_granted('ROLE_ADMIN')",
- *          "normalization_context"={"groups"="product:item:write"}
- *       }
- *     },
- *     order={
- *          "id"="DESC"
- *     },
- *     attributes={
- *          "pagination_client_items_per_page"=true,
- *          "formats"={"jsonld", "json"}
- *     },
- *     paginationEnabled=true
- * )
- * @ApiFilter(BooleanFilter::class, properties={"isPublished"})
- * @ApiFilter(SearchFilter::class, properties={
- * "category": "exact"
- * })
- */
+#[Table(name: '`product`'),
+    Entity(repositoryClass: ProductRepository::class)]
+#[HasLifecycleCallbacks]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['product:list']],
+            name: 'api_products_get_collection'
+        ),
+        new Post(
+            normalizationContext: ['groups' => ['product:list:write']],
+            security: "is_granted('ROLE_ADMIN')",
+            name: 'api_products_post_collection'
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['product:item']],
+            name: 'api_products_get_item'
+        ),
+        new Patch(
+            inputFormats: ['json' => ['application/merge-patch+json']],
+            normalizationContext: ['groups' => ['product:item:write']],
+            security: "is_granted('ROLE_ADMIN')",
+            name: 'api_products_patch_item'
+        ),
+    ],
+    formats: ['jsonld', 'json'],
+    order: ['id' => 'DESC'],
+    paginationClientItemsPerPage: true,
+    paginationEnabled: true
+)]
+#[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
+#[ApiFilter(SearchFilter::class, properties: ['category' => 'exact'])]
 class Product
 {
-    /**
-     * @ApiProperty(identifier=false)
-     */
+    #[ApiProperty(identifier: false)]
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
     #[Groups(['product:list', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?int $id;
 
-    /**
-     * @ApiProperty(identifier=true)
-     */
+    #[ApiProperty(identifier: true)]
     #[Column(type: 'uuid')]
     #[Groups(['product:list', 'product:item', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected UuidV4 $uuid;
@@ -95,6 +91,9 @@ class Product
     #[Column(type: Types::DATETIME_IMMUTABLE)]
     protected DateTimeImmutable $createdAt;
 
+    #[Column(type: Types::DATETIME_IMMUTABLE)]
+    protected DateTimeImmutable $updatedAt;
+
     #[Column(type: Types::TEXT, nullable: true)]
     protected ?string $description;
 
@@ -103,6 +102,14 @@ class Product
 
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
+
+    #[Column(type: Types::BOOLEAN, options: ['default' => false])]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write'])]
+    protected bool $isNew;
+
+    #[Column(type: Types::BOOLEAN, options: ['default' => false])]
+    #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write'])]
+    protected bool $isOnSale;
 
     #[OneToMany(mappedBy: 'product', targetEntity: ProductImage::class, cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
@@ -116,7 +123,7 @@ class Product
     #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?Category $category;
 
-    #[OneToMany(mappedBy: 'product', targetEntity: CartProduct::class, orphanRemoval: true)]
+    #[OneToMany(mappedBy: 'product', targetEntity: CartProduct::class)]
     protected Collection $cartProducts;
 
     #[OneToMany(mappedBy: 'product', targetEntity: OrderProduct::class)]
@@ -126,9 +133,13 @@ class Product
     {
         $this->id = null;
         $this->uuid = Uuid::v4();
+        $now = new DateTimeImmutable();
         $this->isDeleted = false;
         $this->isPublished = false;
-        $this->createdAt = new DateTimeImmutable();
+        $this->isNew = false;
+        $this->isOnSale = false;
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
         $this->productImages = new ArrayCollection();
         $this->cartProducts = new ArrayCollection();
         $this->orderProducts = new ArrayCollection();
@@ -192,6 +203,24 @@ class Product
         return $this;
     }
 
+    public function getUpdatedAt(): DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    #[PreUpdate]
+    public function refreshUpdatedAt(): void
+    {
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -224,6 +253,30 @@ class Product
     public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    public function getIsNew(): bool
+    {
+        return $this->isNew;
+    }
+
+    public function setIsNew(bool $isNew): static
+    {
+        $this->isNew = $isNew;
+
+        return $this;
+    }
+
+    public function getIsOnSale(): bool
+    {
+        return $this->isOnSale;
+    }
+
+    public function setIsOnSale(bool $isOnSale): static
+    {
+        $this->isOnSale = $isOnSale;
 
         return $this;
     }

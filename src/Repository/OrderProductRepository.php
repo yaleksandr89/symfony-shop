@@ -21,32 +21,31 @@ class OrderProductRepository extends ServiceEntityRepository
         parent::__construct($registry, OrderProduct::class);
     }
 
-    // /**
-    //  * @return OrderProduct[] Returns an array of OrderProduct objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param list<int> $orderIds
+     *
+     * @return array<int, int>
+     */
+    public function countByOrderIds(array $orderIds): array
     {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('o.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        if ([] === $orderIds) {
+            return [];
+        }
 
-    /*
-    public function findOneBySomeField($value): ?OrderProduct
-    {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
+        $rows = $this->createQueryBuilder('orderProduct')
+            ->select('IDENTITY(orderProduct.appOrder) AS orderId')
+            ->addSelect('COUNT(orderProduct.id) AS productCount')
+            ->andWhere('orderProduct.appOrder IN (:orderIds)')
+            ->setParameter('orderIds', array_values(array_unique($orderIds)))
+            ->groupBy('orderProduct.appOrder')
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row['orderId']] = (int) $row['productCount'];
+        }
+
+        return $counts;
     }
-    */
 }

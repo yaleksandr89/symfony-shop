@@ -10,25 +10,35 @@ use App\Entity\User;
 use App\Form\Admin\EditOrderFormType;
 use App\Form\Admin\FilterType\OrderFilterFormType;
 use App\Form\DTO\EditOrderModel;
+use App\Form\DTO\OrderFilterModel;
 use App\Form\Handler\OrderFormHandler;
+use App\Repository\OrderProductRepository;
 use App\Utils\Manager\OrderManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin/order', name: 'admin_order_')]
 class OrderController extends BaseAdminController
 {
     #[Route('/list', name: 'list')]
-    public function list(Request $request, OrderFormHandler $orderFormHandler): Response
-    {
-        $filterForm = $this->createForm(OrderFilterFormType::class, EditOrderModel::makeFromOrder());
+    public function list(
+        Request $request,
+        OrderFormHandler $orderFormHandler,
+        OrderProductRepository $orderProductRepository,
+    ): Response {
+        $filterForm = $this->createForm(OrderFilterFormType::class, new OrderFilterModel());
         $filterForm->handleRequest($request);
 
         $pagination = $orderFormHandler->processOrderFiltersForm($request, $filterForm);
+        $orderIds = [];
+        foreach ($pagination->getItems() as $order) {
+            $orderIds[] = (int) $order->getId();
+        }
 
         return $this->render('admin/order/list.html.twig', [
             'pagination' => $pagination,
+            'orderProductCounts' => $orderProductRepository->countByOrderIds($orderIds),
             'orderStatusChoice' => OrderStaticStorage::getOrderStatusChoices(),
             'form' => $filterForm->createView(),
         ]);
@@ -49,13 +59,13 @@ class OrderController extends BaseAdminController
             }
 
             $order = $orderFormHandler->processEditForm($editOrderModel);
-            $this->addFlash('success', 'Your changes were saved!');
+            $this->addTranslatedFlash('success', 'flash.save_success');
 
             return $this->redirectToRoute('admin_order_edit', ['id' => $order->getId()]);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFlash('warning', 'Something went wrong. Please check!');
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
         }
 
         /** @var User $user */
@@ -71,17 +81,21 @@ class OrderController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete')]
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Order $order, OrderManager $orderManager): Response
     {
         $id = $order->getId();
+
+        if (!$this->isCsrfTokenValid('delete_order_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         if (!$this->checkTheAccessLevel()) {
             return $this->redirect($request->server->get('HTTP_REFERER'));
         }
 
         $orderManager->remove($order);
-        $this->addFlash('warning', "[Soft delete] The order (ID: $id) was successfully deleted!");
+        $this->addTranslatedFlash('warning', 'flash.order.deleted', ['%id%' => $id]);
 
         return $this->redirectToRoute('admin_order_list');
     }

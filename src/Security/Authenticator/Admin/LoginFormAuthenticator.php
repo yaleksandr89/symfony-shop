@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Authenticator\Admin;
 
-use App\Entity\User;
 use App\Repository\UserRepository;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +27,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     public function __construct(
         private UserRepository $userRepository,
-        private UrlGeneratorInterface $urlGenerator
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -43,9 +41,8 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $email = $request->request->get('email');
         $plaintextPassword = $request->request->get('password');
 
-        $request->getSession()->set(Security::LAST_USERNAME, $email);
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
-        /** @var User $user */
         $user = $this->userRepository->findOneBy(['email' => $email]);
 
         if (null !== $user && !$user->hasAccessToAdminSection()) {

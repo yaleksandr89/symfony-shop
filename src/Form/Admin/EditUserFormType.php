@@ -24,7 +24,7 @@ class EditUserFormType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'user.form.field.email',
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
@@ -35,23 +35,24 @@ class EditUserFormType extends AbstractType
                 ],
             ])
             ->add('plainPassword', TextType::class, [
-                'label' => 'New password',
+                'label' => 'user.form.field.plain_password',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('roles', ChoiceType::class, [
-                'label' => 'Roles',
+                'label' => 'user.form.field.roles',
                 'required' => false,
                 'multiple' => true,
                 'choices' => array_flip(UserStaticStorage::getUserRolesChoices()),
+                'choice_translation_domain' => 'admin',
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('fullName', TextType::class, [
-                'label' => 'Full name',
+                'label' => 'user.form.field.full_name',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
@@ -61,7 +62,7 @@ class EditUserFormType extends AbstractType
                 ],
             ])
             ->add('phone', TextType::class, [
-                'label' => 'Phone',
+                'label' => 'user.form.field.phone',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
@@ -72,7 +73,7 @@ class EditUserFormType extends AbstractType
                 ],
             ])
             ->add('address', TextType::class, [
-                'label' => 'Address',
+                'label' => 'user.form.field.address',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
@@ -82,14 +83,14 @@ class EditUserFormType extends AbstractType
                 ],
             ])
             ->add('zipCode', TextType::class, [
-                'label' => 'Zip code',
+                'label' => 'user.form.field.zip_code',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                 ],
             ])
             ->add('isDeleted', CheckboxType::class, [
-                'label' => 'Is Deleted',
+                'label' => 'user.form.field.is_deleted',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
@@ -99,7 +100,7 @@ class EditUserFormType extends AbstractType
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Save changes',
+                'label' => 'action.save_changes',
             ]);
     }
 
@@ -108,6 +109,7 @@ class EditUserFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => EditUserModel::class,
             'user_repository' => null,
+            'translation_domain' => 'admin',
         ]);
     }
 }

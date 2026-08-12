@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Utils\ApiPlatform\Extension;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
-// >>> see vendor/api-platform/core/src/Core/Bridge/Doctrine/Orm/Extension/QueryItemExtensionInterface.php (14.07.2024)
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface as LegacyQueryNameGeneratorInterface;
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-// see vendor/api-platform/core/src/Core/Bridge/Doctrine/Orm/Extension/QueryItemExtensionInterface.php (14.07.2024) <<<
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Cart;
+use App\Entity\CartProduct;
 use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -43,27 +43,36 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface|LegacyQueryNameGeneratorInterface $queryNameGenerator,
+        QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        ?string $operationName = null
+        ?Operation $operation = null,
+        array $context = [],
     ): void {
-        $this->andWhere($queryBuilder, $resourceClass);
+        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass, $operation);
     }
 
     public function applyToItem(
         QueryBuilder $queryBuilder,
-        QueryNameGeneratorInterface|LegacyQueryNameGeneratorInterface $queryNameGenerator,
+        QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         array $identifiers,
-        ?string $operationName = null,
-        array $context = []
+        ?Operation $operation = null,
+        array $context = [],
     ): void {
-        $this->andWhere($queryBuilder, $resourceClass);
+        $this->andWhere($queryBuilder, $queryNameGenerator, $resourceClass, $operation);
     }
 
-    private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
-    {
-        if (Cart::class !== $resourceClass) {
+    private function andWhere(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        ?Operation $operation,
+    ): void {
+        if (Cart::class !== $resourceClass && CartProduct::class !== $resourceClass) {
+            return;
+        }
+
+        if (CartProduct::class === $resourceClass && !$operation instanceof Get && !$operation instanceof GetCollection) {
             return;
         }
 
@@ -80,12 +89,18 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $request = Request::createFromGlobals();
-        $cartToken = $request->cookies->get('CART_TOKEN');
+        $cartAlias = $rootAlias;
+        if (CartProduct::class === $resourceClass) {
+            $cartAlias = $queryNameGenerator->generateJoinAlias('cart');
+            $queryBuilder->innerJoin(sprintf('%s.cart', $rootAlias), $cartAlias);
+        }
+
+        $cartToken = $this->request->getCurrentRequest()?->cookies->get('CART_TOKEN') ?? '';
+        $parameterName = $queryNameGenerator->generateParameterName('cart_token');
 
         $queryBuilder->andWhere(
-            sprintf("%s.token = '%s'", $rootAlias, $cartToken)
-        );
+            sprintf('%s.token = :%s', $cartAlias, $parameterName)
+        )->setParameter($parameterName, $cartToken);
     }
 
     /**

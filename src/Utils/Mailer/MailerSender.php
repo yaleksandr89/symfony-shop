@@ -11,6 +11,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\File;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class MailerSender
@@ -37,18 +39,28 @@ class MailerSender
 
     protected ParameterBagInterface $parameterBag;
 
-    public function __construct(ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        ParameterBagInterface $parameterBag,
+        private EmailAssetResolver $emailAssetResolver,
+    ) {
         $this->parameterBag = $parameterBag;
     }
 
     public function sendTemplatedEmail(MailerOptionModel $mailerOptionModel): TemplatedEmail
     {
+        $logoPart = (new DataPart(new File($this->emailAssetResolver->getLogoPath())))
+            ->asInline()
+            ->setContentId('symfony-shop-logo@symfony-shop');
+
         $email = $this->getTemplatedEmail()
             ->to($mailerOptionModel->getRecipient())
             ->subject($mailerOptionModel->getSubject())
             ->htmlTemplate($mailerOptionModel->getHtmlTemplate())
-            ->context($mailerOptionModel->getContext());
+            ->context(array_merge($mailerOptionModel->getContext(), [
+                'email_inline_css' => $this->emailAssetResolver->getStylesheet(),
+                'email_logo_cid' => 'cid:'.$logoPart->getContentId(),
+            ]))
+            ->addPart($logoPart);
 
         if ($mailerOptionModel->getCc()) {
             $email->cc($mailerOptionModel->getCc());

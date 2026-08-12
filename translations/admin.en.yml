@@ -1,0 +1,169 @@
+filter.heading.filters: Filters
+filter.heading.value: Value
+filter.action.toggle: Show/Hide filters
+filter.action.apply: Apply
+filter.action.reset: Reset filters
+filter.range.from: From
+filter.range.to: To
+filter.error.date_range_title: Date range error
+
+product.filter.field.id: ID
+product.filter.field.category: Category
+product.filter.field.title: Title
+product.filter.field.price: Price
+product.filter.field.quantity: Quantity
+product.filter.field.created_at: Created at
+product.filter.field.is_published: Published
+
+order.filter.field.id: ID
+order.filter.field.owner: Owner
+order.filter.field.status: Status
+order.filter.field.total_price: Total price
+order.filter.field.created_at: Created at
+
+navigation.admin_panel: Admin panel
+navigation.dashboard: Dashboard
+navigation.sales: Sales
+navigation.products_section: Products
+navigation.orders: Orders
+navigation.products: Products
+navigation.categories: Categories
+navigation.all_list: All list
+navigation.go_to_main_site: Go to main site
+navigation.general: General
+navigation.users: Users
+
+action.add_new: Add new
+action.edit: Edit
+action.save_changes: Save changes
+action.logout: Logout
+
+layout.page_title: Admin Panel
+layout.brand: Alexander Yurchenko
+layout.copyright: 'Copyright © Alexander Yurchenko'
+
+dashboard.page_title: Dashboard
+dashboard.heading: Dashboard
+
+modal.confirm_delete: Are you sure?
+modal.delete_row: Delete row
+modal.cancel: Cancel
+modal.close: Close
+
+login.page_title: Log In
+login.heading: Auth Form
+login.email_placeholder: Enter Email Address...
+login.password_placeholder: Password
+login.remember_me: Remember Me
+login.submit: Login
+
+category.list.page_title: All categories
+category.list.heading: Categories
+category.list.column.id: ID
+category.list.column.title: Title
+category.list.column.slug: Slug
+category.edit.page_title: Edit category
+category.form.field.title: Title
+category.form.field.slug: Slug
+category.modal.delete_text: Category will be deleted.
+
+user.list.page_title: All users
+user.list.heading: Users
+user.list.column.id: ID
+user.list.column.email: Email
+user.list.column.role: Role
+user.list.column.profile_info: Profile info
+user.list.column.is_verified_email: Verified email
+user.list.column.from_google: From Google
+user.list.column.from_yandex: From Yandex
+user.list.column.from_vk: From VK
+user.list.column.from_github: From GitHub
+user.role.user: User
+user.role.admin: Administrator
+user.role.super_admin: Super Administrator
+user.profile.full_name: Full name
+user.profile.phone: Phone
+user.profile.address: Address
+user.profile.zip_code: Zip code
+user.state.verified: Verified
+user.state.not_verified: Not verified
+user.edit.page_title: Edit user
+user.form.field.email: Email
+user.form.field.plain_password: New password
+user.form.field.roles: Roles
+user.form.field.full_name: Full name
+user.form.field.phone: Phone
+user.form.field.address: Address
+user.form.field.zip_code: Zip code
+user.form.field.is_deleted: Deleted
+user.modal.delete_text: User will be deleted.
+
+flash.access_denied: You don't have enough rights! Contact the administrator.
+flash.save_success: Your changes were saved!
+flash.form_invalid: Something went wrong. Please check!
+flash.product.deleted: '[Soft delete] The product (title: %title% / ID: %id%) was successfully deleted!'
+flash.product_image.deleted: 'The image (ID: %id%) was successfully deleted!'
+flash.order.deleted: '[Soft delete] The order (ID: %id%) was successfully deleted!'
+flash.category.deleted: '[Soft delete] The category (title: %title% / ID: %id%) was successfully deleted!'
+flash.user.deleted: '[Soft delete] The user (Full name: %full_name% / ID: %id%) was successfully deleted!'
+
+product.list.page_title: All products
+product.list.heading: Products
+product.list.column.id: ID
+product.list.column.category: Category
+product.list.column.title: Title
+product.list.column.price: Price
+product.list.column.quantity: Quantity
+product.list.column.cover: Cover
+product.list.column.created_at: Created at
+product.list.column.is_published: Published
+
+product.edit.page_title: Edit product
+product.form.slug: Slug
+product.form.field.title: Title
+product.form.field.price: Price
+product.form.field.quantity: Quantity
+product.form.field.description: Description
+product.form.field.category: Category
+product.form.field.new_image: Choose new image
+product.form.field.is_published: Published
+product.form.field.is_new: New
+product.form.field.is_on_sale: 'On sale'
+product.form.field.is_deleted: Deleted
+product.form.category_placeholder: Please select a category
+product.image.current: Current images
+product.image.delete: Delete
+product.modal.delete_text: Product will be deleted.
+
+order.list.page_title: All orders
+order.list.heading: Orders
+order.list.column.id: ID
+order.list.column.full_name: Full name
+order.list.column.email: Email
+order.list.column.phone: Phone
+order.list.column.created_at: Created at
+order.list.column.product_count: Product count
+order.list.column.total_price: Total price
+order.list.column.status: Status
+order.list.missing_full_name: Full name is not specified
+order.list.missing_phone: Phone is not specified
+
+order.edit.page_title: Edit order
+order.form.field.id: ID
+order.form.field.created_at: Created at
+order.form.field.updated_at: Updated at
+order.form.field.owner: Owner
+order.form.field.status: Status
+order.form.field.is_deleted: Deleted
+order.products.heading: Products
+order.products.save_before_adding: 'To add products, first click "Save changes".'
+order.products.total_price: Total price
+order.products.choose_category: Choose a category
+order.products.choose_product: Choose a product
+order.products.quantity_placeholder: Quantity
+order.products.price_per_item_placeholder: Price per item
+order.products.action.details: Details
+order.products.action.add: Add
+order.products.action.remove: Remove
+order.products.insufficient_rights: You do not have enough permissions. Contact the administrator.
+order.modal.delete_text: Order will be deleted.

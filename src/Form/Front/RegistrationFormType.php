@@ -62,10 +62,7 @@ class RegistrationFormType extends AbstractType
                 ],
                 'constraints' => [
                     new NotBlank(),
-                    new Length([
-                        'min' => 6,
-                        'max' => 4096,
-                    ]),
+                    new Length(min: 6, max: 4096),
                 ],
             ]);
     }

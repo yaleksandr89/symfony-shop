@@ -1,7 +1,4 @@
 {
-    "aego/oauth2-yandex": {
-        "version": "0.2.2"
-    },
     "api-platform/core": {
         "version": "2.6",
         "recipe": {
@@ -15,12 +12,6 @@
             "config/packages/api_platform.yaml",
             "src/Entity/.gitignore"
         ]
-    },
-    "behat/transliterator": {
-        "version": "v1.3.0"
-    },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.4"
     },
     "composer/pcre": {
         "version": "3.0.0"
@@ -43,29 +34,8 @@
             "config/packages/test/dama_doctrine_test_bundle.yaml"
         ]
     },
-    "dbrekelmans/bdi": {
-        "version": "1.0"
-    },
-    "doctrine/annotations": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "a2759dd6123694c8d901d0ec80006e044c2e6457"
-        },
-        "files": [
-            "config/routes/annotations.yaml"
-        ]
-    },
-    "doctrine/cache": {
-        "version": "2.1.1"
-    },
     "doctrine/collections": {
         "version": "1.6.8"
-    },
-    "doctrine/common": {
-        "version": "3.1.2"
     },
     "doctrine/data-fixtures": {
         "version": "1.5.1"
@@ -147,9 +117,6 @@
             ".php-cs-fixer.dist.php"
         ]
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.5"
-    },
     "gedmo/doctrine-extensions": {
         "version": "v3.1.0"
     },
@@ -197,9 +164,6 @@
             "config/packages/knpu_oauth2_client.yaml"
         ]
     },
-    "laminas/laminas-code": {
-        "version": "4.4.3"
-    },
     "league/oauth2-client": {
         "version": "2.6.0"
     },
@@ -208,9 +172,6 @@
     },
     "league/oauth2-google": {
         "version": "4.0.0"
-    },
-    "lexik/form-filter-bundle": {
-        "version": "v7.0.1"
     },
     "lorenzo/pinky": {
         "version": "1.0.5"
@@ -249,9 +210,6 @@
     "nikic/php-parser": {
         "version": "v4.13.0"
     },
-    "nyholm/nsa": {
-        "version": "1.3.0"
-    },
     "paragonie/random_compat": {
         "version": "v9.99.100"
     },
@@ -260,30 +218,6 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "php-translation/common": {
-        "version": "3.1.0"
-    },
-    "php-translation/extractor": {
-        "version": "2.0.3"
-    },
-    "php-translation/symfony-bundle": {
-        "version": "0.12",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "0.10",
-            "ref": "5c712c2758c3cccb964713f0061493b8ce2dd430"
-        },
-        "files": [
-            "config/packages/dev/php_translation.yaml",
-            "config/packages/php_translation.yaml",
-            "config/routes/dev/php_translation.yaml",
-            "config/routes/php_translation.yaml"
-        ]
-    },
-    "php-translation/symfony-storage": {
-        "version": "2.3.0"
     },
     "php-webdriver/webdriver": {
         "version": "1.12.0"
@@ -401,17 +335,8 @@
     "sebastian/version": {
         "version": "3.0.2"
     },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
-        },
-        "files": [
-            "config/packages/sensio_framework_extra.yaml"
-        ]
+    "spiriitlabs/form-filter-bundle": {
+        "version": "v10.0.2"
     },
     "stof/doctrine-extensions-bundle": {
         "version": "1.2",
@@ -633,21 +558,6 @@
     "symfony/password-hasher": {
         "version": "v5.3.7"
     },
-    "symfony/phpunit-bridge": {
-        "version": "5.3",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.3",
-            "ref": "97cb3dc7b0f39c7cfc4b7553504c9d7b7795de96"
-        },
-        "files": [
-            ".env.test",
-            "bin/phpunit",
-            "phpunit.xml.dist",
-            "tests/bootstrap.php"
-        ]
-    },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.23.1"
     },
@@ -680,9 +590,6 @@
     },
     "symfony/property-info": {
         "version": "v5.3.7"
-    },
-    "symfony/proxy-manager-bridge": {
-        "version": "v5.3.4"
     },
     "symfony/routing": {
         "version": "5.3",
