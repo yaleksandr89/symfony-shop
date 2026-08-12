@@ -69,14 +69,21 @@ class MailerSender
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $exception) {
-            $this->logger->critical($mailerOptionModel->getSubject(), [
-                'errorText' => $exception->getTraceAsString(),
-            ]);
+            $this->logDeliveryFailure(
+                'Primary email delivery failed.',
+                $exception,
+                'primary',
+            );
 
             $systemMailerOptions = $this->getMailerOptions()
-                ->setText($exception->getTraceAsString());
+                ->setText(sprintf(
+                    "Primary email delivery failed.\nException class: %s",
+                    $exception::class,
+                ));
 
             $this->sendSystemEmail($systemMailerOptions);
+
+            throw $exception;
         }
 
         return $email;
@@ -84,21 +91,23 @@ class MailerSender
 
     private function sendSystemEmail(MailerOptionModel $mailerOptionModel): void
     {
-        $mailerOptionModel
-            ->setSubject('[Exception] An error occurred while sending the letter')
-            ->setRecipient($this->parameterBag->get('admin_email'));
-
-        $email = $this->getEmail()
-            ->to($mailerOptionModel->getRecipient())
-            ->subject($mailerOptionModel->getSubject())
-            ->text($mailerOptionModel->getText());
-
         try {
+            $mailerOptionModel
+                ->setSubject('[Exception] An error occurred while sending the letter')
+                ->setRecipient($this->parameterBag->get('admin_email'));
+
+            $email = $this->getEmail()
+                ->to($mailerOptionModel->getRecipient())
+                ->subject($mailerOptionModel->getSubject())
+                ->text($mailerOptionModel->getText());
+
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface $ex) {
-            $this->logger->critical($mailerOptionModel->getSubject(), [
-                'errorText' => $ex->getTraceAsString(),
-            ]);
+        } catch (\Throwable $exception) {
+            $this->logDeliveryFailure(
+                'Fallback email delivery failed.',
+                $exception,
+                'fallback',
+            );
         }
     }
 
@@ -115,5 +124,17 @@ class MailerSender
     private function getEmail(): Email
     {
         return new Email();
+    }
+
+    private function logDeliveryFailure(string $message, \Throwable $exception, string $mailStage): void
+    {
+        try {
+            $this->logger->critical($message, [
+                'exception_class' => $exception::class,
+                'mail_stage' => $mailStage,
+            ]);
+        } catch (\Throwable) {
+            // Logging is best-effort and must not replace the primary mail failure.
+        }
     }
 }

@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
@@ -153,6 +154,51 @@ final class OAuthNewUserRegistrarTest extends TestCase
         } catch (\RuntimeException $exception) {
             self::assertSame($failure, $exception);
         }
+    }
+
+    #[TestDox('Сбой доставки письма после сохранения не отменяет OAuth-регистрацию')]
+    public function testTransportFailureAfterPersistenceRemainsBestEffort(): void
+    {
+        $user = new class() extends User {
+            public function assignId(int $id): void
+            {
+                $this->id = $id;
+            }
+        };
+        $user->setEmail('oauth-transport-failure@example.test')->setIsVerified(true);
+        $user->setGoogleId('google-transport-failure-id');
+
+        $passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
+        $passwordHasher->method('hashPassword')->willReturn('hashed-password');
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist')->with($user);
+        $entityManager->expects(self::once())->method('flush')->willReturnCallback(
+            static function () use ($user): void {
+                $user->assignId(43);
+            }
+        );
+        $signature = new VerifyEmailSignatureComponents(
+            new \DateTimeImmutable('@3600'),
+            'https://example.test/verify?id=43',
+            0,
+        );
+        $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
+        $verifyEmailHelper->expects(self::once())->method('generateSignature')->with(
+            'main_verify_email',
+            '43',
+            'oauth-transport-failure@example.test',
+            ['id' => '43'],
+        )->willReturn($signature);
+        $emailSender = $this->createMock(UserRegisteredEmailSender::class);
+        $emailSender->expects(self::once())->method('sendEmailToClient')->with($user, $signature)
+            ->willThrowException(new TransportException('delivery unavailable'));
+
+        $this->registrar($passwordHasher, $entityManager, $verifyEmailHelper, $emailSender)
+            ->register($user, OAuthProvider::Google);
+
+        self::assertSame(43, $user->getId());
+        self::assertFalse($user->isVerified());
+        self::assertSame('hashed-password', $user->getPassword());
     }
 
     #[TestDox('Отсутствующий email отклоняется до хеширования, сохранения, подписи и письма')]

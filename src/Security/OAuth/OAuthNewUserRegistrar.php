@@ -9,6 +9,7 @@ use App\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -52,6 +53,9 @@ final class OAuthNewUserRegistrar
             $email,
             ['id' => (string) $userId]
         );
-        $this->emailSender->sendEmailToClient($user, $signatureComponents);
+        try {
+            $this->emailSender->sendEmailToClient($user, $signatureComponents);
+        } catch (TransportExceptionInterface) {
+        }
     }
 }

@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -109,10 +110,13 @@ class ProfileController extends AbstractController
             $verifyEmailLink = $this
                 ->emailVerifier
                 ->generateEmailSignature('main_verify_email', $user);
-            $this->emailSender->sendEmailToClient($user, $verifyEmailLink);
-        }
 
-        $request->getSession()->set('resending_verify_email_link', true);
+            try {
+                $this->emailSender->sendEmailToClient($user, $verifyEmailLink);
+                $request->getSession()->set('resending_verify_email_link', true);
+            } catch (TransportExceptionInterface) {
+            }
+        }
 
         return $this->redirectToRoute('main_profile_index');
     }

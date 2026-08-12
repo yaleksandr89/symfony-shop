@@ -7,6 +7,7 @@ namespace App\EventSubscriber;
 use App\Event\OrderCreatedFromCartEvent;
 use App\Utils\Mailer\Sender\OrderCreatedFromCartEmailSender;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberInterface
@@ -25,8 +26,16 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
     {
         $order = $event->getOrder();
 
-        $this->orderCreatedFromCartEmailSender->sendEmailToClient($order);
-        $this->orderCreatedFromCartEmailSender->sendEmailToManager($order);
+        // Email delivery is best-effort after the order has already been committed.
+        try {
+            $this->orderCreatedFromCartEmailSender->sendEmailToClient($order);
+        } catch (TransportExceptionInterface) {
+        }
+
+        try {
+            $this->orderCreatedFromCartEmailSender->sendEmailToManager($order);
+        } catch (TransportExceptionInterface) {
+        }
     }
 
     public static function getSubscribedEvents(): array
