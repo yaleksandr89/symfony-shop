@@ -28,13 +28,13 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
     #[TestDox('Покупатель через интерфейс удаляет недоступные товары и оформляет оставшийся')]
     public function testCheckoutHighlightsUnavailableProductsUntilTheyAreRemoved(): void
     {
-        $client = static::createPantherClient(['browser' => self::CHROME]);
-        $client->restart();
         $context = null;
         $testFailure = null;
 
         try {
+            static::stopWebServer();
             $context = $this->createCartContext();
+            $client = static::createPantherClient(['browser' => self::CHROME]);
             $this->logInAndOpenCart($client, $context['token']);
 
             $activeRow = $this->cartProductSelector($context['activeCartProductId']);
@@ -52,7 +52,10 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             self::assertTrue($checkoutButton->isEnabled());
             self::assertCount(3, $client->getWebDriver()->findElements(WebDriverBy::cssSelector('[data-cart-product-id]')));
 
+            static::stopWebServer();
             $this->makeProductsUnavailable($context);
+            $client = static::createPantherClient(['browser' => self::CHROME]);
+            $this->logInAndOpenCart($client, $context['token']);
             $this->activateRenderedControl($client, '[data-checkout-button]');
             $client->waitFor('[data-cart-unavailable-alert]');
 
@@ -102,17 +105,18 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             $this->activateRenderedControl($client, '[data-checkout-button]');
             $client->waitForElementToContain('.alert', 'Thank you for your purchase!');
 
+            $this->assertBrowserLogHasNoApplicationErrors($client);
+            static::stopWebServer();
             self::assertSame($context['orderCount'] + 1, $this->getOrderCount());
             $this->assertOrderContainsOnlyActiveProduct($context['activeProductId']);
             $this->assertCartWasConsumed($context['cartId']);
-            $this->assertBrowserLogHasNoApplicationErrors($client);
         } catch (\Throwable $exception) {
             $testFailure = $exception;
         } finally {
             $cleanupFailure = null;
 
             try {
-                $client->restart();
+                static::stopWebServer();
             } catch (\Throwable $exception) {
                 $cleanupFailure = $exception;
             }

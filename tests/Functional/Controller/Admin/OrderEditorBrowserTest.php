@@ -30,17 +30,12 @@ class OrderEditorBrowserTest extends PantherTestCase
     #[TestDox('Администратор через интерфейс добавляет и удаляет позицию заказа в Panther')]
     public function testAdminOrderEditorMutatesControlledLinesWithPanther(): void
     {
-        $client = static::createPantherClient(['browser' => self::CHROME]);
-
-        $this->assertAdminOrderEditorMutatesLines($client);
-    }
-
-    private function assertAdminOrderEditorMutatesLines(Client $client): void
-    {
         $context = null;
         $testFailure = null;
         try {
+            static::stopWebServer();
             $context = $this->createControlledOrder();
+            $client = static::createPantherClient(['browser' => self::CHROME]);
 
             $client->request('GET', '/ru/admin/login');
             $client->submitForm('Войти', [
@@ -132,7 +127,7 @@ class OrderEditorBrowserTest extends PantherTestCase
         } finally {
             $cleanupFailure = null;
             try {
-                $client->restart();
+                static::stopWebServer();
             } catch (\Throwable $exception) {
                 $cleanupFailure = $exception;
             }
