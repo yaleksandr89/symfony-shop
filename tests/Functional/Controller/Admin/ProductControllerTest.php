@@ -11,6 +11,8 @@ use App\Entity\User;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use App\Utils\File\FileSaver;
+use App\Utils\FileSystem\FilesystemWorker;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +23,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Group(name: 'functional')]
 class ProductControllerTest extends WebTestCase
@@ -157,6 +161,57 @@ class ProductControllerTest extends WebTestCase
         self::assertInstanceOf(Product::class, $updatedProduct);
         self::assertTrue($updatedProduct->getIsNew());
         self::assertTrue($updatedProduct->getIsOnSale());
+    }
+
+    #[TestDox('Ошибка staging выбранного изображения остаётся на форме и не сохраняет изменения товара')]
+    public function testUploadStagingFailureRendersSafeErrorWithoutSavingProduct(): void
+    {
+        $client = $this->createAdminClient();
+        $client->disableReboot();
+        $product = $this->getEditableProductWithImage();
+        $productId = $product->getId();
+        self::assertIsInt($productId);
+        $originalTitle = $product->getTitle();
+        self::assertIsString($originalTitle);
+        $filesystem = new Filesystem();
+        $blockedTempPath = tempnam(sys_get_temp_dir(), 'blocked-product-upload-');
+        self::assertNotFalse($blockedTempPath);
+        $uploadPath = sys_get_temp_dir().'/product-upload-'.bin2hex(random_bytes(8)).'.png';
+        $image = imagecreatetruecolor(20, 10);
+        self::assertInstanceOf(\GdImage::class, $image);
+        self::assertTrue(imagepng($image, $uploadPath));
+
+        try {
+            self::getContainer()->set(FileSaver::class, new FileSaver(
+                self::getContainer()->get(SluggerInterface::class),
+                new FilesystemWorker($filesystem),
+                $blockedTempPath,
+            ));
+
+            $crawler = $client->request('GET', sprintf('/en/admin/product/edit/%d', $productId));
+            $form = $crawler->filter('form[name="edit_product_form"]')->form([
+                'edit_product_form[title]' => 'This change must not be saved',
+            ]);
+            $form['edit_product_form[newImage]']->upload($uploadPath);
+            $crawler = $client->submit($form);
+
+            self::assertResponseIsSuccessful();
+            $renderedForm = $crawler->filter('form[name="edit_product_form"]');
+            self::assertCount(1, $renderedForm);
+            self::assertStringContainsString(
+                'Unable to save the uploaded image. Please try again.',
+                $renderedForm->text(),
+            );
+            self::assertCount(0, $crawler->filter('.alert.alert-success'));
+
+            $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+            $entityManager->clear();
+            $persistedProduct = $entityManager->find(Product::class, $productId);
+            self::assertInstanceOf(Product::class, $persistedProduct);
+            self::assertSame($originalTitle, $persistedProduct->getTitle());
+        } finally {
+            $filesystem->remove([$blockedTempPath, $uploadPath]);
+        }
     }
 
     #[DataProvider(methodName: 'providePriceRanges')]

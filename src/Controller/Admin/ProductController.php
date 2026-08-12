@@ -12,9 +12,12 @@ use App\Form\DTO\ProductFilterModel;
 use App\Form\Handler\ProductFormHandler;
 use App\Repository\ProductImageRepository;
 use App\Utils\Manager\ProductManager;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/admin/product', name: 'admin_product_')]
 class ProductController extends BaseAdminController
@@ -44,8 +47,12 @@ class ProductController extends BaseAdminController
     #[Route('/edit/{id}', name: 'edit')]
     #[Route('/edit', name: 'edit_blank')]
     #[Route('/add', name: 'add')]
-    public function edit(Request $request, ProductFormHandler $productFormHandler, ?Product $product = null): Response
-    {
+    public function edit(
+        Request $request,
+        ProductFormHandler $productFormHandler,
+        TranslatorInterface $translator,
+        ?Product $product = null,
+    ): Response {
         $editProductModel = EditProductModel::makeFromProduct($product);
 
         $form = $this->createForm(EditProductFormType::class, $editProductModel);
@@ -56,10 +63,17 @@ class ProductController extends BaseAdminController
                 return $this->redirect($request->server->get('HTTP_REFERER'));
             }
 
-            $product = $productFormHandler->processEditForm($form, $editProductModel);
-            $this->addTranslatedFlash('success', 'flash.save_success');
+            try {
+                $product = $productFormHandler->processEditForm($form, $editProductModel);
+                $this->addTranslatedFlash('success', 'flash.save_success');
 
-            return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
+                return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
+            } catch (FileException) {
+                $form->get('newImage')->addError(new FormError($translator->trans(
+                    'product.validation.image.upload_failed',
+                    domain: 'validators',
+                )));
+            }
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {

@@ -11,9 +11,11 @@ use App\Utils\FileSystem\FilesystemWorker;
 use App\Utils\Manager\ProductManager;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\Log\LoggerInterface;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Throwable;
 
 class ProductFormHandler
 {
@@ -23,6 +25,7 @@ class ProductFormHandler
         private FilesystemWorker $filesystemWorker,
         private PaginatorInterface $paginator,
         private FilterBuilderUpdater $filterBuilderUpdater,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -34,27 +37,19 @@ class ProductFormHandler
             $product = $this->productManager->find($editProductModel->id);
         }
 
-        $this->productManager->persist($product);
-
         $product = $this->fillingProductData($product, $editProductModel);
         $newImageFile = $form->get('newImage')->getData();
-        $uploadsTempDir = $this->fileSaver->getUploadsTempDir();
-        $uploadsFilename = $this->fileSaver->saveUploadedFileIntoTemp($newImageFile);
+        $tempImageFilename = $this->fileSaver->saveUploadedFileIntoTemp($newImageFile);
 
-        $tempImageFilename = $newImageFile
-            ? $uploadsFilename
-            : null;
-
-        $this->productManager->updateProductImages($product, $tempImageFilename);
-
-        $this->productManager->flush();
-
-        if ($tempImageFilename) {
-            $this->filesystemWorker->remove($uploadsTempDir.'/'.$uploadsFilename);
-            $this->filesystemWorker->removeFolderIfEmpty($uploadsTempDir);
+        if (null === $tempImageFilename) {
+            return $this->productManager->saveProduct($product);
         }
 
-        return $product;
+        try {
+            return $this->productManager->saveProduct($product, $tempImageFilename);
+        } finally {
+            $this->cleanupTempImage($tempImageFilename);
+        }
     }
 
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
@@ -123,5 +118,34 @@ class ProductFormHandler
         $product->setIsOnSale($isOnSale);
 
         return $product;
+    }
+
+    private function cleanupTempImage(string $tempImageFilename): void
+    {
+        $uploadsTempDir = $this->fileSaver->getUploadsTempDir();
+        $tempImagePath = $this->filesystemWorker->generatePathToFile($uploadsTempDir, $tempImageFilename);
+
+        try {
+            $this->filesystemWorker->remove($tempImagePath);
+        } catch (Throwable $exception) {
+            $this->logCleanupFailure('Unable to remove a staged product image.', $exception);
+        }
+
+        try {
+            $this->filesystemWorker->removeFolderIfEmpty($uploadsTempDir);
+        } catch (Throwable $exception) {
+            $this->logCleanupFailure('Unable to remove the empty product image staging directory.', $exception);
+        }
+    }
+
+    private function logCleanupFailure(string $message, Throwable $exception): void
+    {
+        try {
+            $this->logger->warning($message, [
+                'exception_class' => $exception::class,
+            ]);
+        } catch (Throwable) {
+            // Logging is best-effort and must not change the operation outcome.
+        }
     }
 }

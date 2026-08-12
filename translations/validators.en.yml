@@ -15,6 +15,7 @@ product.validation.price.greater_than_zero: Price must be greater than zero.
 product.validation.quantity.required: Please indicate a quantity.
 product.validation.category.required: Please select a category.
 product.validation.image.invalid_type: Please upload a valid image (*.jpg or *.png).
+product.validation.image.upload_failed: Unable to save the uploaded image. Please try again.
 order.validation.status.required: Please select a status.
 order.validation.owner.required: Please select an owner.
 category.validation.title.required: Title is required.
