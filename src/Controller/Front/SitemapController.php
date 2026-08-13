@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Front;
 
-use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,9 +16,6 @@ class SitemapController extends AbstractController
     {
         $mainPageInfo = [
             'loc' => $this->generateUrl('main_homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'lastmod' => (new DateTimeImmutable())->format('Y-m-d'),
-            'changefreq' => 'weekly',
-            'priority' => 1,
         ];
 
         return $this->render('front/sitemap.xml.twig', [

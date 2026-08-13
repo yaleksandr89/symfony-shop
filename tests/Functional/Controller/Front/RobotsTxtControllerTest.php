@@ -12,8 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 #[Group(name: 'functional')]
 final class RobotsTxtControllerTest extends WebTestCase
 {
-    #[TestDox('Вывод robots.txt не обращается к каталогу')]
-    public function testRobotsOutputDoesNotQueryCatalog(): void
+    #[TestDox('robots.txt разрешает публичную индексацию без запросов к каталогу')]
+    public function testRobotsOutputAllowsPublicStorefrontWithoutCatalogQueries(): void
     {
         $client = self::createClient();
         $client->enableProfiler();
@@ -21,7 +21,16 @@ final class RobotsTxtControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type', 'text/plain; charset=UTF-8');
-        self::assertStringContainsString('Sitemap: http://localhost/sitemap.xml', (string) $client->getResponse()->getContent());
+        $content = (string) $client->getResponse()->getContent();
+
+        self::assertSame(
+            "User-agent: *\nDisallow:\n\nSitemap: http://localhost/sitemap.xml",
+            trim($content)
+        );
+        self::assertStringNotContainsString('Disallow: /', $content);
+        self::assertStringNotContainsString('Yandex', $content);
+        self::assertStringNotContainsString('GoogleBot', $content);
+        self::assertStringNotContainsString('Для рабочего сайта', $content);
         $profile = $client->getProfile();
         self::assertNotFalse($profile);
         self::assertNotNull($profile);
