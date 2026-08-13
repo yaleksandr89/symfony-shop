@@ -6,12 +6,14 @@ namespace App\Tests\Unit\Utils\Mailer;
 
 use App\Utils\Mailer\DTO\MailerOptionModel;
 use App\Utils\Mailer\EmailAssetResolver;
+use App\Utils\Mailer\Exception\EmailAssetUnavailableException;
 use App\Utils\Mailer\MailerSender;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportException;
@@ -197,24 +199,121 @@ final class MailerSenderTest extends TestCase
         self::assertSame([], $logger->records);
     }
 
-    #[TestDox('Сбой разрешения ресурса останавливает отправку до transport boundary и fallback')]
-    public function testAssetFailureOccursBeforeAnyTransportAttempt(): void
+    #[TestDox('Отсутствующая таблица стилей даёт safe warning и не отменяет письмо с логотипом')]
+    public function testMissingStylesheetDegradesToUnstyledEmail(): void
     {
-        unlink($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png');
+        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
+        $sent = null;
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())->method('send')->willReturnCallback(
+            static function (RawMessage $message) use (&$sent): void {
+                $sent = $message;
+            },
+        );
+        $logger = new RecordingLogger();
+
+        $result = $this->sender($mailer, $logger)->sendTemplatedEmail($this->options());
+
+        self::assertSame($sent, $result);
+        self::assertSame('', $result->getContext()['email_inline_css']);
+        self::assertSame('cid:symfony-shop-logo@symfony-shop', $result->getContext()['email_logo_cid']);
+        self::assertCount(1, $result->getAttachments());
+        self::assertSame([[
+            'warning',
+            'Email decorative asset is unavailable.',
+            ['asset' => 'stylesheet', 'exception_class' => EmailAssetUnavailableException::class],
+        ]], $logger->records);
+    }
+
+    #[TestDox('Отсутствующий логотип даёт safe warning и отправляет письмо без inline attachment')]
+    public function testMissingLogoDegradesToEmailWithoutInlinePart(): void
+    {
+        self::assertTrue(unlink($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png'));
+        $sent = null;
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())->method('send')->willReturnCallback(
+            static function (RawMessage $message) use (&$sent): void {
+                $sent = $message;
+            },
+        );
+        $logger = new RecordingLogger();
+
+        $result = $this->sender($mailer, $logger)->sendTemplatedEmail($this->options());
+
+        self::assertSame($sent, $result);
+        self::assertSame('.email { color: #123; }', $result->getContext()['email_inline_css']);
+        self::assertNull($result->getContext()['email_logo_cid']);
+        self::assertSame([], $result->getAttachments());
+        self::assertSame([[
+            'warning',
+            'Email decorative asset is unavailable.',
+            ['asset' => 'logo', 'exception_class' => EmailAssetUnavailableException::class],
+        ]], $logger->records);
+    }
+
+    #[TestDox('Отсутствие обоих декоративных ресурсов даёт два bounded warning и одну business-отправку')]
+    public function testBothAssetsMissingStillSendsOnceWithTwoWarnings(): void
+    {
+        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
+        self::assertTrue(unlink($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png'));
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())->method('send');
+        $logger = new RecordingLogger();
+
+        $result = $this->sender($mailer, $logger)->sendTemplatedEmail($this->options());
+
+        self::assertSame('', $result->getContext()['email_inline_css']);
+        self::assertNull($result->getContext()['email_logo_cid']);
+        self::assertSame([], $result->getAttachments());
+        self::assertSame([
+            [
+                'warning',
+                'Email decorative asset is unavailable.',
+                ['asset' => 'stylesheet', 'exception_class' => EmailAssetUnavailableException::class],
+            ],
+            [
+                'warning',
+                'Email decorative asset is unavailable.',
+                ['asset' => 'logo', 'exception_class' => EmailAssetUnavailableException::class],
+            ],
+        ], $logger->records);
+    }
+
+    #[TestDox('Unsafe URL ресурса останавливает отправку до transport boundary и fallback')]
+    public function testUnsafeAssetFailureOccursBeforeAnyTransportAttempt(): void
+    {
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::never())->method('send');
         $logger = new RecordingLogger();
 
-        $this->expectException(\RuntimeException::class);
-
         try {
-            $this->sender($mailer, $logger)->sendTemplatedEmail($this->options());
-        } finally {
-            self::assertSame([], $logger->records);
+            $this->sender($mailer, $logger, 'https://example.test/build/email.css')
+                ->sendTemplatedEmail($this->options());
+            self::fail('Unsafe asset configuration must fail.');
+        } catch (\RuntimeException $exception) {
+            self::assertNotInstanceOf(EmailAssetUnavailableException::class, $exception);
         }
+
+        self::assertSame([], $logger->records);
     }
 
-    private function sender(MailerInterface $mailer, RecordingLogger $logger): MailerSender
+    #[TestDox('Сбой warning-логгера не отменяет отправку письма без декоративного ресурса')]
+    public function testUnavailableAssetWarningFailureDoesNotPreventSend(): void
+    {
+        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())->method('send');
+
+        $result = $this->sender($mailer, new ThrowingWarningLogger())->sendTemplatedEmail($this->options());
+
+        self::assertSame('', $result->getContext()['email_inline_css']);
+    }
+
+    private function sender(
+        MailerInterface $mailer,
+        LoggerInterface $logger,
+        string $stylesheetUrl = '/build/email.css',
+    ): MailerSender
     {
         $parameterBag = $this->createStub(ParameterBagInterface::class);
         $parameterBag->method('get')->willReturnCallback(
@@ -226,10 +325,10 @@ final class MailerSenderTest extends TestCase
         );
         $packages = $this->createStub(Packages::class);
         $packages->method('getUrl')->willReturnCallback(
-            static function (string $path): string {
+            static function (string $path) use ($stylesheetUrl): string {
                 self::assertSame('build/email.css', $path);
 
-                return '/build/email.css';
+                return $stylesheetUrl;
             }
         );
         $sender = new MailerSender(
@@ -298,5 +397,15 @@ final class RecordingLogger extends AbstractLogger
     public function log($level, string|\Stringable $message, array $context = []): void
     {
         $this->records[] = [$level, (string) $message, $context];
+    }
+}
+
+final class ThrowingWarningLogger extends AbstractLogger
+{
+    public function log($level, string|\Stringable $message, array $context = []): void
+    {
+        if ('warning' === $level) {
+            throw new \RuntimeException('logger failure');
+        }
     }
 }

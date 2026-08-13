@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Utils\Mailer;
 
+use App\Utils\Mailer\Exception\EmailAssetUnavailableException;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -25,7 +26,7 @@ final class EmailAssetResolver
         $stylesheet = file_get_contents($path);
 
         if (false === $stylesheet) {
-            throw new \RuntimeException(sprintf('Unable to read email stylesheet: %s', $path));
+            throw new EmailAssetUnavailableException('Email stylesheet is unavailable.');
         }
 
         return $stylesheet;
@@ -80,16 +81,20 @@ final class EmailAssetResolver
 
         $realDirectory = realpath($directory);
         if (false === $realDirectory || !is_dir($realDirectory)) {
-            throw new \RuntimeException(sprintf('Expected %s directory is unavailable: %s', $asset, $directory));
+            throw new EmailAssetUnavailableException(sprintf('%s directory is unavailable.', ucfirst($asset)));
         }
 
         $realPath = realpath($realDirectory.'/'.$relativePath);
-        if (false === $realPath || !str_starts_with($realPath, $realDirectory.DIRECTORY_SEPARATOR)) {
+        if (false === $realPath) {
+            throw new EmailAssetUnavailableException(sprintf('%s is unavailable.', ucfirst($asset)));
+        }
+
+        if (!str_starts_with($realPath, $realDirectory.DIRECTORY_SEPARATOR)) {
             throw new \RuntimeException(sprintf('Unable to resolve %s inside its expected directory.', $asset));
         }
 
         if (!is_file($realPath) || !is_readable($realPath)) {
-            throw new \RuntimeException(sprintf('%s is not a readable file: %s', ucfirst($asset), $realPath));
+            throw new EmailAssetUnavailableException(sprintf('%s is unavailable.', ucfirst($asset)));
         }
 
         return $realPath;

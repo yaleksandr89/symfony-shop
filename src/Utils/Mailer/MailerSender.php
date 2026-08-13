@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Utils\Mailer;
 
 use App\Utils\Mailer\DTO\MailerOptionModel;
+use App\Utils\Mailer\Exception\EmailAssetUnavailableException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -48,19 +49,36 @@ class MailerSender
 
     public function sendTemplatedEmail(MailerOptionModel $mailerOptionModel): TemplatedEmail
     {
-        $logoPart = (new DataPart(new File($this->emailAssetResolver->getLogoPath())))
-            ->asInline()
-            ->setContentId('symfony-shop-logo@symfony-shop');
+        $stylesheet = '';
+        try {
+            $stylesheet = $this->emailAssetResolver->getStylesheet();
+        } catch (EmailAssetUnavailableException $exception) {
+            $this->logUnavailableAsset('stylesheet', $exception);
+        }
+
+        $logoPart = null;
+        $logoCid = null;
+        try {
+            $logoPart = (new DataPart(new File($this->emailAssetResolver->getLogoPath())))
+                ->asInline()
+                ->setContentId('symfony-shop-logo@symfony-shop');
+            $logoCid = 'cid:'.$logoPart->getContentId();
+        } catch (EmailAssetUnavailableException $exception) {
+            $this->logUnavailableAsset('logo', $exception);
+        }
 
         $email = $this->getTemplatedEmail()
             ->to($mailerOptionModel->getRecipient())
             ->subject($mailerOptionModel->getSubject())
             ->htmlTemplate($mailerOptionModel->getHtmlTemplate())
             ->context(array_merge($mailerOptionModel->getContext(), [
-                'email_inline_css' => $this->emailAssetResolver->getStylesheet(),
-                'email_logo_cid' => 'cid:'.$logoPart->getContentId(),
-            ]))
-            ->addPart($logoPart);
+                'email_inline_css' => $stylesheet,
+                'email_logo_cid' => $logoCid,
+            ]));
+
+        if (null !== $logoPart) {
+            $email->addPart($logoPart);
+        }
 
         if ($mailerOptionModel->getCc()) {
             $email->cc($mailerOptionModel->getCc());
@@ -135,6 +153,18 @@ class MailerSender
             ]);
         } catch (\Throwable) {
             // Logging is best-effort and must not replace the primary mail failure.
+        }
+    }
+
+    private function logUnavailableAsset(string $asset, EmailAssetUnavailableException $exception): void
+    {
+        try {
+            $this->logger->warning('Email decorative asset is unavailable.', [
+                'asset' => $asset,
+                'exception_class' => $exception::class,
+            ]);
+        } catch (\Throwable) {
+            // Logging is best-effort and must not prevent business email delivery.
         }
     }
 }
