@@ -16,19 +16,8 @@ controllers_front:
   defaults:
     _locale: '%locale%'
 
-controllers_robots_txt:
-  resource: ../../src/Controller/Front/RobotsTxtController.php
-  type: attribute
-  format: txt
-  requirements:
-    _format: txt
-
-controllers_sitemap:
-  resource: ../../src/Controller/Front/SitemapController.php
-  type: attribute
-  format: xml
-  requirements:
-    _format: xml
+seo:
+  resource: ../../src/SeoBundle/config/routes.yaml
 
 kernel:
   resource: ../../src/Kernel.php

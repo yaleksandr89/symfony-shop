@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Front;
+namespace App\SeoBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +18,7 @@ class SitemapController extends AbstractController
             'loc' => $this->generateUrl('main_homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
         ];
 
-        return $this->render('front/sitemap.xml.twig', [
+        return $this->render('@Seo/sitemap.xml.twig', [
             'data' => $mainPageInfo,
         ]);
     }

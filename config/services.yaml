@@ -35,6 +35,7 @@ services:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/Kernel.php'
+      - '../src/SeoBundle/SeoBundle.php'
       - '../src/Tests/'
 
   Imagine\Gd\Imagine:
