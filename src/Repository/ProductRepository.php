@@ -23,6 +23,21 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    /** @return list<array{slug: string}> */
+    public function findSitemapRows(): array
+    {
+        return $this->createQueryBuilder('product')
+            ->select('product.slug AS slug')
+            ->andWhere('product.isDeleted = false')
+            ->andWhere('product.isPublished = true')
+            ->andWhere('product.slug IS NOT NULL')
+            ->andWhere("TRIM(product.slug) != ''")
+            ->andWhere('product.category IS NOT NULL')
+            ->orderBy('product.slug', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     /**
      * @return list<array{id: int, uuid: mixed, title: string, slug: string|null, price: string, quantity: int, isNew: bool, isOnSale: bool, categoryId: int|null, cover: array{filenameBig: string, filenameMiddle: string, filenameSmall: string}|null}>
      */

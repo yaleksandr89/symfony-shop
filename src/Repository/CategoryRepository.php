@@ -24,6 +24,22 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
+    /** @return list<array{slug: string}> */
+    public function findSitemapRows(): array
+    {
+        return $this->createQueryBuilder('category')
+            ->select('DISTINCT category.slug AS slug')
+            ->innerJoin('category.products', 'product')
+            ->andWhere('category.isDeleted = false')
+            ->andWhere('category.slug IS NOT NULL')
+            ->andWhere("TRIM(category.slug) != ''")
+            ->andWhere('product.isDeleted = false')
+            ->andWhere('product.isPublished = true')
+            ->orderBy('category.slug', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     public function findActiveCategory(): ?array
     {
         return $this->createQueryBuilder('c')
