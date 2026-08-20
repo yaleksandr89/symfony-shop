@@ -48,13 +48,13 @@ security:
       entry_point: App\Security\EntryPoint\RequestAwareAuthenticationEntryPoint
       custom_authenticator:
         - App\Security\Authenticator\Front\LoginFormAuthenticator
-        - App\Security\Authenticator\Front\GoogleAuthenticator
-        - App\Security\Authenticator\Front\YandexAuthenticator
-        - App\Security\Authenticator\Front\VkontakteAuthenticator
-        - App\Security\Authenticator\Front\FacebookAuthenticator
-        - App\Security\Authenticator\Front\LinkedinAuthenticator
-        - App\Security\Authenticator\Front\GithubEnAuthenticator
-        - App\Security\Authenticator\Front\GithubRusAuthenticator
+        - App\OAuthBundle\Security\Authenticator\GoogleAuthenticator
+        - App\OAuthBundle\Security\Authenticator\YandexAuthenticator
+        - App\OAuthBundle\Security\Authenticator\VkontakteAuthenticator
+        - App\OAuthBundle\Security\Authenticator\FacebookAuthenticator
+        - App\OAuthBundle\Security\Authenticator\LinkedinAuthenticator
+        - App\OAuthBundle\Security\Authenticator\GithubEnAuthenticator
+        - App\OAuthBundle\Security\Authenticator\GithubRusAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)

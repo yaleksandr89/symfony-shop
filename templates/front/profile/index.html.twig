@@ -71,7 +71,7 @@
                                     </td>
                                     <td>
                                         {% if app.user.googleId or oauth_provider_enabled('google') %}
-                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            {% include '@OAuth/fragments/social_network_link_unlink_button.html.twig' with {
                                                 'socialNameId': app.user.googleId,
                                                 'socialName': 'google',
                                                 'providerKey': 'google'
@@ -89,7 +89,7 @@
                                     </td>
                                     <td>
                                         {% if app.user.yandexId or oauth_provider_enabled('yandex') %}
-                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            {% include '@OAuth/fragments/social_network_link_unlink_button.html.twig' with {
                                                 'socialNameId': app.user.yandexId,
                                                 'socialName': 'yandex',
                                                 'providerKey': 'yandex'
@@ -107,7 +107,7 @@
                                     </td>
                                     <td>
                                         {% if app.user.vkontakteId or oauth_provider_enabled('vkontakte') %}
-                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            {% include '@OAuth/fragments/social_network_link_unlink_button.html.twig' with {
                                                 'socialNameId': app.user.vkontakteId,
                                                 'socialName': 'vkontakte',
                                                 'providerKey': 'vkontakte'
@@ -125,7 +125,7 @@
                                     </td>
                                     <td>
                                         {% if app.user.githubId or (app.request.locale == 'ru' and oauth_provider_enabled('github_rus')) or (app.request.locale == 'en' and oauth_provider_enabled('github_en')) %}
-                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            {% include '@OAuth/fragments/social_network_link_unlink_button.html.twig' with {
                                                 'socialNameId': app.user.githubId,
                                                 'socialName': 'github',
                                                 'providerKey': app.request.locale == 'ru' ? 'github_rus' : 'github_en'
@@ -140,7 +140,7 @@
                                     </td>
                                     <td>
                                         {% if app.user.facebookId or oauth_provider_enabled('facebook') %}
-                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            {% include '@OAuth/fragments/social_network_link_unlink_button.html.twig' with {
                                                 'socialNameId': app.user.facebookId,
                                                 'socialName': 'facebook',
                                                 'providerKey': 'facebook'
@@ -155,7 +155,7 @@
                                     </td>
                                     <td>
                                         {% if app.user.linkedinId or oauth_provider_enabled('linkedin') %}
-                                            {% include 'front/_embed/_utils/_social_network_link_unlink_btn.html.twig' with {
+                                            {% include '@OAuth/fragments/social_network_link_unlink_button.html.twig' with {
                                                 'socialNameId': app.user.linkedinId,
                                                 'socialName': 'linkedin',
                                                 'providerKey': 'linkedin'

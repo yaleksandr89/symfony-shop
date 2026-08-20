@@ -5,21 +5,16 @@ declare(strict_types=1);
 namespace App\Controller\Front;
 
 use App\Entity\User;
-use App\Form\Front\OAuthUnlinkFormType;
 use App\Form\Front\ProfileEditFormType;
-use App\Security\OAuth\OAuthIdentityAccessor;
-use App\Security\OAuth\OAuthProvider;
 use App\Security\Verifier\EmailVerifier;
 use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProfileController extends AbstractController
 {
@@ -49,16 +44,6 @@ class ProfileController extends AbstractController
     public function setEmailSender(UserRegisteredEmailSender $emailSender): ProfileController
     {
         $this->emailSender = $emailSender;
-
-        return $this;
-    }
-
-    private TranslatorInterface $translator;
-
-    #[Required]
-    public function setTranslator(TranslatorInterface $translator): ProfileController
-    {
-        $this->translator = $translator;
 
         return $this;
     }
@@ -119,44 +104,5 @@ class ProfileController extends AbstractController
         }
 
         return $this->redirectToRoute('main_profile_index');
-    }
-
-    #[Route('/profile/oauth/{provider}/unlink', name: 'main_profile_unlink_social_network', methods: ['GET', 'POST'])]
-    public function unlinkSocialNetwork(
-        Request $request,
-        OAuthProvider $provider,
-        OAuthIdentityAccessor $identityAccessor,
-    ): Response {
-        /** @var User|null $user */
-        $user = $this->getUser();
-
-        if (!$user instanceof User || !$provider->isCurrentIdentityProvider()) {
-            throw new NotFoundHttpException('User not found');
-        }
-
-        if (null === $identityAccessor->getExternalId($user, $provider)) {
-            throw new NotFoundHttpException('OAuth identity not found');
-        }
-
-        $form = $this->createForm(OAuthUnlinkFormType::class, null, [
-            'action' => $this->generateUrl('main_profile_unlink_social_network', ['provider' => $provider->value]),
-            'csrf_token_id' => 'oauth_unlink_'.$provider->value,
-            'method' => 'POST',
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $identityAccessor->unlink($user, $provider);
-            $this->doctrine->getManager()->flush();
-
-            $this->addFlash('success', $this->translator->trans('The social network has been successfully unlinked.'));
-
-            return $this->redirectToRoute('main_profile_index');
-        }
-
-        return $this->render('front/profile/oauth_unlink.html.twig', [
-            'oauthUnlinkForm' => $form->createView(),
-            'providerLabel' => $this->translator->trans('personal_account.social_group.'.$provider->identityFamily()),
-        ]);
     }
 }
