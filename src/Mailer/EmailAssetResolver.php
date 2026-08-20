@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Utils\Mailer;
+namespace App\Mailer;
 
-use App\Utils\Mailer\Exception\EmailAssetUnavailableException;
+use App\Mailer\Exception\EmailAssetUnavailableException;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 

@@ -11,7 +11,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
-use App\Utils\Money\DecimalMoney;
+use App\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;

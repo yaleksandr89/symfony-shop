@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Utils\Mailer\Sender;
 
 use App\Entity\User;
+use App\Mailer\Sender\BaseSender;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 

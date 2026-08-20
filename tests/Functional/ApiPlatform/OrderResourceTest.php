@@ -11,7 +11,7 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use App\Utils\Money\DecimalMoney;
+use App\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;

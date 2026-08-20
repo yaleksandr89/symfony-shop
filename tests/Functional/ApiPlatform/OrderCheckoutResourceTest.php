@@ -15,7 +15,7 @@ use App\Event\OrderCreatedFromCartEvent;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Utils\Generator\TokenGenerator;
-use App\Utils\Money\DecimalMoney;
+use App\Money\DecimalMoney;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreFlushEventArgs;

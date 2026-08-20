@@ -6,6 +6,7 @@ namespace App\Utils\Manager;
 
 use App\Entity\User;
 use App\Exception\Security\EmptyUserPlainPasswordException;
+use App\Persistence\AbstractBaseManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Contracts\Service\Attribute\Required;

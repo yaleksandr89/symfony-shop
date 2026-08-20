@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Utils\Mailer;
+namespace App\Mailer;
 
-use App\Utils\Mailer\DTO\MailerOptionModel;
-use App\Utils\Mailer\Exception\EmailAssetUnavailableException;
+use App\Mailer\DTO\MailerOptionModel;
+use App\Mailer\Exception\EmailAssetUnavailableException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;

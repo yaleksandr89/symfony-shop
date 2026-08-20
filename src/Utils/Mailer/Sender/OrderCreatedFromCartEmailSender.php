@@ -6,6 +6,7 @@ namespace App\Utils\Mailer\Sender;
 
 use App\Entity\Order;
 use App\Entity\User;
+use App\Mailer\Sender\BaseSender;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OrderCreatedFromCartEmailSender extends BaseSender

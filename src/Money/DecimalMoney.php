@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Utils\Money;
+namespace App\Money;
 
 use InvalidArgumentException;
 

@@ -6,6 +6,7 @@ namespace App\Utils\Manager;
 
 use App\Entity\Product;
 use App\Entity\ProductImage;
+use App\Persistence\AbstractBaseManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;

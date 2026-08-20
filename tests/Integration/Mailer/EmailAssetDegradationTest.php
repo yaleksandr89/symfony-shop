@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Utils\Mailer;
+namespace App\Tests\Integration\Mailer;
 
-use App\Utils\Mailer\DTO\MailerOptionModel;
-use App\Utils\Mailer\EmailAssetResolver;
-use App\Utils\Mailer\MailerSender;
+use App\Mailer\DTO\MailerOptionModel;
+use App\Mailer\EmailAssetResolver;
+use App\Mailer\MailerSender;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Psr\Log\NullLogger;
@@ -61,7 +61,7 @@ final class EmailAssetDegradationTest extends KernelTestCase
             (new MailerOptionModel())
                 ->setRecipient('recipient@example.test')
                 ->setSubject('Decorative assets unavailable')
-                ->setHtmlTemplate('front/email/base.html.twig'),
+                ->setHtmlTemplate('email/base.html.twig'),
         );
 
         self::assertEmailCount(1);

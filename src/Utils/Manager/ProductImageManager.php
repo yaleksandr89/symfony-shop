@@ -6,6 +6,7 @@ namespace App\Utils\Manager;
 
 use App\Entity\Product;
 use App\Entity\ProductImage;
+use App\Persistence\AbstractBaseManager;
 use App\Utils\File\ImageResizer;
 use App\Utils\FileSystem\FilesystemWorker;
 use Doctrine\ORM\EntityManagerInterface;

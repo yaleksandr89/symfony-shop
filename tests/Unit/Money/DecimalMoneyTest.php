@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Utils\Money;
+namespace App\Tests\Unit\Money;
 
-use App\Utils\Money\DecimalMoney;
+use App\Money\DecimalMoney;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestWith;

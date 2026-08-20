@@ -6,6 +6,7 @@ namespace App\Utils\Manager;
 
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Persistence\AbstractBaseManager;
 use Doctrine\ORM\EntityRepository;
 
 final class CategoryManager extends AbstractBaseManager

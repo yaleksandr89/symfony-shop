@@ -12,7 +12,7 @@ use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use App\Utils\Money\DecimalMoney;
+use App\Money\DecimalMoney;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;

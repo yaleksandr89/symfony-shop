@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Utils\Mailer\DTO;
+namespace App\Mailer\DTO;
 
 class MailerOptionModel
 {

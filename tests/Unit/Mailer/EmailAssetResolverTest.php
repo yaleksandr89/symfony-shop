@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Utils\Mailer;
+namespace App\Tests\Unit\Mailer;
 
-use App\Utils\Mailer\EmailAssetResolver;
-use App\Utils\Mailer\Exception\EmailAssetUnavailableException;
+use App\Mailer\EmailAssetResolver;
+use App\Mailer\Exception\EmailAssetUnavailableException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;

@@ -10,7 +10,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
-use App\Utils\Money\DecimalMoney;
+use App\Money\DecimalMoney;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;

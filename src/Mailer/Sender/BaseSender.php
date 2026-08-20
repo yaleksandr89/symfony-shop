@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Utils\Mailer\Sender;
+namespace App\Mailer\Sender;
 
-use App\Utils\Mailer\DTO\MailerOptionModel;
-use App\Utils\Mailer\MailerSender;
+use App\Mailer\DTO\MailerOptionModel;
+use App\Mailer\MailerSender;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
