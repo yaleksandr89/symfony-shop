@@ -1,0 +1,41 @@
+{% extends '@Admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}{{ 'category.list.page_title'|trans({}, 'admin') }}{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include '@Admin/_embed/_card/_header_action.html.twig' with
+                {
+                    'sectionTitle': 'category.list.heading'|trans({}, 'admin'),
+                    'actionUrl': path('admin_category_add')
+                } %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="main_table">
+                    <thead>
+                    <tr>
+                        <th>{{ 'category.list.column.id'|trans({}, 'admin') }}</th>
+                        <th>{{ 'category.list.column.title'|trans({}, 'admin') }}</th>
+                        <th>{{ 'category.list.column.slug'|trans({}, 'admin') }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for category in categories %}
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.title }}</td>
+                            <td>{{ category.slug }}</td>
+                            <td>
+                                <a href="{{ path('admin_category_edit', {'id': category.id}) }}" class="btn btn-outline-info">{{ 'action.edit'|trans({}, 'admin') }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

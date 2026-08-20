@@ -1,0 +1,173 @@
+{% extends '@Admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}{{ 'order.edit.page_title'|trans({}, 'admin') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('appAdminOrder') }}
+{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include '@Admin/_embed/_card/_breadcrumbs.html.twig' with {
+                'sectionTitle': 'navigation.orders'|trans({}, 'admin'),
+                'entity': order,
+                'actionUrl': path('admin_order_list'),
+                'addActionUrl': path('admin_order_add'),
+                'editLabel': 'action.edit'|trans({}, 'admin'),
+                'addLabel': 'action.add_new'|trans({}, 'admin'),
+                'addButtonLabel': 'action.add_new'|trans({}, 'admin'),
+            } %}
+        </div>
+
+        <div class="card-body">
+            {{ form_start(form) }}
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        {{ 'order.form.field.id'|trans({}, 'admin') }}:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.id }}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        {{ 'order.form.field.created_at'|trans({}, 'admin') }}:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.createdAt|format_datetime('full', 'medium') }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        {{ 'order.form.field.updated_at'|trans({}, 'admin') }}:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.updatedAt|format_datetime('full', 'medium') }}
+                    </div>
+                </div>
+
+            {% endif %}
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.owner) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.owner) }}
+                    <div class="form-error">
+                        {{ form_errors(form.owner) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.status) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.status) }}
+                    <div class="form-error">
+                        {{ form_errors(form.status) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isDeleted) }}
+                    {{ form_label(form.isDeleted) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isDeleted) }}
+                    </div>
+                </div>
+            </div>
+
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        {{ 'order.products.heading'|trans({}, 'admin') }}:
+                    </div>
+                    <div class="col-md-11">
+                        {% if order.id %}
+                            <div id="app"></div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                {{ 'order.products.save_before_adding'|trans({}, 'admin') }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if order %}
+                <div class="form-group row">
+                    <div class="col-md-1">
+                        {{ 'order.products.total_price'|trans({}, 'admin') }}:
+                    </div>
+                    <div class="col-md-11">
+                        {{ order.totalPrice|format_currency('USD') }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <hr/>
+            {% include '@Admin/_embed/_card/_form_buttons.html.twig' with {
+                'entity':order,
+                'catalogUrl':path('admin_order_list'),
+                'submitBtn':form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+                'deleteLabel': 'modal.delete_row'|trans({}, 'admin'),
+            } %}
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {% if order and order.id %}
+        {% include '@Admin/_embed/_utils/_modal.html.twig' with {
+            'modalId': 'approveDeleteModal',
+            'modalTitle': 'modal.confirm_delete'|trans({}, 'admin'),
+            'modalText': 'order.modal.delete_text'|trans({}, 'admin'),
+            'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
+            'actionUrl': path('admin_order_delete', {'id': order.id}),
+            'csrfTokenId': 'delete_order_' ~ order.id,
+            'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
+            'closeLabel': 'modal.close'|trans({}, 'admin'),
+        } %}
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        window.staticStore = {};
+        window.staticStore.orderId = '{{ order.id|default('') }}';
+        window.staticStore.orderProducts = {{ orderProducts|json_encode|raw }};
+        window.staticStore.urlViewProduct = '{{ path('admin_product_edit_blank') }}';
+        window.staticStore.urlApiCategory = '{{ path('api_categories_get_collection') }}';
+        window.staticStore.urlApiProduct = '{{ path('api_products_get_collection') }}';
+        window.staticStore.urlApiOrder = '{{ path('api_orders_get_collection') }}';
+        window.staticStore.urlApiOrderProduct = '{{ path('api_order_products_post_collection') }}';
+        window.staticStore.userIsVerified = '{{ userVerified|json_encode }}';
+        window.staticStore.translations = {{ {
+            chooseCategory: 'order.products.choose_category'|trans({}, 'admin'),
+            chooseProduct: 'order.products.choose_product'|trans({}, 'admin'),
+            quantityPlaceholder: 'order.products.quantity_placeholder'|trans({}, 'admin'),
+            pricePerItemPlaceholder: 'order.products.price_per_item_placeholder'|trans({}, 'admin'),
+            details: 'order.products.action.details'|trans({}, 'admin'),
+            add: 'order.products.action.add'|trans({}, 'admin'),
+            remove: 'order.products.action.remove'|trans({}, 'admin'),
+            totalPrice: 'order.products.total_price'|trans({}, 'admin'),
+            insufficientRights: 'order.products.insufficient_rights'|trans({}, 'admin'),
+        }|json_encode|raw }};
+    </script>
+    {{ encore_entry_script_tags('appAdminOrder') }}
+{% endblock %}

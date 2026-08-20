@@ -1,6 +1,5 @@
 controllers_admin:
-  resource: ../../src/Controller/Admin
-  type: attribute
+  resource: ../../src/AdminBundle/config/routes.yaml
   prefix: /{_locale}
   requirements:
     _locale: '%app_locales%'

@@ -1,0 +1,93 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\AdminBundle\Controller;
+
+use App\AdminBundle\DTO\EditCategoryModel;
+use App\AdminBundle\Form\EditCategoryFormType;
+use App\AdminBundle\Handler\CategoryFormHandler;
+use App\Entity\Category;
+use App\Repository\CategoryRepository;
+use App\Utils\Manager\CategoryManager;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Service\Attribute\Required;
+
+#[Route('/admin/category', name: 'admin_category_')]
+class CategoryController extends BaseAdminController
+{
+    private CategoryRepository $categoryRepository;
+
+    #[Required]
+    public function setCategoryRepository(CategoryRepository $categoryRepository): CategoryController
+    {
+        $this->categoryRepository = $categoryRepository;
+
+        return $this;
+    }
+
+    #[Route('/list', name: 'list')]
+    public function list(): Response
+    {
+        $categories = $this->categoryRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
+
+        return $this->render('@Admin/category/list.html.twig', [
+            'categories' => $categories,
+        ]);
+    }
+
+    #[Route('/edit/{id}', name: 'edit')]
+    #[Route('/add', name: 'add')]
+    public function edit(Request $request, CategoryFormHandler $categoryFormHandler, ?Category $category = null): Response
+    {
+        $editCategoryModel = EditCategoryModel::makeFromCategory($category);
+
+        $form = $this->createForm(EditCategoryFormType::class, $editCategoryModel);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->checkTheAccessLevel()) {
+                return $this->redirect($request->server->get('HTTP_REFERER'));
+            }
+
+            $category = $categoryFormHandler->processEditForm($editCategoryModel);
+            $this->addTranslatedFlash('success', 'flash.save_success');
+
+            return $this->redirectToRoute('admin_category_edit', ['id' => $category->getId()]);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addTranslatedFlash('warning', 'flash.form_invalid');
+        }
+
+        return $this->render('@Admin/category/edit.html.twig', [
+            'category' => $category,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
+    public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
+    {
+        $id = $category->getId();
+        $title = $category->getTitle();
+
+        if (!$this->isCsrfTokenValid('delete_category_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
+        if (!$this->checkTheAccessLevel()) {
+            return $this->redirect($request->server->get('HTTP_REFERER'));
+        }
+
+        $categoryManager->remove($category);
+        $this->addTranslatedFlash('warning', 'flash.category.deleted', [
+            '%title%' => $title,
+            '%id%' => $id,
+        ]);
+
+        return $this->redirectToRoute('admin_category_list');
+    }
+}

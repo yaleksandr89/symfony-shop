@@ -23,10 +23,10 @@ security:
       lazy: true
       provider: app_user_provider
       user_checker: App\Security\UserChecker\DeletedUserChecker
-      access_denied_handler: App\Security\Handler\AccessAdminDeniedHandler
-      entry_point: App\Security\EntryPoint\AuthenticationAdminEntryPoint
+      access_denied_handler: App\AdminBundle\Security\Handler\AccessAdminDeniedHandler
+      entry_point: App\AdminBundle\Security\EntryPoint\AuthenticationAdminEntryPoint
       custom_authenticators:
-        - App\Security\Authenticator\Admin\LoginFormAuthenticator
+        - App\AdminBundle\Security\Authenticator\LoginFormAuthenticator
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 1209600 #2 week (604800 - 1 week)

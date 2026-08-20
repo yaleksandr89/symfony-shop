@@ -6,8 +6,8 @@ namespace App\Tests\Integration\Utils\Manager;
 
 use App\Entity\Product;
 use App\Entity\ProductImage;
-use App\Form\DTO\EditProductModel;
-use App\Form\Handler\ProductFormHandler;
+use App\AdminBundle\DTO\EditProductModel;
+use App\AdminBundle\Handler\ProductFormHandler;
 use App\Utils\File\FileSaver;
 use App\Utils\File\ImageResizer;
 use App\Utils\FileSystem\FilesystemWorker;
