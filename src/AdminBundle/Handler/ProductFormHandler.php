@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\AdminBundle\Handler;
 
 use App\AdminBundle\DTO\EditProductModel;
+use App\Catalog\Image\FileSaver;
+use App\Catalog\Image\FilesystemWorker;
+use App\Catalog\Manager\ProductManager;
 use App\Entity\Product;
-use App\Utils\File\FileSaver;
-use App\Utils\FileSystem\FilesystemWorker;
-use App\Utils\Manager\ProductManager;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Log\LoggerInterface;

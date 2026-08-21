@@ -15,6 +15,15 @@ controllers_front:
   defaults:
     _locale: '%locale%'
 
+controllers_catalog:
+  resource: ../../src/Catalog/Controller
+  type: attribute
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
+
 oauth:
   resource: ../../src/OAuthBundle/config/routes.yaml
   prefix: /{_locale}

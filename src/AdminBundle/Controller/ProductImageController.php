@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\AdminBundle\Controller;
 
+use App\Catalog\Manager\ProductImageManager;
+use App\Catalog\Manager\ProductManager;
 use App\Entity\Product;
 use App\Entity\ProductImage;
-use App\Utils\Manager\ProductImageManager;
-use App\Utils\Manager\ProductManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

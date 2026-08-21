@@ -9,7 +9,7 @@ use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
-use App\Repository\CategoryRepository;
+use App\Catalog\Repository\CategoryRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;

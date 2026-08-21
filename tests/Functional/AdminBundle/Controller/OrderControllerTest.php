@@ -9,7 +9,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\OrderRepository;
-use App\Repository\ProductRepository;
+use App\Catalog\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Money\DecimalMoney;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\AdminBundle\Handler;
 
 use App\AdminBundle\DTO\EditCategoryModel;
+use App\Catalog\Manager\CategoryManager;
 use App\Entity\Category;
-use App\Utils\Manager\CategoryManager;
 
 class CategoryFormHandler
 {

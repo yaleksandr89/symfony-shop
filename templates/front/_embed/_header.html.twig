@@ -1,5 +1,5 @@
 {% set isActiveItemMenu = app.request.pathInfo|split('/')|last %}
-{% set headerNavigation = render(controller('App\\Controller\\Front\\EmbedController::showHeaderMenu', {'isActiveItemMenu': isActiveItemMenu})) %}
+{% set headerNavigation = render(controller('App\\Catalog\\Controller\\EmbedController::showHeaderMenu', {'isActiveItemMenu': isActiveItemMenu})) %}
 {% include 'front/_embed/_menu/_mobile_menu.html.twig' with {'headerNavigation': headerNavigation} %}
 
 <header class="header">

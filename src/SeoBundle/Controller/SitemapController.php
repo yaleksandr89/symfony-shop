@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\SeoBundle\Controller;
 
-use App\Repository\CategoryRepository;
-use App\Repository\ProductRepository;
+use App\Catalog\Repository\CategoryRepository;
+use App\Catalog\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

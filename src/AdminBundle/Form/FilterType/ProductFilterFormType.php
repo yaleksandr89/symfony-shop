@@ -6,8 +6,8 @@ namespace App\AdminBundle\Form\FilterType;
 
 use App\AdminBundle\DTO\ProductFilterModel;
 use App\AdminBundle\Filter\ExclusiveDateRangeFilter;
+use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
-use App\Repository\CategoryRepository;
 use DateTimeImmutable;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterOperands;
 use Spiriit\Bundle\FormFilterBundle\Filter\Form\Type\BooleanFilterType;
