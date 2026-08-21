@@ -9,7 +9,7 @@ use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthNewUserRegistrar;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
-use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
+use App\Account\Mailer\UserRegisteredEmailSender;
 use Doctrine\DBAL\Driver\Exception as DriverExceptionInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\OAuthBundle\Security\OAuth;
 
+use App\Account\Repository\UserRepository;
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthIdentityConflictException;
-use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 

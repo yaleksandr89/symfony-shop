@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\OAuthBundle\Security\OAuth;
 
+use App\Account\Repository\UserRepository;
+use App\Account\Security\UserChecker\DeletedUserChecker;
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
-use App\Repository\UserRepository;
-use App\Security\UserChecker\DeletedUserChecker;
 
 final class OAuthUserResolver
 {

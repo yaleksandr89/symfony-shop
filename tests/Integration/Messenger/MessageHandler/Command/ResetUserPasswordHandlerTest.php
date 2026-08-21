@@ -6,9 +6,9 @@ namespace App\Tests\Integration\Messenger\MessageHandler\Command;
 
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
-use App\Messenger\Message\Command\ResetUserPasswordCommand;
-use App\Messenger\MessageHandler\Command\ResetUserPasswordHandler;
-use App\Repository\ResetPasswordRequestRepository;
+use App\Account\Message\Command\ResetUserPasswordCommand;
+use App\Account\MessageHandler\Command\ResetUserPasswordHandler;
+use App\Account\Repository\ResetPasswordRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Handler;
 
+use App\Account\Security\Handler\AccessFrontDeniedHandler;
 use App\Security\RequestMatcher\ApiRequestMatcher;
 use App\Security\Response\ApiSecurityProblemResponder;
 use Symfony\Component\HttpFoundation\Request;

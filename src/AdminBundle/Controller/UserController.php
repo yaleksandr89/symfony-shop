@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\AdminBundle\Controller;
 
+use App\Account\Manager\UserManager;
+use App\Account\Repository\UserRepository;
 use App\AdminBundle\DTO\EditUserModel;
 use App\AdminBundle\Form\EditUserFormType;
 use App\AdminBundle\Handler\UserFormHandler;
 use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Utils\Manager\UserManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

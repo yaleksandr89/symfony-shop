@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\AdminBundle\DTO;
 
+use App\Account\Repository\UserRepository;
 use App\Entity\User;
-use App\Repository\UserRepository;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;

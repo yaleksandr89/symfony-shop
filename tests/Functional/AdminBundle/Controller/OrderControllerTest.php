@@ -10,7 +10,7 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Catalog\Repository\ProductRepository;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Money\DecimalMoney;
 use DateTimeImmutable;

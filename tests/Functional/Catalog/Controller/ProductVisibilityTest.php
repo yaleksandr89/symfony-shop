@@ -7,7 +7,7 @@ namespace App\Tests\Functional\Catalog\Controller;
 use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;

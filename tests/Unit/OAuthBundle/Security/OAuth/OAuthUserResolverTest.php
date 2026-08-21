@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
 use App\OAuthBundle\Security\OAuth\OAuthUserResolver;
-use App\Security\UserChecker\DeletedUserChecker;
+use App\Account\Security\UserChecker\DeletedUserChecker;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;

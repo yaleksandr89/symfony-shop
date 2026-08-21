@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\AdminBundle\Form;
 
+use App\Account\User\UserStaticStorage;
 use App\AdminBundle\DTO\EditUserModel;
-use App\Entity\StaticStorage\UserStaticStorage;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

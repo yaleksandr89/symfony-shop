@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\OAuthBundle\Security\OAuth\OAuthAccountLinker;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthLinkCallbackHandler;

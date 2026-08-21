@@ -18,5 +18,5 @@ framework:
 
     routing:
       # Route your messages to the transports
-      'App\Messenger\Message\Event\EventUserRegisteredEvent': async
-      'App\Messenger\Message\Command\ResetUserPasswordCommand': async
+      'App\Account\Message\Event\EventUserRegisteredEvent': async
+      'App\Account\Message\Command\ResetUserPasswordCommand': async

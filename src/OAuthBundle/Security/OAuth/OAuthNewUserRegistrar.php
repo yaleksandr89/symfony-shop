@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\OAuthBundle\Security\OAuth;
 
+use App\Account\Mailer\UserRegisteredEmailSender;
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
-use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;

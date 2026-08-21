@@ -6,8 +6,8 @@ controllers_admin:
   defaults:
     _locale: '%locale%'
 
-controllers_front:
-  resource: ../../src/Controller/Front
+controllers_account:
+  resource: ../../src/Account/Controller
   type: attribute
   prefix: /{_locale}
   requirements:

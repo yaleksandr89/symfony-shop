@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\AdminBundle\Handler;
 
+use App\Account\Manager\UserManager;
 use App\AdminBundle\DTO\EditUserModel;
 use App\Entity\User;
-use App\Utils\Manager\UserManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFormHandler

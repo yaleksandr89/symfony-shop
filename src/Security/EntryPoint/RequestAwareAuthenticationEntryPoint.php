@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\EntryPoint;
 
+use App\Account\Security\EntryPoint\AuthenticationFrontEntryPoint;
 use App\Security\RequestMatcher\ApiRequestMatcher;
 use App\Security\Response\ApiSecurityProblemResponder;
 use Symfony\Component\HttpFoundation\Request;

@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Unit\OAuthBundle\Security\Authenticator;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\OAuthBundle\Security\Authenticator\YandexAuthenticator;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthLoginHandler;
 use App\OAuthBundle\Security\OAuth\OAuthNewUserRegistrar;
 use App\OAuthBundle\Security\OAuth\OAuthUserResolver;
-use App\Security\UserChecker\DeletedUserChecker;
-use App\Utils\Mailer\Sender\UserRegisteredEmailSender;
+use App\Account\Security\UserChecker\DeletedUserChecker;
+use App\Account\Mailer\UserRegisteredEmailSender;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;

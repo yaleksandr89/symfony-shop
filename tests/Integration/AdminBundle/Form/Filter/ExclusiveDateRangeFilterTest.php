@@ -12,7 +12,7 @@ use App\AdminBundle\Form\FilterType\ProductFilterFormType;
 use App\AdminBundle\DTO\OrderFilterModel;
 use App\AdminBundle\DTO\ProductFilterModel;
 use App\AdminBundle\Filter\ExclusiveDateRangeFilter;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use DateTimeImmutable;
 use DateTimeZone;

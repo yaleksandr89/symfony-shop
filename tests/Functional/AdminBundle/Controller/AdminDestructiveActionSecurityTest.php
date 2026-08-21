@@ -10,7 +10,7 @@ use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
 use App\Catalog\Repository\CategoryRepository;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;

@@ -9,7 +9,7 @@ use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
 use App\Catalog\Repository\ProductRepository;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Catalog\Image\FileSaver;
 use App\Catalog\Image\FilesystemWorker;

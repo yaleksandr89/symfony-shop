@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\AdminBundle\Controller;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
