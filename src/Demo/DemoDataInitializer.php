@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Demo;
 
+use App\Commerce\Order\OrderStaticStorage;
 use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
-use App\Entity\StaticStorage\OrderStaticStorage;
 use App\Entity\User;
 use App\Money\DecimalMoney;
 use DateTimeImmutable;

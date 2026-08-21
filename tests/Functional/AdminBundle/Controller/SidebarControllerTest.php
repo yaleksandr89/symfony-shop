@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Functional\AdminBundle\Controller;
 
 use App\Entity\Category;
+use App\Commerce\Repository\OrderRepository;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Catalog\Repository\CategoryRepository;
-use App\Repository\OrderRepository;
 use App\Catalog\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;

@@ -6,11 +6,11 @@ namespace App\AdminBundle\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Commerce\Manager\OrderManager;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Utils\Manager\OrderManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

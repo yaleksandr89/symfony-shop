@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Entity\StaticStorage\OrderStaticStorage;
+use App\Commerce\Order\OrderStaticStorage;
 use App\Entity\StaticStorage\UserStaticStorage;
 
 return [

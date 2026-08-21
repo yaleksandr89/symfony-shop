@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\AdminBundle\Handler;
 
 use App\AdminBundle\DTO\EditOrderModel;
+use App\Commerce\Manager\OrderManager;
 use App\Entity\Order;
-use App\Utils\Manager\OrderManager;
 use DateTimeImmutable;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;

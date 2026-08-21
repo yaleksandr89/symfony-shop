@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\AdminBundle\Form;
 
 use App\AdminBundle\DTO\EditOrderModel;
-use App\Entity\StaticStorage\OrderStaticStorage;
+use App\Commerce\Order\OrderStaticStorage;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

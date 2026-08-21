@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Catalog\ApiPlatform;
 
+use App\Commerce\Cart\TokenGenerator;
 use App\Entity\Cart;
 use App\Entity\CartProduct;
 use App\Entity\Product;
 use App\Entity\ProductImage;
-use App\Utils\Generator\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;

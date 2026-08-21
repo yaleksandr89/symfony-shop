@@ -6,7 +6,7 @@ namespace App\AdminBundle\Form\FilterType;
 
 use App\AdminBundle\DTO\OrderFilterModel;
 use App\AdminBundle\Filter\ExclusiveDateRangeFilter;
-use App\Entity\StaticStorage\OrderStaticStorage;
+use App\Commerce\Order\OrderStaticStorage;
 use App\Entity\User;
 use DateTimeImmutable;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterOperands;
