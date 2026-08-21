@@ -13,7 +13,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class ProfileController extends AbstractController
@@ -48,7 +47,6 @@ class ProfileController extends AbstractController
         return $this;
     }
 
-    #[Route('/profile', name: 'main_profile_index')]
     public function index(Request $request): Response
     {
         $sendEmail = false;
@@ -63,7 +61,6 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/profile/edit', name: 'main_profile_edit')]
     public function edit(Request $request): Response
     {
         $user = $this->getUser();
@@ -84,7 +81,6 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/profile/resending-verify-email-link', name: 'main_profile_resending_verify_email_link')]
     public function resendingVerifyEmailLink(Request $request): Response
     {
         /** @var User $user */

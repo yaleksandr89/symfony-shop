@@ -1,0 +1,15 @@
+main_robots.txt:
+  path: /robots.txt
+  controller: App\SeoBundle\Controller\RobotsTxtController::index
+  defaults:
+    _format: txt
+  requirements:
+    _format: txt
+
+main_sitemap:
+  path: /sitemap.xml
+  controller: App\SeoBundle\Controller\SitemapController::index
+  defaults:
+    _format: xml
+  requirements:
+    _format: xml

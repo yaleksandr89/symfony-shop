@@ -12,10 +12,8 @@ use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
-#[Route('/admin/category', name: 'admin_category_')]
 class CategoryController extends BaseAdminController
 {
     private CategoryRepository $categoryRepository;
@@ -28,7 +26,6 @@ class CategoryController extends BaseAdminController
         return $this;
     }
 
-    #[Route('/list', name: 'list')]
     public function list(): Response
     {
         $categories = $this->categoryRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
@@ -38,8 +35,6 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    #[Route('/edit/{id}', name: 'edit')]
-    #[Route('/add', name: 'add')]
     public function edit(Request $request, CategoryFormHandler $categoryFormHandler, ?Category $category = null): Response
     {
         $editCategoryModel = EditCategoryModel::makeFromCategory($category);
@@ -68,7 +63,6 @@ class CategoryController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Category $category, CategoryManager $categoryManager): Response
     {
         $id = $category->getId();

@@ -7,13 +7,10 @@ namespace App\AdminBundle\Controller;
 use App\AdminBundle\Security\Authenticator\LoginFormAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-#[Route('/admin')]
 class SecurityController extends BaseAdminController
 {
-    #[Route('/login', name: 'admin_security_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // get the login error if there is one
@@ -24,7 +21,6 @@ class SecurityController extends BaseAdminController
         return $this->render('@Admin/security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
-    #[Route('/logout', name: 'admin_security_logout')]
     public function logout(): RedirectResponse
     {
         return $this->redirectToRoute(LoginFormAuthenticator::LOGIN_ROUTE);

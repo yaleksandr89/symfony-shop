@@ -1,0 +1,65 @@
+connect_facebook_start:
+  path: /connect/facebook
+  controller: App\OAuthBundle\Controller\AuthFacebookController::connectAction
+
+connect_facebook_check:
+  path: /connect/facebook/check
+  controller: App\OAuthBundle\Controller\AuthFacebookController::connectCheckAction
+
+connect_github_en_start:
+  path: /connect/github-en
+  controller: App\OAuthBundle\Controller\AuthGithubEnController::connectAction
+
+connect_github_en_check:
+  path: /connect/github-en/check
+  controller: App\OAuthBundle\Controller\AuthGithubEnController::connectCheckAction
+
+connect_github_ru_start:
+  path: /connect/github-ru
+  controller: App\OAuthBundle\Controller\AuthGithubRusController::connectAction
+
+connect_github_ru_check:
+  path: /connect/github-ru/check
+  controller: App\OAuthBundle\Controller\AuthGithubRusController::connectCheckAction
+
+connect_google_start:
+  path: /connect/google
+  controller: App\OAuthBundle\Controller\AuthGoogleController::connectAction
+
+connect_google_check:
+  path: /connect/google/check
+  controller: App\OAuthBundle\Controller\AuthGoogleController::connectCheckAction
+
+connect_linkedin_start:
+  path: /connect/linkedin
+  controller: App\OAuthBundle\Controller\AuthLinkedinController::connectAction
+
+connect_linkedin_check:
+  path: /connect/linkedin/check
+  controller: App\OAuthBundle\Controller\AuthLinkedinController::connectCheckAction
+
+connect_vkontakte_start:
+  path: /connect/vkontakte
+  controller: App\OAuthBundle\Controller\AuthVkontakteController::connectAction
+
+connect_vkontakte_check:
+  path: /connect/vkontakte/check
+  controller: App\OAuthBundle\Controller\AuthVkontakteController::connectCheckAction
+
+connect_yandex_start:
+  path: /connect/yandex
+  controller: App\OAuthBundle\Controller\AuthYandexController::connectAction
+
+connect_yandex_check:
+  path: /connect/yandex/check
+  controller: App\OAuthBundle\Controller\AuthYandexController::connectCheckAction
+
+main_profile_link_social_network:
+  path: /profile/oauth/{provider}/link
+  controller: App\OAuthBundle\Controller\OAuthLinkController::link
+  methods: [GET, POST]
+
+main_profile_unlink_social_network:
+  path: /profile/oauth/{provider}/unlink
+  controller: App\OAuthBundle\Controller\OAuthUnlinkController::unlinkSocialNetwork
+  methods: [GET, POST]

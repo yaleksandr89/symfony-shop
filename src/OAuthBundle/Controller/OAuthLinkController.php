@@ -19,12 +19,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class OAuthLinkController extends AbstractController
 {
-    #[Route('/profile/oauth/{provider}/link', name: 'main_profile_link_social_network', methods: ['GET', 'POST'])]
     public function link(
         Request $request,
         OAuthProvider $provider,

@@ -1,0 +1,19 @@
+main_category_show:
+  path: /category/{slug}
+  controller: App\Catalog\Controller\CategoryController::show
+  defaults:
+    _route_mapping:
+      slug: category
+    slug: null
+
+main_homepage:
+  path: /
+  controller: App\Catalog\Controller\DefaultController::index
+
+main_product_show:
+  path: /product/{identifier}
+  controller: App\Catalog\Controller\ProductController::show
+
+main_product_show_blank:
+  path: /product
+  controller: App\Catalog\Controller\ProductController::show

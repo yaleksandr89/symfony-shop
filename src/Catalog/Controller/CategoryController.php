@@ -9,11 +9,9 @@ use App\Entity\Category;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 
 class CategoryController extends AbstractController
 {
-    #[Route('/category/{slug:category}', name: 'main_category_show')]
     public function show(ProductRepository $productRepository, ?Category $category = null): Response
     {
         if (!$category) {

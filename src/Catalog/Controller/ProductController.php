@@ -10,7 +10,6 @@ use Doctrine\DBAL\Types\ConversionException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class ProductController extends AbstractController
@@ -19,8 +18,6 @@ final class ProductController extends AbstractController
     {
     }
 
-    #[Route('/product/{identifier}', name: 'main_product_show')]
-    #[Route('/product', name: 'main_product_show_blank')]
     public function show(string $identifier): Response
     {
         try {

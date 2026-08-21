@@ -15,12 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-#[Route('/reset-password')]
 class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
@@ -31,7 +29,6 @@ class ResetPasswordController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'main_forgot_password_request')]
     public function request(Request $request, MailerInterface $mailer, MessageBusInterface $messageBus): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
@@ -51,7 +48,6 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/check-email', name: 'main_check_email')]
     public function checkEmail(): Response
     {
         // Generate a fake token if the user does not exist or someone hit this page directly.
@@ -65,7 +61,6 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/reset/{token}', name: 'main_reset_password')]
     public function reset(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface, ?string $token = null): Response
     {
         if ($token) {

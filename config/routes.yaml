@@ -1,9 +1,54 @@
+# Application routes
+admin:
+  resource: routes/app/admin.yaml
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
+
+account:
+  resource: routes/app/account.yaml
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
+
+commerce:
+  resource: routes/app/commerce.yaml
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
+
+catalog:
+  resource: routes/app/catalog.yaml
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
+
+oauth:
+  resource: routes/app/oauth.yaml
+  prefix: /{_locale}
+  requirements:
+    _locale: '%app_locales%'
+  defaults:
+    _locale: '%locale%'
+
+seo:
+  resource: routes/app/seo.yaml
+
+# Root redirects
 front_index:
-    path: /
-    defaults:
-      _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
-      path: '/%locale%'
-      permanent: true
+  path: /
+  defaults:
+    _controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    path: '/%locale%'
+    permanent: true
 
 admin_redirect_to_dashboard:
   path: /admin

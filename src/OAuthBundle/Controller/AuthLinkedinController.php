@@ -13,11 +13,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 
 final class AuthLinkedinController extends AbstractController
 {
-    #[Route('/connect/linkedin', name: 'connect_linkedin_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         if ($this->getUser() instanceof User) {
@@ -27,7 +25,6 @@ final class AuthLinkedinController extends AbstractController
         return $clientRegistry->getClient('linkedin_main')->redirect([], []);
     }
 
-    #[Route('/connect/linkedin/check', name: 'connect_linkedin_check')]
     public function connectCheckAction(Request $request, OAuthLinkCallbackHandler $handler): Response
     {
         return $handler->handle($request, OAuthProvider::Linkedin);

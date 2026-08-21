@@ -13,11 +13,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 
 class AuthGithubEnController extends AbstractController
 {
-    #[Route('/connect/github-en', name: 'connect_github_en_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         if ($this->getUser() instanceof User) {
@@ -29,7 +27,6 @@ class AuthGithubEnController extends AbstractController
             ->redirect([], []);
     }
 
-    #[Route('/connect/github-en/check', name: 'connect_github_en_check')]
     public function connectCheckAction(Request $request, OAuthLinkCallbackHandler $handler): Response
     {
         return $handler->handle($request, OAuthProvider::GithubEn);

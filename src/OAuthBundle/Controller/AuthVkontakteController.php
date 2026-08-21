@@ -13,11 +13,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 
 class AuthVkontakteController extends AbstractController
 {
-    #[Route('/connect/vkontakte', name: 'connect_vkontakte_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         if ($this->getUser() instanceof User) {
@@ -29,7 +27,6 @@ class AuthVkontakteController extends AbstractController
             ->redirect([], []);
     }
 
-    #[Route('/connect/vkontakte/check', name: 'connect_vkontakte_check')]
     public function connectCheckAction(Request $request, OAuthLinkCallbackHandler $handler): Response
     {
         return $handler->handle($request, OAuthProvider::Vkontakte);

@@ -1,0 +1,3 @@
+main_cart_show:
+  path: /cart
+  controller: App\Commerce\Controller\CartController::show

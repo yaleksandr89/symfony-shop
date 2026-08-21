@@ -12,10 +12,8 @@ use App\AdminBundle\Handler\UserFormHandler;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Service\Attribute\Required;
 
-#[Route('/admin/user', name: 'admin_user_')]
 class UserController extends BaseAdminController
 {
     private UserRepository $userRepository;
@@ -28,7 +26,6 @@ class UserController extends BaseAdminController
         return $this;
     }
 
-    #[Route('/list', name: 'list')]
     public function list(): Response
     {
         /** @var User $users */
@@ -39,8 +36,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    #[Route('/edit/{id}', name: 'edit')]
-    #[Route('/add', name: 'add')]
     public function edit(Request $request, UserFormHandler $userFormHandler, ?User $user = null): Response
     {
         $editUserModel = EditUserModel::makeFromUser($user);
@@ -69,7 +64,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, User $user, UserManager $userManager): Response
     {
         $id = $user->getId();

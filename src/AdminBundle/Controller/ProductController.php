@@ -16,13 +16,10 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin/product', name: 'admin_product_')]
 class ProductController extends BaseAdminController
 {
-    #[Route('/list', name: 'list')]
     public function list(
         Request $request,
         ProductFormHandler $productFormHandler,
@@ -44,9 +41,6 @@ class ProductController extends BaseAdminController
         ]);
     }
 
-    #[Route('/edit/{id}', name: 'edit')]
-    #[Route('/edit', name: 'edit_blank')]
-    #[Route('/add', name: 'add')]
     public function edit(
         Request $request,
         ProductFormHandler $productFormHandler,
@@ -91,7 +85,6 @@ class ProductController extends BaseAdminController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(Request $request, Product $product, ProductManager $productManager): Response
     {
         $id = $product->getId();

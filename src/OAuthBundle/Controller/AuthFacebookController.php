@@ -13,11 +13,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Routing\Attribute\Route;
 
 final class AuthFacebookController extends AbstractController
 {
-    #[Route('/connect/facebook', name: 'connect_facebook_start')]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         if ($this->getUser() instanceof User) {
@@ -27,7 +25,6 @@ final class AuthFacebookController extends AbstractController
         return $clientRegistry->getClient('facebook_main')->redirect([], []);
     }
 
-    #[Route('/connect/facebook/check', name: 'connect_facebook_check')]
     public function connectCheckAction(Request $request, OAuthLinkCallbackHandler $handler): Response
     {
         return $handler->handle($request, OAuthProvider::Facebook);

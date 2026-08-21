@@ -10,12 +10,9 @@ use App\Entity\Product;
 use App\Entity\ProductImage;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/product-image', name: 'admin_product_image_')]
 class ProductImageController extends BaseAdminController
 {
-    #[Route('/delete/{id}', name: 'delete', methods: ['POST'])]
     public function delete(
         Request $request,
         ProductImage $productImage,
