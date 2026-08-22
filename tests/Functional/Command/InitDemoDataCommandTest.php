@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Command;
 
-use App\Command\InitDemoDataCommand;
-use App\Demo\DemoDataInitializer;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Tools\Demo\Command\InitDemoDataCommand;
+use Tools\Demo\DemoAssetInstaller;
+use Tools\Demo\DemoDataInitializer;
 
 #[Group(name: 'functional')]
 class InitDemoDataCommandTest extends KernelTestCase
@@ -51,5 +53,19 @@ class InitDemoDataCommandTest extends KernelTestCase
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
         self::assertStringContainsString('allowed only in dev and test environments', $tester->getDisplay());
+    }
+
+    #[TestDox('Demo tooling и команда не регистрируются в production-контейнере')]
+    public function testProductionContainerDoesNotRegisterDemoToolingOrCommand(): void
+    {
+        $kernel = self::bootKernel(['environment' => 'prod', 'debug' => false]);
+        $container = $kernel->getContainer();
+        $application = new Application($kernel);
+        $application->all();
+
+        self::assertFalse($container->has(DemoAssetInstaller::class));
+        self::assertFalse($container->has(DemoDataInitializer::class));
+        self::assertFalse($container->has(InitDemoDataCommand::class));
+        self::assertFalse($application->has('app:demo:init'));
     }
 }

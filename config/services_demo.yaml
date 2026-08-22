@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Tools\Demo\:
+    resource: '../tools/demo/'
+
+  Tools\Demo\DemoAssetInstaller:
+    arguments:
+      $productImagesDir: '%product_images_dir%'

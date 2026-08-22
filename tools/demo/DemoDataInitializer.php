@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Demo;
+namespace Tools\Demo;
 
 use App\Commerce\Order\OrderStaticStorage;
 use App\Entity\Category;

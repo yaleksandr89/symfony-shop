@@ -189,13 +189,13 @@ eslint-check:
 	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue'
 
 php-cs-fixer:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --verbose
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix --config=/var/www/html/.php-cs-fixer.dist.php src/ tools/demo/ --verbose
 
 php-cs-fixer-check:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --dry-run --diff --using-cache=no --verbose
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix --config=/var/www/html/.php-cs-fixer.dist.php src/ tools/demo/ --dry-run --diff --using-cache=no --verbose
 
 phpstan-check:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src --level 4
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src tools/demo --level 4
 
 test-all-core:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
