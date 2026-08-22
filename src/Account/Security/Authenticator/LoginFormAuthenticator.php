@@ -23,6 +23,8 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'main_login';
+    public const CART_RETURN_INTENT = 'cart';
+    public const RETURN_INTENT_SESSION_KEY = 'app.login.return_intent';
 
     public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
@@ -51,22 +53,23 @@ class LoginFormAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $urlReferer = $request->getSession()->get('HTTP_REFERER') ?? '';
+        $session = $request->getSession();
+        $returnIntent = $session->get(self::RETURN_INTENT_SESSION_KEY);
+        $session->remove(self::RETURN_INTENT_SESSION_KEY);
 
-        $cartUrlReferer = explode('/', $urlReferer);
-        $cartUrlReferer = array_pop($cartUrlReferer);
-
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+        if ($targetPath = $this->getTargetPath($session, $firewallName)) {
             return new RedirectResponse($targetPath);
         }
 
-        if ('cart' === $cartUrlReferer) {
-            $request->getSession()->remove('HTTP_REFERER');
-
-            return new RedirectResponse($urlReferer);
+        if (self::CART_RETURN_INTENT === $returnIntent) {
+            return new RedirectResponse($this->urlGenerator->generate('main_cart_show', [
+                '_locale' => $request->getLocale(),
+            ]));
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));
+        return new RedirectResponse($this->urlGenerator->generate('main_profile_index', [
+            '_locale' => $request->getLocale(),
+        ]));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

@@ -45,8 +45,8 @@ class UserController extends BaseAdminController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->checkTheAccessLevel()) {
-                return $this->redirect($request->server->get('HTTP_REFERER'));
+            if ($redirect = $this->redirectIfUserIsUnverified()) {
+                return $redirect;
             }
             $user = $userFormHandler->processEditForm($editUserModel);
             $this->addTranslatedFlash('success', 'flash.save_success');
@@ -73,8 +73,8 @@ class UserController extends BaseAdminController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        if (!$this->checkTheAccessLevel()) {
-            return $this->redirect($request->server->get('HTTP_REFERER'));
+        if ($redirect = $this->redirectIfUserIsUnverified()) {
+            return $redirect;
         }
 
         $userManager->remove($user);

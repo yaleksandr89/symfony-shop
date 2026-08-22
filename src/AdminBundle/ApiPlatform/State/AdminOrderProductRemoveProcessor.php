@@ -9,10 +9,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Commerce\Manager\OrderManager;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -21,7 +18,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 final class AdminOrderProductRemoveProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly Security $security,
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderManager $orderManager,
     ) {
@@ -29,8 +25,6 @@ final class AdminOrderProductRemoveProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
-        $this->denyUnlessVerifiedAdmin();
-
         if (!$data instanceof OrderProduct) {
             throw new BadRequestHttpException('Invalid order product.');
         }
@@ -49,17 +43,5 @@ final class AdminOrderProductRemoveProcessor implements ProcessorInterface
         $this->entityManager->wrapInTransaction(function () use ($data): void {
             $this->orderManager->removeOrderProductFromAggregate($data);
         });
-    }
-
-    private function denyUnlessVerifiedAdmin(): void
-    {
-        $user = $this->security->getUser();
-        if (
-            !$user instanceof User
-            || !$this->security->isGranted('ROLE_ADMIN')
-            || !$user->isVerified()
-        ) {
-            throw new AccessDeniedHttpException();
-        }
     }
 }

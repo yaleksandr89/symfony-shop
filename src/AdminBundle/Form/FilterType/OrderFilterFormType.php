@@ -93,10 +93,6 @@ class OrderFilterFormType extends AbstractType
                 'constraints' => [
                     new Callback(
                         static function (mixed $range, ExecutionContextInterface $context): void {
-                            if (!is_array($range)) {
-                                return;
-                            }
-
                             $leftDate = $range['left_date'] ?? null;
                             $rightDate = $range['right_date'] ?? null;
 

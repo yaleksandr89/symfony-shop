@@ -10,10 +10,7 @@ use App\Commerce\Manager\OrderManager;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
@@ -23,7 +20,6 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 final class AdminOrderProductProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly Security $security,
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderManager $orderManager,
     ) {
@@ -31,8 +27,6 @@ final class AdminOrderProductProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): OrderProduct
     {
-        $this->denyUnlessVerifiedAdmin();
-
         if (!$data instanceof OrderProduct) {
             throw new BadRequestHttpException('Invalid order product.');
         }
@@ -79,17 +73,5 @@ final class AdminOrderProductProcessor implements ProcessorInterface
         });
 
         return $result;
-    }
-
-    private function denyUnlessVerifiedAdmin(): void
-    {
-        $user = $this->security->getUser();
-        if (
-            !$user instanceof User
-            || !$this->security->isGranted('ROLE_ADMIN')
-            || !$user->isVerified()
-        ) {
-            throw new AccessDeniedHttpException();
-        }
     }
 }

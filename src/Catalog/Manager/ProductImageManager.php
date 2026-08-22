@@ -24,12 +24,8 @@ final class ProductImageManager
     ) {
     }
 
-    public function saveImageForProduct(string $productDir, ?string $tempImageFilename = null): ?ProductImage
+    public function saveImageForProduct(string $productDir, string $tempImageFilename): ProductImage
     {
-        if (!$tempImageFilename) {
-            return null;
-        }
-
         $this->filesystemWorker->createFolderIfNotExist($productDir);
         $filenames = $this->generateVariantFilenames($productDir);
         $paths = array_map(

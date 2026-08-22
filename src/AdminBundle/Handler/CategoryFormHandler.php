@@ -34,11 +34,7 @@ class CategoryFormHandler
 
     private function fillingCategoryData(Category $category, EditCategoryModel $editCategoryModel): Category
     {
-        $title = (!is_string($editCategoryModel->title))
-            ? (string) $editCategoryModel->title
-            : $editCategoryModel->title;
-
-        $category->setTitle($title);
+        $category->setTitle($editCategoryModel->title);
 
         return $category;
     }

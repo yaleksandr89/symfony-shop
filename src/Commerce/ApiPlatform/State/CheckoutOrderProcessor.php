@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @implements ProcessorInterface<mixed, Order>
+ * @implements ProcessorInterface<CheckoutOrderInput, Order>
  */
 final class CheckoutOrderProcessor implements ProcessorInterface
 {
@@ -42,10 +42,6 @@ final class CheckoutOrderProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Order
     {
-        if (!$data instanceof CheckoutOrderInput || !is_int($data->cartId) || $data->cartId <= 0) {
-            throw new BadRequestHttpException('Invalid checkout cart.');
-        }
-
         $user = $this->security->getUser();
         if (!$user instanceof User) {
             throw new AccessDeniedHttpException();
@@ -70,11 +66,10 @@ final class CheckoutOrderProcessor implements ProcessorInterface
                     throw new BadRequestHttpException('Checkout cart is unavailable.');
                 }
 
+                /** @var int $cartProductId */
                 $cartProductId = $cartProduct->getId();
+                /** @var Product $product */
                 $product = $cartProduct->getProduct();
-                if (!is_int($cartProductId) || $cartProductId <= 0 || !$product instanceof Product) {
-                    throw new BadRequestHttpException('Checkout cart is unavailable.');
-                }
 
                 if (true === $product->getIsDeleted()) {
                     $unavailableItems[] = [
@@ -94,10 +89,6 @@ final class CheckoutOrderProcessor implements ProcessorInterface
             }
 
             foreach ($cart->getCartProducts() as $cartProduct) {
-                if (!$cartProduct instanceof CartProduct) {
-                    throw new BadRequestHttpException('Checkout cart is unavailable.');
-                }
-
                 if (0 < count($this->validator->validate($cartProduct))) {
                     throw new BadRequestHttpException('Checkout cart is unavailable.');
                 }

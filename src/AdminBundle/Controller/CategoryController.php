@@ -43,8 +43,8 @@ class CategoryController extends BaseAdminController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->checkTheAccessLevel()) {
-                return $this->redirect($request->server->get('HTTP_REFERER'));
+            if ($redirect = $this->redirectIfUserIsUnverified()) {
+                return $redirect;
             }
 
             $category = $categoryFormHandler->processEditForm($editCategoryModel);
@@ -72,8 +72,8 @@ class CategoryController extends BaseAdminController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        if (!$this->checkTheAccessLevel()) {
-            return $this->redirect($request->server->get('HTTP_REFERER'));
+        if ($redirect = $this->redirectIfUserIsUnverified()) {
+            return $redirect;
         }
 
         $categoryManager->remove($category);

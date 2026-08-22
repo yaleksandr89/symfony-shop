@@ -36,38 +36,14 @@ class UserFormHandler
 
     private function fillingCategoryData(User $user, EditUserModel $editUserModel): User
     {
-        $plainPassword = (!is_string($editUserModel->plainPassword))
-            ? (string) $editUserModel->plainPassword
-            : $editUserModel->plainPassword;
-
-        $roles = (!is_array($editUserModel->roles))
-            ? (array) $editUserModel->roles
-            : $editUserModel->roles;
-
-        $fullName = (!is_string($editUserModel->fullName))
-            ? (string) $editUserModel->fullName
-            : $editUserModel->fullName;
-
-        $phone = (!is_string($editUserModel->phone))
-            ? (string) $editUserModel->phone
-            : $editUserModel->phone;
-
-        $address = (!is_string($editUserModel->address))
-            ? (string) $editUserModel->address
-            : $editUserModel->address;
-
         $zipCode = (!is_int($editUserModel->zipCode))
             ? (int) $editUserModel->zipCode
             : $editUserModel->zipCode;
 
-        $isDeleted = (!is_bool($editUserModel->isDeleted))
-            ? (bool) $editUserModel->isDeleted
-            : $editUserModel->isDeleted;
-
         $email = $editUserModel->email;
 
-        if (!empty($plainPassword)) {
-            $encodedPassword = $this->hasher->hashPassword($user, $plainPassword);
+        if (!empty($editUserModel->plainPassword)) {
+            $encodedPassword = $this->hasher->hashPassword($user, $editUserModel->plainPassword);
             $user->setPassword($encodedPassword);
         }
 
@@ -75,12 +51,12 @@ class UserFormHandler
             $user->setEmail($email);
         }
 
-        $user->setRoles($roles);
-        $user->setFullName($fullName);
-        $user->setPhone($phone);
-        $user->setAddress($address);
+        $user->setRoles($editUserModel->roles);
+        $user->setFullName($editUserModel->fullName);
+        $user->setPhone($editUserModel->phone);
+        $user->setAddress($editUserModel->address);
         $user->setZipCode($zipCode);
-        $user->setIsDeleted($isDeleted);
+        $user->setIsDeleted($editUserModel->isDeleted);
 
         return $user;
     }

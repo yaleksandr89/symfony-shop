@@ -130,32 +130,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function isAdminRole(): bool
     {
-        $isAdmin = false;
-
-        foreach ($this->roles as $role) {
-            if ($isAdmin) {
-                continue;
-            }
-
-            $isAdmin = in_array($role, ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']);
-        }
-
-        return $isAdmin;
+        return in_array('ROLE_ADMIN', $this->roles, true)
+            || in_array('ROLE_SUPER_ADMIN', $this->roles, true);
     }
 
     public function hasAccessToAdminSection(): bool
     {
-        $hasAccess = false;
-
         foreach ($this->getRoles() as $role) {
-            if ($hasAccess) {
-                continue;
+            if (in_array($role, UserStaticStorage::getUserRoleHasAccessToAdminSection(), true)) {
+                return true;
             }
-
-            $hasAccess = in_array($role, UserStaticStorage::getUserRoleHasAccessToAdminSection(), true);
         }
 
-        return $hasAccess;
+        return false;
     }
 
     /**
@@ -283,28 +270,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function getOrders(): Collection
     {
         return $this->orders;
-    }
-
-    public function addOrder(Order $order): static
-    {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrder(Order $order): static
-    {
-        if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
-            if ($order->getOwner() === $this) {
-                $order->setOwner(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getGoogleId(): ?string

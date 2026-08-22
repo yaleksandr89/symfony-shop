@@ -68,10 +68,6 @@ final class ProductManager
 
                 $productDir = $this->getProductImagesDir($product);
                 $productImage = $this->productImagesManager->saveImageForProduct($productDir, $tempImageFilename);
-                if (!$productImage instanceof ProductImage) {
-                    throw new RuntimeException('Unable to create product image variants.');
-                }
-
                 $product->addProductImage($productImage);
 
                 return $product;

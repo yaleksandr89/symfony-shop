@@ -49,8 +49,8 @@ class OrderController extends BaseAdminController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->checkTheAccessLevel()) {
-                return $this->redirect($request->server->get('HTTP_REFERER'));
+            if ($redirect = $this->redirectIfUserIsUnverified()) {
+                return $redirect;
             }
 
             $order = $orderFormHandler->processEditForm($editOrderModel);
@@ -84,8 +84,8 @@ class OrderController extends BaseAdminController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        if (!$this->checkTheAccessLevel()) {
-            return $this->redirect($request->server->get('HTTP_REFERER'));
+        if ($redirect = $this->redirectIfUserIsUnverified()) {
+            return $redirect;
         }
 
         $orderManager->remove($order);

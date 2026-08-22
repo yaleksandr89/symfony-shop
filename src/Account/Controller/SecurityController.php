@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Controller;
 
+use App\Account\Security\Authenticator\LoginFormAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +15,14 @@ class SecurityController extends AbstractController
 {
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
-        $request->getSession()->set('HTTP_REFERER', $request->server->get('HTTP_REFERER'));
+        $session = $request->getSession();
+        $returnIntent = $request->query->all()['return'] ?? null;
+
+        if (LoginFormAuthenticator::CART_RETURN_INTENT === $returnIntent && null === $this->getUser()) {
+            $session->set(LoginFormAuthenticator::RETURN_INTENT_SESSION_KEY, $returnIntent);
+        } else {
+            $session->remove(LoginFormAuthenticator::RETURN_INTENT_SESSION_KEY);
+        }
 
         if ($this->getUser()) {
             return $this->redirectToRoute('main_profile_index');

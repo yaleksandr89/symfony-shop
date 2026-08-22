@@ -31,15 +31,11 @@ final class ProductController extends AbstractController
         }
 
         if (!$product) {
-            try {
-                $product = $this->findVisibleProduct([
-                    'slug' => $identifier,
-                    'isPublished' => true,
-                    'isDeleted' => false,
-                ]);
-            } catch (ConversionException $e) {
-                $product = null;
-            }
+            $product = $this->findVisibleProduct([
+                'slug' => $identifier,
+                'isPublished' => true,
+                'isDeleted' => false,
+            ]);
         }
 
         if (!$product) {

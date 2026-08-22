@@ -335,52 +335,8 @@ class Product
         return $this->cartProducts;
     }
 
-    public function addCartProduct(CartProduct $cartProduct): static
-    {
-        if (!$this->cartProducts->contains($cartProduct)) {
-            $this->cartProducts[] = $cartProduct;
-            $cartProduct->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCartProduct(CartProduct $cartProduct): static
-    {
-        if ($this->cartProducts->removeElement($cartProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($cartProduct->getProduct() === $this) {
-                $cartProduct->setProduct(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getOrderProducts(): Collection
     {
         return $this->orderProducts;
-    }
-
-    public function addOrderProduct(OrderProduct $orderProduct): static
-    {
-        if (!$this->orderProducts->contains($orderProduct)) {
-            $this->orderProducts[] = $orderProduct;
-            $orderProduct->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrderProduct(OrderProduct $orderProduct): static
-    {
-        if ($this->orderProducts->removeElement($orderProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($orderProduct->getProduct() === $this) {
-                $orderProduct->setProduct(null);
-            }
-        }
-
-        return $this;
     }
 }

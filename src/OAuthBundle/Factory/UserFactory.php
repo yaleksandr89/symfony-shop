@@ -20,7 +20,6 @@ class UserFactory
         $user->setEmail($googleUser->getEmail());
         $user->setFullName($googleUser->getName());
         $user->setGoogleId($googleUser->getId());
-        // $user->setIsVerified(true);
 
         return $user;
     }
@@ -31,7 +30,6 @@ class UserFactory
         $user->setEmail($email);
         $user->setFullName($yandexUser->getRealName() ?? $yandexUser->getDisplayName() ?? $yandexUser->getLogin());
         $user->setYandexId($yandexUser->getId());
-        // $user->setIsVerified(true);
 
         return $user;
     }
@@ -42,7 +40,6 @@ class UserFactory
         $user->setEmail($vkontakteUser->getEmail());
         $user->setFullName($vkontakteUser->getFullName());
         $user->setVkontakteId($vkontakteUser->getId());
-        // $user->setIsVerified(true);
 
         return $user;
     }
@@ -53,7 +50,6 @@ class UserFactory
         $user->setEmail($githubUser->getEmail());
         $user->setFullName($githubUser->getName());
         $user->setGithubId((string) $githubUser->getId());
-        // $user->setIsVerified(true);
 
         return $user;
     }

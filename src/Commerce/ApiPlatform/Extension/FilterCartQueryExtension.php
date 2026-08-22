@@ -79,11 +79,6 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         /** @var User $user */
         $user = $this->security->getUser();
 
-        /*
-         * This is just an example of a check.
-         * If your project doesn't need this check, just remove the method and this check.
-         */
-
         if ($this->displayAllForAdmin($user)) {
             return;
         }

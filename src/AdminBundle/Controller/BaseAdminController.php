@@ -6,6 +6,7 @@ namespace App\AdminBundle\Controller;
 
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class BaseAdminController extends AbstractController
@@ -19,7 +20,7 @@ abstract class BaseAdminController extends AbstractController
         $this->addFlash($type, $this->translator->trans($message, $parameters, 'admin'));
     }
 
-    protected function checkTheAccessLevel(): bool
+    protected function redirectIfUserIsUnverified(): ?RedirectResponse
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -27,9 +28,9 @@ abstract class BaseAdminController extends AbstractController
         if (false === $user->isVerified()) {
             $this->addTranslatedFlash('danger', 'flash.access_denied');
 
-            return false;
+            return $this->redirectToRoute('admin_dashboard_show');
         }
 
-        return true;
+        return null;
     }
 }

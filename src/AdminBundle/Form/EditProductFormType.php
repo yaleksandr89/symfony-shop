@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\AdminBundle\Form;
 
 use App\AdminBundle\DTO\EditProductModel;
-use App\AdminBundle\Validator\GreaterThanOrEqualPrice;
 use App\Entity\Category;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -21,6 +20,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Positive;
 
 class EditProductFormType extends AbstractType
 {
@@ -43,13 +43,14 @@ class EditProductFormType extends AbstractType
                 'required' => true,
                 'scale' => 2,
                 'html5' => true,
+                'input' => 'string',
                 'attr' => [
                     'class' => 'form-control',
                     'min' => 0,
                 ],
                 'constraints' => [
                     new NotBlank(message: 'product.validation.price.required'),
-                    new GreaterThanOrEqualPrice(),
+                    new Positive(message: 'product.validation.price.greater_than_zero'),
                 ],
             ])
             ->add('quantity', IntegerType::class, [

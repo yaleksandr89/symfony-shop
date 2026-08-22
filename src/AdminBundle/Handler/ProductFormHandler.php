@@ -83,49 +83,19 @@ class ProductFormHandler
 
     private function fillingProductData(Product $product, EditProductModel $editProductModel): Product
     {
-        $title = (!is_string($editProductModel->title))
-            ? (string) $editProductModel->title
-            : $editProductModel->title;
-
-        $price = (!is_string($editProductModel->price))
-            ? (string) $editProductModel->price
-            : $editProductModel->price;
-
-        $quantity = (!is_int($editProductModel->quantity))
-            ? (int) $editProductModel->quantity
-            : $editProductModel->quantity;
-
         $description = (!is_string($editProductModel->description))
             ? (string) $editProductModel->description
             : $editProductModel->description;
 
-        $category = $editProductModel->category;
-
-        $isPublished = (!is_bool($editProductModel->isPublished))
-            ? (bool) $editProductModel->isPublished
-            : $editProductModel->isPublished;
-
-        $isDeleted = (!is_bool($editProductModel->isDeleted))
-            ? (bool) $editProductModel->isDeleted
-            : $editProductModel->isDeleted;
-
-        $isNew = (!is_bool($editProductModel->isNew))
-            ? (bool) $editProductModel->isNew
-            : $editProductModel->isNew;
-
-        $isOnSale = (!is_bool($editProductModel->isOnSale))
-            ? (bool) $editProductModel->isOnSale
-            : $editProductModel->isOnSale;
-
-        $product->setTitle($title);
-        $product->setPrice($price);
-        $product->setQuantity($quantity);
+        $product->setTitle($editProductModel->title);
+        $product->setPrice($editProductModel->price);
+        $product->setQuantity($editProductModel->quantity);
         $product->setDescription($description);
-        $product->setCategory($category);
-        $product->setIsPublished($isPublished);
-        $product->setIsDeleted($isDeleted);
-        $product->setIsNew($isNew);
-        $product->setIsOnSale($isOnSale);
+        $product->setCategory($editProductModel->category);
+        $product->setIsPublished($editProductModel->isPublished);
+        $product->setIsDeleted($editProductModel->isDeleted);
+        $product->setIsNew($editProductModel->isNew);
+        $product->setIsOnSale($editProductModel->isOnSale);
 
         return $product;
     }
