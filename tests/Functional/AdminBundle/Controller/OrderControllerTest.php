@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Functional\AdminBundle\Controller;
 
 use App\Commerce\Repository\OrderRepository;
+use App\Commerce\Manager\OrderManager;
+use App\Commerce\Order\OrderStaticStorage;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
@@ -23,6 +25,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Group(name: 'functional')]
 class OrderControllerTest extends WebTestCase
@@ -486,6 +489,80 @@ class OrderControllerTest extends WebTestCase
             self::currencyTextToCents($totalPriceRow->filter('.col-md-11')->text()),
         );
         self::assertCount(1, $card->filter('#app'));
+    }
+
+    #[TestDox('Корректная форма заказа сохраняет владельца, статус, удаление, дату и пересчитанную сумму')]
+    public function testValidOrderEditPersistsFormAndRecalculatedAggregate(): void
+    {
+        $client = $this->createAdminClient();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $product = self::getContainer()->get(ProductRepository::class)->findOneBy(['isDeleted' => false]);
+        self::assertInstanceOf(Product::class, $product);
+        $suffix = str_replace('.', '', uniqid('', true));
+        $sourceOwner = (new User())
+            ->setEmail('order-edit-source-'.$suffix.'@example.test')
+            ->setPassword('not-used-in-functional-test')
+            ->setRoles(['ROLE_USER'])
+            ->setIsVerified(true)
+            ->setFullName('Order Edit Source '.$suffix);
+        $targetOwner = (new User())
+            ->setEmail('order-edit-target-'.$suffix.'@example.test')
+            ->setPassword('not-used-in-functional-test')
+            ->setRoles(['ROLE_USER'])
+            ->setIsVerified(true)
+            ->setFullName('Order Edit Target '.$suffix);
+        $initialUpdatedAt = new DateTimeImmutable('-1 day');
+        $order = (new Order())
+            ->setOwner($sourceOwner)
+            ->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED)
+            ->setIsDeleted(false)
+            ->setUpdatedAt($initialUpdatedAt)
+            ->setTotalPrice('999.99');
+        $order->addOrderProduct(
+            (new OrderProduct())
+                ->setProduct($product)
+                ->setQuantity(2)
+                ->setPricePerOne('10.25')
+        );
+        $order->addOrderProduct(
+            (new OrderProduct())
+                ->setProduct($product)
+                ->setQuantity(3)
+                ->setPricePerOne('4.50')
+        );
+        $entityManager->persist($sourceOwner);
+        $entityManager->persist($targetOwner);
+        $entityManager->persist($order);
+        $entityManager->flush();
+        $orderId = $order->getId();
+        $targetOwnerId = $targetOwner->getId();
+        self::assertNotNull($orderId);
+        self::assertNotNull($targetOwnerId);
+
+        $crawler = $client->request('GET', '/ru/admin/order/edit/'.$orderId);
+        self::assertResponseIsSuccessful();
+        $form = $crawler->filter('form[name="edit_order_form"]')->form([
+            'edit_order_form[owner]' => (string) $targetOwnerId,
+            'edit_order_form[status]' => (string) OrderStaticStorage::ORDER_STATUS_DELIVERED,
+            'edit_order_form[isDeleted]' => true,
+        ]);
+
+        $client->submit($form);
+
+        self::assertResponseRedirects('/ru/admin/order/edit/'.$orderId, Response::HTTP_FOUND);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $persistedOrder = $entityManager->find(Order::class, $orderId);
+        self::assertInstanceOf(Order::class, $persistedOrder);
+        self::assertSame($targetOwnerId, $persistedOrder->getOwner()?->getId());
+        self::assertSame(OrderStaticStorage::ORDER_STATUS_DELIVERED, $persistedOrder->getStatus());
+        self::assertTrue($persistedOrder->getIsDeleted());
+        self::assertGreaterThan($initialUpdatedAt, $persistedOrder->getUpdatedAt());
+
+        $storedTotal = $persistedOrder->getTotalPrice();
+        self::getContainer()->get(OrderManager::class)->calculationOrderTotalPrice($persistedOrder);
+        self::assertSame($persistedOrder->getTotalPrice(), $storedTotal);
+        self::assertSame('34.00', $storedTotal);
     }
 
     #[DataProvider(methodName: 'provideOrderValidationLocales')]

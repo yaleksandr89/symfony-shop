@@ -97,6 +97,60 @@ class CartResourceTest extends ResourceTestUtils
         self::assertSame($token, $persistedCart->getToken());
     }
 
+    #[TestDox('Владелец по токену может удалить свою корзину')]
+    public function testMatchingTokenCanDeleteOwnCart(): void
+    {
+        $client = self::createClient();
+        $cart = $this->postCart($client);
+        $persistedCart = $this->persistedCart($cart['token']);
+        $cartId = $persistedCart->getId();
+        self::assertNotNull($cartId);
+        $client->getCookieJar()->set(new Cookie('CART_TOKEN', $cart['token']));
+
+        $client->request('DELETE', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertNull($entityManager->find(Cart::class, $cartId));
+    }
+
+    #[TestDox('Чужой токен не позволяет удалить корзину и сохраняет её')]
+    public function testForeignTokenCannotDeleteCart(): void
+    {
+        $client = self::createClient();
+        $cart = $this->postCart($client);
+        $persistedCart = $this->persistedCart($cart['token']);
+        $cartId = $persistedCart->getId();
+        self::assertNotNull($cartId);
+        $client->getCookieJar()->set(new Cookie('CART_TOKEN', 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'));
+
+        $client->request('DELETE', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertInstanceOf(Cart::class, $entityManager->find(Cart::class, $cartId));
+    }
+
+    #[TestDox('Без токена нельзя удалить корзину и она остаётся сохранённой')]
+    public function testMissingTokenCannotDeleteCart(): void
+    {
+        $client = self::createClient();
+        $cart = $this->postCart($client);
+        $persistedCart = $this->persistedCart($cart['token']);
+        $cartId = $persistedCart->getId();
+        self::assertNotNull($cartId);
+        $client->getCookieJar()->clear();
+
+        $client->request('DELETE', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertInstanceOf(Cart::class, $entityManager->find(Cart::class, $cartId));
+    }
+
     /**
      * @param array<string, mixed> $payload
      *

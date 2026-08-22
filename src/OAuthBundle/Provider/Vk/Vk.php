@@ -62,11 +62,13 @@ class Vk extends AbstractProvider
      */
     protected function checkResponse(ResponseInterface $response, $data): void
     {
-        if (empty($data['error'])) {
+        $hasProviderError = is_array($data) && array_key_exists('error', $data);
+        if (!$hasProviderError && $response->getStatusCode() < 400) {
             return;
         }
 
-        throw new IdentityProviderException($data['error'], 0, $data);
+        $statusCode = $response->getStatusCode();
+        throw new IdentityProviderException('VK OAuth request failed.', $statusCode >= 400 ? $statusCode : 0, ['status_code' => $statusCode]);
     }
 
     /**

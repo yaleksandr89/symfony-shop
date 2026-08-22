@@ -7,6 +7,7 @@ namespace App\Tests\Unit\OAuthBundle\Factory;
 use App\OAuthBundle\Factory\UserFactory;
 use App\OAuthBundle\Provider\Facebook\FacebookUser;
 use App\OAuthBundle\Provider\Linkedin\LinkedinUser;
+use App\OAuthBundle\Provider\Vk\VkUser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -63,6 +64,22 @@ final class UserFactoryTest extends TestCase
         self::assertSame('user@example.test', $user->getEmail());
         self::assertSame('LinkedIn User', $user->getFullName());
         self::assertSame('LiNkEdIn-sub', $user->getLinkedinId());
+        self::assertFalse($user->isVerified());
+    }
+
+    #[TestDox('Создание пользователя VK переносит email, имя и внешний ID без локальной верификации')]
+    public function testCreateUserFromVkMapsLocalAccountWithoutVerification(): void
+    {
+        $user = UserFactory::createUserFromVk(new VkUser([
+            'user_id' => 73,
+            'email' => 'vk-user@example.test',
+            'first_name' => 'Ada',
+            'last_name' => 'Lovelace',
+        ]));
+
+        self::assertSame('vk-user@example.test', $user->getEmail());
+        self::assertSame('Ada Lovelace', $user->getFullName());
+        self::assertSame('73', $user->getVkontakteId());
         self::assertFalse($user->isVerified());
     }
 

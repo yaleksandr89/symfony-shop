@@ -206,6 +206,59 @@ class CartProductResourceTest extends ResourceTestUtils
         );
     }
 
+    #[TestDox('Владелец по токену может удалить свою позицию корзины')]
+    public function testMatchingTokenCanDeleteOwnLine(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $lineId = $context['lineA']->getId();
+        self::assertNotNull($lineId);
+        $this->setCartToken($client, $context['tokenA']);
+
+        $client->request('DELETE', $this->lineIri($context['lineA']), [], [], self::REQUEST_HEADERS);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertNull($entityManager->find(CartProduct::class, $lineId));
+    }
+
+    #[TestDox('Чужой токен не позволяет удалить позицию и сохраняет все её связи')]
+    public function testForeignTokenCannotDeleteLine(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $context['tokenB']);
+
+        $client->request('DELETE', $this->lineIri($context['lineA']), [], [], self::REQUEST_HEADERS);
+
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
+    #[TestDox('Без токена нельзя удалить позицию и она остаётся сохранённой')]
+    public function testMissingTokenCannotDeleteLine(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+
+        $client->request('DELETE', $this->lineIri($context['lineA']), [], [], self::REQUEST_HEADERS);
+
+        $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
+        $this->assertPersistedLineState(
+            $context['lineA'],
+            1,
+            $context['cartA']->getId(),
+            $context['productA']->getId()
+        );
+    }
+
     #[TestDox('Токен позиции не даёт изменить саму корзину')]
     public function testMatchingTokenCannotPatchCart(): void
     {
