@@ -4,47 +4,17 @@ declare(strict_types=1);
 
 namespace App\Account\Manager;
 
-use App\Account\Exception\EmptyUserPlainPasswordException;
 use App\Entity\User;
-use App\Persistence\AbstractBaseManager;
-use Doctrine\ORM\EntityRepository;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Contracts\Service\Attribute\Required;
+use Doctrine\ORM\EntityManagerInterface;
 
-final class UserManager extends AbstractBaseManager
+final class UserManager
 {
-    private UserPasswordHasherInterface $userPasswordHasher;
-
-    #[Required]
-    public function setUserPasswordHasher(UserPasswordHasherInterface $userPasswordHasher): UserManager
+    public function __construct(private EntityManagerInterface $em)
     {
-        $this->userPasswordHasher = $userPasswordHasher;
-
-        return $this;
     }
 
-    public function getRepository(): EntityRepository
+    public function remove(User $user): void
     {
-        return $this->em->getRepository(User::class);
-    }
-
-    public function encodePassword(User $user, string $plainPassword): void
-    {
-        $preparedPassword = trim($plainPassword);
-
-        if (!$preparedPassword) {
-            throw new EmptyUserPlainPasswordException('Empty user\'s password');
-        }
-
-        $hashPassword = $this->userPasswordHasher->hashPassword($user, $preparedPassword);
-        $user->setPassword($hashPassword);
-    }
-
-    public function remove(object $entity): void
-    {
-        /** @var User $user */
-        $user = $entity;
-
         $this->em->persist($user);
         $user->setIsDeleted(true);
         $this->em->flush();

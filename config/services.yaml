@@ -32,13 +32,11 @@ services:
   App\:
     resource: '../src/'
     exclude:
-      - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/AdminBundle/AdminBundle.php'
       - '../src/Kernel.php'
       - '../src/OAuthBundle/OAuthBundle.php'
       - '../src/SeoBundle/SeoBundle.php'
-      - '../src/Tests/'
 
   Imagine\Gd\Imagine:
     class: Imagine\Gd\Imagine

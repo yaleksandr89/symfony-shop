@@ -44,7 +44,6 @@ class GoogleAuthenticator extends AbstractOAuthAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        // continue ONLY if the current ROUTE matches the check ROUTE
         return 'connect_google_check' === $request->attributes->get('_route')
             && $this->callbackModeResolver->useOrdinaryAuthenticator();
     }
@@ -72,13 +71,9 @@ class GoogleAuthenticator extends AbstractOAuthAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
-        // change "app_homepage" to some route in your app
         $targetUrl = $this->router->generate('main_profile_index');
 
         return new RedirectResponse($targetUrl);
-
-        // or, on success, let the request continue to be handled by the controller
-        // return null;
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

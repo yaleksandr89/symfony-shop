@@ -8,6 +8,7 @@ use App\AdminBundle\DTO\EditProductModel;
 use App\Catalog\Image\FileSaver;
 use App\Catalog\Image\FilesystemWorker;
 use App\Catalog\Manager\ProductManager;
+use App\Catalog\Repository\ProductRepository;
 use App\Entity\Product;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -15,10 +16,13 @@ use Psr\Log\LoggerInterface;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Service\Attribute\Required;
 use Throwable;
 
 class ProductFormHandler
 {
+    private ProductRepository $productRepository;
+
     public function __construct(
         private ProductManager $productManager,
         private FileSaver $fileSaver,
@@ -29,12 +33,18 @@ class ProductFormHandler
     ) {
     }
 
+    #[Required]
+    public function setProductRepository(ProductRepository $productRepository): void
+    {
+        $this->productRepository = $productRepository;
+    }
+
     public function processEditForm(FormInterface $form, EditProductModel $editProductModel): Product
     {
         $product = new Product();
 
         if ($editProductModel->id) {
-            $product = $this->productManager->find($editProductModel->id);
+            $product = $this->productRepository->find($editProductModel->id);
         }
 
         $product = $this->fillingProductData($product, $editProductModel);
@@ -54,8 +64,8 @@ class ProductFormHandler
 
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
-        $queryBuilder = $this->productManager
-            ->getQueryBuilder()
+        $queryBuilder = $this->productRepository
+            ->createQueryBuilder('p')
             ->leftJoin('p.category', 'c')
             ->addSelect('c')
             ->where('p.isDeleted = :isDeleted')

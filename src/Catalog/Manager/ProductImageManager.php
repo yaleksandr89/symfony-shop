@@ -8,28 +8,20 @@ use App\Catalog\Image\FilesystemWorker;
 use App\Catalog\Image\ImageResizer;
 use App\Entity\Product;
 use App\Entity\ProductImage;
-use App\Persistence\AbstractBaseManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 
-final class ProductImageManager extends AbstractBaseManager
+final class ProductImageManager
 {
     public function __construct(
-        protected EntityManagerInterface $em,
+        private EntityManagerInterface $em,
         private FilesystemWorker $filesystemWorker,
         private string $uploadsTempDir,
         private ImageResizer $imageResizer,
         private LoggerInterface $logger,
     ) {
-        parent::__construct($em);
-    }
-
-    public function getRepository(): EntityRepository
-    {
-        return $this->em->getRepository(ProductImage::class);
     }
 
     public function saveImageForProduct(string $productDir, ?string $tempImageFilename = null): ?ProductImage

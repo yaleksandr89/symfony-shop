@@ -10,21 +10,12 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Money\DecimalMoney;
-use App\Persistence\AbstractBaseManager;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\EntityManagerInterface;
 
-final class OrderManager extends AbstractBaseManager
+final class OrderManager
 {
-    public function getRepository(): EntityRepository
+    public function __construct(private EntityManagerInterface $em)
     {
-        return $this->em->getRepository(Order::class);
-    }
-
-    public function getQueryBuilder(): QueryBuilder
-    {
-        return $this->getRepository()
-            ->createQueryBuilder('o');
     }
 
     public function addOrdersProductsFromVerifiedCart(Order $order, Cart $cart): void
@@ -46,7 +37,7 @@ final class OrderManager extends AbstractBaseManager
             $orderProduct->setProduct($product);
 
             $order->addOrderProduct($orderProduct);
-            $this->persist($orderProduct);
+            $this->em->persist($orderProduct);
         }
     }
 
@@ -107,11 +98,8 @@ final class OrderManager extends AbstractBaseManager
         $this->calculationOrderTotalPrice($order);
     }
 
-    public function remove(object $entity): void
+    public function remove(Order $order): void
     {
-        /** @var Order $order */
-        $order = $entity;
-
         $this->em->persist($order);
         $order->setIsDeleted(true);
         $this->em->flush();

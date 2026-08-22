@@ -25,12 +25,10 @@ class CartProductVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        // if the attribute isn't one we support, return false
         if (!in_array($attribute, [self::CART_PRODUCT_READ, self::CART_PRODUCT_EDIT, self::CART_PRODUCT_DELETE])) {
             return false;
         }
 
-        // only vote on `CartProduct` objects
         if (!$subject instanceof CartProduct) {
             return false;
         }
@@ -50,7 +48,6 @@ class CartProductVoter extends Voter
             $user = null;
         }
 
-        // you know $subject is a Post object, thanks to `supports()`
         /** @var CartProduct $cartProduct */
         $cartProduct = $subject;
 

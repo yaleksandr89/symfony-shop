@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Account\MessageHandler\Command;
 
 use App\Account\Mailer\ResetUserPasswordEmailSender;
-use App\Account\Manager\UserManager;
 use App\Account\Message\Command\ResetUserPasswordCommand;
+use App\Account\Repository\UserRepository;
 use App\Entity\User;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -16,7 +16,7 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 class ResetUserPasswordHandler
 {
     public function __construct(
-        private UserManager $userManager,
+        private UserRepository $userRepository,
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private ResetUserPasswordEmailSender $userPasswordEmailSender,
     ) {
@@ -27,7 +27,7 @@ class ResetUserPasswordHandler
         $email = $resetUserPasswordCommand->getEmail();
 
         /** @var User|null $user */
-        $user = $this->userManager->getRepository()->findOneBy(['email' => $email]);
+        $user = $this->userRepository->findOneBy(['email' => $email]);
 
         if (!$user) {
             return;
@@ -37,7 +37,7 @@ class ResetUserPasswordHandler
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);
             $this->userPasswordEmailSender->sendEmailToClient($user, $resetToken);
         } catch (ResetPasswordExceptionInterface $e) {
-            // ...
+            // Reset-token failures stay silent to keep the response neutral about account existence.
         }
     }
 }

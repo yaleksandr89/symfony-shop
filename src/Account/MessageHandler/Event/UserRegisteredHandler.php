@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Account\MessageHandler\Event;
 
 use App\Account\Mailer\UserRegisteredEmailSender;
-use App\Account\Manager\UserManager;
 use App\Account\Message\Event\EventUserRegisteredEvent;
+use App\Account\Repository\UserRepository;
 use App\Account\Security\Verifier\EmailVerifier;
 use App\Entity\User;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -16,7 +16,7 @@ class UserRegisteredHandler
 {
     public function __construct(
         private EmailVerifier $emailVerifier,
-        private UserManager $userManager,
+        private UserRepository $userRepository,
         private UserRegisteredEmailSender $emailSender,
     ) {
     }
@@ -26,7 +26,7 @@ class UserRegisteredHandler
         $userId = $event->getUserId();
 
         /** @var User|null $user */
-        $user = $this->userManager->find($userId);
+        $user = $this->userRepository->find($userId);
 
         if (!$user) {
             return;

@@ -62,34 +62,6 @@ enum OAuthProvider: string
         };
     }
 
-    public function callbackRoute(): string
-    {
-        return match ($this) {
-            self::Google => 'connect_google_check',
-            self::Yandex => 'connect_yandex_check',
-            self::Vkontakte => 'connect_vkontakte_check',
-            self::GithubEn => 'connect_github_en_check',
-            self::GithubRus => 'connect_github_ru_check',
-            self::Facebook => 'connect_facebook_check',
-            self::Linkedin => 'connect_linkedin_check',
-            default => throw new \LogicException('Unsupported OAuth callback provider.'),
-        };
-    }
-
-    public function startRoute(): string
-    {
-        return match ($this) {
-            self::Google => 'connect_google_start',
-            self::Yandex => 'connect_yandex_start',
-            self::Vkontakte => 'connect_vkontakte_start',
-            self::GithubEn => 'connect_github_en_start',
-            self::GithubRus => 'connect_github_ru_start',
-            self::Facebook => 'connect_facebook_start',
-            self::Linkedin => 'connect_linkedin_start',
-            default => throw new \LogicException('Unsupported OAuth start provider.'),
-        };
-    }
-
     public static function fromRoute(string $route): ?self
     {
         return match ($route) {

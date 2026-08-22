@@ -6,21 +6,16 @@ namespace App\Catalog\Manager;
 
 use App\Entity\Category;
 use App\Entity\Product;
-use App\Persistence\AbstractBaseManager;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
-final class CategoryManager extends AbstractBaseManager
+final class CategoryManager
 {
-    public function getRepository(): EntityRepository
+    public function __construct(private EntityManagerInterface $em)
     {
-        return $this->em->getRepository(Category::class);
     }
 
-    public function remove(object $entity): void
+    public function remove(Category $category): void
     {
-        /** @var Category $category */
-        $category = $entity;
-
         /** @var Product[] $linkedProducts */
         $linkedProducts = $category->getProducts()->getValues();
 

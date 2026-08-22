@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\Messenger\MessageHandler\Command;
+namespace App\Tests\Integration\Account\MessageHandler\Command;
 
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;

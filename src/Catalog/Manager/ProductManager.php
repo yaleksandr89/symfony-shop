@@ -6,50 +6,31 @@ namespace App\Catalog\Manager;
 
 use App\Entity\Product;
 use App\Entity\ProductImage;
-use App\Persistence\AbstractBaseManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use RuntimeException;
 use Throwable;
 
-final class ProductManager extends AbstractBaseManager
+final class ProductManager
 {
     private string $productImagesDir;
 
     private ProductImageManager $productImagesManager;
 
     public function __construct(
-        EntityManagerInterface $em,
+        private EntityManagerInterface $em,
         string $productImagesDir,
         ProductImageManager $productImagesManager,
     ) {
-        parent::__construct($em);
-
         $this->productImagesDir = $productImagesDir;
         $this->productImagesManager = $productImagesManager;
     }
 
-    public function getRepository(): EntityRepository
+    public function softRemove(Product $product): void
     {
-        return $this->em->getRepository(Product::class);
-    }
-
-    public function getQueryBuilder(): QueryBuilder
-    {
-        return $this->getRepository()
-            ->createQueryBuilder('p');
-    }
-
-    public function softRemove(object $entity): void
-    {
-        /** @var Product $product */
-        $product = $entity;
-
-        $this->persist($product);
+        $this->em->persist($product);
         $product->setIsDeleted(true);
         $product->setIsPublished(false);
-        $this->flush();
+        $this->em->flush();
     }
 
     public function getProductImagesDir(Product $product): string
@@ -57,28 +38,11 @@ final class ProductManager extends AbstractBaseManager
         return sprintf('%s/%s', $this->productImagesDir, $product->getId());
     }
 
-    public function updateProductImages(Product $product, ?string $tempImageFilename = null): Product
-    {
-        if (!$tempImageFilename) {
-            return $product;
-        }
-
-        $productDir = $this->getProductImagesDir($product);
-
-        /** @var ProductImage $productImages */
-        $productImages = $this->productImagesManager->saveImageForProduct($productDir, $tempImageFilename);
-        $productImages->setProduct($product);
-
-        $product->addProductImage($productImages);
-
-        return $product;
-    }
-
     public function saveProduct(Product $product, ?string $tempImageFilename = null): Product
     {
         if (null === $tempImageFilename) {
-            $this->persist($product);
-            $this->flush();
+            $this->em->persist($product);
+            $this->em->flush();
 
             return $product;
         }

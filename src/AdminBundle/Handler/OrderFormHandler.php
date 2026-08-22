@@ -6,8 +6,10 @@ namespace App\AdminBundle\Handler;
 
 use App\AdminBundle\DTO\EditOrderModel;
 use App\Commerce\Manager\OrderManager;
+use App\Commerce\Repository\OrderRepository;
 use App\Entity\Order;
 use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
@@ -18,6 +20,8 @@ class OrderFormHandler
 {
     public function __construct(
         private OrderManager $orderManager,
+        private OrderRepository $orderRepository,
+        private EntityManagerInterface $entityManager,
         private PaginatorInterface $paginator,
         private FilterBuilderUpdater $filterBuilderUpdater,
     ) {
@@ -28,22 +32,22 @@ class OrderFormHandler
         $order = new Order();
 
         if ($editOrderModel->id) {
-            $order = $this->orderManager->find($editOrderModel->id);
+            $order = $this->orderRepository->find($editOrderModel->id);
         }
 
         $this->orderManager->calculationOrderTotalPrice($order);
 
-        $this->orderManager->persist($order);
+        $this->entityManager->persist($order);
         $order = $this->fillingCategoryData($order, $editOrderModel);
-        $this->orderManager->flush();
+        $this->entityManager->flush();
 
         return $order;
     }
 
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
-        $queryBuilder = $this->orderManager
-            ->getQueryBuilder()
+        $queryBuilder = $this->orderRepository
+            ->createQueryBuilder('o')
             ->leftJoin('o.owner', 'u')
             ->addSelect('u')
             ->where('o.isDeleted = :isDeleted')

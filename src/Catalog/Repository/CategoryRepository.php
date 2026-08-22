@@ -40,29 +40,10 @@ class CategoryRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    public function findActiveCategory(): ?array
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.isDeleted = FALSE')
-            ->getQuery()
-            ->getResult();
-    }
-
     public function forFormQueryBuilderFindActiveCategory(): QueryBuilder
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.isDeleted = FALSE');
-    }
-
-    public function findActiveCategoryWithJoinProduct(): ?array
-    {
-        return $this->createQueryBuilder('c')
-            ->where('c.isDeleted = FALSE')
-            ->join('c.products', 'p')
-            ->andWhere('p.isDeleted = FALSE')
-            ->andWhere('p.isPublished = TRUE')
-            ->getQuery()
-            ->getResult();
     }
 
     /** @return list<array{title: string, slug: string}> */

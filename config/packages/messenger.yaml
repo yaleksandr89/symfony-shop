@@ -5,7 +5,6 @@ framework:
     default_bus: command.bus
     buses:
       command.bus: ~
-      event.bus: ~
 
     transports:
       # https://symfony.com/doc/current/messenger.html#transport-configuration

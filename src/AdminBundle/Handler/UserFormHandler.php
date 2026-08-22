@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\AdminBundle\Handler;
 
-use App\Account\Manager\UserManager;
+use App\Account\Repository\UserRepository;
 use App\AdminBundle\DTO\EditUserModel;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFormHandler
 {
     public function __construct(
-        private UserManager $userManager,
+        private UserRepository $userRepository,
+        private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $hasher,
     ) {
     }
@@ -22,12 +24,12 @@ class UserFormHandler
         $user = new User();
 
         if ($editUserModel->id) {
-            $user = $this->userManager->find($editUserModel->id);
+            $user = $this->userRepository->find($editUserModel->id);
         }
 
-        $this->userManager->persist($user);
+        $this->entityManager->persist($user);
         $user = $this->fillingCategoryData($user, $editUserModel);
-        $this->userManager->flush();
+        $this->entityManager->flush();
 
         return $user;
     }

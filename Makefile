@@ -73,7 +73,7 @@ help:
 	@printf '%s\n' '  make check                             Run all read-only quality checks / Запустить все проверки качества без изменения файлов'
 	@printf '%s\n' '  make eslint-check                      Run ESLint without writing files / Проверить ESLint без изменения файлов'
 	@printf '%s\n' '  make eslint-fix                        Fix ESLint issues through Node container / Исправить ESLint через Node-контейнер'
-	@printf '%s\n' '  make php-cs-fixer                      Fix src/ formatting in php as app / Исправить форматирование src/ в PHP-контейнере от app'
+	@printf '%s\n' '  make php-cs-fixer                      Fix src/ + tools/demo/ formatting in php as app / Исправить форматирование src/ + tools/demo/ в PHP-контейнере от app'
 	@printf '%s\n' '  make php-cs-fixer-check                Check PHP-CS-Fixer rules without writing files / Проверить PHP-CS-Fixer без изменения файлов'
 	@printf '%s\n' '  make phpstan-check                     Run PHPStan read-only analysis / Запустить PHPStan без изменения файлов'
 	@printf '%s\n' ''

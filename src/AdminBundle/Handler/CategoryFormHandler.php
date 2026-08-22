@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\AdminBundle\Handler;
 
 use App\AdminBundle\DTO\EditCategoryModel;
-use App\Catalog\Manager\CategoryManager;
+use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
+use Doctrine\ORM\EntityManagerInterface;
 
 class CategoryFormHandler
 {
-    public function __construct(private CategoryManager $categoryManager)
-    {
+    public function __construct(
+        private CategoryRepository $categoryRepository,
+        private EntityManagerInterface $entityManager,
+    ) {
     }
 
     public function processEditForm(EditCategoryModel $editCategoryModel): Category
@@ -19,12 +22,12 @@ class CategoryFormHandler
         $category = new Category();
 
         if ($editCategoryModel->id) {
-            $category = $this->categoryManager->find($editCategoryModel->id);
+            $category = $this->categoryRepository->find($editCategoryModel->id);
         }
 
-        $this->categoryManager->persist($category);
+        $this->entityManager->persist($category);
         $category = $this->fillingCategoryData($category, $editCategoryModel);
-        $this->categoryManager->flush();
+        $this->entityManager->flush();
 
         return $category;
     }

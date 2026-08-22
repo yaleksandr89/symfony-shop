@@ -67,7 +67,6 @@ class Category
 
     public function setTitle(?string $title): static
     {
-        // $this->title = $title;
         $this->title = ucfirst(strtolower($title));
 
         return $this;

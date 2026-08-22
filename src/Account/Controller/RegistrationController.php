@@ -38,7 +38,6 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
             $user->setPassword(
                 $passwordEncoder->hashPassword(
                     $user,
@@ -53,7 +52,6 @@ class RegistrationController extends AbstractController
             $event = new EventUserRegisteredEvent($user->getId());
             $messageBus->dispatch($event);
 
-            // do anything else you need here, like send an email
             $this->addFlash('success', $this->translator->trans('An email has been sent. Please check your inbox to complete registration.'));
 
             return $this->redirectToRoute('main_homepage');
@@ -78,7 +76,6 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('main_registration');
         }
 
-        // validate email confirmation link, sets User::isVerified=true and persists
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
@@ -87,7 +84,6 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('main_homepage');
         }
 
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
         $this->addFlash('success', $this->translator->trans('Your email address has been verified.'));
 
         return $this->redirectToRoute('main_homepage');
