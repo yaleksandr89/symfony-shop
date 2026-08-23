@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Commerce\ApiPlatform;
 
+use App\Account\Repository\UserRepository;
+use App\Commerce\Cart\TokenGenerator;
 use App\Entity\Cart;
+use App\Entity\User;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
+use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -16,6 +20,56 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group(name: 'functional')]
 class CartResourceTest extends ResourceTestUtils
 {
+    #[TestDox('Прямой GET корзин сохраняет изоляцию по токену и требует явный административный контекст')]
+    public function testDirectReadsRemainTokenScopedUnlessVerifiedAdminRequestsAdminContext(): void
+    {
+        $client = self::createClient();
+        [$ownCart, $foreignCart] = $this->createCartReadContext();
+        $ownCartId = $ownCart->getId();
+        $foreignCartId = $foreignCart->getId();
+        $ownToken = $ownCart->getToken();
+        self::assertNotNull($ownCartId);
+        self::assertNotNull($foreignCartId);
+        self::assertIsString($ownToken);
+        $client->getCookieJar()->set(new Cookie('CART_TOKEN', $ownToken));
+
+        $ownCollection = $this->requestCartCollection($client);
+        self::assertContains($ownCartId, array_column($ownCollection['member'], 'id'));
+        self::assertNotContains($foreignCartId, array_column($ownCollection['member'], 'id'));
+
+        $client->request('GET', '/api/carts/'.$ownCartId, [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        self::assertSame($ownCartId, $this->getResponseDecodedContent($client)['id']);
+
+        $client->request('GET', '/api/carts/'.$foreignCartId, [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        $client->getCookieJar()->clear();
+        $missingTokenCollection = $this->requestCartCollection($client);
+        self::assertSame([], $missingTokenCollection['member']);
+        self::assertSame(0, $missingTokenCollection['totalItems']);
+
+        $client->request('GET', '/api/carts/'.$ownCartId, [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        $client->getCookieJar()->set(new Cookie('CART_TOKEN', $ownToken));
+        $adminTokenCollection = $this->requestCartCollection($client);
+        self::assertContains($ownCartId, array_column($adminTokenCollection['member'], 'id'));
+        self::assertNotContains($foreignCartId, array_column($adminTokenCollection['member'], 'id'));
+
+        $client->request('GET', '/api/carts/'.$foreignCartId, [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        $adminCollection = $this->requestCartCollection($client, '?context=admin');
+        self::assertContains($ownCartId, array_column($adminCollection['member'], 'id'));
+        self::assertContains($foreignCartId, array_column($adminCollection['member'], 'id'));
+
+        $client->request('GET', '/api/carts/'.$foreignCartId.'?context=admin', [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        self::assertSame($foreignCartId, $this->getResponseDecodedContent($client)['id']);
+    }
+
     #[TestDox('POST корзины создаёт разные корректные токены без cookie владения')]
     public function testCartPostGeneratesDistinctValidTokensWhenOwnershipCookiesAreMissing(): void
     {
@@ -182,5 +236,35 @@ class CartResourceTest extends ResourceTestUtils
         self::assertInstanceOf(Cart::class, $cart);
 
         return $cart;
+    }
+
+    /** @return array{Cart, Cart} */
+    private function createCartReadContext(): array
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $ownCart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $foreignCart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $entityManager->persist($ownCart);
+        $entityManager->persist($foreignCart);
+        $entityManager->flush();
+
+        return [$ownCart, $foreignCart];
+    }
+
+    private function getUser(string $email): User
+    {
+        $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => $email]);
+        self::assertInstanceOf(User::class, $user);
+
+        return $user;
+    }
+
+    /** @return array<string, mixed> */
+    private function requestCartCollection(AbstractBrowser $client, string $query = ''): array
+    {
+        $client->request('GET', '/api/carts'.$query, [], [], self::REQUEST_HEADERS);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        return $this->getResponseDecodedContent($client);
     }
 }

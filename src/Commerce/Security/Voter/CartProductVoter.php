@@ -44,15 +44,13 @@ class CartProductVoter extends Voter
             return true;
         }
 
-        if (!$user instanceof User) {
-            $user = null;
-        }
-
         /** @var CartProduct $cartProduct */
         $cartProduct = $subject;
 
-        /** @var Cart $cart */
         $cart = $cartProduct->getCart();
+        if (!$cart instanceof Cart) {
+            return false;
+        }
 
         switch ($attribute) {
             case self::CART_PRODUCT_READ:
@@ -75,14 +73,9 @@ class CartProductVoter extends Voter
 
     private function canEdit(Cart $cart): bool
     {
-        // если корзина еще не существует
-        if (!$cart->getId()) {
-            return true;
-        }
-
         $cartToken = $this->getCartToken();
 
-        if (!$cartToken) {
+        if (!$cartToken || !$cart->getId()) {
             return false;
         }
 

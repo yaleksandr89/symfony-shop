@@ -360,6 +360,49 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertContextLinesUnchanged($context);
     }
 
+    #[TestDox('POST без корзины безопасно отклоняется до записи позиции')]
+    public function testPostWithoutCartIsSafelyDeniedWithoutPersistence(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'product' => $this->productIri($context['productB']),
+            'quantity' => 1,
+        ]);
+
+        $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
+    #[TestDox('POST без товара возвращает контролируемую ошибку валидации без записи позиции')]
+    public function testPostWithoutProductReturnsValidationErrorWithoutPersistence(): void
+    {
+        $client = self::createClient();
+        $context = $this->createCartContext();
+        $this->setCartToken($client, $context['tokenA']);
+        $countBefore = $this->countCartProducts();
+
+        $this->requestPost($client, [
+            'cart' => $this->cartIri($context['cartA']),
+            'quantity' => 1,
+        ]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+        $document = $this->getResponseDecodedContent($client);
+        self::assertIsArray($document['violations']);
+        self::assertCount(1, $document['violations']);
+        self::assertSame('product', $document['violations'][0]['propertyPath']);
+        self::assertSame('Product is required.', $document['violations'][0]['message']);
+        self::assertSame($countBefore, $this->countCartProducts());
+        $this->assertContextLinesUnchanged($context);
+    }
+
     #[DataProvider('hiddenProducts')]
     #[TestDox('Скрытый товар нельзя добавить в корзину по IRI')]
     public function testHiddenProductIriCannotCreateCartLine(bool $isPublished, bool $isDeleted): void

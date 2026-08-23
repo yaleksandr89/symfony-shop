@@ -66,19 +66,7 @@ class CartVoter extends Voter
 
     private function canEdit(Cart $cart): bool
     {
-        // если корзина еще не существует
-        if (!$cart->getId()) {
-            return true;
-        }
-
-        $cartToken = $this->getCartToken();
-
-        if (!$cartToken) {
-            return false;
-        }
-
-        // проверяем, что это корзина пользователя
-        return $cart->getToken() === $cartToken;
+        return null === $cart->getId();
     }
 
     private function canDelete(Cart $cart): bool
