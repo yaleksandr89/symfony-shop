@@ -8,6 +8,8 @@ use App\OAuthBundle\Factory\UserFactory;
 use App\OAuthBundle\Provider\Facebook\FacebookUser;
 use App\OAuthBundle\Provider\Linkedin\LinkedinUser;
 use App\OAuthBundle\Provider\Vk\VkUser;
+use League\OAuth2\Client\Provider\GithubResourceOwner;
+use League\OAuth2\Client\Provider\GoogleUser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -17,6 +19,37 @@ use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 #[Group(name: 'unit')]
 final class UserFactoryTest extends TestCase
 {
+    #[TestDox('Создание пользователя Google переносит email, имя и внешний ID без локальной верификации')]
+    public function testCreateUserFromGoogleMapsLocalAccountWithoutVerification(): void
+    {
+        $user = UserFactory::createUserFromGoogle(new GoogleUser([
+            'sub' => 'google-id',
+            'email' => 'google-user@example.test',
+            'name' => 'Google User',
+            'email_verified' => true,
+        ]));
+
+        self::assertSame('google-user@example.test', $user->getEmail());
+        self::assertSame('Google User', $user->getFullName());
+        self::assertSame('google-id', $user->getGoogleId());
+        self::assertFalse($user->isVerified());
+    }
+
+    #[TestDox('Создание пользователя GitHub канонизирует numeric ID и не включает локальную верификацию')]
+    public function testCreateUserFromGithubMapsNumericIdAsStringWithoutVerification(): void
+    {
+        $user = UserFactory::createUserFromGithub(new GithubResourceOwner([
+            'id' => 123456,
+            'email' => 'github-user@example.test',
+            'name' => 'GitHub User',
+        ]));
+
+        self::assertSame('github-user@example.test', $user->getEmail());
+        self::assertSame('GitHub User', $user->getFullName());
+        self::assertSame('123456', $user->getGithubId());
+        self::assertFalse($user->isVerified());
+    }
+
     #[DataProvider('names')]
     #[TestDox('Создание пользователя Яндекса использует проверенные email, ID и запасные имена')]
     public function testCreateUserFromYandexUsesValidatedEmailIdAndNameFallbacks(?string $realName, ?string $displayName, string $login, string $expectedName): void

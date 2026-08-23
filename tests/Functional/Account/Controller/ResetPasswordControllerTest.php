@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -72,6 +73,31 @@ class ResetPasswordControllerTest extends WebTestCase
     {
         yield 'known account' => [UserFixtures::USER_1_EMAIL];
         yield 'unknown account' => ['unknown-reset-request@example.test'];
+    }
+
+    #[TestDox('Известный и неизвестный email получают одинаковую нейтральную check-email страницу')]
+    public function testKnownAndUnknownRequestsShowSameNeutralCheckEmailPage(): void
+    {
+        $knownPage = $this->requestCheckEmailPage(UserFixtures::USER_1_EMAIL);
+        $unknownEmail = 'unknown-reset-request@example.test';
+        $unknownPage = $this->requestCheckEmailPage($unknownEmail);
+
+        self::assertSame($knownPage, $unknownPage);
+        self::assertStringNotContainsString(UserFixtures::USER_1_EMAIL, $knownPage['content']);
+        self::assertStringNotContainsString($unknownEmail, $unknownPage['content']);
+    }
+
+    #[TestDox('Прямой check-email GET без token-состояния безопасно показывает нейтральную страницу')]
+    public function testDirectCheckEmailGetWithoutTokenStateIsSafeAndNeutral(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/ru/reset-password/check-email');
+
+        self::assertResponseIsSuccessful();
+        $page = $this->neutralPageSignature($crawler);
+        self::assertSame('Reset your password', $page['heading']);
+        self::assertStringContainsString('If an account matching your email exists', $page['content']);
+        self::assertStringNotContainsString(UserFixtures::USER_1_EMAIL, $page['content']);
     }
 
     #[TestDox('Валидный token одноразово меняет пароль и удаляет reset request')]
@@ -209,5 +235,35 @@ class ResetPasswordControllerTest extends WebTestCase
         self::assertInstanceOf(User::class, $user);
 
         return $user;
+    }
+
+    /** @return array{title: string, heading: string, paragraphs: int, content: string} */
+    private function requestCheckEmailPage(string $email): array
+    {
+        $client = static::createClient();
+        $client->request('GET', '/ru/reset-password');
+        $client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => $email,
+        ]);
+
+        self::assertResponseRedirects('/ru/reset-password/check-email', Response::HTTP_FOUND);
+        $crawler = $client->followRedirect();
+        self::assertResponseIsSuccessful();
+
+        $page = $this->neutralPageSignature($crawler);
+        static::ensureKernelShutdown();
+
+        return $page;
+    }
+
+    /** @return array{title: string, heading: string, paragraphs: int, content: string} */
+    private function neutralPageSignature(Crawler $crawler): array
+    {
+        return [
+            'title' => trim($crawler->filter('title')->text()),
+            'heading' => trim($crawler->filter('.page-login h1')->text()),
+            'paragraphs' => $crawler->filter('.page-login p')->count(),
+            'content' => trim((string) preg_replace('/\s+/u', ' ', $crawler->filter('.page-login')->text())),
+        ];
     }
 }
