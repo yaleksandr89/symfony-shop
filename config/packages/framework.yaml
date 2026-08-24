@@ -1,6 +1,8 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
   secret: '%env(APP_SECRET)%'
+  router:
+    default_uri: '%env(SITE_BASE_SCHEME)%://%env(SITE_BASE_HOST)%'
   #csrf_protection: true
   http_method_override: false
   csrf_protection: true
@@ -22,8 +24,6 @@ framework:
     log: true
   property_info:
     with_constructor_extractor: false
-  profiler:
-    collect_serializer_data: true
 
 when@test:
   framework:

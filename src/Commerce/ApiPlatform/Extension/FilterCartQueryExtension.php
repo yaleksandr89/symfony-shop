@@ -109,7 +109,7 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         return
             $user instanceof User
             && $user->isAdminRole()
-            && 'admin' === $this->request->getCurrentRequest()?->get('context')
+            && 'admin' === $this->request->getCurrentRequest()?->query->get('context')
         ;
     }
 }
