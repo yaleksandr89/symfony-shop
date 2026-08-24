@@ -160,14 +160,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-    }
-
     public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof self) {
