@@ -36,7 +36,7 @@ endif
 $(SERVICE): ;
 endif
 
-.PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
+.PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core coverage coverage-html test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
 
 help:
 	@printf '%s\n' 'Bootstrap / Первичная настройка:'
@@ -73,7 +73,7 @@ help:
 	@printf '%s\n' '  make check                             Run all read-only quality checks / Запустить все проверки качества без изменения файлов'
 	@printf '%s\n' '  make eslint-check                      Run ESLint without writing files / Проверить ESLint без изменения файлов'
 	@printf '%s\n' '  make eslint-fix                        Fix ESLint issues through Node container / Исправить ESLint через Node-контейнер'
-	@printf '%s\n' '  make php-cs-fixer                      Fix src/ formatting in php as app / Исправить форматирование src/ в PHP-контейнере от app'
+	@printf '%s\n' '  make php-cs-fixer                      Fix src/ + tools/demo/ formatting in php as app / Исправить форматирование src/ + tools/demo/ в PHP-контейнере от app'
 	@printf '%s\n' '  make php-cs-fixer-check                Check PHP-CS-Fixer rules without writing files / Проверить PHP-CS-Fixer без изменения файлов'
 	@printf '%s\n' '  make phpstan-check                     Run PHPStan read-only analysis / Запустить PHPStan без изменения файлов'
 	@printf '%s\n' ''
@@ -85,6 +85,8 @@ help:
 	@printf '%s\n' '  make test-functional                   Run PHPUnit functional group / Запустить functional-группу PHPUnit'
 	@printf '%s\n' '  make test-functional-panther           Run PHPUnit functional-panther group / Запустить browser-группу PHPUnit через Panther'
 	@printf '%s\n' '  make test-all-core CONFIRM=testdb       Build assets and run the core test baseline / Собрать assets и запустить основной набор тестов'
+	@printf '%s\n' '  make coverage CONFIRM=testdb            Run terminal-only core PHP/PHPUnit coverage after test DB reset, excluding Panther / Запустить terminal-only core-покрытие PHP/PHPUnit после пересоздания тестовой БД, без Panther'
+	@printf '%s\n' '  make coverage-html CONFIRM=testdb       Run the same core coverage with HTML/Clover reports / Запустить то же core-покрытие с HTML/Clover-отчётами'
 	@printf '%s\n' '  make test-all CONFIRM=testdb            Run the full baseline, including Panther / Запустить полный набор тестов, включая Panther'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Destructive maintenance / Деструктивные операции:'
@@ -188,13 +190,13 @@ eslint-check:
 	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue'
 
 php-cs-fixer:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --verbose
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix --config=/var/www/html/.php-cs-fixer.dist.php src/ tools/demo/ --verbose
 
 php-cs-fixer-check:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix src/ --dry-run --diff --using-cache=no --verbose
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix --config=/var/www/html/.php-cs-fixer.dist.php src/ tools/demo/ --dry-run --diff --using-cache=no --verbose
 
 phpstan-check:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src --level 4
+	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src tools/demo --level 4
 
 test-all-core:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
@@ -206,6 +208,26 @@ test-all-core:
 	$(MAKE) test-db-reset CONFIRM="$(CONFIRM)"
 	$(MAKE) test-integration
 	$(MAKE) test-functional
+
+coverage:
+	@if [ "$(CONFIRM)" != "testdb" ]; then \
+		printf '%s\n' 'Refusing to run core PHP/PHPUnit coverage. Re-run with: make coverage CONFIRM=testdb'; \
+		exit 1; \
+	fi
+	$(MAKE) assets-build
+	$(MAKE) test-db-reset CONFIRM="$(CONFIRM)"
+	$(COMPOSE) exec --user app -e APP_ENV=test -e XDEBUG_MODE=coverage php php /var/www/html/vendor/bin/phpunit --exclude-group functional-panther --do-not-record-test-run-history --coverage-text
+
+coverage-html:
+	@if [ "$(CONFIRM)" != "testdb" ]; then \
+		printf '%s\n' 'Refusing to run core PHP/PHPUnit coverage with reports. Re-run with: make coverage-html CONFIRM=testdb'; \
+		exit 1; \
+	fi
+	$(COMPOSE) exec --user app php rm -rf var/coverage/html var/coverage/clover.xml
+	$(COMPOSE) exec --user app php mkdir -p var/coverage
+	$(MAKE) assets-build
+	$(MAKE) test-db-reset CONFIRM="$(CONFIRM)"
+	$(COMPOSE) exec --user app -e APP_ENV=test -e XDEBUG_MODE=coverage php php /var/www/html/vendor/bin/phpunit --exclude-group functional-panther --do-not-record-test-run-history --coverage-text --coverage-html var/coverage/html --coverage-clover var/coverage/clover.xml
 
 test-all:
 	$(MAKE) test-all-core CONFIRM="$(CONFIRM)"

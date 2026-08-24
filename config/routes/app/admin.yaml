@@ -1,0 +1,88 @@
+admin_category_list:
+  path: /admin/category/list
+  controller: App\AdminBundle\Controller\CategoryController::list
+
+admin_category_edit:
+  path: /admin/category/edit/{id}
+  controller: App\AdminBundle\Controller\CategoryController::edit
+
+admin_category_add:
+  path: /admin/category/add
+  controller: App\AdminBundle\Controller\CategoryController::edit
+
+admin_category_delete:
+  path: /admin/category/delete/{id}
+  controller: App\AdminBundle\Controller\CategoryController::delete
+  methods: [POST]
+
+admin_dashboard_show:
+  path: /admin/dashboard
+  controller: App\AdminBundle\Controller\DashboardController::dashboard
+
+admin_order_list:
+  path: /admin/order/list
+  controller: App\AdminBundle\Controller\OrderController::list
+
+admin_order_edit:
+  path: /admin/order/edit/{id}
+  controller: App\AdminBundle\Controller\OrderController::edit
+
+admin_order_add:
+  path: /admin/order/add
+  controller: App\AdminBundle\Controller\OrderController::edit
+
+admin_order_delete:
+  path: /admin/order/delete/{id}
+  controller: App\AdminBundle\Controller\OrderController::delete
+  methods: [POST]
+
+admin_product_list:
+  path: /admin/product/list
+  controller: App\AdminBundle\Controller\ProductController::list
+
+admin_product_edit:
+  path: /admin/product/edit/{id}
+  controller: App\AdminBundle\Controller\ProductController::edit
+
+admin_product_edit_blank:
+  path: /admin/product/edit
+  controller: App\AdminBundle\Controller\ProductController::edit
+
+admin_product_add:
+  path: /admin/product/add
+  controller: App\AdminBundle\Controller\ProductController::edit
+
+admin_product_delete:
+  path: /admin/product/delete/{id}
+  controller: App\AdminBundle\Controller\ProductController::delete
+  methods: [POST]
+
+admin_product_image_delete:
+  path: /admin/product-image/delete/{id}
+  controller: App\AdminBundle\Controller\ProductImageController::delete
+  methods: [POST]
+
+admin_security_login:
+  path: /admin/login
+  controller: App\AdminBundle\Controller\SecurityController::login
+
+admin_security_logout:
+  path: /admin/logout
+  controller: App\AdminBundle\Controller\SecurityController::logout
+
+admin_user_list:
+  path: /admin/user/list
+  controller: App\AdminBundle\Controller\UserController::list
+
+admin_user_edit:
+  path: /admin/user/edit/{id}
+  controller: App\AdminBundle\Controller\UserController::edit
+
+admin_user_add:
+  path: /admin/user/add
+  controller: App\AdminBundle\Controller\UserController::edit
+
+admin_user_delete:
+  path: /admin/user/delete/{id}
+  controller: App\AdminBundle\Controller\UserController::delete
+  methods: [POST]

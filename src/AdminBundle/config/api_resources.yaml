@@ -1,0 +1,15 @@
+resources:
+  App\Entity\OrderProduct:
+    operations:
+      ApiPlatform\Metadata\Post:
+        normalizationContext:
+          groups:
+            - 'order_product:list:write'
+        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()"
+        name: 'api_order_products_post_collection'
+        processor: App\AdminBundle\ApiPlatform\State\AdminOrderProductProcessor
+
+      ApiPlatform\Metadata\Delete:
+        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()"
+        name: 'api_order_products_delete_item'
+        processor: App\AdminBundle\ApiPlatform\State\AdminOrderProductRemoveProcessor

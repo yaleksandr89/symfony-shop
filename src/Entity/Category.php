@@ -6,7 +6,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
-use App\Repository\CategoryRepository;
+use App\Catalog\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -67,7 +67,6 @@ class Category
 
     public function setTitle(?string $title): static
     {
-        // $this->title = $title;
         $this->title = ucfirst(strtolower($title));
 
         return $this;
@@ -88,28 +87,6 @@ class Category
     public function getProducts(): Collection
     {
         return $this->products;
-    }
-
-    public function addProduct(Product $product): static
-    {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
-            $product->setCategory($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProduct(Product $product): static
-    {
-        if ($this->products->removeElement($product)) {
-            // set the owning side to null (unless already changed)
-            if ($product->getCategory() === $this) {
-                $product->setCategory(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getIsDeleted(): ?bool

@@ -144,6 +144,7 @@ product.validation.price.greater_than_zero: Цена должна быть бо�
 product.validation.quantity.required: Укажите количество.
 product.validation.category.required: Выберите категорию.
 product.validation.image.invalid_type: Загрузите изображение в формате JPG или PNG.
+product.validation.image.upload_failed: Не удалось сохранить загруженное изображение. Попробуйте ещё раз.
 admin.filter.date_range.invalid_order: 'Дата «От» не может быть позднее даты «До».'
 order.validation.status.required: Выберите статус.
 order.validation.owner.required: Выберите владельца.

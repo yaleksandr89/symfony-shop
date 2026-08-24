@@ -1,0 +1,41 @@
+main_profile_index:
+  path: /profile
+  controller: App\Account\Controller\ProfileController::index
+
+main_profile_edit:
+  path: /profile/edit
+  controller: App\Account\Controller\ProfileController::edit
+
+main_profile_resending_verify_email_link:
+  path: /profile/resending-verify-email-link
+  controller: App\Account\Controller\ProfileController::resendingVerifyEmailLink
+
+main_registration:
+  path: /registration
+  controller: App\Account\Controller\RegistrationController::registration
+
+main_verify_email:
+  path: /verify/email
+  controller: App\Account\Controller\RegistrationController::verifyUserEmail
+
+main_forgot_password_request:
+  path: /reset-password
+  controller: App\Account\Controller\ResetPasswordController::request
+
+main_check_email:
+  path: /reset-password/check-email
+  controller: App\Account\Controller\ResetPasswordController::checkEmail
+
+main_reset_password:
+  path: /reset-password/reset/{token}
+  controller: App\Account\Controller\ResetPasswordController::reset
+  defaults:
+    token: null
+
+main_login:
+  path: /login
+  controller: App\Account\Controller\SecurityController::login
+
+main_logout:
+  path: /logout
+  controller: App\Account\Controller\SecurityController::logout

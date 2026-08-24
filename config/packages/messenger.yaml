@@ -5,7 +5,6 @@ framework:
     default_bus: command.bus
     buses:
       command.bus: ~
-      event.bus: ~
 
     transports:
       # https://symfony.com/doc/current/messenger.html#transport-configuration
@@ -18,5 +17,5 @@ framework:
 
     routing:
       # Route your messages to the transports
-      'App\Messenger\Message\Event\EventUserRegisteredEvent': async
-      'App\Messenger\Message\Command\ResetUserPasswordCommand': async
+      'App\Account\Message\Event\EventUserRegisteredEvent': async
+      'App\Account\Message\Command\ResetUserPasswordCommand': async

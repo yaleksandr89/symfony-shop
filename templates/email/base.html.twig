@@ -1,0 +1,29 @@
+{% apply inky_to_html|inline_css(email_inline_css) %}
+    <container>
+        {% if email_logo_cid %}
+            <row class="header">
+                <columns>
+                    <a href="{{ url('main_homepage') }}">
+                        <center>
+                            <img src="{{ email_logo_cid }}" alt="Alexander Yurchenko — PHP Developer" class="logo">
+                        </center>
+                    </a>
+                </columns>
+            </row>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+        <spacer size="20"></spacer>
+
+        <row class="footer">
+            <columns>
+                <p>
+                    <center>
+                        By Symfony shop (pet projects)
+                    </center>
+                </p>
+            </columns>
+        </row>
+    </container>
+{% endapply %}

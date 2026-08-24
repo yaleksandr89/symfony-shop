@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Security;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Security\UserChecker\DeletedUserChecker;
+use App\Account\Repository\UserRepository;
+use App\Account\Security\UserChecker\DeletedUserChecker;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;

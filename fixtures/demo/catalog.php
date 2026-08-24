@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Entity\StaticStorage\OrderStaticStorage;
-use App\Entity\StaticStorage\UserStaticStorage;
+use App\Account\User\UserStaticStorage;
+use App\Commerce\Order\OrderStaticStorage;
 
 return [
     'users' => [

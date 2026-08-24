@@ -22,7 +22,7 @@ knpu_oauth2_client:
 
         facebook_main:
             type: generic
-            provider_class: App\Utils\Oauth2\Facebook\Facebook
+            provider_class: App\OAuthBundle\Provider\Facebook\Facebook
             client_id: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
             client_secret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
             redirect_route: connect_facebook_check
@@ -31,7 +31,7 @@ knpu_oauth2_client:
 
         linkedin_main:
             type: generic
-            provider_class: App\Utils\Oauth2\Linkedin\Linkedin
+            provider_class: App\OAuthBundle\Provider\Linkedin\Linkedin
             client_id: '%env(OAUTH_LINKEDIN_CLIENT_ID)%'
             client_secret: '%env(OAUTH_LINKEDIN_CLIENT_SECRET)%'
             redirect_route: connect_linkedin_check
@@ -42,7 +42,7 @@ knpu_oauth2_client:
         # an instance of: KnpU\OAuth2ClientBundle\Client\OAuth2Client
         vkontakte_main:
             type: generic
-            provider_class: App\Utils\Oauth2\Vk\Vk
+            provider_class: App\OAuthBundle\Provider\Vk\Vk
             # optional: a class that extends OAuth2Client
             # client_class: Some\Custom\Client
 

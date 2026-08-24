@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Entity\StaticStorage\UserStaticStorage;
-use App\Repository\UserRepository;
+use App\Account\Repository\UserRepository;
+use App\Account\User\UserStaticStorage;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -110,14 +110,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @deprecated since Symfony 5.3, use getUserIdentifier instead
-     */
-    public function getUsername(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
      * @see UserInterface
      */
     public function getRoles(): array
@@ -138,32 +130,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function isAdminRole(): bool
     {
-        $isAdmin = false;
-
-        foreach ($this->roles as $role) {
-            if ($isAdmin) {
-                continue;
-            }
-
-            $isAdmin = in_array($role, ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN']);
-        }
-
-        return $isAdmin;
+        return in_array('ROLE_ADMIN', $this->roles, true)
+            || in_array('ROLE_SUPER_ADMIN', $this->roles, true);
     }
 
     public function hasAccessToAdminSection(): bool
     {
-        $hasAccess = false;
-
         foreach ($this->getRoles() as $role) {
-            if ($hasAccess) {
-                continue;
+            if (in_array($role, UserStaticStorage::getUserRoleHasAccessToAdminSection(), true)) {
+                return true;
             }
-
-            $hasAccess = in_array($role, UserStaticStorage::getUserRoleHasAccessToAdminSection(), true);
         }
 
-        return $hasAccess;
+        return false;
     }
 
     /**
@@ -179,17 +158,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * Returning a salt is only needed, if you are not using a modern
-     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
-     * @see UserInterface
-     */
-    public function getSalt(): ?string
-    {
-        return null;
     }
 
     /**
@@ -302,28 +270,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function getOrders(): Collection
     {
         return $this->orders;
-    }
-
-    public function addOrder(Order $order): static
-    {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrder(Order $order): static
-    {
-        if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
-            if ($order->getOwner() === $this) {
-                $order->setOwner(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getGoogleId(): ?string

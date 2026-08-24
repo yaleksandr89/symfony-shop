@@ -1,0 +1,54 @@
+{% extends 'front/base.html.twig' %}
+
+{% block title %}{{ 'cart.head'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('appFrontCartShow') }}
+{% endblock %}
+
+{% block body %}
+    <div class="text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="page-details mt-4">
+                        <h1 class="h4 font-weight-normal title-gradient-1">
+                            {{ 'cart.head'|trans }}
+                        </h1>
+                        <div id="app"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        if (typeof window.staticStore === 'undefined') {
+            window.staticStore = {};
+        }
+        window.staticStore.isUserLoggedIn = {% if app.user %}true{% else %}false{% endif %};
+        window.staticStore.urlLoginPage = "{{ path('main_login', {'return': 'cart'}) }}";
+        window.staticStore.urlCart = '{{ path('api_carts_get_collection') }}';
+        window.staticStore.urlCartProduct = '{{ path('api_cart_products_get_collection') }}';
+        window.staticStore.urlOrder = '{{ path('api_orders_get_collection') }}';
+        window.staticStore.urlViewProduct = '{{ path('main_product_show_blank') }}';
+        window.staticStore.urlAssetImageProducts = '{{ asset('uploads/images/products') }}';
+        window.staticStore.front_cart_localization = {
+            'total_price': '{{ 'cart.total_price'|trans }}',
+            'cart_empty': '{{ 'cart.cart_empty'|trans }}',
+            'make_order': '{{ 'cart.make_order'|trans }}',
+            'login': '{{ 'cart.login'|trans }}',
+            'product': '{{ 'cart.product'|trans }}',
+            'quantity': '{{ 'cart.quantity'|trans }}',
+            'price': '{{ 'cart.price'|trans }}',
+            'actions': '{{ 'cart.actions'|trans }}',
+            'total': '{{ 'cart.total'|trans }}',
+            'unavailable_products': '{{ 'cart.unavailable_products'|trans }}',
+            'product_deleted': '{{ 'cart.product_deleted'|trans }}',
+            'product_unpublished': '{{ 'cart.product_unpublished'|trans }}',
+        };
+    </script>
+    {{ encore_entry_script_tags('appFrontCartShow') }}
+{% endblock %}

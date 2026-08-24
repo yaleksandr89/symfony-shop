@@ -1,0 +1,96 @@
+<div class="cart shadow mb-4">
+    <div class="card-header py-3">
+        {% include '@Admin/_embed/_filters/_header.html.twig' with {
+            'id': 'product_list_filters_btn'
+        } %}
+    </div>
+    <div class="card-body" id="product_list_filters_block">
+        {{ form_start(form) }}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <td>{{ 'filter.heading.filters'|trans({}, 'admin') }}</td>
+                    <td>{{ 'filter.heading.value'|trans({}, 'admin') }}</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ form_label(form.id) }}</td>
+                    <td>
+                        {{ form_widget(form.id) }}
+                        <div class="form-error">
+                            {{ form_errors(form.id) }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form_label(form.category) }}</td>
+                    <td>
+                        {{ form_widget(form.category) }}
+                        <div class="form-error">
+                            {{ form_errors(form.category) }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form_label(form.title) }}</td>
+                    <td>
+                        {{ form_widget(form.title) }}
+                        <div class="form-error">
+                            {{ form_errors(form.title) }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form_label(form.price) }}</td>
+                    <td>
+                        {{ form_widget(form.price) }}
+                        <div class="form-error">
+                            {{ form_errors(form.price) }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form_label(form.quantity) }}</td>
+                    <td>
+                        {{ form_widget(form.quantity) }}
+                        <div class="form-error">
+                            {{ form_errors(form.quantity) }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form_label(form.isPublished) }}</td>
+                    <td>
+                        {{ form_widget(form.isPublished) }}
+                        <div class="form-error">
+                            {{ form_errors(form.isPublished) }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form_label(form.createdAt) }}</td>
+                    <td>
+                        {{ form_widget(form.createdAt) }}
+                        {% if form.createdAt.vars.errors|length > 0 %}
+                            <div class="alert alert-danger mt-2 mb-0" role="alert">
+                                <strong class="d-block">{{ 'filter.error.date_range_title'|trans({}, 'admin') }}</strong>
+                                {{ form_errors(form.createdAt) }}
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="2">
+                        {% include '@Admin/product/_embed/_table_actions_btn.html.twig' %}
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>

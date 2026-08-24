@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Repository\CartProductRepository;
+use App\Commerce\Repository\CartProductRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
@@ -70,11 +70,13 @@ class CartProduct
 
     #[ManyToOne(targetEntity: Cart::class, inversedBy: 'cartProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['cart_product:list', 'cart_product:item', 'cart_product:create'])]
-    protected ?Cart $cart;
+    #[Assert\NotNull(message: 'Cart is required.')]
+    protected ?Cart $cart = null;
 
     #[ManyToOne(targetEntity: Product::class, inversedBy: 'cartProducts'), JoinColumn(nullable: false)]
     #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item', 'cart_product:create'])]
-    protected ?Product $product;
+    #[Assert\NotNull(message: 'Product is required.')]
+    protected ?Product $product = null;
 
     #[Column(type: Types::INTEGER)]
     #[Groups([
@@ -91,7 +93,7 @@ class CartProduct
         message: 'Quantity must be at least 1.'
     )]
     #[Assert\LessThanOrEqual(
-        propertyPath: 'product.quantity',
+        propertyPath: 'product?.quantity',
         message: 'Quantity cannot exceed the product stock.'
     )]
     protected ?int $quantity = null;

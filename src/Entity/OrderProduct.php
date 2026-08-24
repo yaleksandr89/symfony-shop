@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Post;
-use App\ApiPlatform\State\AdminOrderProductProcessor;
-use App\ApiPlatform\State\AdminOrderProductRemoveProcessor;
-use App\Repository\OrderProductRepository;
+use App\Commerce\Repository\OrderProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -22,19 +17,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[Table(name: '`order_product`'),
     Entity(repositoryClass: OrderProductRepository::class)]
-#[ApiResource(operations: [
-    new Post(
-        normalizationContext: ['groups' => ['order_product:list:write']],
-        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()",
-        name: 'api_order_products_post_collection',
-        processor: AdminOrderProductProcessor::class
-    ),
-    new Delete(
-        security: "is_granted('ROLE_ADMIN') and user and user.isVerified()",
-        name: 'api_order_products_delete_item',
-        processor: AdminOrderProductRemoveProcessor::class
-    ),
-])]
 class OrderProduct
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]

@@ -1172,82 +1172,54 @@
       </segment>
     </unit>
     <unit id="YRKYC4." name="There is already an account with this email">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Entity/User.php:0</note>
-      </notes>
       <segment>
         <source>There is already an account with this email</source>
         <target>У данной электронной почты уже зарегистрирована учетная запись</target>
       </segment>
     </unit>
     <unit id="TdLhlyP" name="The password fields must match.">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/Front/ChangePasswordFormType.php:20</note>
-      </notes>
       <segment>
         <source>The password fields must match.</source>
         <target>Поля паролей должны совпадать.</target>
       </segment>
     </unit>
     <unit id="bH3T3JL" name="Please enter a title">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditCategoryModel.php:0</note>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
-      </notes>
       <segment>
         <source>Please enter a title</source>
         <target>Пожалуйста, укажите заголовок</target>
       </segment>
     </unit>
     <unit id="LwjfNmu" name="Please select user">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditOrderModel.php:0</note>
-      </notes>
       <segment>
         <source>Please select user</source>
         <target>Пожалуйста, выберите пользователя</target>
       </segment>
     </unit>
     <unit id="kCEFjqB" name="Please select status">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditOrderModel.php:0</note>
-      </notes>
       <segment>
         <source>Please select status</source>
         <target>Пожалуйста, выберите статус</target>
       </segment>
     </unit>
     <unit id="KqsDjMt" name="Please enter a price">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
-      </notes>
       <segment>
         <source>Please enter a price</source>
         <target>Пожалуйста, введите цену</target>
       </segment>
     </unit>
     <unit id="LUrPyim" name="Please upload a valid image (*.jpg or *.png)">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
-      </notes>
       <segment>
         <source>Please upload a valid image (*.jpg or *.png)</source>
         <target>Пожалуйста, загрузите валидное изображение (*.jpg или *.png)</target>
       </segment>
     </unit>
     <unit id="k927W6Y" name="Please indicate a quantity">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
-      </notes>
       <segment>
         <source>Please indicate a quantity</source>
         <target>Пожалуйста, укажите количество</target>
       </segment>
     </unit>
     <unit id="ka8XRfM" name="Please select a category">
-      <notes>
-        <note category="file-source" priority="1">shop/src/Form/DTO/EditProductModel.php:0</note>
-      </notes>
       <segment>
         <source>Please select a category</source>
         <target>Пожалуйста, выберите категорию</target>

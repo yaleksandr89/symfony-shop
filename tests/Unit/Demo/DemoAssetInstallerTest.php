@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Demo;
 
-use App\Demo\DemoAssetInstaller;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +11,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Tools\Demo\DemoAssetInstaller;
 
 #[Group(name: 'unit')]
 class DemoAssetInstallerTest extends TestCase

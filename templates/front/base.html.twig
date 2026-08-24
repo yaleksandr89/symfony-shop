@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app.request.locale }}">
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title>{% block title %}Symfony shop - pet project{% endblock %}</title>
-    <meta name="keywords" content="{% block page_keywords %}symfony, symfony shop, pet project, symfony 5{% endblock %}">
     <meta name="description" content="{% block page_description %}Symfony shop - pet project{% endblock %}">
     {% block canonical_link %}{% endblock %}
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/icons/favicon/apple-touch-icon.png') }}">

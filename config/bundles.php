@@ -1,6 +1,9 @@
 <?php
 
 return [
+    App\AdminBundle\AdminBundle::class => ['all' => true],
+    App\OAuthBundle\OAuthBundle::class => ['all' => true],
+    App\SeoBundle\SeoBundle::class => ['all' => true],
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],

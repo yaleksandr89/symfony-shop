@@ -1,0 +1,147 @@
+{% extends '@Admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}{{ 'user.edit.page_title'|trans({}, 'admin') }}{% endblock %}
+
+{% block body %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include '@Admin/_embed/_card/_breadcrumbs.html.twig' with {
+                'sectionTitle': 'navigation.users'|trans({}, 'admin'),
+                'entity': user,
+                'actionUrl': path('admin_user_list'),
+                'addActionUrl': path('admin_user_add'),
+                'editLabel': 'action.edit'|trans({}, 'admin'),
+                'addLabel': 'action.add_new'|trans({}, 'admin'),
+                'addButtonLabel': 'action.add_new'|trans({}, 'admin'),
+            } %}
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ 'user.form.field.email'|trans({}, 'admin') }}
+                </div>
+                <div class="col-md-11">
+                    {% if user and user.id %}
+                        {{ user.email }}
+                        {% do form.email.setRendered %}
+                    {% else %}
+                        {{ form_widget(form.email) }}
+                        <div class="form-error">
+                            {{ form_errors(form.email) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.plainPassword) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.plainPassword) }}
+                    <div class="form-error">
+                        {{ form_errors(form.plainPassword) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.fullName) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.fullName) }}
+                    <div class="form-error">
+                        {{ form_errors(form.fullName) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.phone) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.phone) }}
+                    <div class="form-error">
+                        {{ form_errors(form.phone) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.address) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.address) }}
+                    <div class="form-error">
+                        {{ form_errors(form.address) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.zipCode) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.zipCode) }}
+                    <div class="form-error">
+                        {{ form_errors(form.zipCode) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-1">
+                    {{ form_label(form.roles) }}
+                </div>
+                <div class="col-md-11">
+                    {{ form_widget(form.roles) }}
+                    <div class="form-error">
+                        {{ form_errors(form.roles) }}
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group row">
+                <div class="col-md-1"></div>
+                <div class="col-md-11 pl-5">
+                    {{ form_widget(form.isDeleted) }}
+                    {{ form_label(form.isDeleted) }}
+                    <div class="form-error">
+                        {{ form_errors(form.isDeleted) }}
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+            {% include '@Admin/_embed/_card/_form_buttons.html.twig' with {
+                'entity': user,
+                'catalogUrl': path('admin_user_list'),
+                'submitBtn': form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}),
+                'deleteLabel': 'modal.delete_row'|trans({}, 'admin'),
+            } %}
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {% if user and user.id %}
+        {% include '@Admin/_embed/_utils/_modal.html.twig' with {
+            'modalId': 'approveDeleteModal',
+            'modalTitle': 'modal.confirm_delete'|trans({}, 'admin'),
+            'modalText': 'user.modal.delete_text'|trans({}, 'admin'),
+            'modalBtnText': 'modal.delete_row'|trans({}, 'admin'),
+            'actionUrl': path('admin_user_delete', {'id': user.id}),
+            'csrfTokenId': 'delete_user_' ~ user.id,
+            'cancelLabel': 'modal.cancel'|trans({}, 'admin'),
+            'closeLabel': 'modal.close'|trans({}, 'admin'),
+        } %}
+    {% endif %}
+
+{% endblock %}

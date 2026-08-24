@@ -1,0 +1,87 @@
+{% extends '@Admin/layout/layout_main.html.twig' %}
+
+{% block title_detailed %}{{ 'product.list.page_title'|trans({}, 'admin') }}{% endblock %}
+
+{% block body %}
+    {% include '@Admin/product/_embed/_table_filtration.html.twig' with {
+        'form': form
+    } %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            {% include '@Admin/_embed/_card/_header_action.html.twig' with
+                {
+                    'sectionTitle': 'product.list.heading'|trans({}, 'admin'),
+                    'actionUrl': path('admin_product_add')
+                } %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="main_table">
+                    <thead>
+                    <tr>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.id'|trans({}, 'admin'), 'p.id') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.category'|trans({}, 'admin'), 'c.id') }}</th>
+                        <th>{{ 'product.list.column.title'|trans({}, 'admin') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.price'|trans({}, 'admin'), 'p.price') }}</th>
+                        <th>{{ knp_pagination_sortable(pagination, 'product.list.column.quantity'|trans({}, 'admin'), 'p.quantity') }}</th>
+                        <th>{{ 'product.list.column.cover'|trans({}, 'admin') }}</th>
+                        <th>{{ 'product.list.column.created_at'|trans({}, 'admin') }}</th>
+                        <th>{{ 'product.list.column.is_published'|trans({}, 'admin') }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in pagination %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>
+                                {% if product.category %}
+                                    {{ product.category.title }}
+                                {% endif %}
+                            </td>
+                            <td>{{ product.title }}</td>
+                            <td>{{ product.price|format_currency('USD') }}</td>
+                            <td>{{ product.quantity }}</td>
+                            <td>
+                                {% set cover = coversByProductId[product.id] ?? null %}
+                                {% if cover %}
+                                    <img
+                                            src="{{ asset('uploads/images/products/' ~ product.id ~ '/' ~ cover.filenameMiddle) }}"
+                                            style="width: 250px"
+                                            alt="{{ cover.filenameMiddle }}"
+                                    >
+                                {% endif %}
+                            </td>
+                            <td>{{ product.createdAt|format_datetime('full', 'medium') }}</td>
+                            <td>
+                                <i class="fas fa-check fa-sm" style="color: {% if product.isPublished %}green{% else %}lightgray{% endif %};"></i></td>
+                            <td>
+                                <a href="{{ path('admin_product_edit', {'id': product.id}) }}" class="btn btn-outline-info">{{ 'action.edit'|trans({}, 'admin') }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const filterVisibilityBtnElement = document.getElementById('product_list_filters_btn');
+        const filterVisibilityBlockElement = document.getElementById('product_list_filters_block');
+        const filterSection = 'product_list';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterVisibilityBtnElement.addEventListener('click', () =>{
+                toggleFiltersVisibility(filterSection);
+                changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+            });
+            changeFiltersBlockView(filterSection, filterVisibilityBlockElement);
+        });
+    </script>
+{% endblock %}
