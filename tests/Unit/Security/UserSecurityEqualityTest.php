@@ -32,6 +32,16 @@ final class UserSecurityEqualityTest extends TestCase
         self::assertFalse($currentUser->isEqualTo($foreignUser));
     }
 
+    #[TestDox('Soft-delete пользователя нарушает security-равенство с сохранённой сессией')]
+    public function testSoftDeletedUserIsNotEqualToActiveSessionUser(): void
+    {
+        $sessionUser = $this->user('user@example.test', 'password-hash', ['ROLE_ADMIN']);
+        $currentUser = $this->user('user@example.test', 'password-hash', ['ROLE_ADMIN']);
+        $currentUser->setIsDeleted(true);
+
+        self::assertFalse($currentUser->isEqualTo($sessionUser));
+    }
+
     /** @param string[] $roles */
     #[DataProvider('changedSecurityStates')]
     #[TestDox('Изменение password, ролей или identifier нарушает security-равенство')]
