@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| **Русский** | [English](../docs/langs/en/SECURITY.md) | [Español](../docs/langs/es/SECURITY.md) | [中文](../docs/langs/zh/SECURITY.md) | [Français](../docs/langs/fr/SECURITY.md) | [Deutsch](../docs/langs/de/SECURITY.md) |
+| **Русский** | [English](/yaleksandr89/symfony-shop/blob/master/docs/langs/en/SECURITY.md) | [Español](/yaleksandr89/symfony-shop/blob/master/docs/langs/es/SECURITY.md) | [中文](/yaleksandr89/symfony-shop/blob/master/docs/langs/zh/SECURITY.md) | [Français](/yaleksandr89/symfony-shop/blob/master/docs/langs/fr/SECURITY.md) | [Deutsch](/yaleksandr89/symfony-shop/blob/master/docs/langs/de/SECURITY.md) |
 
 Пожалуйста, сообщайте о потенциальных уязвимостях ответственно. Symfony Shop — учебный публичный проект, но проблемы в аутентификации, OAuth, корзине, оформлении заказа, API, обработке пользовательского ввода и конфигурации рассматриваются как обычные проблемы безопасности приложения.
 
