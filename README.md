@@ -134,6 +134,48 @@ PostgreSQL
 - воспроизводимые ошибки — [GitHub Issues](https://github.com/yaleksandr89/symfony-shop/issues);
 - вопросы и идеи — [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions).
 
+## История проекта
+
+### 2026 — подготовка v3.0.0
+
+- Проект переведён на Docker Compose как основную среду разработки. Добавлены единый Makefile, воспроизводимый bootstrap, PostgreSQL в Docker, demo-данные, Xdebug и APCu.
+- CI перенесён в GitHub Actions и построен вокруг того же Docker-backed workflow, который используется локально.
+- Backend-стек последовательно обновлён до PHP 8.5, Symfony 8.1, API Platform 4.3, Doctrine ORM 3 / DBAL 4, PHPUnit 13 и PHPStan 2.
+- Существенно переработаны безопасность и бизнес-границы корзины, оформления заказа, API, регистрации, восстановления пароля и OAuth.
+- OAuth расширен поддержкой Facebook и LinkedIn; сценарии входа, регистрации, привязки и отвязки аккаунтов разделены и защищены отдельными проверками.
+- Удалены Selenium, GeckoDriver, Java tooling и Deployer. Браузерные тесты переведены на Panther и Chrome for Testing; архив Chrome хранится через Git LFS.
+- Архитектура приложения переработана: выделены модули `Account`, `Catalog`, `Commerce`, а также `AdminBundle`, `OAuthBundle` и `SeoBundle`; централизованы маршруты и общий OAuth callback-поток.
+- Пересобран тестовый контур, добавлены Docker-backed quality gates и команды coverage.
+- Полностью переработана документация проекта, добавлены инструкции по запуску, конфигурации, разработке, OAuth и архитектуре.
+- Лицензия проекта унифицирована как MIT; добавлены GitHub Issues/Discussions, шаблоны Pull Request, contribution guide и security policy.
+
+### 2024 — v2.3.0
+
+- Symfony обновлён до 6.4.9.
+- PHPUnit обновлён с 9 до 11, DAMA Doctrine Test Bundle — до 8 версии; переработаны существующие тесты.
+- Продолжен переход с аннотаций на PHP attributes и устранение замечаний PHPStan.
+- Обновлены Selenium, ChromeDriver и GeckoDriver.
+- Добавлены примеры конфигурации Nginx и Supervisor, инструкции по Deployer и переводы README.
+
+### 2023 — v2.1.1 / v2.2.0
+
+- Symfony обновлён до 6.3.1, обновлены сторонние зависимости и устранены deprecation-уведомления first-party кода.
+- Проведён очередной этап рефакторинга и исправлений по PHPStan.
+- Обновлена конфигурация Deployer.
+- CircleCI удалён после прекращения работы сервиса для пользователей из России.
+
+### 2022 — v1.2.0 / v2.0.0 / v2.1.0
+
+- Сформирован основной функционал интернет-магазина.
+- Добавлена OAuth-авторизация через Google, Yandex, VKontakte и GitHub.
+- Symfony последовательно обновлён с 5.4 до 6.0.
+- В личном кабинете появились привязка и отвязка внешних OAuth-аккаунтов.
+- Добавлена защита от повторного использования одной внешней учётной записи разными пользователями.
+
+### 2021 — начало проекта
+
+- Создан первый вариант Symfony Shop на Symfony 5.3 с PostgreSQL.
+
 ---
 
 <p align="center">
