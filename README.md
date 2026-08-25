@@ -8,6 +8,14 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
+<p align="center">
+  <img
+    src="docs/img/symfony-shop-readme-cover.png"
+    alt="Symfony Shop — интернет-магазин на Symfony с Docker, PostgreSQL и Vue"
+    width="100%"
+  >
+</p>
+
 Symfony Shop — учебный интернет-магазин на Symfony. В проекте реализованы каталог товаров, корзина и оформление заказов, личный кабинет, административная часть, API и вход через OAuth. Основные страницы формируются Twig, а Vue 2 используется для отдельных интерактивных элементов интерфейса.
 
 Поддерживаемая среда локальной разработки построена на Docker Compose. PHP, Composer, Node.js, PostgreSQL и Chrome for Testing запускаются внутри контейнеров или устанавливаются в Docker-образ, а основные операции собраны в Makefile. Отдельный сценарий запуска с PHP, Composer и PostgreSQL, установленными непосредственно на хосте, проектом не поддерживается и в CI не проверяется.
