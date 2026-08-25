@@ -1,6 +1,6 @@
 # Конфигурация
 
-В проекте отдельно хранятся общие настройки Symfony, параметры Docker, локальные секреты и тестовые переопределения. Это важно не только для порядка: значения, переданные Docker Compose в контейнер, имеют более высокий приоритет, чем файлы Symfony Dotenv.
+В проекте отдельно хранятся общие настройки Symfony, параметры Docker, локальные секреты и тестовые переопределения. Важная особенность: значения, переданные Docker Compose в PHP-контейнер, имеют более высокий приоритет, чем значения из файлов Symfony Dotenv.
 
 ## Файлы окружения
 
@@ -11,13 +11,41 @@
 | `.env.local` | Секреты и настройки конкретного разработчика | игнорируется |
 | `.env.test` | Настройки автоматических тестов | отслеживается |
 
-### `.env`
+## Приоритет переменных
+
+От более высокого приоритета к более низкому:
+
+1. переменные окружения процесса, включая значения из `.env.docker`, переданные Docker Compose;
+2. `.env.<окружение>.local`;
+3. `.env.<окружение>`;
+4. `.env.local`;
+5. `.env`.
+
+Название `.env.docker` само по себе не даёт файлу специального приоритета. Он появляется потому, что Docker Compose передаёт эти значения в PHP-контейнер как настоящие переменные окружения процесса.
+
+Практическое следствие:
+
+```text
+.env.docker
+PANTHER_WEB_SERVER_PORT=9080
+
+.env.local
+PANTHER_WEB_SERVER_PORT=9999
+
+→ внутри PHP-контейнера используется 9080
+```
+
+учётные данные OAuth из `.env.local`, напротив, будут использованы, если Docker не передал переменные с теми же именами.
+
+После изменения `.env.docker` пересоздайте контейнеры через `make down` и `make up`. После изменения `.env` или `.env.local` это обычно не требуется.
+
+## `.env`
 
 Здесь находятся общие параметры приложения: `APP_ENV`, `APP_DEBUG`, `APP_SECRET`, `APP_TIMEZONE`, `DATABASE_URL`, `MAILER_DSN`, `MESSENGER_TRANSPORT_DSN`, адрес приложения, CORS и выключатели OAuth.
 
-Значения в `.env` относятся к локальному проекту и не являются production-конфигурацией.
+Значения в `.env` относятся к локальному проекту и не предназначены для боевого окружения.
 
-### `.env.docker`
+## `.env.docker`
 
 `make init` создаёт этот файл из `.env.docker.example` и подставляет UID/GID пользователя хоста.
 
@@ -30,48 +58,31 @@
 | `POSTGRES_DB` | Локальная база PostgreSQL | `s_shop` |
 | `POSTGRES_USER` | Локальный пользователь PostgreSQL | `s_shop` |
 | `POSTGRES_PASSWORD` | Локальный пароль PostgreSQL | демонстрационное значение |
-| `PANTHER_WEB_SERVER_HOST` | Хост встроенного web server Panther | `php` |
-| `PANTHER_WEB_SERVER_PORT` | Порт встроенного web server Panther | `9080` |
+| `PANTHER_WEB_SERVER_HOST` | Хост встроенного веб-сервера Panther | `php` |
+| `PANTHER_WEB_SERVER_PORT` | Порт встроенного веб-сервера Panther | `9080` |
 
-Compose использует `.env.docker` как `env_file` PHP-контейнера. Поэтому эти значения становятся настоящими переменными окружения процесса.
+Compose использует `.env.docker` как `env_file` PHP-контейнера, поэтому эти значения становятся переменными окружения процесса.
 
-### `.env.local`
+## `.env.local`
 
-Используйте `.env.local` для OAuth credentials, реального `MAILER_DSN`, локального `ADMIN_EMAIL` и других секретов конкретной машины.
+Используйте `.env.local` для учётных данных OAuth, реального `MAILER_DSN`, локального `ADMIN_EMAIL` и других секретов конкретной машины.
 
 Не добавляйте этот файл в Git и не публикуйте его содержимое. В окружении `test` Symfony `.env.local` не загружает.
 
-### `.env.test`
+## `.env.test`
 
-Тестовое окружение использует отдельную SQLite-базу `var/db_for_test.db`, настройки Panther, нейтральные Mailer/Messenger transports и выключенные OAuth providers.
-
-## Приоритет переменных
-
-От более высокого приоритета к более низкому:
-
-1. переменные окружения процесса, включая значения из `.env.docker`;
-2. `.env.<окружение>.local`;
-3. `.env.<окружение>`;
-4. `.env.local`;
-5. `.env`.
-
-Название `.env.docker` само по себе не даёт файлу специального приоритета. Приоритет появляется потому, что Docker Compose передаёт его значения в PHP-контейнер как настоящие environment variables.
-
-Например, `PANTHER_WEB_SERVER_PORT` из `.env.local` не перекроет одноимённое значение из `.env.docker`. OAuth credentials из `.env.local`, напротив, будут использованы, если Docker не передал переменные с теми же именами.
-
-После изменения `.env.docker` пересоздайте контейнеры через `make down` и `make up`. После изменения `.env` или `.env.local` это обычно не требуется.
-
-## PostgreSQL
-
-Docker Compose использует PostgreSQL 18.4. PHP-контейнер подключается к базе по имени сервиса `postgres`; `localhost` внутри PHP-контейнера указывает уже не на PostgreSQL.
-
-На хост PostgreSQL опубликован только через `127.0.0.1:5433`.
-
-`DATABASE_URL` собирается из `POSTGRES_*` и используется Doctrine. Полное пересоздание локального PostgreSQL volume выполняется отдельной деструктивной командой `make postgres-reinit CONFIRM=postgres18`; подробнее она описана в [руководстве по разработке](development.md#база-данных-и-demo-данные).
+Тестовое окружение использует отдельную SQLite-базу `var/db_for_test.db`, настройки Panther, нейтральные транспорты Mailer/Messenger и выключенные OAuth-провайдеры.
 
 ## Почта и Messenger
 
-По умолчанию используется `MAILER_DSN=null://null`, поэтому локальная среда не отправляет письма наружу.
+По умолчанию используется:
+
+```dotenv
+MAILER_DSN=null://null
+MESSENGER_TRANSPORT_DSN=doctrine://default
+```
+
+`MAILER_DSN=null://null` означает, что локальная среда не отправляет письма во внешний SMTP-сервис. Письма, созданные синхронно во время HTTP-запроса, можно посмотреть в панели Mailer Symfony Profiler.
 
 Для реального SMTP транспорта задайте собственный `MAILER_DSN` в `.env.local`, например:
 
@@ -79,17 +90,27 @@ Docker Compose использует PostgreSQL 18.4. PHP-контейнер по
 MAILER_DSN=smtp://USER:PASSWORD@mail.example.test:587
 ```
 
-Messenger настроен на Doctrine transport `async`. В Compose нет постоянно работающего worker. Для ручной обработки очереди используйте:
+Messenger уже маршрутизирует регистрацию и восстановление пароля в транспорт `async`, но постоянный обработчик очереди в Docker Compose не запускается. Сообщение попадает в Doctrine-очередь и остаётся там, пока обработчик очереди не будет запущен вручную:
 
 | Команда | Что делает |
 |---|---|
-| `make console CMD='messenger:consume async -vv'` | Запускает worker внутри PHP-контейнера |
+| `make console CMD='messenger:consume async -vv'` | Запускает обработчик транспорта `async` в PHP-контейнере |
+
+Это особенно важно при проверке регистрации и восстановления пароля: без обработчика очереди соответствующие асинхронные сообщения не будут обработаны. В будущем планируется отдельный локальный почтовый сервис с веб-интерфейсом и постоянный обработчик очереди Messenger.
+
+## PostgreSQL
+
+Docker Compose использует PostgreSQL 18.4. PHP-контейнер подключается к базе по имени сервиса `postgres`; `localhost` внутри PHP-контейнера указывает уже не на PostgreSQL.
+
+На хост PostgreSQL опубликован только через `127.0.0.1:5433`.
+
+`DATABASE_URL` собирается из `POSTGRES_*` и используется Doctrine. Полное пересоздание локального тома PostgreSQL выполняется отдельной деструктивной командой `make postgres-reinit CONFIRM=postgres18`; подробнее она описана в [руководстве по разработке](development.md#база-данных-и-демонстрационные-данные).
 
 ## OAuth
 
-Все OAuth providers по умолчанию выключены. Включение и credentials: разные настройки: provider должен иметь и `*_ENABLED=1`, и заполненные Client ID/secret.
+Все OAuth-провайдеры по умолчанию выключены. Включение и учётные данные — независимые настройки: для работы провайдера нужны и `*_ENABLED=1`, и заполненные Client ID и Client Secret.
 
-| Provider | Выключатель |
+| Провайдер | Выключатель |
 |---|---|
 | Google | `OAUTH_GOOGLE_ENABLED` |
 | Yandex | `OAUTH_YANDEX_ENABLED` |
@@ -108,7 +129,7 @@ OAUTH_GOOGLE_ID=YOUR_GOOGLE_CLIENT_ID
 OAUTH_GOOGLE_SECRET=YOUR_GOOGLE_CLIENT_SECRET
 ```
 
-Остальные имена credentials, маршруты и правила работы собраны в [руководстве по OAuth](oauth.md). Реальные ключи, access tokens, authorization codes и external IDs в документацию и Git не добавляются.
+Остальные имена учётных данных, маршруты и правила работы собраны в [руководстве по OAuth](oauth.md). Реальные ключи, токены доступа, коды авторизации и внешние ID в документацию и Git не добавляются.
 
 ## Panther
 
@@ -116,4 +137,4 @@ PHP-образ содержит Chrome for Testing и Chromedriver. Браузе
 
 В Docker используются `PANTHER_WEB_SERVER_HOST=php` и `PANTHER_WEB_SERVER_PORT=9080`, а `.env.test` добавляет тестовые настройки приложения и каталог скриншотов ошибок.
 
-Порядок получения Chrome archive через Git LFS описан в [руководстве по запуску](getting-started.md#git-lfs-и-chrome-for-testing), а browser-тесты: в [руководстве по разработке](development.md#тесты).
+Способы получить Chrome archive описаны в [руководстве по запуску](getting-started.md#git-lfs-и-chrome-for-testing), а браузерные тесты — в [руководстве по разработке](development.md#тесты).

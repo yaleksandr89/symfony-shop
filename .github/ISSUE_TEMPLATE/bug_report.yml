@@ -1,0 +1,76 @@
+name: Сообщить об ошибке
+description: Воспроизводимая ошибка в Symfony Shop.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Не публикуйте пароли, содержимое локальных `.env*`, учётные данные OAuth, токены доступа, cookies, идентификаторы сессий или другие чувствительные данные.
+
+        Проблемы безопасности направляйте по политике безопасности:
+        https://github.com/yaleksandr89/symfony-shop/security/policy
+  - type: dropdown
+    id: area
+    attributes:
+      label: Затронутая область
+      options:
+        - Каталог и товары
+        - Корзина и оформление заказа
+        - Аккаунт, регистрация и восстановление пароля
+        - OAuth
+        - Административная часть
+        - API
+        - Docker и локальный запуск
+        - Тесты и CI
+        - Документация
+        - Другое
+    validations:
+      required: true
+  - type: input
+    id: project-version
+    attributes:
+      label: Версия проекта или коммит
+      placeholder: "например, master или abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Окружение
+      description: ОС, Docker/WSL и важные настройки без секретов.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Шаги воспроизведения
+      placeholder: "1. ...\n2. ...\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемый результат
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактический результат
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Очищенные логи или детали
+      description: Перед отправкой удалите все чувствительные значения.
+      render: text
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Подтверждение
+      options:
+        - label: Я удалил(а) чувствительные данные.
+          required: true
+        - label: Я проверил(а) существующие Issues.
+          required: true

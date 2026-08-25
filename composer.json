@@ -1,6 +1,42 @@
 {
     "name": "yaleksandr89/symfony-shop",
-    "description": "Symfony e-commerce application.",
+    "description": "Educational Symfony e-commerce application with Docker, PostgreSQL, API Platform, OAuth and Vue.",
+    "homepage": "https://github.com/yaleksandr89/symfony-shop",
+    "keywords": [
+        "php",
+        "symfony",
+        "e-commerce",
+        "postgresql",
+        "docker",
+        "api-platform",
+        "oauth",
+        "vue",
+        "educational"
+    ],
+    "authors": [
+        {
+            "name": "Александр Юрченко",
+            "email": "y.aleksandr89@yandex.ru",
+            "homepage": "https://github.com/yaleksandr89",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/yaleksandr89/symfony-shop/issues",
+        "source": "https://github.com/yaleksandr89/symfony-shop",
+        "security": "https://github.com/yaleksandr89/symfony-shop/security/policy",
+        "forum": "https://github.com/yaleksandr89/symfony-shop/discussions"
+    },
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://boosty.to/backendbezpafosa"
+        },
+        {
+            "type": "other",
+            "url": "https://sponsr.ru/backendbezpafosa/"
+        }
+    ],
     "type": "project",
     "license": "MIT",
     "minimum-stability": "stable",

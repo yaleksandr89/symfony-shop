@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Вопрос или идея
+    url: https://github.com/yaleksandr89/symfony-shop/discussions
+    about: Для вопросов, обсуждений и идей используйте GitHub Discussions.
+  - name: Проблема безопасности
+    url: https://github.com/yaleksandr89/symfony-shop/security/policy
+    about: Не публикуйте чувствительные детали в обычном Issue; сначала прочитайте политику безопасности.
