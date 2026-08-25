@@ -64,15 +64,15 @@ En el host se necesitan Git, Make y Docker con soporte para Compose. Git LFS es 
 Tras el arranque, la aplicación está disponible por defecto en [http://localhost:8080](http://localhost:8080).
 
 > [!IMPORTANT]
-> El proyecto fija Chrome for Testing `150.0.7871.46`. La forma recomendada de obtener el archivo es `git lfs pull`. A partir de `v3.0.0`, el ZIP del proyecto puede descargarse desde [Releases](https://github.com/yaleksandr89/symfony-shop/releases) con Chrome for Testing ya incluido, por lo que Git LFS no es necesario en ese caso. La versión fijada también puede descargarse directamente desde la fuente oficial. Los enlaces exactos, el nombre del archivo y el SHA-256 están en la [guía de puesta en marcha](../getting-started.md#git-lfs-и-chrome-for-testing).
+> El proyecto fija Chrome for Testing `150.0.7871.46`. La forma recomendada de obtener el archivo es `git lfs pull`. A partir de `v3.0.0`, el ZIP del proyecto puede descargarse desde [Releases](https://github.com/yaleksandr89/symfony-shop/releases) con Chrome for Testing ya incluido, por lo que Git LFS no es necesario en ese caso. La versión fijada también puede descargarse directamente desde la fuente oficial. Los enlaces exactos, el nombre del archivo y el SHA-256 están en la [guía de puesta en marcha](es/getting-started.md).
 
 > [!IMPORTANT]
-> Los valores de `.env.docker` se pasan al contenedor PHP como variables de entorno del proceso. Si una misma clave existe allí y en `.env.local`, tiene prioridad el valor de `.env.docker`. El esquema completo se explica en la [guía de configuración](../configuration.md#приоритет-переменных).
+> Los valores de `.env.docker` se pasan al contenedor PHP como variables de entorno del proceso. Si una misma clave existe allí y en `.env.local`, tiene prioridad el valor de `.env.docker`. El esquema completo se explica en la [guía de configuración](es/configuration.md).
 
 > [!WARNING]
 > `make demo-init` vuelve a crear los pedidos de demostración. No lo ejecutes sobre una base local que contenga datos que necesites conservar.
 
-El primer arranque detallado, las tres formas de obtener Chrome for Testing y la gestión de contenedores están descritos en la [guía de puesta en marcha](../getting-started.md).
+El primer arranque detallado, las tres formas de obtener Chrome for Testing y la gestión de contenedores están descritos en la [guía de puesta en marcha](es/getting-started.md).
 
 ## Correo y cola de mensajes
 
@@ -84,7 +84,7 @@ El registro y la recuperación de contraseña utilizan el transporte Messenger `
 make console CMD='messenger:consume async -vv'
 ```
 
-La configuración del transporte, correo y secretos locales se describe en la [guía de configuración](../configuration.md#почта-и-messenger).
+La configuración del transporte, correo y secretos locales se describe en la [guía de configuración](es/configuration.md).
 
 ## OAuth
 
@@ -92,7 +92,7 @@ El inicio de sesión mediante OAuth y la vinculación de una cuenta externa a un
 
 Para vincular una cuenta, el usuario primero inicia sesión de forma normal, confirma su contraseña actual e inicia explícitamente el flujo OAuth desde su cuenta. La desvinculación también está protegida por la contraseña actual y un token CSRF.
 
-Los proveedores compatibles, variables de entorno, rutas y reglas de seguridad están documentados en la [guía de OAuth](../oauth.md). Las reglas generales de configuración local y secretos están en la [guía de configuración](../configuration.md).
+Los proveedores compatibles, variables de entorno, rutas y reglas de seguridad están documentados en la [guía de OAuth](es/oauth.md). Las reglas generales de configuración local y secretos están en la [guía de configuración](es/configuration.md).
 
 ## Estructura del proyecto
 
@@ -112,7 +112,7 @@ PostgreSQL
 
 El código principal se agrupa en las áreas `Account`, `Catalog` y `Commerce`. La administración, OAuth y SEO están implementados como bundles internos de Symfony. Vue 2 se utiliza para componentes interactivos concretos, no como una SPA independiente.
 
-El mapa de directorios, el enrutamiento, API Platform, Doctrine y los límites del frontend se describen en la [guía de arquitectura](../architecture.md).
+El mapa de directorios, el enrutamiento, API Platform, Doctrine y los límites del frontend se describen en la [guía de arquitectura](es/architecture.md).
 
 ## Comprobaciones
 
@@ -127,7 +127,7 @@ El mapa de directorios, el enrutamiento, API Platform, Doctrine y los límites d
 | `make coverage CONFIRM=testdb` | Muestra la cobertura PHP/PHPUnit en la terminal | Panther no forma parte del informe |
 | `make coverage-html CONFIRM=testdb` | Genera informes HTML y Clover | `var/coverage/html`, `var/coverage/clover.xml` |
 
-La lista completa de comandos Make, el flujo de la base de datos de pruebas y la composición de CI están en la [guía de desarrollo](../development.md).
+La lista completa de comandos Make, el flujo de la base de datos de pruebas y la composición de CI están en la [guía de desarrollo](es/development.md).
 
 ## En planes
 

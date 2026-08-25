@@ -64,15 +64,15 @@ L’hôte doit disposer de Git, Make et Docker avec Compose. Git LFS est recomma
 Après le démarrage, l’application est disponible par défaut sur [http://localhost:8080](http://localhost:8080).
 
 > [!IMPORTANT]
-> Le projet fixe Chrome for Testing `150.0.7871.46`. La méthode recommandée pour obtenir l’archive est `git lfs pull`. À partir de `v3.0.0`, le ZIP du projet peut être téléchargé depuis [Releases](https://github.com/yaleksandr89/symfony-shop/releases) avec Chrome for Testing déjà inclus, ce qui rend Git LFS inutile pour ce scénario. La version fixée peut aussi être téléchargée directement depuis la source officielle. Les liens exacts, le nom du fichier et le SHA-256 figurent dans le [guide de démarrage](../getting-started.md#git-lfs-и-chrome-for-testing).
+> Le projet fixe Chrome for Testing `150.0.7871.46`. La méthode recommandée pour obtenir l’archive est `git lfs pull`. À partir de `v3.0.0`, le ZIP du projet peut être téléchargé depuis [Releases](https://github.com/yaleksandr89/symfony-shop/releases) avec Chrome for Testing déjà inclus, ce qui rend Git LFS inutile pour ce scénario. La version fixée peut aussi être téléchargée directement depuis la source officielle. Les liens exacts, le nom du fichier et le SHA-256 figurent dans le [guide de démarrage](fr/getting-started.md).
 
 > [!IMPORTANT]
-> Les valeurs de `.env.docker` sont transmises au conteneur PHP comme variables d’environnement du processus. Si une même clé est définie à la fois dans `.env.docker` et `.env.local`, la valeur de `.env.docker` est prioritaire. Le schéma complet est décrit dans le [guide de configuration](../configuration.md#приоритет-переменных).
+> Les valeurs de `.env.docker` sont transmises au conteneur PHP comme variables d’environnement du processus. Si une même clé est définie à la fois dans `.env.docker` et `.env.local`, la valeur de `.env.docker` est prioritaire. Le schéma complet est décrit dans le [guide de configuration](fr/configuration.md).
 
 > [!WARNING]
 > `make demo-init` recrée les commandes de démonstration. Ne l’exécutez pas sur une base locale contenant des données à conserver.
 
-Le premier démarrage détaillé, les trois méthodes pour obtenir Chrome for Testing et la gestion des conteneurs sont décrits dans le [guide de démarrage](../getting-started.md).
+Le premier démarrage détaillé, les trois méthodes pour obtenir Chrome for Testing et la gestion des conteneurs sont décrits dans le [guide de démarrage](fr/getting-started.md).
 
 ## Courrier et file de messages
 
@@ -84,7 +84,7 @@ L’inscription et la réinitialisation du mot de passe utilisent le transport M
 make console CMD='messenger:consume async -vv'
 ```
 
-La configuration du transport, du courrier et des secrets locaux est décrite dans le [guide de configuration](../configuration.md#почта-и-messenger).
+La configuration du transport, du courrier et des secrets locaux est décrite dans le [guide de configuration](fr/configuration.md).
 
 ## OAuth
 
@@ -92,7 +92,7 @@ La connexion OAuth et l’association d’un compte externe à un utilisateur ex
 
 Pour associer un compte, l’utilisateur se connecte d’abord normalement, confirme son mot de passe actuel puis lance explicitement le flux OAuth depuis son compte. La dissociation est elle aussi protégée par le mot de passe actuel et un jeton CSRF.
 
-Les fournisseurs pris en charge, variables d’environnement, routes et règles de sécurité sont décrits dans le [guide OAuth](../oauth.md). Les règles générales de configuration locale et de secrets figurent dans le [guide de configuration](../configuration.md).
+Les fournisseurs pris en charge, variables d’environnement, routes et règles de sécurité sont décrits dans le [guide OAuth](fr/oauth.md). Les règles générales de configuration locale et de secrets figurent dans le [guide de configuration](fr/configuration.md).
 
 ## Structure du projet
 
@@ -112,7 +112,7 @@ PostgreSQL
 
 Le code principal est regroupé dans les domaines `Account`, `Catalog` et `Commerce`. L’administration, OAuth et SEO sont implémentés sous forme de bundles Symfony internes. Vue 2 est utilisé pour certains composants interactifs, et non comme SPA indépendante.
 
-La carte des répertoires, le routage, API Platform, Doctrine et les limites du frontend sont décrits dans le [guide d’architecture](../architecture.md).
+La carte des répertoires, le routage, API Platform, Doctrine et les limites du frontend sont décrits dans le [guide d’architecture](fr/architecture.md).
 
 ## Vérifications
 
@@ -127,7 +127,7 @@ La carte des répertoires, le routage, API Platform, Doctrine et les limites du 
 | `make coverage CONFIRM=testdb` | Affiche la couverture PHP/PHPUnit dans le terminal | Panther n’est pas inclus |
 | `make coverage-html CONFIRM=testdb` | Génère les rapports HTML et Clover | `var/coverage/html`, `var/coverage/clover.xml` |
 
-La liste complète des commandes Make, le fonctionnement de la base de tests et la composition de la CI figurent dans le [guide de développement](../development.md).
+La liste complète des commandes Make, le fonctionnement de la base de tests et la composition de la CI figurent dans le [guide de développement](fr/development.md).
 
 ## À venir
 

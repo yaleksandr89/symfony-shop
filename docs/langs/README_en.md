@@ -64,15 +64,15 @@ The host needs Git, Make, and Docker with Compose support. Git LFS is recommende
 After startup, the application is available at [http://localhost:8080](http://localhost:8080) by default.
 
 > [!IMPORTANT]
-> The project pins Chrome for Testing `150.0.7871.46`. The recommended way to obtain the archive is `git lfs pull`. Starting with `v3.0.0`, the project ZIP can be downloaded from [Releases](https://github.com/yaleksandr89/symfony-shop/releases) with Chrome for Testing already included, so Git LFS is not required for that workflow. The pinned Chrome for Testing version can also be downloaded directly from the official source. Exact links, the filename, and SHA-256 are listed in the [setup guide](../getting-started.md#git-lfs-и-chrome-for-testing).
+> The project pins Chrome for Testing `150.0.7871.46`. The recommended way to obtain the archive is `git lfs pull`. Starting with `v3.0.0`, the project ZIP can be downloaded from [Releases](https://github.com/yaleksandr89/symfony-shop/releases) with Chrome for Testing already included, so Git LFS is not required for that workflow. The pinned Chrome for Testing version can also be downloaded directly from the official source. Exact links, the filename, and SHA-256 are listed in the [setup guide](en/getting-started.md).
 
 > [!IMPORTANT]
-> Values from `.env.docker` are passed to the PHP container as process environment variables. If the same key is defined both there and in `.env.local`, the `.env.docker` value takes precedence. The complete precedence model is described in the [configuration guide](../configuration.md#приоритет-переменных).
+> Values from `.env.docker` are passed to the PHP container as process environment variables. If the same key is defined both there and in `.env.local`, the `.env.docker` value takes precedence. The complete precedence model is described in the [configuration guide](en/configuration.md).
 
 > [!WARNING]
 > `make demo-init` recreates demo orders. Do not run it against a local database that contains data you need to keep.
 
-The complete first-run procedure, all three ways to obtain Chrome for Testing, and container-management commands are covered in the [setup guide](../getting-started.md).
+The complete first-run procedure, all three ways to obtain Chrome for Testing, and container-management commands are covered in the [setup guide](en/getting-started.md).
 
 ## Mail and message queue
 
@@ -84,7 +84,7 @@ Registration and password reset use the Messenger `async` transport. Routing to 
 make console CMD='messenger:consume async -vv'
 ```
 
-Transport, mail, and local-secret configuration is described in the [configuration guide](../configuration.md#почта-и-messenger).
+Transport, mail, and local-secret configuration is described in the [configuration guide](en/configuration.md).
 
 ## OAuth
 
@@ -92,7 +92,7 @@ OAuth login and linking an external account to an existing user are separate ope
 
 To link an account, the user first signs in normally, confirms the current password, and explicitly starts the OAuth flow from the account page. Unlinking is also protected by the current password and a CSRF token.
 
-Supported providers, environment variables, routes, and security rules are documented in the [OAuth guide](../oauth.md). General rules for local configuration and secrets are covered in the [configuration guide](../configuration.md).
+Supported providers, environment variables, routes, and security rules are documented in the [OAuth guide](en/oauth.md). General rules for local configuration and secrets are covered in the [configuration guide](en/configuration.md).
 
 ## Project structure
 
@@ -112,7 +112,7 @@ PostgreSQL
 
 The main code is grouped into `Account`, `Catalog`, and `Commerce` areas. Administration, OAuth, and SEO are implemented as internal Symfony bundles. Vue 2 is used for selected interactive components rather than as a standalone SPA.
 
-The directory map, routing, API Platform, Doctrine, and frontend boundaries are described in the [architecture guide](../architecture.md).
+The directory map, routing, API Platform, Doctrine, and frontend boundaries are described in the [architecture guide](en/architecture.md).
 
 ## Checks
 
@@ -127,7 +127,7 @@ The directory map, routing, API Platform, Doctrine, and frontend boundaries are 
 | `make coverage CONFIRM=testdb` | Show PHP/PHPUnit coverage in the terminal | Panther is not included |
 | `make coverage-html CONFIRM=testdb` | Generate HTML and Clover reports | `var/coverage/html`, `var/coverage/clover.xml` |
 
-The full Make command list, test database workflow, and CI composition are documented in the [development guide](../development.md).
+The full Make command list, test database workflow, and CI composition are documented in the [development guide](en/development.md).
 
 ## Planned work
 
