@@ -1,5 +1,11 @@
 # Конфигурация
 
+## Выберите язык
+
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| **Русский** | [English](../en/configuration.md) | [Español](../es/configuration.md) | [中文](../zh/configuration.md) | [Français](../fr/configuration.md) | [Deutsch](../de/configuration.md) |
+
 В проекте отдельно хранятся общие настройки Symfony, параметры Docker, локальные секреты и тестовые переопределения. Важная особенность: значения, переданные Docker Compose в PHP-контейнер, имеют более высокий приоритет, чем значения из файлов Symfony Dotenv.
 
 ## Файлы окружения

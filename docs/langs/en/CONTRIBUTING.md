@@ -4,13 +4,13 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/CONTRIBUTING.md) | **English** | [Español](CONTRIBUTING_es.md) | [中文](CONTRIBUTING_zh.md) | [Français](CONTRIBUTING_fr.md) | [Deutsch](CONTRIBUTING_de.md) |
+| [Русский](../../../.github/CONTRIBUTING.md) | **English** | [Español](../es/CONTRIBUTING.md) | [中文](../zh/CONTRIBUTING.md) | [Français](../fr/CONTRIBUTING.md) | [Deutsch](../de/CONTRIBUTING.md) |
 
 Thank you for your interest in Symfony Shop. It is an educational Symfony e-commerce project with a Docker-based environment, PostgreSQL, API Platform, OAuth, and selected interactive components built with Vue.
 
 ## Before you start
 
-Check existing Discussions, Issues, and Pull Requests, and keep each change focused on one clear task. Questions and ideas are best discussed first in [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions); reproducible bugs and concrete improvements belong in Issues; security problems should be reported according to the [security policy](../security/SECURITY_en.md) without publishing exploitation details.
+Check existing Discussions, Issues, and Pull Requests, and keep each change focused on one clear task. Questions and ideas are best discussed first in [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions); reproducible bugs and concrete improvements belong in Issues; security problems should be reported according to the [security policy](SECURITY.md) without publishing exploitation details.
 
 ## Project boundaries
 
@@ -20,7 +20,7 @@ Check existing Discussions, Issues, and Pull Requests, and keep each change focu
 - Do not include broad refactoring or dependency upgrades unrelated to the task.
 - The Vue 2 frontend architecture remains in place until the separate migration to Inertia.js and Vue 3.
 
-Application architecture is documented in [`docs/architecture.md`](../architecture.md), and development commands are listed in [`docs/development.md`](../development.md).
+Application architecture is documented in [`architecture.md`](architecture.md), and development commands are listed in [`development.md`](development.md).
 
 ## Branches
 

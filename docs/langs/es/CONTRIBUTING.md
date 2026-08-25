@@ -4,13 +4,13 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/CONTRIBUTING.md) | [English](CONTRIBUTING_en.md) | **Español** | [中文](CONTRIBUTING_zh.md) | [Français](CONTRIBUTING_fr.md) | [Deutsch](CONTRIBUTING_de.md) |
+| [Русский](../../../.github/CONTRIBUTING.md) | [English](../en/CONTRIBUTING.md) | **Español** | [中文](../zh/CONTRIBUTING.md) | [Français](../fr/CONTRIBUTING.md) | [Deutsch](../de/CONTRIBUTING.md) |
 
 Gracias por tu interés en Symfony Shop. Es un proyecto educativo de comercio electrónico con Symfony, entorno Docker, PostgreSQL, API Platform, OAuth y algunos componentes interactivos en Vue.
 
 ## Antes de empezar
 
-Revisa las Discussions, Issues y Pull Requests existentes y procura que cada cambio resuelva una tarea clara. Las preguntas e ideas se comentan primero en [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions); los errores reproducibles y mejoras concretas se registran como Issues; los problemas de seguridad deben comunicarse según la [política de seguridad](../security/SECURITY_es.md) sin publicar detalles de explotación.
+Revisa las Discussions, Issues y Pull Requests existentes y procura que cada cambio resuelva una tarea clara. Las preguntas e ideas se comentan primero en [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions); los errores reproducibles y mejoras concretas se registran como Issues; los problemas de seguridad deben comunicarse según la [política de seguridad](SECURITY.md) sin publicar detalles de explotación.
 
 ## Límites del proyecto
 
@@ -20,7 +20,7 @@ Revisa las Discussions, Issues y Pull Requests existentes y procura que cada cam
 - No incluyas refactorizaciones amplias ni actualizaciones de dependencias que no estén relacionadas con la tarea.
 - La arquitectura frontend con Vue 2 se mantiene hasta la migración separada a Inertia.js y Vue 3.
 
-La arquitectura está descrita en [`docs/architecture.md`](../architecture.md) y los comandos de desarrollo en [`docs/development.md`](../development.md).
+La arquitectura está descrita en [`architecture.md`](architecture.md) y los comandos de desarrollo en [`development.md`](development.md).
 
 ## Ramas
 

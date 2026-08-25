@@ -4,13 +4,13 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/CONTRIBUTING.md) | [English](CONTRIBUTING_en.md) | [Español](CONTRIBUTING_es.md) | [中文](CONTRIBUTING_zh.md) | **Français** | [Deutsch](CONTRIBUTING_de.md) |
+| [Русский](../../../.github/CONTRIBUTING.md) | [English](../en/CONTRIBUTING.md) | [Español](../es/CONTRIBUTING.md) | [中文](../zh/CONTRIBUTING.md) | **Français** | [Deutsch](../de/CONTRIBUTING.md) |
 
 Merci de votre intérêt pour Symfony Shop. Il s’agit d’un projet e-commerce éducatif sur Symfony avec un environnement Docker, PostgreSQL, API Platform, OAuth et quelques composants interactifs en Vue.
 
 ## Avant de commencer
 
-Consultez les Discussions, Issues et Pull Requests existants et gardez chaque changement centré sur une tâche claire. Les questions et idées sont à discuter d’abord dans [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions), les bugs reproductibles et améliorations concrètes dans Issues, et les problèmes de sécurité selon la [politique de sécurité](../security/SECURITY_fr.md), sans publier de détails d’exploitation.
+Consultez les Discussions, Issues et Pull Requests existants et gardez chaque changement centré sur une tâche claire. Les questions et idées sont à discuter d’abord dans [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions), les bugs reproductibles et améliorations concrètes dans Issues, et les problèmes de sécurité selon la [politique de sécurité](SECURITY.md), sans publier de détails d’exploitation.
 
 ## Limites du projet
 
@@ -20,7 +20,7 @@ Consultez les Discussions, Issues et Pull Requests existants et gardez chaque ch
 - N’ajoutez pas de refactorisation large ni de mise à jour de dépendances sans rapport avec la tâche.
 - L’architecture frontend Vue 2 reste en place jusqu’à la migration distincte vers Inertia.js et Vue 3.
 
-L’architecture est décrite dans [`docs/architecture.md`](../architecture.md), et les commandes de développement dans [`docs/development.md`](../development.md).
+L’architecture est décrite dans [`architecture.md`](architecture.md), et les commandes de développement dans [`development.md`](development.md).
 
 ## Branches
 

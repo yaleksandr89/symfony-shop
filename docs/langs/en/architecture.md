@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../architecture.md) | **English** | [Español](../es/architecture.md) | [中文](../zh/architecture.md) | [Français](../fr/architecture.md) | [Deutsch](../de/architecture.md) |
+| [Русский](../ru/architecture.md) | **English** | [Español](../ru/architecture.md) | [中文](../ru/architecture.md) | [Français](../ru/architecture.md) | [Deutsch](../ru/architecture.md) |
 
 
 Symfony Shop is a single Symfony application with server-rendered pages, an administration area, and an API. Code is grouped by application area, while routes are centralized in YAML files so the path from a URL to a controller or API resource can be found without starting the application.

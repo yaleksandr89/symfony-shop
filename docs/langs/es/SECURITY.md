@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/SECURITY.md) | [English](SECURITY_en.md) | **Español** | [中文](SECURITY_zh.md) | [Français](SECURITY_fr.md) | [Deutsch](SECURITY_de.md) |
+| [Русский](../../../.github/SECURITY.md) | [English](../en/SECURITY.md) | **Español** | [中文](../zh/SECURITY.md) | [Français](../fr/SECURITY.md) | [Deutsch](../de/SECURITY.md) |
 
 Por favor, informa de posibles vulnerabilidades de forma responsable. Symfony Shop es un proyecto educativo público, pero los problemas de autenticación, OAuth, carrito, checkout, API, tratamiento de datos de usuario y configuración se consideran problemas normales de seguridad de una aplicación.
 

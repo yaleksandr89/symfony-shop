@@ -4,13 +4,13 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/CONTRIBUTING.md) | [English](CONTRIBUTING_en.md) | [Español](CONTRIBUTING_es.md) | **中文** | [Français](CONTRIBUTING_fr.md) | [Deutsch](CONTRIBUTING_de.md) |
+| [Русский](../../../.github/CONTRIBUTING.md) | [English](../en/CONTRIBUTING.md) | [Español](../es/CONTRIBUTING.md) | **中文** | [Français](../fr/CONTRIBUTING.md) | [Deutsch](../de/CONTRIBUTING.md) |
 
 感谢你关注 Symfony Shop。这是一个基于 Symfony 的教学型电商项目，使用 Docker 环境、PostgreSQL、API Platform、OAuth，并包含少量 Vue 交互组件。
 
 ## 开始之前
 
-请先检查已有的 Discussions、Issues 和 Pull Requests，并尽量让每次改动只解决一个明确的问题。问题和想法优先在 [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions) 讨论；可复现错误和具体改进提交到 Issues；安全问题应按照[安全策略](../security/SECURITY_zh.md)私下报告，不要公开利用细节。
+请先检查已有的 Discussions、Issues 和 Pull Requests，并尽量让每次改动只解决一个明确的问题。问题和想法优先在 [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions) 讨论；可复现错误和具体改进提交到 Issues；安全问题应按照[安全策略](SECURITY.md)私下报告，不要公开利用细节。
 
 ## 项目边界
 
@@ -20,7 +20,7 @@
 - 不要加入与任务无关的大范围重构或依赖升级。
 - Vue 2 前端架构会保留到单独迁移到 Inertia.js 和 Vue 3 的阶段。
 
-应用架构见 [`docs/architecture.md`](../architecture.md)，开发命令见 [`docs/development.md`](../development.md)。
+应用架构见 [`architecture.md`](architecture.md)，开发命令见 [`development.md`](development.md)。
 
 ## 分支
 

@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../configuration.md) | [English](../en/configuration.md) | [Español](../es/configuration.md) | **中文** | [Français](../fr/configuration.md) | [Deutsch](../de/configuration.md) |
+| [Русский](../ru/configuration.md) | [English](../ru/configuration.md) | [Español](../ru/configuration.md) | **中文** | [Français](../ru/configuration.md) | [Deutsch](../ru/configuration.md) |
 
 
 项目分别保存 Symfony 通用设置、Docker 参数、本地 secret 和测试覆盖配置。一个重要细节是：Docker Compose 传入 PHP 容器的值，比 Symfony Dotenv 文件加载的值优先级更高。

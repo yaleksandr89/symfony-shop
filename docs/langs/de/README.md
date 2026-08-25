@@ -6,11 +6,11 @@
 [![Symfony](https://img.shields.io/badge/Symfony-8.1-000000.svg?style=flat-square&logo=symfony&logoColor=white)](https://symfony.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.4-4169E1.svg?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../LICENSE.md)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../../LICENSE.md)
 
 <p align="center">
   <img
-    src="../img/symfony-shop-readme-cover.png"
+    src="../../img/symfony-shop-readme-cover.png"
     alt="Symfony Shop — Online-Shop mit Symfony, Docker und PostgreSQL"
     width="100%"
   >
@@ -20,7 +20,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../README.md) | [English](README_en.md) | [Español](README_es.md) | [中文](README_zh.md) | [Français](README_fr.md) | **Ausgewählt** |
+| [Русский](../../../README.md) | [English](../en/README.md) | [Español](../es/README.md) | [中文](../zh/README.md) | [Français](../fr/README.md) | **Ausgewählt** |
 
 Symfony Shop ist ein Lernprojekt für einen Online-Shop auf Symfony. Das Projekt umfasst Produktkatalog, Warenkorb und Checkout, Benutzerkonto, Administrationsbereich, API und OAuth-Anmeldung. Die meisten Seiten werden mit Twig gerendert; Vue 2 wird für einzelne interaktive Oberflächenelemente eingesetzt.
 
@@ -64,15 +64,15 @@ Auf dem Host werden Git, Make und Docker mit Compose-Unterstützung benötigt. G
 Nach dem Start ist die Anwendung standardmäßig unter [http://localhost:8080](http://localhost:8080) erreichbar.
 
 > [!IMPORTANT]
-> Das Projekt verwendet fest Chrome for Testing `150.0.7871.46`. Empfohlen wird `git lfs pull`. Ab `v3.0.0` kann das Projekt-ZIP von [Releases](https://github.com/yaleksandr89/symfony-shop/releases) heruntergeladen werden; Chrome for Testing ist darin bereits enthalten, sodass Git LFS für diesen Weg nicht benötigt wird. Die festgelegte Version kann außerdem direkt aus der offiziellen Quelle geladen werden. Exakte Links, Dateiname und SHA-256 stehen im [Setup-Leitfaden](de/getting-started.md).
+> Das Projekt verwendet fest Chrome for Testing `150.0.7871.46`. Empfohlen wird `git lfs pull`. Ab `v3.0.0` kann das Projekt-ZIP von [Releases](https://github.com/yaleksandr89/symfony-shop/releases) heruntergeladen werden; Chrome for Testing ist darin bereits enthalten, sodass Git LFS für diesen Weg nicht benötigt wird. Die festgelegte Version kann außerdem direkt aus der offiziellen Quelle geladen werden. Exakte Links, Dateiname und SHA-256 stehen im [Setup-Leitfaden](getting-started.md).
 
 > [!IMPORTANT]
-> Werte aus `.env.docker` werden dem PHP-Container als Prozess-Umgebungsvariablen übergeben. Ist derselbe Schlüssel sowohl dort als auch in `.env.local` definiert, hat der Wert aus `.env.docker` Vorrang. Das vollständige Schema steht im [Konfigurationsleitfaden](de/configuration.md).
+> Werte aus `.env.docker` werden dem PHP-Container als Prozess-Umgebungsvariablen übergeben. Ist derselbe Schlüssel sowohl dort als auch in `.env.local` definiert, hat der Wert aus `.env.docker` Vorrang. Das vollständige Schema steht im [Konfigurationsleitfaden](configuration.md).
 
 > [!WARNING]
 > `make demo-init` erstellt Demo-Bestellungen neu. Führe den Befehl nicht gegen eine lokale Datenbank aus, die Daten enthält, die du behalten möchtest.
 
-Der vollständige Erststart, alle drei Wege zu Chrome for Testing und die Containerverwaltung sind im [Setup-Leitfaden](de/getting-started.md) beschrieben.
+Der vollständige Erststart, alle drei Wege zu Chrome for Testing und die Containerverwaltung sind im [Setup-Leitfaden](getting-started.md) beschrieben.
 
 ## E-Mail und Nachrichtenwarteschlange
 
@@ -84,7 +84,7 @@ Registrierung und Passwort-Zurücksetzung verwenden den Messenger-Transport `asy
 make console CMD='messenger:consume async -vv'
 ```
 
-Transport, Mail und lokale Secrets sind im [Konfigurationsleitfaden](de/configuration.md) beschrieben.
+Transport, Mail und lokale Secrets sind im [Konfigurationsleitfaden](configuration.md) beschrieben.
 
 ## OAuth
 
@@ -92,7 +92,7 @@ OAuth-Anmeldung und das Verknüpfen eines externen Kontos mit einem bestehenden 
 
 Zum Verknüpfen meldet sich der Benutzer zunächst normal an, bestätigt das aktuelle Passwort und startet den OAuth-Ablauf ausdrücklich im Benutzerkonto. Auch das Trennen ist durch das aktuelle Passwort und ein CSRF-Token geschützt.
 
-Unterstützte Provider, Umgebungsvariablen, Routen und Sicherheitsregeln sind im [OAuth-Leitfaden](de/oauth.md) dokumentiert. Allgemeine Regeln zu lokaler Konfiguration und Secrets stehen im [Konfigurationsleitfaden](de/configuration.md).
+Unterstützte Provider, Umgebungsvariablen, Routen und Sicherheitsregeln sind im [OAuth-Leitfaden](oauth.md) dokumentiert. Allgemeine Regeln zu lokaler Konfiguration und Secrets stehen im [Konfigurationsleitfaden](configuration.md).
 
 ## Projektstruktur
 
@@ -112,7 +112,7 @@ PostgreSQL
 
 Der Hauptcode ist in die Bereiche `Account`, `Catalog` und `Commerce` gegliedert. Administration, OAuth und SEO sind als interne Symfony-Bundles umgesetzt. Vue 2 wird für einzelne interaktive Komponenten genutzt, nicht als eigenständige SPA.
 
-Verzeichnisstruktur, Routing, API Platform, Doctrine und Frontend-Grenzen werden im [Architekturleitfaden](de/architecture.md) beschrieben.
+Verzeichnisstruktur, Routing, API Platform, Doctrine und Frontend-Grenzen werden im [Architekturleitfaden](architecture.md) beschrieben.
 
 ## Prüfungen
 
@@ -127,7 +127,7 @@ Verzeichnisstruktur, Routing, API Platform, Doctrine und Frontend-Grenzen werden
 | `make coverage CONFIRM=testdb` | PHP/PHPUnit-Coverage im Terminal anzeigen | Panther ist nicht enthalten |
 | `make coverage-html CONFIRM=testdb` | HTML- und Clover-Berichte erzeugen | `var/coverage/html`, `var/coverage/clover.xml` |
 
-Die vollständige Make-Befehlsliste, der Umgang mit der Testdatenbank und die CI-Zusammensetzung stehen im [Entwicklungsleitfaden](de/development.md).
+Die vollständige Make-Befehlsliste, der Umgang mit der Testdatenbank und die CI-Zusammensetzung stehen im [Entwicklungsleitfaden](development.md).
 
 ## Geplant
 

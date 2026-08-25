@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| **Русский** | [English](../docs/contributing/CONTRIBUTING_en.md) | [Español](../docs/contributing/CONTRIBUTING_es.md) | [中文](../docs/contributing/CONTRIBUTING_zh.md) | [Français](../docs/contributing/CONTRIBUTING_fr.md) | [Deutsch](../docs/contributing/CONTRIBUTING_de.md) |
+| **Русский** | [English](../docs/langs/en/CONTRIBUTING.md) | [Español](../docs/langs/es/CONTRIBUTING.md) | [中文](../docs/langs/zh/CONTRIBUTING.md) | [Français](../docs/langs/fr/CONTRIBUTING.md) | [Deutsch](../docs/langs/de/CONTRIBUTING.md) |
 
 Спасибо за интерес к Symfony Shop. Это учебный интернет-магазин на Symfony с Docker-окружением, PostgreSQL, API Platform, OAuth и отдельными интерактивными компонентами на Vue.
 
@@ -20,7 +20,7 @@
 - Не добавляйте широкие рефакторинги и обновления зависимостей, не связанные с задачей.
 - Архитектура фронтенда на Vue 2 сохраняется до отдельной миграции на Inertia.js и Vue 3.
 
-Архитектура приложения описана в [`docs/architecture.md`](../docs/architecture.md), а команды разработки — в [`docs/development.md`](../docs/development.md).
+Архитектура приложения описана в [`docs/langs/ru/architecture.md`](../docs/langs/ru/architecture.md), а команды разработки — в [`docs/langs/ru/development.md`](../docs/langs/ru/development.md).
 
 ## Ветки
 

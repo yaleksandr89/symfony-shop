@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/SECURITY.md) | [English](SECURITY_en.md) | [Español](SECURITY_es.md) | **中文** | [Français](SECURITY_fr.md) | [Deutsch](SECURITY_de.md) |
+| [Русский](../../../.github/SECURITY.md) | [English](../en/SECURITY.md) | [Español](../es/SECURITY.md) | **中文** | [Français](../fr/SECURITY.md) | [Deutsch](../de/SECURITY.md) |
 
 请负责任地报告潜在漏洞。Symfony Shop 是公开的教学项目，但认证、OAuth、购物车、结账、API、用户输入处理和配置相关问题都会按正常的应用安全问题处理。
 

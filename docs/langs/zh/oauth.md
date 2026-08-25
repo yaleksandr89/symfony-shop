@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../oauth.md) | [English](../en/oauth.md) | [Español](../es/oauth.md) | **中文** | [Français](../fr/oauth.md) | [Deutsch](../de/oauth.md) |
+| [Русский](../ru/oauth.md) | [English](../ru/oauth.md) | [Español](../ru/oauth.md) | **中文** | [Français](../ru/oauth.md) | [Deutsch](../ru/oauth.md) |
 
 
 Symfony Shop 使用 OAuth 通过外部服务完成登录和注册，也支持把外部账户明确绑定到已有本地用户。这些流程彼此独立：仅仅 email 相同，并不能证明用户拥有已有的本地账户。

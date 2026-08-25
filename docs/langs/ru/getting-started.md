@@ -1,5 +1,11 @@
 # Запуск проекта
 
+## Выберите язык
+
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| **Русский** | [English](../en/getting-started.md) | [Español](../es/getting-started.md) | [中文](../zh/getting-started.md) | [Français](../fr/getting-started.md) | [Deutsch](../de/getting-started.md) |
+
 Поддерживаемый сценарий локальной разработки работает через Docker Compose. PHP, Composer, Node.js, PostgreSQL и браузерное окружение для Panther устанавливать на хост не нужно.
 
 Отдельный запуск с PHP, Composer, PostgreSQL и Node.js, установленными непосредственно в операционной системе, проектом не поддерживается: Makefile, CI, тестовые команды и браузерное окружение рассчитаны на Docker. Такой вариант технически можно собрать вручную, но он не является проверяемым контрактом проекта и поэтому здесь не документируется.

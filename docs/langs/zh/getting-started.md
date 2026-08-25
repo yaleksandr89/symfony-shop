@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../getting-started.md) | [English](../en/getting-started.md) | [Español](../es/getting-started.md) | **中文** | [Français](../fr/getting-started.md) | [Deutsch](../de/getting-started.md) |
+| [Русский](../ru/getting-started.md) | [English](../ru/getting-started.md) | [Español](../ru/getting-started.md) | **中文** | [Français](../ru/getting-started.md) | [Deutsch](../ru/getting-started.md) |
 
 
 受支持的本地开发流程基于 Docker Compose。宿主机无需直接安装 PHP、Composer、Node.js、PostgreSQL，也无需安装 Panther 所使用的浏览器环境。

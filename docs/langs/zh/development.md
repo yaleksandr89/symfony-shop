@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../development.md) | [English](../en/development.md) | [Español](../es/development.md) | **中文** | [Français](../fr/development.md) | [Deutsch](../de/development.md) |
+| [Русский](../ru/development.md) | [English](../ru/development.md) | [Español](../ru/development.md) | **中文** | [Français](../ru/development.md) | [Deutsch](../ru/development.md) |
 
 
 Makefile 是本地开发的主要入口。PHP、Composer 和 Symfony Console 在 PHP 容器中以用户 `app` 运行；npm 在一次性的 Node 容器中运行。

@@ -1,5 +1,11 @@
 # Разработка
 
+## Выберите язык
+
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| **Русский** | [English](../en/development.md) | [Español](../es/development.md) | [中文](../zh/development.md) | [Français](../fr/development.md) | [Deutsch](../de/development.md) |
+
 Makefile — основной интерфейс локальной разработки. PHP, Composer и Symfony Console запускаются внутри PHP-контейнера от пользователя `app`, npm — в одноразовом Node-контейнере.
 
 Текущий список целей всегда можно посмотреть через `make help`.
@@ -103,7 +109,7 @@ Panther использует Chrome for Testing и Chromedriver из PHP-обр�
 
 ## CI
 
-Workflow [`CI`](../.github/workflows/basic.yml) запускается для push и pull request в `master`.
+Workflow [`CI`](../../../.github/workflows/basic.yml) запускается для push и pull request в `master`.
 
 Он:
 

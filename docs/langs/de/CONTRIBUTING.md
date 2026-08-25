@@ -4,13 +4,13 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../../.github/CONTRIBUTING.md) | [English](CONTRIBUTING_en.md) | [Español](CONTRIBUTING_es.md) | [中文](CONTRIBUTING_zh.md) | [Français](CONTRIBUTING_fr.md) | **Deutsch** |
+| [Русский](../../../.github/CONTRIBUTING.md) | [English](../en/CONTRIBUTING.md) | [Español](../es/CONTRIBUTING.md) | [中文](../zh/CONTRIBUTING.md) | [Français](../fr/CONTRIBUTING.md) | **Deutsch** |
 
 Danke für dein Interesse an Symfony Shop. Es ist ein Lernprojekt für einen Symfony-Onlineshop mit Docker-Umgebung, PostgreSQL, API Platform, OAuth und ausgewählten interaktiven Vue-Komponenten.
 
 ## Vor dem Start
 
-Prüfe vorhandene Discussions, Issues und Pull Requests und beschränke jede Änderung auf eine klar verständliche Aufgabe. Fragen und Ideen gehören zuerst in [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions), reproduzierbare Fehler und konkrete Verbesserungen in Issues, Sicherheitsprobleme gemäß der [Security Policy](../security/SECURITY_de.md), ohne Exploit-Details öffentlich zu machen.
+Prüfe vorhandene Discussions, Issues und Pull Requests und beschränke jede Änderung auf eine klar verständliche Aufgabe. Fragen und Ideen gehören zuerst in [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions), reproduzierbare Fehler und konkrete Verbesserungen in Issues, Sicherheitsprobleme gemäß der [Security Policy](SECURITY.md), ohne Exploit-Details öffentlich zu machen.
 
 ## Projektgrenzen
 
@@ -20,7 +20,7 @@ Prüfe vorhandene Discussions, Issues und Pull Requests und beschränke jede Än
 - Keine breiten Refactorings oder Dependency-Upgrades ohne Bezug zur Aufgabe.
 - Die Vue-2-Frontend-Architektur bleibt bis zur separaten Migration auf Inertia.js und Vue 3 bestehen.
 
-Die Architektur ist in [`docs/architecture.md`](../architecture.md) beschrieben, Entwicklungsbefehle in [`docs/development.md`](../development.md).
+Die Architektur ist in [`architecture.md`](architecture.md) beschrieben, Entwicklungsbefehle in [`development.md`](development.md).
 
 ## Branches
 
