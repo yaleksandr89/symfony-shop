@@ -1,201 +1,189 @@
-# Интернет магазин на Symfony
+# Symfony Shop
 
->  [Перейти на сайт](https://s-shop.alexanderyurchenko.ru/ "Перейти на сайт")
+[![Source Code](https://img.shields.io/badge/source-yaleksandr89%2Fsymfony--shop-blue.svg?style=flat-square)](https://github.com/yaleksandr89/symfony-shop)
+[![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
+[![PHP](https://img.shields.io/badge/PHP-8.5-777BB4.svg?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![Symfony](https://img.shields.io/badge/Symfony-8.1-000000.svg?style=flat-square&logo=symfony&logoColor=white)](https://symfony.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.4-4169E1.svg?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+
+<p align="center">
+  <img
+    src="docs/img/symfony-shop-readme-cover.png"
+    alt="Symfony Shop — интернет-магазин на Symfony с Docker и PostgreSQL"
+    width="100%"
+  >
+</p>
 
 ## Выберите язык
 
-| Русский  | English                              | Español                              | 中文                              | Français                              | Deutsch                              |
-|----------|--------------------------------------|--------------------------------------|---------------------------------|---------------------------------------|--------------------------------------|
-| **Выбран** | [English](./docs/langs/README_en.md) | [Español](./docs/langs/README_es.md) | [中文](./docs/langs/README_zh.md) | [Français](./docs/langs/README_fr.md) | [Deutsch](./docs/langs/README_de.md) |
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| **Русский** | [English](docs/langs/en/README.md) | [Español](docs/langs/es/README.md) | [中文](docs/langs/zh/README.md) | [Français](docs/langs/fr/README.md) | [Deutsch](docs/langs/de/README.md) |
 
-## Используемые технологии
+Symfony Shop — учебный интернет-магазин на Symfony. В проекте реализованы каталог товаров, корзина и оформление заказов, личный кабинет, административная часть, API и вход через OAuth. Основные страницы формируются Twig, а Vue 2 используется для отдельных интерактивных элементов интерфейса.
 
-* Nginx 1.26.1
-* PHP 8.3.9
-* Composer 2.7.7
-* PostgreSQL 16.3
-* npm 10.8.2
+Поддерживаемая среда локальной разработки построена на Docker Compose. PHP, Composer, Node.js, PostgreSQL и Chrome for Testing запускаются внутри контейнеров или устанавливаются в Docker-образ, а основные операции собраны в Makefile. Отдельный сценарий запуска с PHP, Composer и PostgreSQL, установленными непосредственно на хосте, проектом не поддерживается и в CI не проверяется.
 
-## О проекте
+## Возможности
 
-Этот проект реализует интернет магазин с использованием **Symfony v6.4.9**. Часть функционала выполнена на **Vue 2.6** для корзины и административной панели.
+- каталог категорий и товаров с изображениями, новинками и скидками;
+- корзина с проверкой доступности товаров и оформление заказа;
+- регистрация, вход, подтверждение email и восстановление пароля;
+- личный кабинет пользователя;
+- OAuth через Google, Yandex, VKontakte, GitHub, Facebook и LinkedIn;
+- отдельные сценарии входа через OAuth, привязки и отвязки внешнего аккаунта;
+- административное управление пользователями, категориями, товарами и заказами;
+- API на базе API Platform;
+- unit-, integration-, functional- и браузерные тесты;
+- CI в GitHub Actions на том же Docker-окружении.
 
-### Основной функционал
+## Быстрый старт
 
-* Смена локали
-* Консольные команды:
-    * `php bin/console app:add-user` - создание пользователя
-    * `php bin/console app:update-slug-product` - обновление слага продукта
+На хосте нужны Git, Make и Docker с поддержкой Compose. Git LFS рекомендуется для обычного клонирования репозитория; получить большой браузерный архив можно и без него — варианты описаны ниже.
 
-### Фронтенд
+> [!NOTE]
+> Make — обычная консольная утилита для Unix-подобных систем. На Linux и macOS проект можно запускать напрямую из терминала. На Windows рекомендуемый вариант — WSL2 вместе с Docker Desktop.
 
-* регистрация посетителей;
-* личный кабинет;
-* восстановление пароля;
-* оформление заказа с уведомлениями по email;
-* в проекте можно авторизоваться и/или зарегистрироваться, используя: Yandex, Google, GitHub или ВКонтакте.
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `git clone https://github.com/yaleksandr89/symfony-shop.git` | Клонирует репозиторий | |
+| `cd symfony-shop` | Переходит в каталог проекта | |
+| `git lfs install` | Подключает Git LFS | Нужен только при сценарии через Git LFS |
+| `git lfs pull` | Загружает Chrome for Testing | Выполните до `make build` |
+| `make init` | Создаёт `.env.docker` и локальные каталоги | Не перезаписывает существующий `.env.docker` |
+| `make build` | Собирает PHP-образ | В образ входят Chrome и Chromedriver для Panther |
+| `make up` | Запускает PHP-FPM, Nginx и PostgreSQL | |
+| `make composer-install` | Устанавливает PHP-зависимости из `composer.lock` | Composer на хосте не нужен |
+| `make npm-install` | Устанавливает зависимости из `package-lock.json` | Node.js на хосте не нужен |
+| `make assets-build` | Собирает ресурсы фронтенда | |
+| `make migrate` | Применяет Doctrine migrations | |
+| `make demo-init` | Создаёт демонстрационные данные | Только для локальной `dev`/`test` среды |
 
-### Административная часть
+После запуска приложение по умолчанию доступно по адресу [http://localhost:8080](http://localhost:8080).
 
-* управление заказами и пользователями;
-* создание категорий;
-* создание товаров;
-* создание заказов.
+> [!IMPORTANT]
+> Проект использует зафиксированный Chrome for Testing `150.0.7871.46`. Рекомендуемый способ получить архив — `git lfs pull`. Начиная с версии `v3.0.0`, ZIP-архив проекта можно скачать со страницы [Releases](https://github.com/yaleksandr89/symfony-shop/releases). В архив уже включён Chrome for Testing, поэтому Git LFS для такого способа не нужен. Также нужную версию Chrome for Testing можно скачать напрямую из официального источника. Точные ссылки, имя файла и SHA-256 приведены в [руководстве по запуску](docs/langs/ru/getting-started.md#git-lfs-и-chrome-for-testing).
 
-## Установка проекта
+> [!IMPORTANT]
+> Значения из `.env.docker` передаются в PHP-контейнер как переменные окружения процесса. Если один и тот же ключ задан и там, и в `.env.local`, значение из `.env.docker` имеет приоритет. Подробная схема описана в [руководстве по конфигурации](docs/langs/ru/configuration.md#приоритет-переменных).
 
-1. Клонировать репозиторий: `git clone git@github.com:yaleksandr89/symfony-shop.git`.
-2. Создать локальную конфигурацию Docker: `make init`. Команда создаст игнорируемый `.env.docker` из `.env.docker.example`.
-3. Выполнить начальную настройку проекта в Docker:
+> [!WARNING]
+> `make demo-init` пересоздаёт демонстрационные заказы. Не запускайте его в локальной базе, где есть нужные вам данные.
 
-   ```bash
-   make build
-   make up
-   make composer-install
-   make npm-install
-   make assets-build
-   make migrate
-   make demo-init
-   ```
+Подробный первый запуск, три способа получить Chrome for Testing и управление контейнерами собраны в [руководстве по запуску](docs/langs/ru/getting-started.md).
 
-4. После завершения настройки сайт доступен на порту из `APP_PORT`. Для доступа к административной части создайте пользователя:
+## Почта и очередь сообщений
 
-   ```bash
-   make console CMD='app:add-user'
-   ```
+По умолчанию `MAILER_DSN=null://null`, поэтому приложение не отправляет письма во внешний SMTP-сервис. Письма, отправленные синхронно во время HTTP-запроса, можно посмотреть в панели Mailer Symfony Profiler.
 
-### Конфигурация окружения
+Регистрация и восстановление пароля используют транспорт Messenger `async`. Маршрутизация в очередь уже настроена, но постоянный обработчик очереди в Docker Compose сейчас не запускается, поэтому такие сообщения обрабатываются только после ручного запуска:
 
-* `.env` хранится в Git и содержит безопасные общие настройки приложения, включая режим разработки и локальные демонстрационные значения.
-* `.env.docker` игнорируется Git и содержит только настройки Docker Compose, PostgreSQL и параметры подключения браузерных тестов.
-* Реальные локальные секреты, учётные данные OAuth и настройки почты при необходимости добавляйте в игнорируемый `.env.local`.
-* `.env.test` используется автоматическими тестами и содержит только тестовые переопределения.
-* `.env.prod`, `.env-example` и `.env.panther` больше не используются.
-* Стратегия боевого окружения и развёртывания на VDS будет описана отдельным этапом.
-
-Приложение в браузере получает общие настройки из `.env`. Локальные переопределения, включая временную смену `APP_ENV`, `APP_DEBUG` и `APP_SECRET`, задавайте в `.env.local`, а не в `.env.docker`.
-
-### Приоритет переменных окружения
-
-Symfony использует значения в следующем порядке — от более высокого приоритета к более низкому:
-
-1. Реальные переменные окружения контейнера. В локальном Docker-окружении они передаются из `.env.docker`.
-2. `.env.<окружение>.local`, например `.env.dev.local`.
-3. `.env.<окружение>`, например `.env.test`.
-4. `.env.local`.
-5. `.env`.
-
-Название `.env.docker` само по себе не даёт файлу особого приоритета. Docker Compose читает его при создании контейнеров и передаёт значения внутрь контейнера как реальные переменные окружения, поэтому Symfony уже не заменяет их значениями из `.env.local` или `.env`.
-
-В окружении `test` файл `.env.local` не применяется. Тестовые переопределения находятся в `.env.test`, а переменные, переданные контейнеру из `.env.docker`, всё равно имеют более высокий приоритет.
-
-Примеры:
-
-* `MESSENGER_TRANSPORT_DSN` из `.env.local` перекроет значение из `.env`, если эта переменная отсутствует в `.env.docker`.
-* `PANTHER_WEB_SERVER_PORT` из `.env.local` не перекроет значение из `.env.docker`, потому что Docker уже передал его контейнеру как реальную переменную окружения.
-* Для локальных секретов и настроек конкретного разработчика используйте `.env.local`.
-* После изменения `.env` или `.env.local` контейнер обычно пересоздавать не требуется.
-* После изменения `.env.docker` пересоздайте контейнеры командой `make down && make up`.
-
-
-## Настройка Messenger
-
-Для отправки некоторых писем (восстановление пароля, подтверждение учетной записи) используется [Symfony Messenger](https://symfony.com/doc/current/components/messenger.html "Symfony Messenger"), поэтому необходимо запустить команду в терминале `symfony console messenger:consume async -vv`. Ручной запуск команды - целесообразен на этапе тестирования, когда все будет проверенно желательно или:
-
-* повесить команду на `cron` 
-* настроить `supervisor`
-
-Пример конфига, который необходимо разместить `/etc/supervisor/conf.d/messenger-worker.conf`:
-
-```
-;/etc/supervisor/conf.d/messenger-worker.conf
-[program:messenger-consume]
-command=php /path/to/your/app/bin/console messenger:consume async --time-limit=3600
-user=ubuntu
-numprocs=2
-startsecs=0
-autostart=true
-autorestart=true
-process_name=%(program_name)s_%(process_num)02d
+```text
+make console CMD='messenger:consume async -vv'
 ```
 
-* `command=` - после `php` указать путь до консоли и через пробел, команду, которую надо добавить
-* `user=` - указать текущего пользователя
-* `numprocs=` - количество процессов, которые будут созданы
+Настройка транспорта, почты и локальных секретов описана в [руководстве по конфигурации](docs/langs/ru/configuration.md#почта-и-messenger).
 
-Остальные опции можно оставить без изменений. [Пример конфига](https://symfony.com/doc/6.4/messenger.html#supervisor-configuration) с официального сайта.
+## OAuth
 
-### Тестирование
+Вход через OAuth и привязка внешнего аккаунта к существующему пользователю — разные операции. Совпадение email у провайдера не даёт права автоматически связать внешний аккаунт с уже существующей локальной учётной записью.
 
-Проект покрыт тестами различных типов (разбиты по группам `#[Group(name: '{name}')]`):
+Для привязки пользователь сначала входит обычным способом, затем подтверждает текущий пароль и явно начинает OAuth-сценарий из личного кабинета. Отвязка также защищена текущим паролем и CSRF-токеном.
 
-* unit
-* integration
-* functional
-* functional-panther
-* functional-selenium
+Поддерживаемые провайдеры, переменные окружения, маршруты и правила безопасности подробно описаны в [руководстве по OAuth](docs/langs/ru/oauth.md). Общие правила хранения локальных настроек и секретов находятся в [руководстве по конфигурации](docs/langs/ru/configuration.md).
 
-Группы тестов 1. - 3. должны запускать без каких либо проблем `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`. По последним двум группам
-в процессе тестирования могут возникнуть проблемы из-за отсутствия установленного [chromedriver](bin/drivers/chromedriver) - движок chrome или [geckodriver](bin/drivers/geckodriver) - движок firefox.
+## Как устроен проект
 
-![chromedriver-not-found](docs/img/chromedriver-not-found.png)
-
-![selenium-server-not-work](docs/img/selenium-server-not-work.png)
-
-Исправить данные баги легко, для этого нужно:
-
-* скачать движок: https://chromedriver.chromium.org/downloads (выбирать в зависимости от версии хрома). Можно попробовать воспользоваться движками, которые я разместил в проект в директории **bin/drivers/**, но если версии движка и установленного браузера различаются - могут быть ошибки.
-* Как установить движок в системе (linux) глобально: https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
-
-В Docker-сценарии Selenium запускается как Docker Compose service. Для запуска functional-selenium тестов используйте:
-
-* `make test-functional-selenium`
-
-Для Docker Selenium tests используют compose service `selenium` и `SELENIUM_SERVER_URL=http://selenium:4444/wd/hub`; Panther web server доступен внутри compose network как `php:9080`.
-
-При необходимости Selenium service можно проверить отдельно:
-
-* `docker compose -p symfony-shop --env-file .env.docker up -d selenium`
-* `curl -fsS http://127.0.0.1:4444/status`
-
-Для Docker-сценария Java на хосте не нужна. Ручной запуск через локальный JAR можно использовать только как fallback вне Docker:
-
-* `java -jar bin/selenium-server.jar standalone`
-
-Требует наличия java, в Ubuntu можно установить командой: `sudo apt install openjdk-21-jdk`, версия может отличаться - ставлю всегда последнюю
-
-![install-openjdk-21-jdk](docs/img/install-openjdk-21-jdk.png)
-
-## Деплой с использованием Deployer 7
-
-[Deployer 7](https://deployer.org/docs/7.x/getting-started) - это инструмент для автоматизации процесса деплоя приложений. Он позволяет определить задачи и последовательности действий для развертывания кода на удаленных серверах. В данном репозитории используется Deployer 7 для автоматизации деплоя.
-
-### Настройка
-
-Для использования Deployer 7 вам потребуется настроить файл `deploy.php`. Для этого переименуйте [deploy-example.php](deploy-example.php) в `deploy.php`, посмотрите оставленные комментарии и заполните файл согласно вашим потребностям. К **обязательному заполнению** относится раздел `//hosts`
-
-```php
-// Hosts
-host('...')
-    ->setHostname('...')
-    ->setPort('...')
-    ->setRemoteUser('...')
-    ->setIdentityFile('~/.ssh/....pub')
-    ->set('labels', ['stage' => 'prod'])
-    ->set('branch', '...')
-    ->set('deploy_path', '...');
+```text
+Браузер
+  ↓
+Nginx
+  ↓
+Symfony
+  ├─ Controller → Twig → HTML
+  └─ API Platform → JSON API
+  ↓
+Прикладные сервисы / Doctrine
+  ↓
+PostgreSQL
 ```
 
-### Использование
+Основной код сгруппирован по областям `Account`, `Catalog` и `Commerce`. Административная часть, OAuth и SEO оформлены как внутренние Symfony-бандлы. Vue 2 используется для отдельных интерактивных компонентов, а не как самостоятельное SPA.
 
-Для запуска в консоли выполните `php deployer7.phar deploy`, результат успешного деплоя будет выглядеть примерно так:
+Карта каталогов, маршрутизация, API Platform, Doctrine и границы фронтенда разобраны в [описании архитектуры](docs/langs/ru/architecture.md).
 
-![success-deploy](docs/img/deployer7-deploy.png)
+## Проверки
 
-## UPD
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `make check` | Запускает ESLint, проверку PHP-CS-Fixer и PHPStan | Тесты сюда не входят |
+| `make test-unit` | Запускает unit-тесты | |
+| `make test-integration` | Запускает integration-тесты | |
+| `make test-functional` | Запускает functional-тесты | |
+| `make test-functional-panther` | Запускает браузерные тесты через Panther | Chrome уже находится в PHP-образе |
+| `make test-all CONFIRM=testdb` | Запускает полный набор тестов | Пересоздаёт тестовую БД |
+| `make coverage CONFIRM=testdb` | Показывает покрытие PHP/PHPUnit в терминале | Panther не входит в отчёт |
+| `make coverage-html CONFIRM=testdb` | Создаёт HTML- и Clover-отчёты | `var/coverage/html`, `var/coverage/clover.xml` |
 
-* 08.07.2023 - удален конфиг `.circleci`. Перестал работать в России: https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country
-* 08.07.2023 - Symfony обновлена до последней, на текущую дату, версию `6.3.1`
-* 17.07.2024 - Symfony обновлена до версии `6.4.9`
-* 17.07.2024 - Unit тесты обновлены до 11 версии, также отрефакторины сами тесты
-* Добавлен конфиг для [nginx](docs/conf/nginx/s-shop.conf) и [supervisor](docs/conf/supervisor/messenger-worker.conf), а также различнее переводы для README.md
+Полный список Make-команд, устройство тестовой базы и состав CI приведены в [руководстве по разработке](docs/langs/ru/development.md).
+
+## В планах
+
+1. **Локальная почтовая среда.** Добавить отдельный почтовый сервис с веб-интерфейсом для просмотра писем и постоянный обработчик очереди Messenger, чтобы сообщения транспорта `async` обрабатывались автоматически.
+2. **Inertia.js и Vue 3.** Перевести взаимодействие серверной и клиентской частей на Inertia.js и Vue 3. Заодно хочу пересмотреть локализацию: в зависимости от объёма изменений, возможно, получится отказаться от обязательного префикса `/{_locale}` в URL. Это решу уже при проектировании нового фронтенда.
+3. **Административная часть.** После миграции фронтенда существенно расширить возможности управления магазином из административного интерфейса.
+
+## Обратная связь
+
+- воспроизводимые ошибки — [GitHub Issues](https://github.com/yaleksandr89/symfony-shop/issues);
+- вопросы и идеи — [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions).
+
+## История проекта
+
+### 2026 — подготовка v3.0.0
+
+- Проект переведён на Docker Compose как основную среду разработки. Добавлены единый Makefile, воспроизводимый bootstrap, PostgreSQL в Docker, demo-данные, Xdebug и APCu.
+- CI перенесён в GitHub Actions и построен вокруг того же Docker-backed workflow, который используется локально.
+- Backend-стек последовательно обновлён до PHP 8.5, Symfony 8.1, API Platform 4.3, Doctrine ORM 3 / DBAL 4, PHPUnit 13 и PHPStan 2.
+- Существенно переработаны безопасность и бизнес-границы корзины, оформления заказа, API, регистрации, восстановления пароля и OAuth.
+- OAuth расширен поддержкой Facebook и LinkedIn; сценарии входа, регистрации, привязки и отвязки аккаунтов разделены и защищены отдельными проверками.
+- Удалены Selenium, GeckoDriver, Java tooling и Deployer. Браузерные тесты переведены на Panther и Chrome for Testing; архив Chrome хранится через Git LFS.
+- Архитектура приложения переработана: выделены модули `Account`, `Catalog`, `Commerce`, а также `AdminBundle`, `OAuthBundle` и `SeoBundle`; централизованы маршруты и общий OAuth callback-поток.
+- Пересобран тестовый контур, добавлены Docker-backed quality gates и команды coverage.
+- Полностью переработана документация проекта, добавлены инструкции по запуску, конфигурации, разработке, OAuth и архитектуре.
+- Лицензия проекта унифицирована как MIT; добавлены GitHub Issues/Discussions, шаблоны Pull Request, contribution guide и security policy.
+
+### 2024 — v2.3.0
+
+- Symfony обновлён до 6.4.9.
+- PHPUnit обновлён с 9 до 11, DAMA Doctrine Test Bundle — до 8 версии; переработаны существующие тесты.
+- Продолжен переход с аннотаций на PHP attributes и устранение замечаний PHPStan.
+- Обновлены Selenium, ChromeDriver и GeckoDriver.
+- Добавлены примеры конфигурации Nginx и Supervisor, инструкции по Deployer и переводы README.
+
+### 2023 — v2.1.1 / v2.2.0
+
+- Symfony обновлён до 6.3.1, обновлены сторонние зависимости и устранены deprecation-уведомления first-party кода.
+- Проведён очередной этап рефакторинга и исправлений по PHPStan.
+- Обновлена конфигурация Deployer.
+- CircleCI удалён после прекращения работы сервиса для пользователей из России.
+
+### 2022 — v1.2.0 / v2.0.0 / v2.1.0
+
+- Сформирован основной функционал интернет-магазина.
+- Добавлена OAuth-авторизация через Google, Yandex, VKontakte и GitHub.
+- Symfony последовательно обновлён с 5.4 до 6.0.
+- В личном кабинете появились привязка и отвязка внешних OAuth-аккаунтов.
+- Добавлена защита от повторного использования одной внешней учётной записи разными пользователями.
+
+### 2021 — начало проекта
+
+- Создан первый вариант Symfony Shop на Symfony 5.3 с PostgreSQL.
+
+---
+
+<p align="center">
+  Если проект оказался полезен, поставьте звезду на GitHub — так его будет проще найти другим разработчикам. 🤘
+</p>

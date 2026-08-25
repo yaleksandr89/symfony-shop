@@ -1,0 +1,53 @@
+name: Предложить улучшение
+description: Конкретное улучшение для Symfony Shop.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Если вы хотите задать вопрос или сначала обсудить идею, используйте GitHub Discussions:
+        https://github.com/yaleksandr89/symfony-shop/discussions
+  - type: textarea
+    id: problem
+    attributes:
+      label: Проблема или сценарий
+      description: Какую задачу должно решить улучшение и для кого?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Предлагаемое решение
+      description: Опишите желаемое поведение без необходимости проектировать всю реализацию.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Затронутая область
+      options:
+        - Каталог и товары
+        - Корзина и оформление заказа
+        - Аккаунт и OAuth
+        - Административная часть
+        - API
+        - Фронтенд
+        - Docker и инструменты разработки
+        - Документация
+        - Другое
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Рассмотренные альтернативы
+      description: Необязательно.
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Подтверждение
+      options:
+        - label: Я проверил(а) существующие Issues и Discussions.
+          required: true
