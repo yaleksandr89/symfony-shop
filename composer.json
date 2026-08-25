@@ -2,7 +2,7 @@
     "name": "yaleksandr89/symfony-shop",
     "description": "Symfony e-commerce application.",
     "type": "project",
-    "license": "proprietary",
+    "license": "MIT",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
