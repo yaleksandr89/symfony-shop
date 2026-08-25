@@ -1,69 +1,112 @@
 # Symfony Shop
 
-Учебный интернет-магазин на Symfony, собранный как полноценное приложение, а не как пустой каркас фреймворка. Проект показывает совместную работу серверного каталога, корзины и заказов, личного кабинета, административной части, API и отдельных интерактивных компонентов на Vue.
+[![Source Code](https://img.shields.io/badge/source-yaleksandr89%2Fsymfony--shop-blue.svg?style=flat-square)](https://github.com/yaleksandr89/symfony-shop)
+[![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
+[![PHP](https://img.shields.io/badge/PHP-8.5-777BB4.svg?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![Symfony](https://img.shields.io/badge/Symfony-8.1-000000.svg?style=flat-square&logo=symfony&logoColor=white)](https://symfony.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.4-4169E1.svg?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-## Основные возможности
+Symfony Shop: учебный интернет-магазин на Symfony. В проекте есть каталог товаров, корзина и оформление заказов, личный кабинет, административная часть, API и OAuth-авторизация. Основные страницы рендерятся Twig, а отдельные интерактивные части интерфейса работают на Vue 2.
 
-- каталог категорий и товаров;
-- корзина, оформление и хранение заказов;
-- регистрация, вход, личный кабинет, подтверждение email и восстановление пароля;
-- вход и регистрация через OAuth, явная привязка провайдера к существующей учётной записи и защищённая отвязка;
+Проект запускается в Docker Compose: PHP, Composer, Node.js, PostgreSQL и браузерное окружение для Panther не нужно устанавливать на хост. Для разработки и проверок используется единый Makefile.
+
+## Возможности
+
+- каталог категорий и товаров с изображениями, признаками новинок и скидок;
+- корзина с проверкой доступности товаров и оформление заказа;
+- регистрация, вход, подтверждение email и восстановление пароля;
+- личный кабинет пользователя;
+- OAuth через Google, Yandex, VKontakte, GitHub, Facebook и LinkedIn;
+- отдельные сценарии входа через OAuth, привязки и отвязки внешнего аккаунта;
 - административное управление пользователями, категориями, товарами и заказами;
-- прикладной API на базе API Platform.
-
-## Технологический стек
-
-Основу составляют PHP 8.5.9, Symfony 8.1.5, API Platform 4.3.17, Doctrine ORM 3.6.8 и DBAL 4.4.4. Локальная среда работает в Docker с PostgreSQL и Nginx. Фронтенд собирается Webpack Encore и использует Vue 2. Проверки выполняются через PHPUnit 13.3.1, Panther, PHPStan, PHP-CS-Fixer и ESLint; GitHub Actions также загружает артефакты Git LFS.
+- API на базе API Platform;
+- автоматические unit-, integration-, functional- и browser-тесты;
+- Docker-backed CI в GitHub Actions.
 
 ## Быстрый старт
 
-На хосте нужны только Git, Git LFS, Make и Docker. Локальные PHP, Composer, Node.js, Java и PostgreSQL не требуются.
+На хосте нужны Git, Git LFS, Make и Docker с поддержкой Compose.
 
-```bash
-git clone https://github.com/yaleksandr89/symfony-shop.git
-cd symfony-shop
-git lfs install
-git lfs pull
-make init
-make build
-make up
-make composer-install
-make npm-install
-make assets-build
-make migrate
-make demo-init
-```
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `git clone https://github.com/yaleksandr89/symfony-shop.git` | Клонирует репозиторий | |
+| `cd symfony-shop` | Переходит в каталог проекта | |
+| `git lfs install` | Подключает Git LFS для текущего пользователя | Обычно выполняется один раз |
+| `git lfs pull` | Загружает Chrome for Testing из LFS | Нужен до сборки PHP-образа |
+| `make init` | Создаёт `.env.docker` и локальные каталоги | Не перезаписывает существующий `.env.docker` |
+| `make build` | Собирает PHP-образ | В образ входят Chrome и Chromedriver для Panther |
+| `make up` | Запускает PHP-FPM, Nginx и PostgreSQL | |
+| `make composer-install` | Устанавливает PHP-зависимости из `composer.lock` | Composer на хосте не нужен |
+| `make npm-install` | Устанавливает npm-зависимости из `package-lock.json` | Node.js на хосте не нужен |
+| `make assets-build` | Собирает frontend assets | |
+| `make migrate` | Применяет Doctrine migrations | |
+| `make demo-init` | Создаёт демонстрационные данные | Только для локальной `dev`/`test` среды |
 
-Git LFS должен загрузить архив Chrome до `make build`: он входит в Docker-образ для браузерных тестов. При стандартном `APP_PORT=8080` приложение откроется по адресу <http://localhost:8080>. Полная последовательность установки, проверка LFS-артефакта и команды управления контейнерами описаны в [руководстве по запуску](docs/getting-started.md).
+После запуска приложение по умолчанию доступно по адресу [http://localhost:8080](http://localhost:8080).
 
-## Конфигурация
+> [!IMPORTANT]
+> Проект использует Git LFS для `bin/chrome-linux64-150.0.7871.46.zip`. Если вместо ZIP в рабочей копии остался LFS pointer, `make build` завершится ошибкой. Проверка артефакта и диагностика описаны в [руководстве по запуску](docs/getting-started.md).
 
-Общие безопасные настройки приложения находятся в `.env`, локальная конфигурация Docker создаётся в `.env.docker`, секреты разработчика размещаются в `.env.local`, а тестовые переопределения — в `.env.test`. Значения, переданные контейнеру из `.env.docker`, становятся настоящими переменными окружения и имеют приоритет над Symfony Dotenv, включая `.env.local`.
+> [!WARNING]
+> `make demo-init` пересоздаёт демонстрационные заказы. Не запускайте его в локальной базе, где есть нужные вам данные.
 
-Категории параметров, порядок приоритетов и безопасные примеры приведены в [руководстве по конфигурации](docs/configuration.md).
+Подробный первый запуск, работа с Git LFS и управление контейнерами собраны в [руководстве по запуску](docs/getting-started.md).
 
 ## OAuth
 
-Проект поддерживает Google, Yandex, VKontakte, два клиента GitHub (EN и RU), Facebook и LinkedIn. Обычный OAuth-вход либо находит уже связанную локальную учётную запись, либо регистрирует нового неподтверждённого пользователя. Совпадение email само по себе никогда не привязывает провайдера автоматически.
+OAuth-вход и привязка внешнего аккаунта к существующему пользователю: разные операции. Совпадение email у провайдера не даёт права автоматически связать OAuth-аккаунт с уже существующей локальной учётной записью.
 
-Для существующего пользователя привязка выполняется отдельно из личного кабинета с подтверждением текущего пароля, CSRF-защитой и одноразовым намерением в сессии. Отвязка также требует текущий пароль и CSRF-токен. Переменные, маршруты и гарантии безопасности собраны в [руководстве по OAuth](docs/oauth.md).
+Для привязки пользователь сначала входит обычным способом, затем подтверждает текущий пароль и явно начинает OAuth-сценарий из личного кабинета. Отвязка также защищена паролем и CSRF-токеном.
+
+Поддерживаемые провайдеры, переменные окружения, маршруты и правила безопасности подробно описаны в [руководстве по OAuth](docs/oauth.md). Общие правила хранения локальных настроек и секретов находятся в [руководстве по конфигурации](docs/configuration.md).
 
 ## Как устроен проект
 
-Код разделён по прикладным областям `Account`, `Catalog` и `Commerce`; административные, OAuth- и SEO-возможности оформлены внутренними bundle. Twig отвечает за серверные страницы, Vue 2 подключается отдельными компонентами через Webpack Encore, Doctrine хранит данные, а API Platform предоставляет прикладной API.
+```text
+Browser
+  ↓
+Nginx
+  ↓
+Symfony routes / controllers
+  ├─ Twig → HTML
+  └─ API Platform → JSON API
+  ↓
+Application services / Doctrine
+  ↓
+PostgreSQL
+```
 
-Карта каталогов и направления навигации по коду приведены в [обзоре архитектуры](docs/architecture.md).
+Основной код сгруппирован по областям `Account`, `Catalog` и `Commerce`. Административная часть, OAuth и SEO оформлены внутренними Symfony bundle. Vue 2 используется для отдельных интерактивных компонентов, а не как отдельное SPA.
 
-## Разработка и проверки
+Карта каталогов, маршрутизация, API Platform, Doctrine и frontend-границы разобраны в [описании архитектуры](docs/architecture.md).
 
-Все команды приложения выполняются через цели Makefile, работающие в Docker. `make check` запускает ESLint, проверку PHP-CS-Fixer и PHPStan, но не тесты. PHPUnit разделён на `unit`, `integration`, `functional` и `functional-panther`; для отдельных групп есть собственные цели Makefile. Агрегированные тесты и coverage требуют явного подтверждения пересоздания тестовой БД. Coverage используется как инженерная диагностика, а не как публичный показатель качества.
+## Проверки
 
-Ежедневный цикл, полный список полезных целей, границы CI и работа с Panther описаны в [руководстве по разработке](docs/development.md).
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `make check` | Запускает ESLint, PHP-CS-Fixer check и PHPStan | Тесты сюда не входят |
+| `make test-unit` | Запускает unit-тесты | |
+| `make test-integration` | Запускает integration-тесты | |
+| `make test-functional` | Запускает functional-тесты | |
+| `make test-functional-panther` | Запускает browser-тесты через Panther | Chrome уже находится в PHP-образе |
+| `make test-all CONFIRM=testdb` | Запускает полный тестовый набор | Пересоздаёт тестовую БД |
+| `make coverage CONFIRM=testdb` | Показывает PHP/PHPUnit coverage в терминале | Panther не входит в coverage |
+| `make coverage-html CONFIRM=testdb` | Создаёт HTML и Clover отчёты | `var/coverage/html`, `var/coverage/clover.xml` |
+
+Coverage используется как инженерная диагностика, а не как публичный показатель качества. Полный набор Make-команд, устройство тестовой базы и различия между локальными проверками и CI приведены в [руководстве по разработке](docs/development.md).
 
 ## Coming Soon
 
-Планируются переход к архитектуре Inertia.js с Vue 3 и последующее существенное расширение административной части.
+Следующий крупный шаг: переход frontend-взаимодействия на Inertia.js и Vue 3. После этого планируется существенное расширение административной части.
 
 ## Лицензия
 
 Проект распространяется по лицензии [MIT](LICENSE.md).
+
+---
+
+<p align="center">
+  Если проект оказался полезен, поставьте звезду на GitHub: так его будет проще найти другим разработчикам. 🤘
+</p>

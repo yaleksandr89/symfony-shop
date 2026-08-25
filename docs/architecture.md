@@ -1,111 +1,128 @@
-# Архитектура проекта
+# Архитектура
 
-Symfony Shop — модульный монолит. Один Symfony kernel обслуживает серверные страницы, административную часть и API, а код группируется вокруг прикладных областей. Этот обзор помогает найти нужный слой без перечисления каждого класса.
+Symfony Shop: одно Symfony-приложение с серверными страницами, административной частью и API. Код сгруппирован по прикладным областям, а маршруты вынесены в централизованные YAML-файлы, чтобы путь от URL к нужному контроллеру или API resource можно было найти без запуска приложения.
+
+## Общая схема
+
+```text
+Browser
+  ↓
+Nginx
+  ↓
+Symfony
+  ├─ Controller → Twig → HTML
+  └─ API Platform → JSON API
+          ↓
+Application services / managers / processors
+          ↓
+Doctrine ORM
+          ↓
+PostgreSQL
+```
+
+Vue 2 подключается поверх отдельных Twig-страниц там, где нужна интерактивность: корзина, индикатор корзины и редактор заказа. Отдельного SPA и Vue Router в текущей архитектуре нет.
 
 ## Прикладные области
 
-### `src/Account`
+| Область | Что находится внутри |
+|---|---|
+| `src/Account` | регистрация, локальный вход, профиль, подтверждение email, reset password, связанные messages и mail |
+| `src/Catalog` | категории, товары, изображения, чтение каталога и связанные Doctrine/API queries |
+| `src/Commerce` | корзина, позиции корзины, checkout, заказы, voters и уведомления о заказе |
+| `src/Money` | денежные value objects и вычисления, используемые Commerce |
 
-Учётные записи и локальная аутентификация:
+Сущности Doctrine остаются в `src/Entity`, а прикладные сервисы и managers находятся в области, которая владеет соответствующим сценарием.
 
-- регистрация и личный кабинет;
-- вход и security entry point;
-- подтверждение email;
-- запрос и установка нового пароля;
-- message handlers и отправка связанных писем;
-- repository и manager пользователя.
+## Внутренние Symfony bundle
 
-OAuth вынесен отдельно, но создаёт и находит те же сущности User через сервисы Account.
+В проекте есть три внутренних bundle:
 
-### `src/Catalog`
+| Bundle | Назначение |
+|---|---|
+| `src/AdminBundle` | административные controllers, forms, templates и API-операции |
+| `src/OAuthBundle` | OAuth clients, authenticators, link/unlink и provider mapping |
+| `src/SeoBundle` | `robots.txt` и sitemap |
 
-Чтение и управление каталогом:
-
-- страницы категорий и товаров;
-- репозитории и расширения запросов API;
-- менеджеры категорий, товаров и изображений;
-- сохранение, изменение размеров и удаление файлов изображений.
-
-### `src/Commerce`
-
-Корзина и заказы:
-
-- HTTP-страница корзины;
-- репозитории и менеджеры агрегатов Commerce;
-- обработчики API для оформления заказа;
-- voters, ограничивающие доступ к корзине и её позициям;
-- событие создания заказа и почтовое уведомление.
-
-Денежные вычисления, используемые этой областью, изолированы в `src/Money`.
-
-## Внутренние bundle
-
-Три внутренних bundle зарегистрированы во всех окружениях:
-
-- `src/AdminBundle` — контроллеры, формы, обработчики, шаблоны и API-процессы административной части;
-- `src/OAuthBundle` — клиенты провайдеров, аутентификаторы, защищённая привязка и отвязка внешних идентичностей;
-- `src/SeoBundle` — `robots.txt` и sitemap.
-
-Это внутренние части приложения, а не отдельные Composer packages. Их шаблоны и переводы находятся рядом с кодом bundle.
+Это части одного приложения, а не отдельные Composer packages.
 
 ## Маршрутизация
 
-Маршруты приложения централизованы в `config/routes.yaml` и файлах `config/routes/app/*.yaml`. Области `account`, `catalog`, `commerce`, `admin` и `oauth` получают префикс `/{_locale}` с локалями `ru|en`; маршруты SEO остаются без языкового префикса. Корневые маршруты перенаправляют на локализованные страницы.
+First-party маршруты собраны в [`config/routes.yaml`](../config/routes.yaml) и [`config/routes/app/`](../config/routes/app/).
 
-API Platform подключён отдельно через `config/routes/api_platform.yaml` с префиксом `/api`.
+Локализованные области `account`, `catalog`, `commerce`, `admin` и `oauth` работают под префиксом `/{_locale}` с локалями `ru|en`. SEO-маршруты остаются без языкового префикса.
 
-При поиске конечной точки начинайте с соответствующего YAML-файла, затем переходите к указанному контроллеру или к метаданным API resource.
+API Platform подключён отдельно через [`config/routes/api_platform.yaml`](../config/routes/api_platform.yaml) с префиксом `/api`.
 
-## Данные и сервисы
+Практический путь поиска endpoint:
 
-Сущности Doctrine находятся в `src/Entity`, а миграции — в `migrations`. Они описывают User, Category, Product, ProductImage, Cart, CartProduct, Order, OrderProduct и ResetPasswordRequest.
+```text
+URL
+→ config/routes*.yaml
+→ controller или API resource
+→ application service / processor
+→ repository / Doctrine
+```
 
-Репозитории, менеджеры и прикладные сервисы размещены в области, которая ими владеет, а не рядом с Entity. Doctrine отвечает за хранение и уникальные ограничения, включая внешние OAuth ID. `config/services.yaml` включает autowiring для `src`, задаёт общие параметры и явно настраивает сервисы, которым нужны карты провайдеров или специальные обработчики событий.
+## Doctrine и данные
 
-Воспроизводимая инициализация demo-данных расположена в `tools/demo`. Эти сервисы подключаются только в `dev` и `test` через `config/services_demo.yaml`.
+Doctrine entities находятся в [`src/Entity`](../src/Entity), migrations: в [`migrations`](../migrations).
+
+Основные сущности:
+
+- `User`;
+- `Category`, `Product`, `ProductImage`;
+- `Cart`, `CartProduct`;
+- `Order`, `OrderProduct`;
+- `ResetPasswordRequest`.
+
+Репозитории и application services не собраны в одну общую папку: они расположены рядом с прикладной областью, которая ими пользуется.
+
+Воспроизводимые demo-данные находятся в [`tools/demo`](../tools/demo) и подключаются только для `dev` и `test`.
 
 ## API Platform
 
-API Platform предоставляет прикладной API для каталога, корзины и заказов. Метаданные ресурсов находятся преимущественно в атрибутах Entity:
+API Platform используется как прикладной API, а не как автоматическая публикация всех Doctrine entities.
 
-- Category и Product публикуют операции каталога;
-- Cart и CartProduct используют security voters и собственные расширения запросов;
-- Order использует отдельный input и processor для checkout;
-- административные операции над OrderProduct дополнены конфигурацией `src/AdminBundle/config/api_resources.yaml`.
+В API участвуют каталог, корзина и заказы. Доступ и изменение данных дополнительно ограничиваются voters, query extensions, input objects и processors. Для checkout используется отдельный input/processor contract, а административные операции над позициями заказа дополняются конфигурацией AdminBundle.
 
-Расширения запросов фильтруют доступные данные, processors выполняют прикладные изменения, а отдельные security listeners поддерживают согласованный формат ошибок для защищённых API-запросов. API не следует воспринимать как автоматическую публикацию всех Entity без правил доступа.
+При поиске API-поведения смотрите не только Entity attributes, но и соответствующие processors, extensions и security boundaries.
 
-## Серверный фронтенд и Vue
+## Twig, Vue и Webpack Encore
 
-Основные страницы рендерятся Twig. Общие шаблоны фронтенда и email находятся в `templates`, а специальные шаблоны bundle — внутри соответствующих bundle.
+Основные страницы рендерятся Twig. Общие templates находятся в [`templates`](../templates), bundle-specific templates: внутри соответствующих bundle.
 
-Vue 2 используется как набор интерактивных островов, а не как отдельное SPA. `webpack.config.js` определяет общие entries для front/admin и приложения корзины, индикатора корзины и редактора заказа. Webpack Encore собирает их в `public/build`; исходники находятся в `assets`.
+Webpack Encore собирает frontend из [`assets`](../assets) в `public/build`. Vue 2 используется точечно как интерактивный слой поверх серверных страниц.
 
-## Общие технические слои
+Текущая frontend-архитектура остаётся такой до отдельной миграции на Inertia.js и Vue 3.
 
-- `src/Security` содержит общие entry points, обработчики и согласование API security responses;
-- `src/Mailer` содержит базовую отправку и разрешение email assets;
-- `src/EventSubscriber` содержит общие Symfony subscribers;
-- `config/packages` настраивает Doctrine, Security, Messenger, Mailer, Twig, API Platform и остальные интеграции.
+## Конфигурация и DI
+
+[`config/services.yaml`](../config/services.yaml) включает autowiring для first-party кода и содержит явную конфигурацию сервисов, которым нужны специальные параметры или provider maps.
+
+Настройки Doctrine, Security, Messenger, Mailer, Twig и API Platform находятся в [`config/packages`](../config/packages).
 
 ## Тесты
 
-Структура `tests` отражает назначение проверок:
+| Каталог / группа | Назначение |
+|---|---|
+| `tests/Unit` | изолированные first-party правила и сервисы |
+| `tests/Integration` | Doctrine и взаимодействие нескольких сервисов |
+| `tests/Functional` | HTTP, controllers, API и security contracts |
+| `functional-panther` | browser-сценарии через Panther |
+| `tests/TestUtils` | общие test helpers и замены внешних OAuth clients |
 
-- `tests/Unit` — изолированные правила и сервисы;
-- `tests/Integration` — Doctrine и совместная работа графа сервисов;
-- `tests/Functional` — HTTP, controllers, API и security;
-- отдельные тесты с группой `functional-panther` — браузерные сценарии;
-- `tests/TestUtils` — общие fixtures и тестовые замены OAuth-клиентов.
+PHP/PHPUnit coverage считается по `src` и `tools/demo`; Panther в coverage не входит. Команды запуска собраны в [руководстве по разработке](development.md).
 
-PHPUnit считает coverage по `src` и `tools/demo`; Panther исключён из этого отчёта. Команды запуска описаны в [руководстве по разработке](development.md).
+## Docker
 
-## Docker-среда
+Docker Compose поднимает три постоянных сервиса:
 
-Compose поднимает три постоянных сервиса:
+| Сервис | Роль |
+|---|---|
+| `php` | PHP-FPM, Composer, Symfony Console и Panther runtime |
+| `nginx` | HTTP entrypoint и статические файлы |
+| `postgres` | PostgreSQL с постоянным volume |
 
-- `php` — PHP-FPM и инструменты приложения, процесс работает от `app`;
-- `nginx` — HTTP-вход и раздача статических файлов;
-- `postgres` — база данных с постоянным volume.
+`node` включён в профиль `tools` и используется для одноразовых npm-команд и сборки assets. Постоянного Messenger worker в Compose нет.
 
-Сервис `node` включён в профиль `tools` и используется для одноразовых npm-команд и сборки assets. PHP-образ также содержит Composer, Chrome for Testing и Chromedriver для Panther. Постоянного Messenger worker в Compose нет.
+Первый запуск описан в [руководстве по запуску](getting-started.md), а слои `.env*`: в [руководстве по конфигурации](configuration.md).

@@ -1,180 +1,125 @@
-# Разработка и проверки
+# Разработка
 
-Makefile — единая точка входа в локальную среду. PHP, Composer и Symfony Console выполняются в PHP-контейнере от пользователя `app`; npm запускается в одноразовом Node-контейнере. Перед работой нужны созданный `make init` файл `.env.docker` и запущенные сервисы.
+Makefile: основной интерфейс локальной разработки. PHP, Composer и Symfony Console запускаются внутри PHP-контейнера от пользователя `app`, npm: в одноразовом Node-контейнере.
 
-Полный актуальный список можно получить командой:
+Текущий список команд всегда можно посмотреть через `make help`.
 
-```bash
-make help
-```
+## Docker Compose
 
-## Контейнеры
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `make config` | Проверяет итоговую конфигурацию Compose | Ничего не запускает |
+| `make build` | Собирает PHP-образ | |
+| `make up` | Запускает `php`, `nginx` и `postgres` | |
+| `make ps` | Показывает состояние контейнеров | |
+| `make restart <service>` | Перезапускает сервис | `php`, `nginx`, `postgres` |
+| `make log <service>` | Показывает журнал сервиса | `php`, `nginx`, `postgres` |
+| `make log-all` | Показывает все журналы | |
+| `make in <service>` | Открывает shell сервиса | `php`, `nginx`, `postgres`, `node` |
+| `make down` | Останавливает окружение | PostgreSQL volume сохраняется |
 
-```bash
-make config
-make build
-make up
-make ps
-make restart php
-make restart nginx
-make restart postgres
-make down
-```
+PHP-shell открывается от `app`, поэтому штатные команды не должны создавать в рабочей копии файлы, принадлежащие `root`.
 
-- `make config` проверяет и печатает итоговую конфигурацию Docker Compose;
-- `make build` собирает PHP-образ для разработки;
-- `make up` запускает `php`, `nginx` и `postgres`;
-- `make down` останавливает проект и удаляет orphan-контейнеры, не удаляя PostgreSQL volume.
+## Symfony, Composer и npm
 
-Shell нужного сервиса открывается как `make in php`, `make in nginx`, `make in postgres` или `make in node`.
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `make console CMD=about` | Запускает Symfony Console | Любая команда передаётся через `CMD` |
+| `make composer CMD='validate --strict'` | Запускает Composer | Внутри PHP-контейнера |
+| `make composer-install` | Выполняет `composer install` | Использует `composer.lock` |
+| `make npm CMD='npm --version'` | Запускает произвольную npm-команду | В одноразовом Node-контейнере |
+| `make npm-install` | Выполняет `npm ci` | Использует `package-lock.json` |
+| `make assets-build` | Собирает production assets | Webpack Encore |
+| `make watch` | Запускает watcher frontend assets | Долгоживущая команда |
 
-## Symfony Console, Composer и npm
+Composer, npm и Symfony CLI на хосте не используются.
 
-```bash
-make console CMD=about
-make console CMD='debug:router'
-make composer CMD='validate --strict'
-make composer-install
-make npm CMD='npm --version'
-make npm-install
-```
+Для ручной обработки очереди Messenger:
 
-`make composer-install` выполняет `composer install`, а `make npm-install` — `npm ci`. Они используют lock-файлы и не заменяют операции обновления зависимостей. Не запускайте Composer, npm или Symfony CLI на хосте: их версии и расширения не являются средой проекта.
+| Команда | Что делает |
+|---|---|
+| `make console CMD='messenger:consume async -vv'` | Запускает worker транспорта `async` |
 
-Для ручной обработки очереди Messenger используется тот же путь:
-
-```bash
-make console CMD='messenger:consume async -vv'
-```
-
-Compose не содержит постоянно работающего worker.
-
-## Ресурсы фронтенда
-
-```bash
-make assets-build
-make watch
-```
-
-`make assets-build` запускает production-сборку Webpack Encore в одноразовом Node-контейнере. `make watch` оставляет наблюдение за изменениями активным. Текущий фронтенд состоит из Vue 2-компонентов, подключённых как отдельные точки входа Encore, и серверных Twig-страниц.
+Постоянного Messenger worker в Docker Compose нет.
 
 ## Проверки качества
 
-```bash
-make check
-make eslint-check
-make php-cs-fixer-check
-make phpstan-check
-```
+| Команда | Что делает | Изменяет файлы |
+|---|---|---|
+| `make check` | ESLint + PHP-CS-Fixer check + PHPStan | нет |
+| `make eslint-check` | Проверяет JS/Vue через ESLint | нет |
+| `make php-cs-fixer-check` | Проверяет форматирование `src/` и `tools/demo/` | нет |
+| `make phpstan-check` | Запускает PHPStan для `src` и `tools/demo` | нет |
+| `make eslint-fix` | Исправляет ESLint findings | да |
+| `make php-cs-fixer` | Исправляет форматирование PHP | да |
 
-`make check` последовательно объединяет:
+`make check` не запускает PHPUnit. Тесты выполняются отдельными целями.
 
-1. ESLint без записи файлов;
-2. PHP-CS-Fixer в режиме `--dry-run` для `src/` и `tools/demo/`;
-3. PHPStan уровня 4 для `src` и `tools/demo`.
+## Тесты
 
-Тесты в `make check` не входят. Исправляющие цели существуют отдельно:
+| Команда | Что проверяет | Примечание |
+|---|---|---|
+| `make test-groups` | Показывает группы PHPUnit | |
+| `make test-list` | Показывает список тестов | |
+| `make test-unit` | Изолированную прикладную логику | группа `unit` |
+| `make test-integration` | Doctrine и совместную работу сервисов | группа `integration` |
+| `make test-functional` | HTTP, controllers, API и security | группа `functional` |
+| `make test-functional-panther` | Реальные browser-сценарии | группа `functional-panther` |
+| `make test-all-core CONFIRM=testdb` | Assets + unit + integration + functional | Пересоздаёт тестовую SQLite-базу |
+| `make test-all CONFIRM=testdb` | Полный набор, включая Panther | Пересоздаёт тестовую SQLite-базу |
 
-```bash
-make eslint-fix
-make php-cs-fixer
-```
+`CONFIRM=testdb` нужен специально: агрегированные сценарии удаляют и заново создают `var/db_for_test.db`.
 
-Они изменяют файлы, поэтому перед запуском следует проверить рабочее дерево.
-
-## PHPUnit
-
-Список групп и тестов:
-
-```bash
-make test-groups
-make test-list
-```
-
-Отдельные слои:
-
-```bash
-make test-unit
-make test-integration
-make test-functional
-make test-functional-panther
-```
-
-- `unit` проверяет изолированную прикладную логику;
-- `integration` проверяет взаимодействие сервисов и Doctrine;
-- `functional` проверяет HTTP, контроллеры, API и контракты безопасности;
-- `functional-panther` запускает реальные браузерные сценарии через Panther.
-
-Chrome for Testing и Chromedriver уже находятся в PHP-образе. Локальные Chrome, Java, Selenium Server и дополнительные WebDriver не нужны.
-
-## Агрегированные тесты
-
-```bash
-make test-all-core CONFIRM=testdb
-make test-all CONFIRM=testdb
-```
-
-`make test-all-core`:
-
-1. собирает ресурсы фронтенда;
-2. запускает unit-тесты;
-3. пересоздаёт SQLite-базу `var/db_for_test.db` и загружает тестовые данные;
-4. запускает integration- и functional-тесты.
-
-`make test-all` выполняет тот же основной набор и затем `functional-panther`. Значение `CONFIRM=testdb` обязательно, потому что агрегированный сценарий удаляет и создаёт заново тестовую базу.
+Panther использует Chrome for Testing и Chromedriver из PHP-образа. Selenium Server, GeckoDriver, Java и локальный браузер для текущего тестового контракта не нужны.
 
 ## Coverage
 
-```bash
-make coverage CONFIRM=testdb
-make coverage-html CONFIRM=testdb
-```
+| Команда | Результат | Примечание |
+|---|---|---|
+| `make coverage CONFIRM=testdb` | Статистика в терминале | `src` + `tools/demo`, без Panther |
+| `make coverage-html CONFIRM=testdb` | Терминал + HTML + Clover | `var/coverage/html`, `var/coverage/clover.xml` |
 
-Обе цели используют основной PHPUnit-набор без группы `functional-panther`, предварительно собирают ресурсы фронтенда и пересоздают тестовую БД. Источники coverage — PHP-код в `src` и `tools/demo`; браузерные Panther-тесты в PHP/PHPUnit coverage не входят.
+Обе команды используют один и тот же PHP/PHPUnit scope и предварительно пересоздают тестовую базу. Panther не входит в этот coverage.
 
-- `make coverage` печатает только терминальную статистику;
-- `make coverage-html` печатает ту же сводку и создаёт `var/coverage/html` и `var/coverage/clover.xml`.
-
-Coverage служит инженерной диагностикой: он помогает находить непроверенные ветви, но не является KPI или публичным доказательством качества. Публичный badge и интеграция Codecov в проекте не используются.
+Coverage используется как диагностический инструмент для поиска непроверенных участков. Публичного coverage/Codecov badge у проекта нет.
 
 ## База данных и demo-данные
 
-```bash
-make migrate
-make demo-init
-make test-db-reset CONFIRM=testdb
-make postgres-reinit CONFIRM=postgres18
-```
+| Команда | Что делает | Риск |
+|---|---|---|
+| `make migrate` | Применяет Doctrine migrations | штатная операция |
+| `make demo-init` | Инициализирует demo catalog/accounts/orders | заменяет существующие заказы |
+| `make test-db-reset CONFIRM=testdb` | Пересоздаёт `var/db_for_test.db` | удаляет тестовую SQLite-базу |
+| `make postgres-reinit CONFIRM=postgres18` | Пересоздаёт локальный PostgreSQL volume | удаляет локальные PostgreSQL данные |
 
-- `make migrate` применяет Doctrine migrations к текущей базе;
-- `make demo-init` работает только в `dev` и `test`, обновляет демонстрационный каталог и полностью пересоздаёт заказы;
-- `make test-db-reset` удаляет тестовую SQLite-базу, создаёт схему и загружает тестовые данные;
-- `make postgres-reinit` останавливает контейнеры и удаляет локальный volume PostgreSQL проекта.
-
-Последние две операции защищены разными точными подтверждениями. `make postgres-reinit` уничтожает локальные данные PostgreSQL; используйте его только когда это действительно требуется.
-
-## Журналы и диагностика
-
-```bash
-make log php
-make log nginx
-make log postgres
-make log-all
-make ps
-make console CMD=about
-```
-
-Цели `log` и `log-all` непрерывно следят за журналами. Для изменения настройки среды из `.env.docker` пересоздайте контейнеры; обычное изменение `.env` или `.env.local` обычно подхватывается Symfony без этого.
+`make demo-init` предназначен для воспроизводимой `dev`/`test` среды. Если локальная база содержит нужные заказы, эту команду запускать нельзя.
 
 ## GitHub Actions
 
-Workflow `Docker Baseline CI` запускается для push и pull request в `master`. Он:
+Workflow [`Docker Baseline CI`](../.github/workflows/basic.yml) запускается для push и pull request в `master`.
 
-- загружает Git LFS и проверяет Chrome ZIP;
-- создаёт `.env.docker`, проверяет конфигурацию Compose, собирает и запускает контейнеры;
-- устанавливает зафиксированные PHP- и npm-зависимости и собирает ресурсы фронтенда;
-- выполняет ESLint, unit-, integration-, functional- и Panther-тесты;
-- выполняет PHPStan;
-- останавливает контейнеры на завершающем шаге.
+Он:
 
-CI не запускает PHP-CS-Fixer check и coverage, поэтому не является точным эквивалентом `make check` или всей локальной цепочки. Локально выбирайте проверки по характеру изменения.
+1. загружает Git LFS и проверяет Chrome archive;
+2. создаёт `.env.docker`;
+3. проверяет Compose, собирает и запускает Docker-окружение;
+4. устанавливает зависимости и собирает frontend assets;
+5. запускает ESLint;
+6. выполняет unit-, integration-, functional- и Panther-тесты;
+7. запускает PHPStan;
+8. останавливает контейнеры.
+
+CI не запускает PHP-CS-Fixer check и coverage, поэтому не является полным эквивалентом локального `make check` плюс тестовый набор.
+
+## Журналы и диагностика
+
+| Команда | Что показывает |
+|---|---|
+| `make ps` | Состояние контейнеров |
+| `make log php` | Журнал PHP |
+| `make log nginx` | Журнал Nginx |
+| `make log postgres` | Журнал PostgreSQL |
+| `make log-all` | Все журналы проекта |
+| `make console CMD=about` | Состояние Symfony-приложения |
+
+Для первого запуска и Git LFS см. [руководство по запуску](getting-started.md). Правила `.env*` и локальных секретов собраны в [руководстве по конфигурации](configuration.md).

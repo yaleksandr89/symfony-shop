@@ -1,110 +1,96 @@
 # Запуск проекта
 
-Это руководство проводит от чистого клонирования до воспроизводимой локальной среды. Приложение и все его инструменты работают в Docker; устанавливать PHP, Composer, Symfony CLI, PostgreSQL, Node.js или Java на хост не нужно.
+Основной сценарий разработки полностью работает через Docker Compose. На хосте не нужны PHP, Composer, Node.js, PostgreSQL, Java или браузерное окружение для Panther.
 
-## Что установить на хост
+## Требования
+
+Для первого запуска понадобятся:
 
 - Git;
 - Git LFS;
 - Make;
-- Docker CLI и работающий Docker Engine с Compose.
+- Docker с поддержкой Compose.
 
-Проверять версии этих инструментов отдельно обычно не требуется: достаточно, чтобы выполнялись `git lfs version`, `make --version` и `docker compose version`.
+## Первый запуск
 
-## Клонирование и Git LFS
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `git clone https://github.com/yaleksandr89/symfony-shop.git` | Клонирует репозиторий | |
+| `cd symfony-shop` | Переходит в каталог проекта | |
+| `git lfs install` | Подключает Git LFS | Обычно выполняется один раз для пользователя |
+| `git lfs pull` | Загружает Chrome for Testing | Выполните до `make build` |
+| `make init` | Создаёт `.env.docker` и локальные каталоги | Использует `.env.docker.example` и UID/GID пользователя хоста |
+| `make build` | Собирает PHP-образ | |
+| `make up` | Запускает `php`, `nginx` и `postgres` | |
+| `make composer-install` | Устанавливает PHP-зависимости | Использует `composer.lock` |
+| `make npm-install` | Устанавливает frontend-зависимости | Использует `package-lock.json` |
+| `make assets-build` | Собирает frontend assets | |
+| `make migrate` | Применяет Doctrine migrations | |
+| `make demo-init` | Инициализирует демонстрационные данные | Только для локальных `dev`/`test` данных |
 
-```bash
-git clone https://github.com/yaleksandr89/symfony-shop.git
-cd symfony-shop
-git lfs install
-git lfs pull
-```
+При стандартной конфигурации приложение доступно по адресу [http://localhost:8080](http://localhost:8080). Порт можно изменить через `APP_PORT` в `.env.docker`.
 
-Git LFS хранит архив Chrome for Testing `bin/chrome-linux64-150.0.7871.46.zip`. Docker-сборка копирует этот архив в PHP-образ; отдельный `bin/drivers/chromedriver` является обычным Git-файлом и тоже используется Panther.
+> [!WARNING]
+> `make demo-init` пересоздаёт демонстрационные заказы. Используйте эту команду только для базы, данные которой можно заменить.
 
-До сборки проверьте материализованный архив:
+## Git LFS и Chrome for Testing
 
-```bash
-git lfs ls-files
-wc -c bin/chrome-linux64-150.0.7871.46.zip
-sha256sum bin/chrome-linux64-150.0.7871.46.zip
-unzip -tq bin/chrome-linux64-150.0.7871.46.zip
-```
+Panther использует Chrome for Testing, который входит в PHP-образ. Архив браузера хранится через Git LFS, а Chromedriver: обычным Git-файлом.
 
-Ожидаемые признаки:
+| Артефакт | Путь | Хранение |
+|---|---|---|
+| Chrome for Testing | `bin/chrome-linux64-150.0.7871.46.zip` | Git LFS |
+| Chromedriver | `bin/drivers/chromedriver` | обычный Git |
 
-- `git lfs ls-files` показывает `bin/chrome-linux64-150.0.7871.46.zip`;
-- размер равен `186933179` байтам;
-- SHA-256 равен `ad115a7498a17f53f6ed0914458326c6516addc756224db14c32184a9b1ab078`;
-- проверка ZIP завершается без ошибки.
+Для текущего Chrome archive подтверждены:
 
-Файл размером около сотни байт вместо 186933179 байт — это, скорее всего, LFS-указатель, а не ZIP. Повторите `git lfs pull` и проверьте файл снова. Git LFS — единственный поддерживаемый путь получения этого исторического артефакта; ручная загрузка Chrome намеренно не документируется, пока источник и полный сценарий не будут независимо проверены.
+| Проверка | Ожидаемое значение |
+|---|---|
+| Размер | `186933179` байт |
+| SHA-256 | `ad115a7498a17f53f6ed0914458326c6516addc756224db14c32184a9b1ab078` |
+
+Проверить рабочую копию можно так:
+
+| Команда | Что проверяет |
+|---|---|
+| `git lfs ls-files` | Chrome archive зарегистрирован в Git LFS |
+| `wc -c bin/chrome-linux64-150.0.7871.46.zip` | Размер файла |
+| `sha256sum bin/chrome-linux64-150.0.7871.46.zip` | SHA-256 |
+| `unzip -tq bin/chrome-linux64-150.0.7871.46.zip` | Целостность ZIP |
+
+Если файл имеет размер около сотни байт и начинается со строки `version https://git-lfs.github.com/spec/v1`, в рабочей копии остался LFS pointer. Выполните `git lfs pull` и повторите проверку.
+
+Ручная загрузка Chrome пока не описывается как поддерживаемый fallback: для неё отдельно должны быть подтверждены официальный URL именно этого зафиксированного артефакта и полный smoke-сценарий. Рекомендуемый путь проекта: Git LFS.
 
 ## Локальная конфигурация
 
-```bash
-make init
-```
+`make init` создаёт `.env.docker` из `.env.docker.example`, подставляет текущие `HOST_UID` и `HOST_GID` и создаёт каталоги `var/cache`, `var/log` и `public/uploads`.
 
-Команда создаёт игнорируемый `.env.docker` из `.env.docker.example`, подставляет текущие UID/GID и создаёт локальные каталоги для кеша, журналов и загрузок. Если файл уже существует, `make init` не перезаписывает его.
+Если `.env.docker` уже существует, команда его не перезаписывает. Локальные секреты приложения и OAuth credentials храните не в `.env.docker`, а в `.env.local`. Подробно слои окружения описаны в [руководстве по конфигурации](configuration.md).
 
-При необходимости измените `.env.docker` до запуска контейнеров. По умолчанию приложение использует `APP_PORT=8080`, а PostgreSQL доступен хосту только на `127.0.0.1:5433`. Секреты приложения и OAuth не следует добавлять в `.env.docker`; их место описано в [руководстве по конфигурации](configuration.md).
+## Управление Docker
 
-## Сборка и запуск
+| Команда | Что делает | Примечание |
+|---|---|---|
+| `make ps` | Показывает контейнеры проекта | |
+| `make restart php` | Перезапускает PHP | Также доступны `nginx` и `postgres` |
+| `make log php` | Показывает журнал PHP в реальном времени | Также доступны `nginx` и `postgres` |
+| `make log-all` | Показывает журналы всех сервисов | |
+| `make in php` | Открывает shell PHP-контейнера | Пользователь `app` |
+| `make in node` | Открывает одноразовый Node-контейнер | Профиль `tools` |
+| `make down` | Останавливает окружение | PostgreSQL volume сохраняется |
 
-```bash
-make build
-make up
-make composer-install
-make npm-install
-make assets-build
-make migrate
-make demo-init
-```
-
-Последовательность делает следующее:
-
-1. собирает PHP-образ с Composer, Chrome и расширениями;
-2. запускает PHP-FPM, Nginx и PostgreSQL;
-3. устанавливает зафиксированные зависимости из `composer.lock` и `package-lock.json`;
-4. собирает ресурсы фронтенда;
-5. применяет Doctrine migrations;
-6. создаёт воспроизводимые демонстрационные данные для окружения `dev`.
-
-`make demo-init` предназначен только для `dev` и `test`. Он обновляет демонстрационные учётные записи, категории, товары и изображения, а также удаляет все существующие заказы перед созданием демонстрационных. Не запускайте его в локальной базе с нужными вам заказами. Команда выводит демонстрационные учётные данные после завершения; документация не фиксирует их, потому что источником остаётся текущий демонстрационный каталог.
-
-При стандартной настройке приложение доступно по адресу <http://localhost:8080>. Если изменён `APP_PORT`, используйте соответствующий порт. Корневой URL перенаправляет на локализованную русскую страницу.
-
-## Управление средой
-
-```bash
-make ps
-make restart php
-make restart nginx
-make restart postgres
-make log php
-make log nginx
-make log postgres
-make log-all
-make down
-```
-
-`make down` останавливает контейнеры и удаляет orphan-контейнеры, но сохраняет volume PostgreSQL. Для повторного запуска достаточно `make up`. Интерактивный shell открывается командами `make in php`, `make in nginx`, `make in postgres` или `make in node`; PHP-shell работает от пользователя `app`.
+После изменения `.env.docker` контейнеры нужно пересоздать через `make down` и `make up`. Изменения `.env` и `.env.local` обычно не требуют пересоздания контейнеров.
 
 ## Первичная диагностика
 
-Безопасные проверки перед поиском более сложной причины:
+| Команда | Что проверяет |
+|---|---|
+| `make check-env` | Наличие `.env.docker` |
+| `make config` | Итоговую конфигурацию Docker Compose |
+| `make ps` | Состояние контейнеров |
+| `make console CMD=about` | Запуск Symfony Console внутри PHP-контейнера |
 
-```bash
-make check-env
-make config
-make ps
-make console CMD=about
-```
+Если Docker build падает на распаковке Chrome archive, сначала проверьте Git LFS и ZIP командами из раздела выше.
 
-- ошибка `Missing .env.docker` устраняется командой `make init`;
-- ошибка Docker build о ZIP обычно означает, что Git LFS не материализовал архив или архив повреждён;
-- после изменения `.env.docker` пересоздайте контейнеры командами `make down` и `make up`;
-- после изменения только `.env` или `.env.local` пересоздание контейнеров обычно не требуется.
-
-Команды разработки и тестирования перечислены в [руководстве по разработке](development.md).
+Ежедневные команды разработки, тесты, coverage и CI описаны в [руководстве по разработке](development.md).
