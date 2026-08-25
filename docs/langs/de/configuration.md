@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/configuration.md) | [English](../ru/configuration.md) | [Español](../ru/configuration.md) | [中文](../ru/configuration.md) | [Français](../ru/configuration.md) | **Deutsch** |
+| [Русский](../ru/configuration.md) | [English](../en/configuration.md) | [Español](../es/configuration.md) | [中文](../zh/configuration.md) | [Français](../fr/configuration.md) | **Deutsch** |
 
 
 Das Projekt trennt gemeinsame Symfony-Einstellungen, Docker-Parameter, lokale Secrets und Test-Overrides. Wichtig: Werte, die Docker Compose in den PHP-Container übergibt, haben eine höhere Priorität als Werte aus Symfony-Dotenv-Dateien.

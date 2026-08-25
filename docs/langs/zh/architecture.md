@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/architecture.md) | [English](../ru/architecture.md) | [Español](../ru/architecture.md) | **中文** | [Français](../ru/architecture.md) | [Deutsch](../ru/architecture.md) |
+| [Русский](../ru/architecture.md) | [English](../en/architecture.md) | [Español](../es/architecture.md) | **中文** | [Français](../fr/architecture.md) | [Deutsch](../de/architecture.md) |
 
 
 Symfony Shop 是一个单体 Symfony 应用，包含服务器渲染页面、管理后台和 API。代码按应用领域组织，路由集中在 YAML 文件中，因此无需启动应用，也能从 URL 找到对应 controller 或 API resource。

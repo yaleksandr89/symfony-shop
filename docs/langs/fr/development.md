@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/development.md) | [English](../ru/development.md) | [Español](../ru/development.md) | [中文](../ru/development.md) | **Français** | [Deutsch](../ru/development.md) |
+| [Русский](../ru/development.md) | [English](../en/development.md) | [Español](../es/development.md) | [中文](../zh/development.md) | **Français** | [Deutsch](../de/development.md) |
 
 
 Le Makefile est l’interface principale du développement local. PHP, Composer et Symfony Console s’exécutent dans le conteneur PHP sous l’utilisateur `app` ; npm s’exécute dans un conteneur Node éphémère.

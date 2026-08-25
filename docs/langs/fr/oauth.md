@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/oauth.md) | [English](../ru/oauth.md) | [Español](../ru/oauth.md) | [中文](../ru/oauth.md) | **Français** | [Deutsch](../ru/oauth.md) |
+| [Русский](../ru/oauth.md) | [English](../en/oauth.md) | [Español](../es/oauth.md) | [中文](../zh/oauth.md) | **Français** | [Deutsch](../de/oauth.md) |
 
 
 Symfony Shop utilise OAuth pour la connexion et l’inscription via un service externe, ainsi que pour l’association explicite d’un tel compte à un utilisateur local existant. Ces scénarios sont séparés : une adresse email identique ne constitue pas à elle seule une preuve de propriété du compte local.

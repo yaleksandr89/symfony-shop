@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/development.md) | [English](../ru/development.md) | [Español](../ru/development.md) | [中文](../ru/development.md) | [Français](../ru/development.md) | **Deutsch** |
+| [Русский](../ru/development.md) | [English](../en/development.md) | [Español](../es/development.md) | [中文](../zh/development.md) | [Français](../fr/development.md) | **Deutsch** |
 
 
 Das Makefile ist die zentrale Schnittstelle für lokale Entwicklung. PHP, Composer und Symfony Console laufen im PHP-Container als Benutzer `app`; npm läuft in einem kurzlebigen Node-Container.

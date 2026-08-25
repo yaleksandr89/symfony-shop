@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/getting-started.md) | [English](../ru/getting-started.md) | [Español](../ru/getting-started.md) | [中文](../ru/getting-started.md) | **Français** | [Deutsch](../ru/getting-started.md) |
+| [Русский](../ru/getting-started.md) | [English](../en/getting-started.md) | [Español](../es/getting-started.md) | [中文](../zh/getting-started.md) | **Français** | [Deutsch](../de/getting-started.md) |
 
 
 Le workflow local pris en charge utilise Docker Compose. Il n’est pas nécessaire d’installer sur l’hôte PHP, Composer, Node.js, PostgreSQL ni l’environnement navigateur utilisé par Panther.

@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/configuration.md) | **English** | [Español](../ru/configuration.md) | [中文](../ru/configuration.md) | [Français](../ru/configuration.md) | [Deutsch](../ru/configuration.md) |
+| [Русский](../ru/configuration.md) | **English** | [Español](../es/configuration.md) | [中文](../zh/configuration.md) | [Français](../fr/configuration.md) | [Deutsch](../de/configuration.md) |
 
 
 The project keeps Symfony defaults, Docker parameters, local secrets, and test overrides in separate layers. An important detail is that values passed into the PHP container by Docker Compose have higher priority than values loaded from Symfony Dotenv files.

@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/oauth.md) | **English** | [Español](../ru/oauth.md) | [中文](../ru/oauth.md) | [Français](../ru/oauth.md) | [Deutsch](../ru/oauth.md) |
+| [Русский](../ru/oauth.md) | **English** | [Español](../es/oauth.md) | [中文](../zh/oauth.md) | [Français](../fr/oauth.md) | [Deutsch](../de/oauth.md) |
 
 
 Symfony Shop uses OAuth for login and registration through external services and for explicitly linking an external account to an existing local user. These flows are separate: a matching email address alone is not considered proof of ownership of a local account.

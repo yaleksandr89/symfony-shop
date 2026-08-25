@@ -4,7 +4,7 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| [Русский](../ru/getting-started.md) | **English** | [Español](../ru/getting-started.md) | [中文](../ru/getting-started.md) | [Français](../ru/getting-started.md) | [Deutsch](../ru/getting-started.md) |
+| [Русский](../ru/getting-started.md) | **English** | [Español](../es/getting-started.md) | [中文](../zh/getting-started.md) | [Français](../fr/getting-started.md) | [Deutsch](../de/getting-started.md) |
 
 
 The supported local development workflow uses Docker Compose. PHP, Composer, Node.js, PostgreSQL, and the browser environment required by Panther do not need to be installed on the host.
