@@ -1,5 +1,11 @@
 # Вклад в Symfony Shop
 
+## Выберите язык
+
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| **Русский** | [English](../docs/contributing/CONTRIBUTING_en.md) | [Español](../docs/contributing/CONTRIBUTING_es.md) | [中文](../docs/contributing/CONTRIBUTING_zh.md) | [Français](../docs/contributing/CONTRIBUTING_fr.md) | [Deutsch](../docs/contributing/CONTRIBUTING_de.md) |
+
 Спасибо за интерес к Symfony Shop. Это учебный интернет-магазин на Symfony с Docker-окружением, PostgreSQL, API Platform, OAuth и отдельными интерактивными компонентами на Vue.
 
 ## Перед началом

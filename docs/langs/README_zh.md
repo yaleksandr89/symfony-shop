@@ -1,168 +1,189 @@
-# 基于 Symfony 的在线商店
+# Symfony Shop
 
-> [访问网站](https://s-shop.alexanderyurchenko.ru/ "访问网站")
+[![Source Code](https://img.shields.io/badge/source-yaleksandr89%2Fsymfony--shop-blue.svg?style=flat-square)](https://github.com/yaleksandr89/symfony-shop)
+[![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
+[![PHP](https://img.shields.io/badge/PHP-8.5-777BB4.svg?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![Symfony](https://img.shields.io/badge/Symfony-8.1-000000.svg?style=flat-square&logo=symfony&logoColor=white)](https://symfony.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.4-4169E1.svg?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../LICENSE.md)
+
+<p align="center">
+  <img
+    src="../img/symfony-shop-readme-cover.png"
+    alt="Symfony Shop — 基于 Symfony、Docker 和 PostgreSQL 的在线商店"
+    width="100%"
+  >
+</p>
 
 ## 选择语言
 
-| Русский  | English                              | Español                              | 中文                              | Français                              | Deutsch                              |
-|----------|--------------------------------------|--------------------------------------|---------------------------------|---------------------------------------|--------------------------------------|
-| [Русский](../../README.md) | [English](./README_en.md) | [Español](./README_es.md) | 已选择 | [Français](./README_fr.md) | [Deutsch](./README_de.md) |
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| [Русский](../../README.md) | [English](README_en.md) | [Español](README_es.md) | **已选择** | [Français](README_fr.md) | [Deutsch](README_de.md) |
 
-## 使用技术
+Symfony Shop 是一个基于 Symfony 的教学型在线商店项目。项目包含商品目录、购物车与结账、用户账户、管理后台、API 以及 OAuth 登录。大部分页面由 Twig 渲染，Vue 2 仅用于部分交互式界面元素。
 
-* Nginx 1.26.1
-* PHP 8.3.9
-* Composer 2.7.7
-* PostgreSQL 16.3
-* npm 10.8.2
+受支持的本地开发环境基于 Docker Compose。PHP、Composer、Node.js、PostgreSQL 和 Chrome for Testing 在容器中运行或安装到 Docker 镜像中，主要操作统一通过 Makefile 提供。项目不支持将 PHP、Composer 和 PostgreSQL 直接安装在宿主机上的运行方式，CI 也不会验证这种场景。
 
-## 关于项目
+## 功能
 
-该项目使用 **Symfony v6.4.9** 实现了一个在线商店。部分功能使用 **Vue 2.6** 实现，用于购物车和管理面板。
+- 带图片、新品和折扣的分类与商品目录；
+- 带可用性检查的购物车和订单结账；
+- 注册、登录、邮箱验证和密码重置；
+- 用户账户；
+- 通过 Google、Yandex、VKontakte、GitHub、Facebook 和 LinkedIn 使用 OAuth；
+- OAuth 登录、外部账户绑定和解绑使用独立流程；
+- 用户、分类、商品和订单管理；
+- 基于 API Platform 的 API；
+- 单元、集成、功能和浏览器测试；
+- GitHub Actions CI 使用与本地开发相同的 Docker 环境。
 
-### 主要功能
+## 快速开始
 
-* 语言切换
-* 控制台命令：
-    * `php bin/console app:add-user` - 创建用户
-    * `php bin/console app:update-slug-product` - 更新产品 slug
+宿主机需要 Git、Make 和支持 Compose 的 Docker。正常克隆仓库时推荐使用 Git LFS；大型浏览器归档也可以在不安装 Git LFS 的情况下获取。
 
-### 前端
+> [!NOTE]
+> Make 是 Unix 类系统中的常用命令行工具。在 Linux 和 macOS 上可以直接从终端运行项目。在 Windows 上推荐使用 WSL2 配合 Docker Desktop。
 
-* 访客注册；
-* 个人账户；
-* 密码恢复；
-* 通过电子邮件通知进行订单处理；
-* 用户可以使用 Yandex、Google、GitHub 或 VKontakte 登录或注册。
+| 命令 | 作用 | 说明 |
+|---|---|---|
+| `git clone https://github.com/yaleksandr89/symfony-shop.git` | 克隆仓库 | |
+| `cd symfony-shop` | 进入项目目录 | |
+| `git lfs install` | 启用 Git LFS | 仅 Git LFS 场景需要 |
+| `git lfs pull` | 下载 Chrome for Testing | 在 `make build` 之前执行 |
+| `make init` | 创建 `.env.docker` 和本地目录 | 不覆盖已有 `.env.docker` |
+| `make build` | 构建 PHP 镜像 | 镜像内含 Panther 所需的 Chrome 和 Chromedriver |
+| `make up` | 启动 PHP-FPM、Nginx 和 PostgreSQL | |
+| `make composer-install` | 从 `composer.lock` 安装 PHP 依赖 | 宿主机无需 Composer |
+| `make npm-install` | 从 `package-lock.json` 安装依赖 | 宿主机无需 Node.js |
+| `make assets-build` | 构建前端资源 | |
+| `make migrate` | 应用 Doctrine migrations | |
+| `make demo-init` | 创建演示数据 | 仅用于本地 `dev`/`test` 环境 |
 
-### 管理部分
+启动后，应用默认可通过 [http://localhost:8080](http://localhost:8080) 访问。
 
-* 订单和用户管理；
-* 创建分类；
-* 创建产品；
-* 创建订单。
+> [!IMPORTANT]
+> 项目固定使用 Chrome for Testing `150.0.7871.46`。推荐通过 `git lfs pull` 获取归档。从 `v3.0.0` 开始，可以从 [Releases](https://github.com/yaleksandr89/symfony-shop/releases) 下载已经包含 Chrome for Testing 的项目 ZIP，因此这种方式不需要 Git LFS。固定版本也可以直接从官方来源下载。精确链接、文件名和 SHA-256 见[启动指南](../getting-started.md#git-lfs-и-chrome-for-testing)。
 
-## 项目安装
+> [!IMPORTANT]
+> `.env.docker` 中的值会作为进程环境变量传入 PHP 容器。如果同一个键同时存在于 `.env.docker` 和 `.env.local`，则 `.env.docker` 的值优先。完整优先级规则见[配置指南](../configuration.md#приоритет-переменных)。
 
-1. 克隆仓库：`git clone git@github.com:yaleksandr89/symfony-shop.git`。
-2. 重命名 `.env-example` 为 `.env`：
-    * 配置 `ADMIN_EMAIL` / `MAILER_DSN`，否则密码恢复功能和用户注册流程将无法完成。
-    * 配置 `OAUTH_GOOGLE_ID` / `OAUTH_GOOGLE_SECRET` - 否则 Google 登录将无法使用。
-    * 配置 `OAUTH_YANDEX_CLIENT_ID` / `OAUTH_YANDEX_CLIENT_SECRET` - 否则 Yandex 登录将无法使用。
-    * 配置 `OAUTH_VK_CLIENT_ID` / `OAUTH_VK_CLIENT_SECRET` - 否则 VKontakte 登录将无法使用。
-    * 配置 `OAUTH_GITHUB_EN_CLIENT_ID` / `OAUTH_GITHUB_SECRET` - 否则 GitHub 登录将无法使用（语言：en）。
-    * 配置 `OAUTH_GITHUB_RUS_CLIENT_ID` / `OAUTH_GITHUB_RUS_CLIENT_SECRET` - 否则 GitHub 登录将无法使用（语言：ru）。
-    * 配置 `SITE_BASE_HOST` / `SITE_BASE_SCHEME` - 否则注册、密码恢复和电子邮件中的链接将生成错误的链接。
-    * 配置 `APP_TIMEZONE` - 指定项目使用的时区。默认值为 `APP_TIMEZONE=Europe/Moscow`，如果您希望使用 `php.ini` 中指定的时区，请将该变量留空。
-3. 执行：`composer i && npm i && npm run build`。
-4. 创建数据库：`php bin/console doctrine:database:create` 或 `symfony doctrine:database:create`（如果安装了 symfony cli）。
-    * 项目使用 `uuid_generate_v4`（PostgreSQL 数据库），所以在迁移之前，连接到数据库并执行：
-        * 连接到所选数据库 (`\c 创建的数据库名`)。
-        * `CREATE EXTENSION "uuid-ossp";`。
-        * 为了检查，可以执行 `SELECT uuid_generate_v4();` - 如果生成了 uuid，则可以开始迁移。
-5. 执行迁移：`php bin/console doctrine:migrations:migrate` 或 `symfony doctrine:migrations:migrate`（如果安装了 symfony cli）。
-6. 执行：`php bin/console assets:install` 或 `symfony console assets:install`（如果安装了 symfony cli）。
-7. 之后，网站前端部分应该可以运行，但要访问管理后台，需要创建一个用户。这可以通过以下命令完成：
-    * `php bin/console app:add-user` 或 `symfony console app:add-user`（如果安装了 symfony cli）。
-    * 输入电子邮件。
-    * 输入密码（输入时不会显示）。
-    * 输入角色，对于管理员可以输入 `ROLE_SUPER_ADMIN`（可用角色：`ROLE_SUPER_ADMIN`，`ROLE_ADMIN`，`ROLE_USER`）。
+> [!WARNING]
+> `make demo-init` 会重新创建演示订单。不要在包含需要保留数据的本地数据库上运行它。
 
-## Messenger 配置
+完整的首次启动流程、获取 Chrome for Testing 的三种方式以及容器管理命令见[启动指南](../getting-started.md)。
 
-为了发送某些邮件（密码恢复、账户确认），使用了 [Symfony Messenger](https://symfony.com/doc/current/components/messenger.html "Symfony Messenger")，因此需要在终端执行命令 `symfony console messenger:consume async -vv`。在测试阶段，手动执行该命令是合适的，但在所有功能验证后，建议：
+## 邮件与消息队列
 
-* 将命令挂在 `cron` 上
-* 配置 `supervisor`
+默认值为 `MAILER_DSN=null://null`，因此应用不会通过外部 SMTP 服务发送邮件。在 HTTP 请求中同步发送的邮件可以在 Symfony Profiler 的 Mailer 面板中查看。
 
-在 `/etc/supervisor/conf.d/messenger-worker.conf` 中放置以下配置示例：
+注册和密码重置使用 Messenger 的 `async` transport。队列路由已经配置，但 Docker Compose 目前不会启动常驻 worker，因此这些消息只有在手动运行以下命令后才会处理：
 
-```
-;/etc/supervisor/conf.d/messenger-worker.conf
-[program:messenger-consume]
-command=php /path/to/your/app/bin/console messenger:consume async --time-limit=3600
-user=ubuntu
-numprocs=2
-startsecs=0
-autostart=true
-autorestart=true
-process_name=%(program_name)s_%(process_num)02d
+```text
+make console CMD='messenger:consume async -vv'
 ```
 
-* `command=` - 在 `php` 之后指定控制台路径和要添加的命令
-* `user=` - 指定当前用户
-* `numprocs=` - 将创建的进程数
+transport、邮件和本地 secret 的配置见[配置指南](../configuration.md#почта-и-messenger)。
 
-其他选项可以保持不变。[官方示例配置](https://symfony.com/doc/6.4/messenger.html#supervisor-configuration)。
+## OAuth
 
-### 测试
+OAuth 登录与把外部账户绑定到已有用户是两个不同的操作。Provider 返回相同 email 并不足以自动把外部身份绑定到已有本地账户。
 
-项目包含了各种类型的测试（按组划分 `#[Group(name: '{name}')]`）：
+绑定账户时，用户先通过普通方式登录，确认当前密码，然后从账户页面明确启动 OAuth 流程。解绑同样受当前密码和 CSRF token 保护。
 
-* 单元测试
-* 集成测试
-* 功能测试
-* 功能测试-潘多拉
-* 功能测试-Selenium
+支持的 provider、环境变量、路由和安全规则见 [OAuth 指南](../oauth.md)。本地配置和 secret 的通用规则见[配置指南](../configuration.md)。
 
-组 1 到 3 的测试应该没有问题 `php ./vendor/bin/phpunit --testdox --group unit --group integration --group functional`。对于最后两个组，测试过程中可能会因为缺少 [chromedriver](../../bin/drivers/chromedriver) - Chrome 驱动程序或 [geckodriver](../../bin/drivers/geckodriver) - Firefox 驱动程序而出现问题。
+## 项目结构
 
-![chromedriver-not-found](../img/chromedriver-not-found.png)
-
-![selenium-server-not-work](../img/selenium-server-not-work.png)
-
-这些错误很容易修复，只需下载驱动程序：https://chromedriver.chromium.org/downloads（根据 Chrome 版本选择）。您也可以尝试使用我在项目中的 **bin/drivers/** 目录中放置的驱动程序，但如果驱动程序版本与安装的浏览器版本不同，可能会出现错误。
-在系统中（Linux）全局安装驱动程序的方法：https://bangladroid.wordpress.com/2016/08/10/how-to-install-chrome-driver-in-linux-mint-selenium-webdriver/
-
-在 Docker 场景中，Selenium 作为 Docker Compose service 运行。使用以下命令运行 functional-selenium 测试：
-
-* `make test-functional-selenium`
-
-在 Docker 中，Selenium 测试使用 compose service `selenium` 和 `SELENIUM_SERVER_URL=http://selenium:4444/wd/hub`；Panther web server 在 compose network 内以 `php:9080` 暴露。
-
-如有需要，可以单独检查 Selenium service：
-
-* `docker compose -p symfony-shop --env-file .env.docker up -d selenium`
-* `curl -fsS http://127.0.0.1:4444/status`
-
-Docker 场景不需要主机上的 Java。本地 JAR 启动只作为 Docker 之外的可选手动 fallback：
-
-* `java -jar bin/selenium-server.jar standalone`
-
-需要安装 Java，在 Ubuntu 上可以使用命令安装：`sudo apt install openjdk-21-jdk`，版本可能会有所不同 - 我总是安装最新版本。
-
-![install-openjdk-21-jdk](../img/install-openjdk-21-jdk.png)
-
-## 使用 Deployer 7 进行部署
-
-[Deployer 7](https://deployer.org/docs/7.x/getting-started) 是一个用于自动化应用部署流程的工具。它允许定义任务和动作序列，以便将代码部署到远程服务器上。此存储库使用 Deployer 7 来自动化部署过程。
-
-### 配置
-
-要使用 Deployer 7，您需要配置 `deploy.php` 文件。将 [deploy-example.php](deploy-example.php) 重命名为 `deploy.php`，查看提供的注释，并根据需要填写文件。**必须**填写 `// Hosts` 部分：
-
-```php
-// Hosts
-host('...')
-    ->setHostname('...')
-    ->setPort('...')
-    ->setRemoteUser('...')
-    ->setIdentityFile('~/.ssh/....pub')
-    ->set('labels', ['stage' => 'prod'])
-    ->set('branch', '...')
-    ->set('deploy_path', '...');
+```text
+浏览器
+  ↓
+Nginx
+  ↓
+Symfony
+  ├─ Controller → Twig → HTML
+  └─ API Platform → JSON API
+  ↓
+应用服务 / Doctrine
+  ↓
+PostgreSQL
 ```
 
-### 使用方法
+主要代码按 `Account`、`Catalog` 和 `Commerce` 划分。管理后台、OAuth 和 SEO 作为内部 Symfony bundle 实现。Vue 2 只用于部分交互式组件，而不是独立 SPA。
 
-要部署，请在控制台中运行 `php deployer7.phar deploy`。成功部署的结果将如下所示：
+目录结构、路由、API Platform、Doctrine 和前端边界见[架构指南](../architecture.md)。
 
-![success-deploy](../img/deployer7-deploy.png)
+## 检查
 
-## 更新日志
+| 命令 | 作用 | 说明 |
+|---|---|---|
+| `make check` | 运行 ESLint、PHP-CS-Fixer 检查和 PHPStan | 不包含测试 |
+| `make test-unit` | 运行单元测试 | |
+| `make test-integration` | 运行集成测试 | |
+| `make test-functional` | 运行功能测试 | |
+| `make test-functional-panther` | 使用 Panther 运行浏览器测试 | Chrome 已包含在 PHP 镜像中 |
+| `make test-all CONFIRM=testdb` | 运行全部测试 | 会重新创建测试数据库 |
+| `make coverage CONFIRM=testdb` | 在终端显示 PHP/PHPUnit 覆盖率 | 不包含 Panther |
+| `make coverage-html CONFIRM=testdb` | 生成 HTML 和 Clover 报告 | `var/coverage/html`, `var/coverage/clover.xml` |
 
-* 2023-07-08 - 删除了 `.circleci` 配置。由于在俄罗斯不再可用：https://support.circleci.com/hc/en-us/articles/360043679453-CircleCI-Terms-of-Service-Violation-Sanctioned-Country
-* 2023-07-08 - Symfony 更新至最新版本 `6.3.1`
-* 2024-07-17 - Symfony 更新至版本 `6.4.9`
-* 2024-07-17 - 单元测试更新至版本 11，并对测试进行了重构
-* 添加了 [nginx](../conf/nginx/s-shop.conf) 和 [supervisor](../conf/supervisor/messenger-worker.conf) 的配置文件，以及 README.md 的各种翻译
+完整 Make 命令、测试数据库流程和 CI 组成见[开发指南](../development.md)。
+
+## 计划
+
+1. **本地邮件环境。** 增加带 Web 界面的邮件服务和常驻 Messenger worker，使 `async` transport 中的消息能够自动处理。
+2. **Inertia.js 与 Vue 3.** 将服务端与客户端交互迁移到 Inertia.js 和 Vue 3。同时我也想重新评估本地化方案：根据改动规模，也许可以取消 URL 中强制的 `/{_locale}` 前缀。这个决定会在新前端设计阶段做出。
+3. **管理后台。** 完成前端迁移后，大幅扩展管理界面的商店管理能力。
+
+## 反馈
+
+- 可复现的错误 — [GitHub Issues](https://github.com/yaleksandr89/symfony-shop/issues)；
+- 问题和想法 — [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions)。
+
+## 项目历史
+
+### 2026 — 准备 v3.0.0
+
+- Docker Compose 成为主要开发环境。项目加入统一 Makefile、可复现 bootstrap、Docker 中的 PostgreSQL、演示数据、Xdebug 和 APCu。
+- CI 迁移到 GitHub Actions，并使用与本地开发相同的 Docker 流程。
+- Backend stack 逐步升级到 PHP 8.5、Symfony 8.1、API Platform 4.3、Doctrine ORM 3 / DBAL 4、PHPUnit 13 和 PHPStan 2。
+- 购物车、结账、API、注册、密码重置和 OAuth 的安全与业务边界被大幅重构。
+- OAuth 增加 Facebook 和 LinkedIn；登录、注册、绑定和解绑成为独立且受专门检查保护的流程。
+- Selenium、GeckoDriver、Java tooling 和 Deployer 被移除。浏览器测试迁移到 Panther 与 Chrome for Testing；Chrome 归档通过 Git LFS 存储。
+- 应用架构围绕 `Account`、`Catalog`、`Commerce` 以及 `AdminBundle`、`OAuthBundle`、`SeoBundle` 重新组织；路由和共用 OAuth callback 流程被集中管理。
+- 测试基础设施重新搭建，加入 Docker-backed quality gates 和覆盖率命令。
+- 项目文档完全重写，增加启动、配置、开发、OAuth 和架构指南。
+- 项目许可证统一为 MIT；加入 GitHub Issues/Discussions、Pull Request 模板、贡献指南和安全策略。
+
+### 2024 — v2.3.0
+
+- Symfony 升级到 6.4.9。
+- PHPUnit 从 9 升级到 11，DAMA Doctrine Test Bundle 升级到 8；现有测试被重构。
+- 继续从 annotation 迁移到 PHP attribute，并清理 PHPStan 问题。
+- Selenium、ChromeDriver 和 GeckoDriver 更新。
+- 增加 Nginx、Supervisor 示例、Deployer 指南和 README 翻译。
+
+### 2023 — v2.1.1 / v2.2.0
+
+- Symfony 升级到 6.3.1，更新依赖，并清理项目自身代码中的 deprecation 提示。
+- 完成新一轮重构和 PHPStan 清理。
+- 更新 Deployer 配置。
+- CircleCI 在停止向俄罗斯用户提供服务后被移除。
+
+### 2022 — v1.2.0 / v2.0.0 / v2.1.0
+
+- 建立在线商店的主要功能。
+- 增加 Google、Yandex、VKontakte 和 GitHub OAuth 登录。
+- Symfony 从 5.4 逐步升级到 6.0。
+- 用户账户支持绑定和解绑外部 OAuth 账户。
+- 增加防止同一外部身份被多个本地用户重复使用的保护。
+
+### 2021 — 项目开始
+
+- 基于 Symfony 5.3 和 PostgreSQL 创建第一版 Symfony Shop。
+
+---
+
+<p align="center">
+  如果这个项目对你有帮助，请在 GitHub 上点个 Star，这样其他开发者也更容易发现它。 🤘
+</p>

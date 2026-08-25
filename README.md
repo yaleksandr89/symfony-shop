@@ -11,10 +11,16 @@
 <p align="center">
   <img
     src="docs/img/symfony-shop-readme-cover.png"
-    alt="Symfony Shop — интернет-магазин на Symfony с Docker, PostgreSQL и Vue"
+    alt="Symfony Shop — интернет-магазин на Symfony с Docker и PostgreSQL"
     width="100%"
   >
 </p>
+
+## Выберите язык
+
+| Русский | English | Español | 中文 | Français | Deutsch |
+|---|---|---|---|---|---|
+| **Русский** | [English](docs/langs/README_en.md) | [Español](docs/langs/README_es.md) | [中文](docs/langs/README_zh.md) | [Français](docs/langs/README_fr.md) | [Deutsch](docs/langs/README_de.md) |
 
 Symfony Shop — учебный интернет-магазин на Symfony. В проекте реализованы каталог товаров, корзина и оформление заказов, личный кабинет, административная часть, API и вход через OAuth. Основные страницы формируются Twig, а Vue 2 используется для отдельных интерактивных элементов интерфейса.
 
