@@ -4,13 +4,13 @@
 
 | Русский | English | Español | 中文 | Français | Deutsch |
 |---|---|---|---|---|---|
-| **Русский** | [English](/yaleksandr89/symfony-shop/blob/master/docs/langs/en/CONTRIBUTING.md) | [Español](/yaleksandr89/symfony-shop/blob/master/docs/langs/es/CONTRIBUTING.md) | [中文](/yaleksandr89/symfony-shop/blob/master/docs/langs/zh/CONTRIBUTING.md) | [Français](/yaleksandr89/symfony-shop/blob/master/docs/langs/fr/CONTRIBUTING.md) | [Deutsch](/yaleksandr89/symfony-shop/blob/master/docs/langs/de/CONTRIBUTING.md) |
+| **Русский** | [English](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/en/CONTRIBUTING.md) | [Español](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/es/CONTRIBUTING.md) | [中文](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/zh/CONTRIBUTING.md) | [Français](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/fr/CONTRIBUTING.md) | [Deutsch](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/de/CONTRIBUTING.md) |
 
 Спасибо за интерес к Symfony Shop. Это учебный интернет-магазин на Symfony с Docker-окружением, PostgreSQL, API Platform, OAuth и отдельными интерактивными компонентами на Vue.
 
 ## Перед началом
 
-Проверьте существующие Discussions, Issues и Pull Requests и постарайтесь ограничить изменение одной понятной задачей. Вопросы и идеи лучше сначала обсуждать в [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions), воспроизводимые ошибки и конкретные улучшения оформлять через Issues, а проблемы безопасности сообщать по [политике безопасности](/yaleksandr89/symfony-shop/security/policy) без публикации деталей эксплуатации.
+Проверьте существующие Discussions, Issues и Pull Requests и постарайтесь ограничить изменение одной понятной задачей. Вопросы и идеи лучше сначала обсуждать в [GitHub Discussions](https://github.com/yaleksandr89/symfony-shop/discussions), воспроизводимые ошибки и конкретные улучшения оформлять через Issues, а проблемы безопасности сообщать по [политике безопасности](https://github.com/yaleksandr89/symfony-shop/security/policy) без публикации деталей эксплуатации.
 
 ## Основные границы проекта
 
@@ -20,7 +20,7 @@
 - Не добавляйте широкие рефакторинги и обновления зависимостей, не связанные с задачей.
 - Архитектура фронтенда на Vue 2 сохраняется до отдельной миграции на Inertia.js и Vue 3.
 
-Архитектура приложения описана в [`docs/langs/ru/architecture.md`](/yaleksandr89/symfony-shop/blob/master/docs/langs/ru/architecture.md), а команды разработки — в [`docs/langs/ru/development.md`](/yaleksandr89/symfony-shop/blob/master/docs/langs/ru/development.md).
+Архитектура приложения описана в [`docs/langs/ru/architecture.md`](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/ru/architecture.md), а команды разработки — в [`docs/langs/ru/development.md`](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/ru/development.md).
 
 ## Ветки
 
