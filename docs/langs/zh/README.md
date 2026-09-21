@@ -8,13 +8,7 @@
 [![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../../LICENSE.md)
 
-<p align="center">
-  <img
-    src="../../img/symfony-shop-readme-cover.png"
-    alt="Symfony Shop — 基于 Symfony、Docker 和 PostgreSQL 的在线商店"
-    width="100%"
-  >
-</p>
+![Symfony Shop — 基于 Symfony、Docker 和 PostgreSQL 的在线商店](../../img/symfony-shop-readme-cover.png)
 
 ## 选择语言
 
