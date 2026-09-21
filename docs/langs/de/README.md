@@ -8,13 +8,7 @@
 [![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../../LICENSE.md)
 
-<p align="center">
-  <img
-    src="../../img/symfony-shop-readme-cover.png"
-    alt="Symfony Shop — Online-Shop mit Symfony, Docker und PostgreSQL"
-    width="100%"
-  >
-</p>
+![Symfony Shop — Online-Shop mit Symfony, Docker und PostgreSQL](../../img/symfony-shop-readme-cover.png)
 
 ## Sprache wählen
 
