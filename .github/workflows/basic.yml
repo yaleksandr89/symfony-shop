@@ -16,13 +16,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          lfs: true
+          lfs: false
 
-      - name: Check Git LFS artifacts
+      - name: Download Chrome for Testing
+        env:
+          CHROME_FOR_TESTING_VERSION: 150.0.7871.46
+          CHROME_FOR_TESTING_SHA256: ad115a7498a17f53f6ed0914458326c6516addc756224db14c32184a9b1ab078
         run: |
-          git lfs ls-files
-          test -s bin/chrome-linux64-150.0.7871.46.zip
-          unzip -tq bin/chrome-linux64-150.0.7871.46.zip
+          archive="bin/chrome-linux64-${CHROME_FOR_TESTING_VERSION}.zip"
+          url="https://storage.googleapis.com/chrome-for-testing-public/${CHROME_FOR_TESTING_VERSION}/linux64/chrome-linux64.zip"
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --output "${archive}" \
+            "${url}"
+
+          printf '%s  %s\n' "${CHROME_FOR_TESTING_SHA256}" "${archive}" | sha256sum --check -
+          unzip -tq "${archive}"
 
       - name: Prepare Docker environment
         run: |
