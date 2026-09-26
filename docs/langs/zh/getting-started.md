@@ -63,7 +63,10 @@ Dockerfile 明确要求 Chrome for Testing `150.0.7871.46`。不要直接替换�
 | 大小 | `186933179` 字节 |
 | SHA-256 | `ad115a7498a17f53f6ed0914458326c6516addc756224db14c32184a9b1ab078` |
 
-可以通过三种方式获得该归档。
+可以通过两种方式获得该归档。
+
+> [!IMPORTANT]
+> GitHub 的 source/release 归档不包含保存 Chrome 的 Git LFS object。如果通过 ZIP/tar.gz 下载项目，请在 `make build` 前使用下面任一方式获取真实的 Chrome 归档。
 
 ### 方式 1 — Git LFS
 
@@ -76,13 +79,7 @@ git lfs pull
 
 官方客户端及安装说明：[git-lfs.com](https://git-lfs.com/)。
 
-### 方式 2 — Symfony Shop Release 归档
-
-从 `v3.0.0` 开始，可以在 [Releases](https://github.com/yaleksandr89/symfony-shop/releases) 页面下载项目 ZIP。归档中已经包含 Chrome for Testing，因此这种方式无需单独安装 Git LFS。
-
-请使用与所需项目版本完全对应的归档：旧版本可能包含不同的 Chrome 版本和不同配置。
-
-### 方式 3 — 官方 Chrome for Testing
+### 方式 2 — 官方 Chrome for Testing
 
 版本 `150.0.7871.46` 已发布在官方 Chrome for Testing 目录：
 
@@ -107,7 +104,7 @@ bin/chrome-linux64-150.0.7871.46.zip
 | `shasum -a 256 bin/chrome-linux64-150.0.7871.46.zip` | macOS 下的 SHA-256 |
 | `unzip -tq bin/chrome-linux64-150.0.7871.46.zip` | ZIP 完整性 |
 
-如果文件只有大约一百字节，并以 `version https://git-lfs.github.com/spec/v1` 开头，说明工作副本中仍然是 Git LFS pointer。执行 `git lfs pull`，或用上面两种替代方式获得的真实归档替换 pointer。
+如果文件只有大约一百字节，并以 `version https://git-lfs.github.com/spec/v1` 开头，说明工作副本中仍然是 Git LFS pointer。执行 `git lfs pull`，或使用上面的官方 Chrome for Testing 来源下载真实归档并替换 pointer。
 
 任何手动替换后，归档都必须得到相同的预期 SHA-256。如果校验和不同，不要执行构建，也不要提交该文件。
 
@@ -140,7 +137,7 @@ bin/chrome-linux64-150.0.7871.46.zip
 | 现象 | 检查内容 |
 |---|---|
 | `make build` 在解压 Chrome 时失败 | Chrome 归档大小、SHA-256 和 `unzip -tq` |
-| Chrome 文件包含 `git-lfs.github.com/spec/v1` | 是否执行了 `git lfs pull`；使用 Release 或手动下载时，需要用真实 Chrome ZIP 替换 pointer |
+| Chrome 文件包含 `git-lfs.github.com/spec/v1` | 是否执行了 `git lfs pull`；手动安装时需要用官方来源的真实 Chrome ZIP 替换 pointer |
 | 缺少 `.env.docker` | 执行 `make init` |
 | 容器无法启动 | `make config`，然后 `make ps` 和 `make log-all` |
 | 应用无法通过 `8080` 访问 | 检查 `.env.docker` 中的 `APP_PORT` 和 `make ps` |

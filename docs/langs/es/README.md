@@ -58,7 +58,7 @@ En el host se necesitan Git, Make y Docker con soporte para Compose. Git LFS es 
 Tras el arranque, la aplicación está disponible por defecto en [http://localhost:8080](http://localhost:8080).
 
 > [!IMPORTANT]
-> El proyecto fija Chrome for Testing `150.0.7871.46`. La forma recomendada de obtener el archivo es `git lfs pull`. A partir de `v3.0.0`, el ZIP del proyecto puede descargarse desde [Releases](https://github.com/yaleksandr89/symfony-shop/releases) con Chrome for Testing ya incluido, por lo que Git LFS no es necesario en ese caso. La versión fijada también puede descargarse directamente desde la fuente oficial. Los enlaces exactos, el nombre del archivo y el SHA-256 están en la [guía de puesta en marcha](getting-started.md).
+> El proyecto fija Chrome for Testing `150.0.7871.46`. La forma recomendada de obtener el archivo es `git lfs pull`. Los archivos source/release de GitHub no incluyen el objeto Git LFS que contiene Chrome, por lo que al instalar desde ZIP/tar.gz hay que obtener el archivo del navegador por separado. Como alternativa a Git LFS, la versión fijada puede descargarse directamente desde la fuente oficial. Los enlaces exactos, el nombre del archivo y el SHA-256 están en la [guía de puesta en marcha](getting-started.md).
 
 > [!IMPORTANT]
 > Los valores de `.env.docker` se pasan al contenedor PHP como variables de entorno del proceso. Si una misma clave existe allí y en `.env.local`, tiene prioridad el valor de `.env.docker`. El esquema completo se explica en la [guía de configuración](configuration.md).
@@ -66,7 +66,7 @@ Tras el arranque, la aplicación está disponible por defecto en [http://localho
 > [!WARNING]
 > `make demo-init` vuelve a crear los pedidos de demostración. No lo ejecutes sobre una base local que contenga datos que necesites conservar.
 
-El primer arranque detallado, las tres formas de obtener Chrome for Testing y la gestión de contenedores están descritos en la [guía de puesta en marcha](getting-started.md).
+El primer arranque detallado, las dos formas de obtener Chrome for Testing y la gestión de contenedores están descritos en la [guía de puesta en marcha](getting-started.md).
 
 ## Correo y cola de mensajes
 

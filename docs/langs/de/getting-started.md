@@ -63,7 +63,10 @@ Für das festgelegte Archiv wurden bestätigt:
 | Größe | `186933179` Bytes |
 | SHA-256 | `ad115a7498a17f53f6ed0914458326c6516addc756224db14c32184a9b1ab078` |
 
-Das Archiv kann auf drei Arten bezogen werden.
+Das Archiv kann auf zwei Arten bezogen werden.
+
+> [!IMPORTANT]
+> GitHub-Source-/Release-Archive enthalten das Git-LFS-Objekt mit Chrome nicht. Wird das Projekt als ZIP/tar.gz heruntergeladen, muss vor `make build` das echte Chrome-Archiv mit einer der folgenden Methoden bezogen werden.
 
 ### Variante 1 — Git LFS
 
@@ -76,13 +79,7 @@ git lfs pull
 
 Offizieller Client und Installationshinweise: [git-lfs.com](https://git-lfs.com/).
 
-### Variante 2 — Symfony-Shop-Release-Archiv
-
-Ab Version `v3.0.0` kann das Projekt-ZIP von der Seite [Releases](https://github.com/yaleksandr89/symfony-shop/releases) heruntergeladen werden. Chrome for Testing ist bereits enthalten, sodass Git LFS für diesen Weg nicht installiert werden muss.
-
-Verwende das Archiv der tatsächlich benötigten Projektversion: ältere Releases können eine andere Chrome-Version und abweichende Konfiguration enthalten.
-
-### Variante 3 — offizielles Chrome for Testing
+### Variante 2 — offizielles Chrome for Testing
 
 Version `150.0.7871.46` ist im offiziellen Chrome-for-Testing-Katalog veröffentlicht:
 
@@ -107,7 +104,7 @@ Nach einem manuellen Download immer Größe, SHA-256 und ZIP-Integrität anhand 
 | `shasum -a 256 bin/chrome-linux64-150.0.7871.46.zip` | SHA-256 unter macOS |
 | `unzip -tq bin/chrome-linux64-150.0.7871.46.zip` | ZIP-Integrität |
 
-Ist die Datei nur ungefähr hundert Bytes groß und beginnt mit `version https://git-lfs.github.com/spec/v1`, liegt in der Arbeitskopie noch ein Git-LFS-Pointer. Führe `git lfs pull` aus oder ersetze den Pointer durch das echte Archiv aus einer der beiden Alternativen oben.
+Ist die Datei nur ungefähr hundert Bytes groß und beginnt mit `version https://git-lfs.github.com/spec/v1`, liegt in der Arbeitskopie noch ein Git-LFS-Pointer. Führe `git lfs pull` aus oder ersetze den Pointer durch das echte Archiv aus der oben genannten offiziellen Chrome-for-Testing-Quelle.
 
 Nach jedem manuellen Austausch muss das Archiv denselben erwarteten SHA-256 liefern. Bei abweichender Prüfsumme weder bauen noch die Datei committen.
 
@@ -140,7 +137,7 @@ Die vollständige Liste der Make-Ziele einschließlich Tests, Checks, Coverage u
 | Symptom | Prüfen |
 |---|---|
 | `make build` scheitert beim Entpacken von Chrome | Größe, SHA-256 und `unzip -tq` des Chrome-Archivs |
-| Chrome-Datei enthält `git-lfs.github.com/spec/v1` | ob `git lfs pull` ausgeführt wurde; bei Release/manuellem Download Pointer durch echtes ZIP ersetzen |
+| Chrome-Datei enthält `git-lfs.github.com/spec/v1` | ob `git lfs pull` ausgeführt wurde; bei manueller Installation Pointer durch das echte ZIP aus der offiziellen Quelle ersetzen |
 | `.env.docker` fehlt | `make init` ausführen |
 | Container starten nicht | `make config`, danach `make ps` und `make log-all` |
 | Anwendung ist nicht auf `8080` erreichbar | `APP_PORT` in `.env.docker` und `make ps` prüfen |

@@ -58,7 +58,7 @@ Auf dem Host werden Git, Make und Docker mit Compose-Unterstützung benötigt. G
 Nach dem Start ist die Anwendung standardmäßig unter [http://localhost:8080](http://localhost:8080) erreichbar.
 
 > [!IMPORTANT]
-> Das Projekt verwendet fest Chrome for Testing `150.0.7871.46`. Empfohlen wird `git lfs pull`. Ab `v3.0.0` kann das Projekt-ZIP von [Releases](https://github.com/yaleksandr89/symfony-shop/releases) heruntergeladen werden; Chrome for Testing ist darin bereits enthalten, sodass Git LFS für diesen Weg nicht benötigt wird. Die festgelegte Version kann außerdem direkt aus der offiziellen Quelle geladen werden. Exakte Links, Dateiname und SHA-256 stehen im [Setup-Leitfaden](getting-started.md).
+> Das Projekt verwendet fest Chrome for Testing `150.0.7871.46`. Empfohlen wird `git lfs pull`. GitHub-Source-/Release-Archive enthalten das Git-LFS-Objekt mit Chrome nicht; bei einer Installation aus ZIP/tar.gz muss das Browser-Archiv daher separat bezogen werden. Alternativ zu Git LFS kann die festgelegte Version direkt aus der offiziellen Quelle geladen werden. Exakte Links, Dateiname und SHA-256 stehen im [Setup-Leitfaden](getting-started.md).
 
 > [!IMPORTANT]
 > Werte aus `.env.docker` werden dem PHP-Container als Prozess-Umgebungsvariablen übergeben. Ist derselbe Schlüssel sowohl dort als auch in `.env.local` definiert, hat der Wert aus `.env.docker` Vorrang. Das vollständige Schema steht im [Konfigurationsleitfaden](configuration.md).
@@ -66,7 +66,7 @@ Nach dem Start ist die Anwendung standardmäßig unter [http://localhost:8080](h
 > [!WARNING]
 > `make demo-init` erstellt Demo-Bestellungen neu. Führe den Befehl nicht gegen eine lokale Datenbank aus, die Daten enthält, die du behalten möchtest.
 
-Der vollständige Erststart, alle drei Wege zu Chrome for Testing und die Containerverwaltung sind im [Setup-Leitfaden](getting-started.md) beschrieben.
+Der vollständige Erststart, beide Wege zu Chrome for Testing und die Containerverwaltung sind im [Setup-Leitfaden](getting-started.md) beschrieben.
 
 ## E-Mail und Nachrichtenwarteschlange
 
