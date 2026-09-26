@@ -114,7 +114,7 @@ El workflow [`CI`](../../../.github/workflows/basic.yml) se ejecuta para pushes 
 
 Realiza:
 
-1. descarga objetos Git LFS y comprueba el archivo Chrome;
+1. descarga el archivo fijado de Chrome for Testing desde la fuente oficial y comprueba su SHA-256 y la integridad ZIP;
 2. crea `.env.docker`;
 3. valida Compose, construye e inicia el entorno Docker;
 4. instala dependencias y compila recursos frontend;

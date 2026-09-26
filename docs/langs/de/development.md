@@ -114,7 +114,7 @@ Workflow [`CI`](../../../.github/workflows/basic.yml) läuft bei Pushes und Pull
 
 Er:
 
-1. lädt Git-LFS-Objekte und prüft das Chrome-Archiv;
+1. lädt das festgelegte Chrome-for-Testing-Archiv aus der offiziellen Quelle und prüft SHA-256 sowie ZIP-Integrität;
 2. erstellt `.env.docker`;
 3. prüft Compose, baut und startet die Docker-Umgebung;
 4. installiert Abhängigkeiten und baut Frontend-Assets;

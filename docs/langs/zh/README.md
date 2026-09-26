@@ -58,7 +58,7 @@ Symfony Shop 是一个基于 Symfony 的教学型在线商店项目。项目包�
 启动后，应用默认可通过 [http://localhost:8080](http://localhost:8080) 访问。
 
 > [!IMPORTANT]
-> 项目固定使用 Chrome for Testing `150.0.7871.46`。推荐通过 `git lfs pull` 获取归档。从 `v3.0.0` 开始，可以从 [Releases](https://github.com/yaleksandr89/symfony-shop/releases) 下载已经包含 Chrome for Testing 的项目 ZIP，因此这种方式不需要 Git LFS。固定版本也可以直接从官方来源下载。精确链接、文件名和 SHA-256 见[启动指南](getting-started.md)。
+> 项目固定使用 Chrome for Testing `150.0.7871.46`。推荐通过 `git lfs pull` 获取归档。GitHub 的 source/release 归档不包含保存 Chrome 的 Git LFS object，因此从 ZIP/tar.gz 安装时需要单独获取浏览器归档。作为 Git LFS 的替代方案，也可以直接从官方来源下载固定版本。精确链接、文件名和 SHA-256 见[启动指南](getting-started.md)。
 
 > [!IMPORTANT]
 > `.env.docker` 中的值会作为进程环境变量传入 PHP 容器。如果同一个键同时存在于 `.env.docker` 和 `.env.local`，则 `.env.docker` 的值优先。完整优先级规则见[配置指南](configuration.md)。
@@ -66,7 +66,7 @@ Symfony Shop 是一个基于 Symfony 的教学型在线商店项目。项目包�
 > [!WARNING]
 > `make demo-init` 会重新创建演示订单。不要在包含需要保留数据的本地数据库上运行它。
 
-完整的首次启动流程、获取 Chrome for Testing 的三种方式以及容器管理命令见[启动指南](getting-started.md)。
+完整的首次启动流程、获取 Chrome for Testing 的两种方式以及容器管理命令见[启动指南](getting-started.md)。
 
 ## 邮件与消息队列
 

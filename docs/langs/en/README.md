@@ -58,7 +58,7 @@ The host needs Git, Make, and Docker with Compose support. Git LFS is recommende
 After startup, the application is available at [http://localhost:8080](http://localhost:8080) by default.
 
 > [!IMPORTANT]
-> The project pins Chrome for Testing `150.0.7871.46`. The recommended way to obtain the archive is `git lfs pull`. Starting with `v3.0.0`, the project ZIP can be downloaded from [Releases](https://github.com/yaleksandr89/symfony-shop/releases) with Chrome for Testing already included, so Git LFS is not required for that workflow. The pinned Chrome for Testing version can also be downloaded directly from the official source. Exact links, the filename, and SHA-256 are listed in the [setup guide](getting-started.md).
+> The project pins Chrome for Testing `150.0.7871.46`. The recommended way to obtain the archive is `git lfs pull`. GitHub source/release archives do not include the Git LFS object containing Chrome, so the browser archive must be obtained separately when installing from a ZIP/tar.gz archive. As an alternative to Git LFS, the pinned Chrome for Testing version can be downloaded directly from the official source. Exact links, the filename, and SHA-256 are listed in the [setup guide](getting-started.md).
 
 > [!IMPORTANT]
 > Values from `.env.docker` are passed to the PHP container as process environment variables. If the same key is defined both there and in `.env.local`, the `.env.docker` value takes precedence. The complete precedence model is described in the [configuration guide](configuration.md).
@@ -66,7 +66,7 @@ After startup, the application is available at [http://localhost:8080](http://lo
 > [!WARNING]
 > `make demo-init` recreates demo orders. Do not run it against a local database that contains data you need to keep.
 
-The complete first-run procedure, all three ways to obtain Chrome for Testing, and container-management commands are covered in the [setup guide](getting-started.md).
+The complete first-run procedure, both ways to obtain Chrome for Testing, and container-management commands are covered in the [setup guide](getting-started.md).
 
 ## Mail and message queue
 

@@ -114,7 +114,7 @@ Workflow [`CI`](../../../.github/workflows/basic.yml) 会在 push 和面向 `mas
 
 它会：
 
-1. 下载 Git LFS 对象并检查 Chrome 归档；
+1. 从官方来源下载固定版本的 Chrome for Testing，并验证 SHA-256 和 ZIP 完整性；
 2. 创建 `.env.docker`；
 3. 验证 Compose，构建并启动 Docker 环境；
 4. 安装依赖并构建前端资源；

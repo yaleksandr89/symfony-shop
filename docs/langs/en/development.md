@@ -114,7 +114,7 @@ Workflow [`CI`](../../../.github/workflows/basic.yml) runs for pushes and pull r
 
 It:
 
-1. downloads Git LFS objects and verifies the Chrome archive;
+1. downloads the pinned Chrome for Testing archive from the official source and verifies its SHA-256 and ZIP integrity;
 2. creates `.env.docker`;
 3. validates Compose, then builds and starts the Docker environment;
 4. installs dependencies and builds frontend assets;
