@@ -43,6 +43,10 @@ use Symfony\Component\Uid\UuidV4;
         ),
         new Post(
             normalizationContext: ['groups' => ['product:list:write']],
+            denormalizationContext: [
+                'groups' => ['product:list:write'],
+                'allow_extra_attributes' => false,
+            ],
             security: "is_granted('ROLE_ADMIN')",
             name: 'api_products_post_collection'
         ),
@@ -53,6 +57,10 @@ use Symfony\Component\Uid\UuidV4;
         new Patch(
             inputFormats: ['json' => ['application/merge-patch+json']],
             normalizationContext: ['groups' => ['product:item:write']],
+            denormalizationContext: [
+                'groups' => ['product:item:write'],
+                'allow_extra_attributes' => false,
+            ],
             security: "is_granted('ROLE_ADMIN')",
             name: 'api_products_patch_item'
         ),
@@ -111,7 +119,7 @@ class Product
     #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write'])]
     protected bool $isOnSale;
 
-    #[OneToMany(mappedBy: 'product', targetEntity: ProductImage::class, cascade: ['persist'], orphanRemoval: true)]
+    #[OneToMany(targetEntity: ProductImage::class, mappedBy: 'product', cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected Collection $productImages;
 
@@ -123,10 +131,10 @@ class Product
     #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?Category $category;
 
-    #[OneToMany(mappedBy: 'product', targetEntity: CartProduct::class)]
+    #[OneToMany(targetEntity: CartProduct::class, mappedBy: 'product')]
     protected Collection $cartProducts;
 
-    #[OneToMany(mappedBy: 'product', targetEntity: OrderProduct::class)]
+    #[OneToMany(targetEntity: OrderProduct::class, mappedBy: 'product')]
     protected Collection $orderProducts;
 
     public function __construct()

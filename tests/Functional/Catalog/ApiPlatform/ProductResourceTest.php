@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional\Catalog\ApiPlatform;
 
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Entity\ProductImage;
 use App\Entity\User;
 use App\Catalog\Repository\ProductRepository;
 use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
@@ -208,6 +212,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             'quantity' => 5,
             'isNew' => true,
             'isOnSale' => false,
+            'category' => null,
         ];
 
         $client->request(
@@ -248,6 +253,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         self::assertFalse($created->getIsOnSale());
         self::assertFalse($created->getIsPublished());
         self::assertFalse($created->getIsDeleted());
+        self::assertNull($created->getCategory());
     }
 
     #[TestDox('Обычный пользователь не создаёт товар')]
@@ -309,7 +315,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         );
     }
 
-    #[TestDox('Администратор изменяет разрешённые поля товара, не подменяя системную дату')]
+    #[TestDox('Администратор изменяет разрешённые поля товара')]
     public function testPathProductWithAccess(): void
     {
         $client = self::createClient();
@@ -323,7 +329,6 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             'title' => 'Update product',
             'isNew' => true,
             'isOnSale' => true,
-            'updatedAt' => '2000-01-01T00:00:00+00:00',
         ];
 
         $client->request(
@@ -352,7 +357,206 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         self::assertSame($context['title'], $updatedProduct->getTitle());
         self::assertTrue($updatedProduct->getIsNew());
         self::assertTrue($updatedProduct->getIsOnSale());
-        self::assertNotSame($context['updatedAt'], $updatedProduct->getUpdatedAt()->format(DATE_ATOM));
+    }
+
+    #[DataProvider('forbiddenProductFields')]
+    #[TestDox('POST отклоняет неизвестные и системные поля товара без записи')]
+    public function testPostRejectsFieldsOutsideWriteContract(string $field, mixed $value): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $productCount = $entityManager->getRepository(Product::class)->count([]);
+        $imageCount = $entityManager->getRepository(ProductImage::class)->count([]);
+
+        $client->request('POST', $this->uriKey, [], [], self::REQUEST_HEADERS, json_encode([
+            'title' => 'Rejected product',
+            'price' => '10.00',
+            'quantity' => 1,
+            $field => $value,
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertSame($productCount, $entityManager->getRepository(Product::class)->count([]));
+        self::assertSame($imageCount, $entityManager->getRepository(ProductImage::class)->count([]));
+    }
+
+    #[DataProvider('forbiddenProductFields')]
+    #[TestDox('PATCH отклоняет неизвестные и системные поля без частичного изменения товара')]
+    public function testPatchRejectsFieldsOutsideWriteContract(string $field, mixed $value): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        $product = $this->getStableProduct();
+        $uuid = (string) $product->getUuid();
+        $before = $this->productSnapshot($uuid);
+
+        $client->request('PATCH', $this->uriKey.'/'.$uuid, [], [], self::REQUEST_HEADERS_PATCH, json_encode([
+            'title' => 'Rejected update',
+            $field => $value,
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($before, $this->productSnapshot($uuid));
+    }
+
+    #[TestDox('Создание товара не позволяет внедрить изображения или изменить файлы')]
+    public function testPostRejectsImageInjectionWithoutPersistenceOrFileChanges(): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $productCount = $entityManager->getRepository(Product::class)->count([]);
+        $imageCount = $entityManager->getRepository(ProductImage::class)->count([]);
+        $files = $this->uploadSnapshot();
+
+        $client->request('POST', $this->uriKey, [], [], self::REQUEST_HEADERS, json_encode([
+            'title' => 'Rejected image product',
+            'price' => '10.00',
+            'quantity' => 1,
+            'productImages' => [[
+                'filenameBig' => 'injected_big.jpg',
+                'filenameMiddle' => 'injected_middle.jpg',
+                'filenameSmall' => 'injected_small.jpg',
+            ]],
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        self::assertSame($productCount, $entityManager->getRepository(Product::class)->count([]));
+        self::assertSame($imageCount, $entityManager->getRepository(ProductImage::class)->count([]));
+        self::assertSame($files, $this->uploadSnapshot());
+    }
+
+    #[TestDox('PATCH не удаляет изображения товара и не изменяет файлы через запрещённую связь')]
+    public function testPatchRejectsImageRemovalWithoutPersistenceOrFileChanges(): void
+    {
+        $client = self::createClient();
+        $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        $product = $this->createProduct('Protected image product');
+        $image = (new ProductImage())
+            ->setFilenameBig('protected_big.jpg')
+            ->setFilenameMiddle('protected_middle.jpg')
+            ->setFilenameSmall('protected_small.jpg');
+        $product->addProductImage($image);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->flush();
+        $imageCount = $entityManager->getRepository(ProductImage::class)->count([]);
+        $uuid = (string) $product->getUuid();
+        $before = $this->productSnapshot($uuid);
+        $files = $this->uploadSnapshot();
+
+        $client->request('PATCH', $this->uriKey.'/'.$uuid, [], [], self::REQUEST_HEADERS_PATCH, json_encode([
+            'title' => 'Rejected image removal',
+            'productImages' => [],
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($before, $this->productSnapshot($uuid));
+        self::assertSame($imageCount, self::getContainer()->get(EntityManagerInterface::class)->getRepository(ProductImage::class)->count([]));
+        self::assertSame($files, $this->uploadSnapshot());
+    }
+
+    #[TestDox('OpenAPI разрешает только согласованные поля создания и изменения товара')]
+    public function testOpenApiProductWriteSchemasExposeOnlyAllowedFields(): void
+    {
+        $client = self::createClient();
+        $client->request('GET', '/api/docs.jsonopenapi', [], [], ['HTTP_ACCEPT' => 'application/vnd.openapi+json']);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $document = $this->getResponseDecodedContent($client);
+
+        foreach (['post', 'patch'] as $method) {
+            $path = 'post' === $method ? $this->uriKey : $this->uriKey.'/{uuid}';
+            $contentType = 'post' === $method ? 'application/json' : 'application/merge-patch+json';
+            $reference = $document['paths'][$path][$method]['requestBody']['content'][$contentType]['schema']['$ref'];
+            $schema = $document['components']['schemas'][substr($reference, strlen('#/components/schemas/'))];
+            $properties = array_keys($schema['properties']);
+            sort($properties);
+            self::assertSame(['category', 'isNew', 'isOnSale', 'price', 'quantity', 'title'], $properties);
+        }
+    }
+
+    /** @return iterable<string, array{string, mixed}> */
+    public static function forbiddenProductFields(): iterable
+    {
+        yield 'unknown' => ['unexpected', true];
+        yield 'deleted' => ['isDeleted', true];
+        yield 'published' => ['isPublished', true];
+        yield 'created at' => ['createdAt', '2000-01-01T00:00:00+00:00'];
+        yield 'updated at' => ['updatedAt', '2000-01-01T00:00:00+00:00'];
+        yield 'slug' => ['slug', 'injected-slug'];
+    }
+
+    /** @return array<string, mixed> */
+    private function productSnapshot(string $uuid): array
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $product = $entityManager->getRepository(Product::class)->findOneBy(['uuid' => $uuid]);
+        self::assertInstanceOf(Product::class, $product);
+        $images = [];
+        foreach ($product->getProductImages() as $image) {
+            $images[$image->getId()] = [
+                $image->getProduct()?->getId(),
+                $image->getFilenameBig(),
+                $image->getFilenameMiddle(),
+                $image->getFilenameSmall(),
+            ];
+        }
+        ksort($images);
+
+        return [
+            'count' => $entityManager->getRepository(Product::class)->count([]),
+            'id' => $product->getId(),
+            'uuid' => (string) $product->getUuid(),
+            'title' => $product->getTitle(),
+            'price' => $product->getPrice(),
+            'quantity' => $product->getQuantity(),
+            'category' => $product->getCategory()?->getId(),
+            'description' => $product->getDescription(),
+            'createdAt' => $product->getCreatedAt()?->format(DATE_ATOM),
+            'updatedAt' => $product->getUpdatedAt()->format(DATE_ATOM),
+            'slug' => $product->getSlug(),
+            'isPublished' => $product->getIsPublished(),
+            'isDeleted' => $product->getIsDeleted(),
+            'isNew' => $product->getIsNew(),
+            'isOnSale' => $product->getIsOnSale(),
+            'images' => $images,
+        ];
+    }
+
+    /** @return array<string, string> */
+    private function uploadSnapshot(): array
+    {
+        $snapshot = [];
+        foreach (['uploads_dir', 'uploads_temp_dir'] as $parameter) {
+            $directory = self::getContainer()->getParameter($parameter);
+            self::assertIsString($directory);
+            if (!is_dir($directory)) {
+                $snapshot[$directory] = 'absent';
+                continue;
+            }
+            $snapshot[$directory] = 'directory';
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST,
+            );
+            foreach ($iterator as $file) {
+                if ($file->isDir()) {
+                    $snapshot[$file->getPathname()] = 'directory';
+                    continue;
+                }
+                $hash = hash_file('sha256', $file->getPathname());
+                self::assertIsString($hash);
+                $snapshot[$file->getPathname()] = $hash;
+            }
+        }
+        ksort($snapshot);
+
+        return $snapshot;
     }
 
     #[TestDox('Обычный пользователь не изменяет товар')]

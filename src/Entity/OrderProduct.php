@@ -24,18 +24,19 @@ class OrderProduct
     protected ?int $id;
 
     #[ManyToOne(targetEntity: Order::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Groups(['order_product:create'])]
     protected ?Order $appOrder = null;
 
     #[ManyToOne(targetEntity: Product::class, inversedBy: 'orderProducts'), JoinColumn(nullable: false)]
-    #[Groups(['order:item'])]
+    #[Groups(['order:item', 'order_product:create'])]
     protected ?Product $product = null;
 
     #[Column(type: Types::INTEGER)]
-    #[Groups(['order:item'])]
+    #[Groups(['order:item', 'order_product:create'])]
     protected ?int $quantity = null;
 
     #[Column(type: Types::DECIMAL, precision: 15, scale: 2)]
-    #[Groups(['order:item'])]
+    #[Groups(['order:item', 'order_product:create'])]
     protected ?string $pricePerOne = null;
 
     public function __construct()
