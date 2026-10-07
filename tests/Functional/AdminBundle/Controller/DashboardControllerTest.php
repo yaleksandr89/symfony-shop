@@ -30,7 +30,7 @@ class DashboardControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertStringContainsString($expected['dashboard'], $crawler->filter('title')->text());
         self::assertSame($expected['dashboard'], trim($crawler->filter('h1')->text()));
-        self::assertSame($expected['logout'], trim($crawler->filter('.topbar a[href$="/admin/logout"]')->text()));
+        self::assertSame($expected['logout'], trim($crawler->filter('.topbar form[action$="/admin/logout"][method="post"] button')->text()));
         self::assertSame($expected['copyright'], trim($crawler->filter('footer .copyright')->text()));
         self::assertStringContainsString($expected['layout'], $crawler->filter('title')->text());
         self::assertStringContainsString($expected['brand'], $crawler->filter('title')->text());

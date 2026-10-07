@@ -43,8 +43,8 @@ class UserControllerTest extends WebTestCase
             'edit_user_form[email]' => UserFixtures::USER_ADMIN_1_EMAIL,
         ]));
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString($duplicateMessage, $invalid->filter('form')->text());
-        self::assertStringNotContainsString($oppositeDuplicateMessage, $invalid->filter('form')->text());
+        self::assertStringContainsString($duplicateMessage, $invalid->filter('form[name="edit_user_form"]')->text());
+        self::assertStringNotContainsString($oppositeDuplicateMessage, $invalid->filter('form[name="edit_user_form"]')->text());
 
         $suffix = str_replace('.', '', uniqid('', true));
         $createdEmail = sprintf('managed-%s-%s@example.test', $locale, $suffix);

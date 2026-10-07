@@ -44,8 +44,8 @@ class CategoryControllerTest extends WebTestCase
         $invalid = $client->submit($add->filter('form[name="edit_category_form"]')->form([
             'edit_category_form[title]' => '',
         ]));
-        self::assertStringContainsString($validation, $invalid->filter('form')->text());
-        self::assertStringNotContainsString($oppositeValidation, $invalid->filter('form')->text());
+        self::assertStringContainsString($validation, $invalid->filter('form[name="edit_category_form"]')->text());
+        self::assertStringNotContainsString($oppositeValidation, $invalid->filter('form[name="edit_category_form"]')->text());
 
         $suffix = str_replace('.', '', uniqid('', true));
         $createdTitle = 'Category '.$locale.' '.$suffix;

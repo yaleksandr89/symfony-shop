@@ -8,11 +8,13 @@ use App\Account\Mailer\UserRegisteredEmailSender;
 use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportException;
+use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 
 #[Group(name: 'functional')]
 final class ProfileControllerTest extends WebTestCase
@@ -118,17 +120,100 @@ final class ProfileControllerTest extends WebTestCase
 
         try {
             $client->loginUser($user, 'website');
-            $client->request('GET', '/ru/profile/resending-verify-email-link');
+            $crawler = $client->request('GET', '/ru/profile');
+            $client->submit($crawler->filter('form[action="/ru/profile/resending-verify-email-link"]')->form());
 
             self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
             $client->followRedirect();
             self::assertResponseIsSuccessful();
             self::assertSelectorNotExists('.alert-success');
-            self::assertSelectorExists('a[href="/ru/profile/resending-verify-email-link"]');
+            self::assertSelectorExists('form[action="/ru/profile/resending-verify-email-link"][method="post"]');
         } finally {
             $user->setIsVerified($wasVerified);
             $entityManager->flush();
         }
+    }
+
+    #[DataProvider('rejectedResendRequests')]
+    #[TestDox('GET и POST без действительного CSRF не отправляют письмо подтверждения')]
+    public function testResendRejectsUnsafeRequestsWithoutSendingEmail(string $method, array $parameters, int $status): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $this->fixtureUser($entityManager);
+        $wasVerified = $user->isVerified();
+        $user->setIsVerified(false);
+        $entityManager->flush();
+        $emailSender = $this->createMock(UserRegisteredEmailSender::class);
+        $emailSender->expects(self::never())->method('sendEmailToClient');
+        self::getContainer()->set(UserRegisteredEmailSender::class, $emailSender);
+
+        try {
+            $client->loginUser($user, 'website');
+            $client->request($method, '/ru/profile/resending-verify-email-link', $parameters);
+            self::assertResponseStatusCodeSame($status);
+            $client->request('GET', '/ru/profile');
+            self::assertResponseIsSuccessful();
+            self::assertSelectorNotExists('.alert-success');
+        } finally {
+            $user->setIsVerified($wasVerified);
+            $entityManager->flush();
+        }
+    }
+
+    /** @return iterable<string, array{string, array<string, string>, int}> */
+    public static function rejectedResendRequests(): iterable
+    {
+        yield 'GET' => ['GET', [], Response::HTTP_METHOD_NOT_ALLOWED];
+        yield 'missing' => ['POST', [], Response::HTTP_FORBIDDEN];
+        yield 'invalid' => ['POST', ['_token' => 'invalid-csrf'], Response::HTTP_FORBIDDEN];
+    }
+
+    #[DataProvider('verificationStates')]
+    #[TestDox('Защищённый POST отправляет подтверждение только непроверенному пользователю')]
+    public function testValidResendPreservesVerificationContract(bool $verified): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $this->fixtureUser($entityManager);
+        $wasVerified = $user->isVerified();
+        $user->setIsVerified(false);
+        $entityManager->flush();
+        $emailSender = $this->createMock(UserRegisteredEmailSender::class);
+        $emailSender->expects($verified ? self::never() : self::once())->method('sendEmailToClient')
+            ->with($user, self::isInstanceOf(VerifyEmailSignatureComponents::class));
+        self::getContainer()->set(UserRegisteredEmailSender::class, $emailSender);
+
+        try {
+            $client->loginUser($user, 'website');
+            $crawler = $client->request('GET', '/ru/profile');
+            $form = $crawler->filter('form[action="/ru/profile/resending-verify-email-link"]')->form();
+            if ($verified) {
+                $user->setIsVerified(true);
+                $entityManager->flush();
+                $client->request('GET', '/ru/profile');
+                self::assertSelectorNotExists('form[action="/ru/profile/resending-verify-email-link"]');
+            }
+            $client->submit($form);
+            self::assertResponseRedirects('/ru/profile', Response::HTTP_FOUND);
+            $client->followRedirect();
+            self::assertResponseIsSuccessful();
+            self::assertSelectorCount($verified ? 0 : 1, '.alert-success');
+            $client->request('GET', '/ru/profile');
+            self::assertSelectorNotExists('.alert-success');
+        } finally {
+            $user->setIsVerified($wasVerified);
+            $entityManager->flush();
+        }
+    }
+
+    /** @return iterable<string, array{bool}> */
+    public static function verificationStates(): iterable
+    {
+        yield 'unverified' => [false];
+        yield 'verified' => [true];
     }
 
     private function fixtureUser(EntityManagerInterface $entityManager): User

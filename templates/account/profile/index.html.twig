@@ -17,9 +17,12 @@
                                     {{ 'personal_account.verify_email_link_send'|trans }}
                                 </div>
                             {% else %}
-                                <a href="{{ path('main_profile_resending_verify_email_link') }}" class="btn btn-link btn-dark mb-2">
-                                    <span>{{ 'personal_account.resending_verify_email_link'|trans }}</span>
-                                </a>
+                                <form method="post" action="{{ path('main_profile_resending_verify_email_link') }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('resend_verify_email') }}">
+                                    <button type="submit" class="btn btn-link btn-dark mb-2">
+                                        <span>{{ 'personal_account.resending_verify_email_link'|trans }}</span>
+                                    </button>
+                                </form>
                             {% endif %}
                         {% endif %}
                         <table class="table text-left">
@@ -178,10 +181,13 @@
                                 <i class="far fa-address-card"></i>
                                 <span>{{ 'personal_account.edit_profile'|trans }}</span>
                             </a>
-                            <a href="{{ path('main_logout') }}" class="btn btn-link btn-dark">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>{{ 'personal_account.logout'|trans }}</span>
-                            </a>
+                            <form method="post" action="{{ path('main_logout') }}" class="d-inline">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                                <button type="submit" class="btn btn-link btn-dark">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>{{ 'personal_account.logout'|trans }}</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

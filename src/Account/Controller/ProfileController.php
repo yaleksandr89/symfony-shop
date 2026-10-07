@@ -83,6 +83,10 @@ class ProfileController extends AbstractController
 
     public function resendingVerifyEmailLink(Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('resend_verify_email', $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
         /** @var User $user */
         $user = $this->getUser();
         $isVerified = $user->isVerified();
