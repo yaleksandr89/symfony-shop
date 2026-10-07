@@ -30,6 +30,7 @@ security:
         path: /
       logout:
         path: admin_security_logout
+        enable_csrf: true
         delete_cookies:
           REMEMBERME:
             path: /
@@ -58,6 +59,7 @@ security:
         path: /
       logout:
         path: main_logout
+        enable_csrf: true
         delete_cookies:
           REMEMBERME:
             path: /

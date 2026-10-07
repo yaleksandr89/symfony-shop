@@ -67,6 +67,7 @@ admin_security_login:
   controller: App\AdminBundle\Controller\SecurityController::login
 
 admin_security_logout:
+  methods: [POST]
   path: /admin/logout
   controller: App\AdminBundle\Controller\SecurityController::logout
 

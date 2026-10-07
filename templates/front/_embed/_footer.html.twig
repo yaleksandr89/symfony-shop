@@ -29,7 +29,10 @@
                                 <a href="{{ path('main_cart_show') }}">{{ 'footer.my_account.view_cart'|trans }}</a>
                             </li>
                             <li>
-                                <a href="{{ path('main_logout') }}">{{ 'footer.user_links.logout'|trans }}</a>
+                                <form method="post" action="{{ path('main_logout') }}" class="d-inline">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                                    <button type="submit" class="border-0 bg-transparent p-0 text-reset">{{ 'footer.user_links.logout'|trans }}</button>
+                                </form>
                             </li>
                         </ul>
                     </div>

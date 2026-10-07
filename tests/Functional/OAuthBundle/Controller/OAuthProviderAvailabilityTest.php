@@ -245,7 +245,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         self::assertSelectorNotExists('a[href="/ru/profile/oauth/facebook/unlink"]');
         self::assertSelectorNotExists('a[href="/ru/connect/facebook"]');
 
-        $client->request('GET', '/ru/logout');
+        $client->submit($client->getCrawler()->filter('form[action="/ru/logout"]')->first()->form());
         self::assertTrue($client->getResponse()->isRedirect());
         $client->followRedirect();
         $client->request('GET', '/ru/login');

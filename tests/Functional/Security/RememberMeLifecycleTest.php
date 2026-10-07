@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Security;
 use App\Entity\User;
 use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -109,9 +110,10 @@ class RememberMeLifecycleTest extends WebTestCase
         $client->getCookieJar()->clear();
         $client->getCookieJar()->set($frontCookie);
         $client->getCookieJar()->set($adminCookie);
-        $client->request('GET', '/ru/logout');
+        $crawler = $client->request('GET', '/ru/profile');
+        $client->submit($crawler->filter('form[action="/ru/logout"]')->first()->form());
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        self::assertResponseRedirects('https://localhost/', Response::HTTP_FOUND);
         $this->assertBothRememberMeCookiesAreCleared($client);
 
         $client->request('GET', '/ru/profile');
@@ -130,9 +132,10 @@ class RememberMeLifecycleTest extends WebTestCase
         $client->getCookieJar()->clear();
         $client->getCookieJar()->set($frontCookie);
         $client->getCookieJar()->set($adminCookie);
-        $client->request('GET', '/ru/admin/logout');
+        $crawler = $client->request('GET', '/ru/admin/dashboard');
+        $client->submit($crawler->filter('form[action="/ru/admin/logout"]')->form());
 
-        self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
+        self::assertResponseRedirects('https://localhost/', Response::HTTP_FOUND);
         $this->assertBothRememberMeCookiesAreCleared($client);
 
         $client->request('GET', '/ru/profile');
@@ -140,6 +143,46 @@ class RememberMeLifecycleTest extends WebTestCase
 
         $client->request('GET', '/ru/admin/dashboard');
         self::assertResponseRedirects('/ru/admin/login', Response::HTTP_FOUND);
+    }
+
+    #[DataProvider('rejectedLogoutRequests')]
+    #[TestDox('GET и POST без действительного CSRF сохраняют сессию и обе remember-me cookie')]
+    public function testUnsafeLogoutDoesNotInvalidateSessionOrClearCookies(bool $admin, string $method, array $parameters, int $status): void
+    {
+        $client = static::createClient();
+        [$frontCookie, $adminCookie] = $this->issueBothRememberMeCookies($client);
+        $client->getCookieJar()->set($frontCookie);
+        $client->getCookieJar()->set($adminCookie);
+        $client->request('GET', '/ru/admin/dashboard');
+        self::assertResponseIsSuccessful();
+
+        $client->request($method, $admin ? '/ru/admin/logout' : '/ru/logout', $parameters);
+
+        self::assertResponseStatusCodeSame($status);
+        foreach (['REMEMBERME' => $frontCookie, 'ADMIN_REMEMBERME' => $adminCookie] as $name => $originalCookie) {
+            self::assertSame($originalCookie->getValue(), $client->getCookieJar()->get($name)?->getValue());
+            foreach ($client->getResponse()->headers->getCookies() as $cookie) {
+                if ($name === $cookie->getName()) {
+                    self::assertFalse($cookie->isCleared());
+                }
+            }
+            $client->getCookieJar()->expire($name);
+        }
+
+        $client->request('GET', '/ru/profile');
+        self::assertResponseIsSuccessful();
+        $client->request('GET', '/ru/admin/dashboard');
+        self::assertResponseIsSuccessful();
+    }
+
+    /** @return iterable<string, array{bool, string, array<string, string>, int}> */
+    public static function rejectedLogoutRequests(): iterable
+    {
+        foreach (['front' => false, 'admin' => true] as $name => $admin) {
+            yield $name.' GET' => [$admin, 'GET', [], Response::HTTP_METHOD_NOT_ALLOWED];
+            yield $name.' missing' => [$admin, 'POST', [], Response::HTTP_FORBIDDEN];
+            yield $name.' invalid' => [$admin, 'POST', ['_csrf_token' => 'invalid-csrf'], Response::HTTP_FORBIDDEN];
+        }
     }
 
     private function issueFrontRememberMeCookie(KernelBrowser $client): Cookie
