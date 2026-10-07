@@ -12,6 +12,7 @@ use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -53,6 +54,13 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertArrayHasKey(self::COLLECTION_URI.'/{id}', $document['paths']);
         self::assertArrayHasKey('delete', $document['paths'][self::COLLECTION_URI.'/{id}']);
         self::assertArrayNotHasKey('get', $document['paths'][self::COLLECTION_URI.'/{id}']);
+
+        $reference = $document['paths'][self::COLLECTION_URI]['post']['requestBody']['content']['application/json']['schema']['$ref'];
+        $schema = $document['components']['schemas'][substr($reference, strlen('#/components/schemas/'))];
+        $properties = array_keys($schema['properties']);
+        sort($properties);
+        self::assertSame(['appOrder', 'pricePerOne', 'product', 'quantity'], $properties);
+        self::assertFalse($schema['additionalProperties']);
     }
 
     #[TestDox('Анонимный пользователь не создаёт позиции заказа')]
@@ -117,6 +125,30 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertSame('320.21', $this->findOrder($context['orderId'])->getTotalPrice());
         self::assertSame('11.10', $this->findOrder($context['unrelatedOrderId'])->getTotalPrice());
         self::assertEmailCount(0);
+    }
+
+    #[DataProvider('forbiddenOrderProductFields')]
+    #[TestDox('Посторонние поля позиции заказа отклоняются без изменения заказов, позиций и итогов')]
+    public function testPostRejectsFieldsOutsideCreateContractWithoutMutation(string $field, mixed $value): void
+    {
+        $client = $this->createVerifiedAdminClient();
+        $context = $this->createOrderContext();
+        $before = $this->aggregateSnapshot($context);
+        $ordersBefore = $this->entityManager()->getConnection()->fetchAllAssociative('SELECT * FROM "order" ORDER BY id');
+
+        $this->requestPost($client, $this->validPostPayload($context) + [$field => $value]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($before, $this->aggregateSnapshot($context));
+        self::assertSame($ordersBefore, $this->entityManager()->getConnection()->fetchAllAssociative('SELECT * FROM "order" ORDER BY id'));
+        self::assertEmailCount(0);
+    }
+
+    /** @return iterable<string, array{string, mixed}> */
+    public static function forbiddenOrderProductFields(): iterable
+    {
+        yield 'unknown' => ['unexpected', true];
+        yield 'id' => ['id', 123456];
     }
 
     #[TestDox('Отсутствующая связь отклоняется до изменения заказа')]

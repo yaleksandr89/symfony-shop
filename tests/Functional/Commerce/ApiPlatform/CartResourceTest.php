@@ -7,10 +7,13 @@ namespace App\Tests\Functional\Commerce\ApiPlatform;
 use App\Account\Repository\UserRepository;
 use App\Commerce\Cart\TokenGenerator;
 use App\Entity\Cart;
+use App\Entity\CartProduct;
+use App\Entity\Product;
 use App\Entity\User;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\AbstractBrowser;
@@ -127,6 +130,20 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotSame($bodyToken, $this->persistedCart($cart['token'])->getToken());
     }
 
+    #[TestDox('Токен из тела POST не задаёт владение корзиной без cookie')]
+    public function testCartPostGeneratesTokenInsteadOfTrustingBodyTokenWithoutCookie(): void
+    {
+        $client = self::createClient();
+        $bodyToken = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
+        $cart = $this->postCart($client, ['token' => $bodyToken]);
+
+        $persistedToken = $this->persistedCart($cart['token'])->getToken();
+        self::assertIsString($persistedToken);
+        self::assertMatchesRegularExpression('/\A[0-9a-f]{32}\z/', $persistedToken);
+        self::assertNotSame($bodyToken, $persistedToken);
+    }
+
     #[TestDox('Повторный POST корзины возвращает конфликт без изменения сохранённых данных')]
     public function testDuplicateCartPostReturnsConflictWithoutChangingPersistedState(): void
     {
@@ -149,6 +166,73 @@ class CartResourceTest extends ResourceTestUtils
         self::assertInstanceOf(Cart::class, $persistedCart);
         self::assertSame($firstId, $persistedCart->getId());
         self::assertSame($token, $persistedCart->getToken());
+    }
+
+    #[DataProvider('forbiddenCartFields')]
+    #[TestDox('POST корзины отклоняет посторонние поля без изменения корзин и позиций')]
+    public function testCartPostRejectsFieldsOutsideIdentityContract(string $field, mixed $value): void
+    {
+        $client = self::createClient();
+        $this->createCartReadContext();
+        $before = $this->cartSnapshot();
+
+        $client->request('POST', '/api/carts', [], [], self::REQUEST_HEADERS, json_encode([
+            'token' => 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+            $field => $value,
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($before, $this->cartSnapshot());
+    }
+
+    #[TestDox('POST корзины не переносит чужую позицию через связь cartProducts')]
+    public function testCartPostCannotAttachForeignCartProduct(): void
+    {
+        $client = self::createClient();
+        [$ownCart, $foreignCart] = $this->createCartReadContext();
+        $product = (new Product())
+            ->setTitle('Protected cart product '.uniqid('', true))
+            ->setPrice('10.00')
+            ->setQuantity(5)
+            ->setIsPublished(true);
+        $line = (new CartProduct())->setProduct($product)->setQuantity(2);
+        $foreignCart->addCartProduct($line);
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($product);
+        $entityManager->flush();
+        $lineId = $line->getId();
+        self::assertIsInt($lineId);
+        $client->getCookieJar()->set(new Cookie('CART_TOKEN', (string) $ownCart->getToken()));
+        $before = $this->cartSnapshot();
+
+        $client->request('POST', '/api/carts', [], [], self::REQUEST_HEADERS, json_encode([
+            'cartProducts' => ['/api/cart_products/'.$lineId],
+        ], JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertSame($before, $this->cartSnapshot());
+    }
+
+    /** @return iterable<string, array{string, mixed}> */
+    public static function forbiddenCartFields(): iterable
+    {
+        yield 'unknown' => ['unexpected', true];
+        yield 'id' => ['id', 123456];
+        yield 'created at' => ['createdAt', '2000-01-01T00:00:00+00:00'];
+        yield 'relations' => ['cartProducts', []];
+    }
+
+    /** @return array{carts: list<array<string, mixed>>, lines: list<array<string, mixed>>} */
+    private function cartSnapshot(): array
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+        $connection = $entityManager->getConnection();
+
+        return [
+            'carts' => $connection->fetchAllAssociative('SELECT * FROM cart ORDER BY id'),
+            'lines' => $connection->fetchAllAssociative('SELECT * FROM cart_product ORDER BY id'),
+        ];
     }
 
     #[TestDox('Владелец по токену может удалить свою корзину')]
@@ -218,7 +302,7 @@ class CartResourceTest extends ResourceTestUtils
             [],
             [],
             self::REQUEST_HEADERS,
-            json_encode($payload, JSON_THROW_ON_ERROR),
+            json_encode((object) $payload, JSON_THROW_ON_ERROR),
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);

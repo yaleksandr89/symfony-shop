@@ -35,9 +35,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'api_carts_get_collection'
         ),
         new Post(
-            normalizationContext: ['groups' => ['cart:list:write']],
-            securityPostDenormalize: "is_granted('CART_EDIT', object)",
             exceptionToStatus: [UniqueConstraintViolationException::class => 409],
+            normalizationContext: ['groups' => ['cart:list:write']],
+            denormalizationContext: [
+                'groups' => ['cart:list:write'],
+                'allow_extra_attributes' => false,
+            ],
+            securityPostDenormalize: "is_granted('CART_EDIT', object)",
             name: 'api_carts_post_collection'
         ),
         new Get(
@@ -68,7 +72,7 @@ class Cart
     #[Column(type: 'datetime_immutable')]
     protected DateTimeImmutable $createdAt;
 
-    #[OneToMany(mappedBy: 'cart', targetEntity: CartProduct::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[OneToMany(targetEntity: CartProduct::class, mappedBy: 'cart', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['cart:list', 'cart:item'])]
     protected Collection $cartProducts;
 

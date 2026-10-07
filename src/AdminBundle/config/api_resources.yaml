@@ -5,6 +5,10 @@ resources:
         normalizationContext:
           groups:
             - 'order_product:list:write'
+        denormalizationContext:
+          groups:
+            - 'order_product:create'
+          allow_extra_attributes: false
         security: "is_granted('ROLE_ADMIN') and user and user.isVerified()"
         name: 'api_order_products_post_collection'
         processor: App\AdminBundle\ApiPlatform\State\AdminOrderProductProcessor
