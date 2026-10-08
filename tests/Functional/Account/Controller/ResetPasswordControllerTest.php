@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
@@ -162,6 +163,55 @@ class ResetPasswordControllerTest extends WebTestCase
         $client->followRedirect();
 
         self::assertResponseRedirects('/ru/reset-password', Response::HTTP_FOUND);
+    }
+
+    #[TestDox('Удалённый после предварительной проверки token безопасно отклоняется без изменения пароля и очистки reset-сессии')]
+    public function testLateTokenInvalidationFailsSafelyWithoutPasswordChangeOrSessionCleanup(): void
+    {
+        $client = static::createClient();
+        $user = $this->getFixtureUser();
+        $userId = (int) $user->getId();
+        $originalHash = $user->getPassword();
+        $token = self::getContainer()->get(ResetPasswordHelperInterface::class)->generateResetToken($user)->getToken();
+        $client->disableReboot();
+
+        $container = self::getContainer();
+        $realHasher = new UserPasswordHasher($container->get('security.password_hasher_factory'));
+        $repository = $container->get(ResetPasswordRequestRepository::class);
+        $hasher = $this->createMock(UserPasswordHasherInterface::class);
+        $hasher->expects(self::once())->method('hashPassword')->willReturnCallback(
+            static function (User $validatedUser, string $plainPassword) use ($realHasher, $repository): string {
+                $hash = $realHasher->hashPassword($validatedUser, $plainPassword);
+                $repository->removeRequests($validatedUser);
+
+                return $hash;
+            }
+        );
+        $container->set(UserPasswordHasherInterface::class, $hasher);
+        $client->request('GET', '/ru/reset-password/reset/'.$token);
+        $crawler = $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        $client->submit($crawler->filter('form[name="change_password_form"]')->form([
+            'change_password_form[plainPassword][first]' => 'late-invalid-password',
+            'change_password_form[plainPassword][second]' => 'late-invalid-password',
+        ]));
+
+        self::assertResponseRedirects('/ru/reset-password', Response::HTTP_FOUND);
+        $session = $container->get('session.factory')->createSession();
+        $cookie = $client->getCookieJar()->get($session->getName());
+        self::assertNotNull($cookie);
+        $session->setId($cookie->getValue());
+        self::assertTrue($session->has('ResetPasswordPublicToken'));
+        self::assertTrue($session->getFlashBag()->has('reset_password_error'));
+        $session->save();
+
+        static::ensureKernelShutdown();
+        static::bootKernel();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $persistedUser = $entityManager->find(User::class, $userId);
+        self::assertInstanceOf(User::class, $persistedUser);
+        self::assertSame($originalHash, $persistedUser->getPassword());
+        self::assertFalse($realHasher->isPasswordValid($persistedUser, 'late-invalid-password'));
     }
 
     #[TestDox('Сбой flush откатывает удаление token и изменение пароля')]
