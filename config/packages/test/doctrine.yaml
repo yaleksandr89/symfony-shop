@@ -1,5 +1,8 @@
+parameters:
+  reset_password_test_database_url: 'sqlite:///%kernel.project_dir%/var/db_for_test.db'
+
 doctrine:
   dbal:
     # "TEST_TOKEN" is typically set by ParaTest
     dbname_suffix: '_test%env(default::TEST_TOKEN)%'
-    url: "sqlite:///%kernel.project_dir%/var/db_for_test.db"
+    url: '%env(resolve:default:reset_password_test_database_url:TEST_DATABASE_URL)%'

@@ -8,6 +8,7 @@ use App\Account\Form\ChangePasswordFormType;
 use App\Account\Form\ResetPasswordRequestFormType;
 use App\Account\Message\Command\ResetUserPasswordCommand;
 use App\Entity\User;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
+use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
@@ -79,15 +81,7 @@ class ResetPasswordController extends AbstractController
             /** @var User $user */
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface $e) {
-            $this->addFlash(
-                'reset_password_error',
-                sprintf(
-                    'There was a problem validating your reset request - %s',
-                    $e->getReason()
-                )
-            );
-
-            return $this->redirectToRoute('main_forgot_password_request');
+            return $this->resetTokenFailure($e);
         }
 
         // The token is valid; allow the user to change their password.
@@ -100,10 +94,27 @@ class ResetPasswordController extends AbstractController
                 $form->get('plainPassword')->getData()
             );
 
-            $this->entityManager->wrapInTransaction(function () use ($encodedPassword, $token, $user): void {
-                $this->resetPasswordHelper->removeResetRequest($token);
-                $user->setPassword($encodedPassword);
-            });
+            $userId = $user->getId();
+            try {
+                $this->entityManager->wrapInTransaction(function () use ($encodedPassword, $token, $userId): void {
+                    $lockedUser = $this->entityManager->find(User::class, $userId, LockMode::PESSIMISTIC_WRITE);
+                    if (!$lockedUser instanceof User) {
+                        throw new InvalidResetPasswordTokenException();
+                    }
+
+                    // EN: Revalidate after acquiring the user lock so concurrent resets cannot reuse the token.
+                    // RU: Повторная проверка после блокировки пользователя исключает конкурентное использование token.
+                    $tokenUser = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
+                    if (!$tokenUser instanceof User || $tokenUser->getId() !== $lockedUser->getId()) {
+                        throw new InvalidResetPasswordTokenException();
+                    }
+
+                    $this->resetPasswordHelper->removeResetRequest($token);
+                    $lockedUser->setPassword($encodedPassword);
+                });
+            } catch (ResetPasswordExceptionInterface $e) {
+                return $this->resetTokenFailure($e);
+            }
 
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
@@ -114,5 +125,15 @@ class ResetPasswordController extends AbstractController
         return $this->render('account/reset_password/reset.html.twig', [
             'resetForm' => $form->createView(),
         ]);
+    }
+
+    private function resetTokenFailure(ResetPasswordExceptionInterface $exception): Response
+    {
+        $this->addFlash(
+            'reset_password_error',
+            sprintf('There was a problem validating your reset request - %s', $exception->getReason())
+        );
+
+        return $this->redirectToRoute('main_forgot_password_request');
     }
 }
