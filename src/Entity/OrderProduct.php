@@ -36,7 +36,7 @@ class OrderProduct
     protected ?int $quantity = null;
 
     #[Column(type: Types::DECIMAL, precision: 15, scale: 2)]
-    #[Groups(['order:item', 'order_product:create'])]
+    #[Groups(['order:item'])]
     protected ?string $pricePerOne = null;
 
     public function __construct()

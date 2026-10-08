@@ -74,7 +74,6 @@ class OrderEditorBrowserTest extends PantherTestCase
             );
             $inputSelector = '.table-additional-selection > .row.mb-2 input[type="number"]';
             $this->setVueBoundInputValue($client, $inputSelector, 0, '3');
-            $this->setVueBoundInputValue($client, $inputSelector, 1, '12.34');
             $driver = $client->getWebDriver();
             $categorySelect = $driver->findElement(WebDriverBy::cssSelector('select[name="add_product_category_select"]'));
             $productSelect = $driver->findElement(WebDriverBy::cssSelector('select[name="add_product_product_select"]'));
@@ -86,8 +85,8 @@ class OrderEditorBrowserTest extends PantherTestCase
             );
             self::assertSame((string) $context['addedCategoryId'], $categorySelect->getDomProperty('value'));
             self::assertSame($context['addedProductUuid'], $productSelect->getDomProperty('value'));
+            self::assertCount(1, $inputs);
             self::assertSame('3', $inputs[0]->getDomProperty('value'));
-            self::assertSame('12.34', $inputs[1]->getDomProperty('value'));
             self::assertTrue($addButton->isDisplayed());
             self::assertTrue($addButton->isEnabled());
             $this->activateRenderedControl(

@@ -671,7 +671,6 @@ class OrderControllerTest extends WebTestCase
                 'chooseCategory' => 'Выберите категорию',
                 'chooseProduct' => 'Выберите товар',
                 'quantityPlaceholder' => 'Количество',
-                'pricePerItemPlaceholder' => 'Цена за единицу',
                 'details' => 'Подробнее',
                 'add' => 'Добавить',
                 'remove' => 'Удалить',
@@ -679,7 +678,7 @@ class OrderControllerTest extends WebTestCase
                 'insufficientRights' => 'Недостаточно прав. Обратитесь к администратору.',
             ],
             [
-                'Choose a category', 'Choose a product', 'Quantity', 'Price per item', 'Details', 'Add', 'Remove',
+                'Choose a category', 'Choose a product', 'Quantity', 'Details', 'Add', 'Remove',
                 'Total price', 'You do not have enough permissions. Contact the administrator.',
             ],
         ];
@@ -690,7 +689,6 @@ class OrderControllerTest extends WebTestCase
                 'chooseCategory' => 'Choose a category',
                 'chooseProduct' => 'Choose a product',
                 'quantityPlaceholder' => 'Quantity',
-                'pricePerItemPlaceholder' => 'Price per item',
                 'details' => 'Details',
                 'add' => 'Add',
                 'remove' => 'Remove',
@@ -698,7 +696,7 @@ class OrderControllerTest extends WebTestCase
                 'insufficientRights' => 'You do not have enough permissions. Contact the administrator.',
             ],
             [
-                'Выберите категорию', 'Выберите товар', 'Количество', 'Цена за единицу', 'Подробнее', 'Добавить',
+                'Выберите категорию', 'Выберите товар', 'Количество', 'Подробнее', 'Добавить',
                 'Удалить', 'Общая стоимость', 'Недостаточно прав. Обратитесь к администратору.',
             ],
         ];
