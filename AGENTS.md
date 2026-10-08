@@ -165,7 +165,15 @@ Narrow fixes, security corrections, and compatibility work needed for the suppor
 
 ## Persistence and data
 
-Runtime persistence uses PostgreSQL with Doctrine ORM/DBAL. Test/Panther environments use SQLite where configured.
+Runtime persistence uses PostgreSQL with Doctrine ORM/DBAL. Default PHPUnit/Panther environments use SQLite where configured.
+
+A dedicated disposable PostgreSQL test path exists for reset-password concurrency:
+
+```text
+make test-reset-password-postgresql CONFIRM=testdb
+```
+
+Use that target when the reset-password one-use/locking boundary is affected. It exists because SQLite does not prove PostgreSQL row-locking, isolation, or concurrent-commit semantics. Do not repurpose it as a general test database and do not point it at the normal development PostgreSQL volume.
 
 Use parameter binding / Doctrine APIs for queries. Do not concatenate untrusted input into SQL/DQL.
 
@@ -279,6 +287,7 @@ make test-unit CONFIRM=testdb
 make test-integration CONFIRM=testdb
 make test-functional CONFIRM=testdb
 make test-functional-panther CONFIRM=testdb
+make test-reset-password-postgresql CONFIRM=testdb
 
 make test-all-core CONFIRM=testdb
 make test-all CONFIRM=testdb
@@ -400,9 +409,22 @@ mutate production
 
 Remote read/search/verification is allowed when the task and available tooling permit it. Remote mutation is not.
 
-This repository can have multiple remotes. Do not assume the relevant remote alias; inspect `git remote -v` / repository configuration when a remote baseline matters.
+For ChatGPT/Codex workflow in this repository, the authoritative remote is:
 
-After the user reports a push/merge/tag/release, do not mark it VERIFIED solely from the user's statement or local state when independent remote verification is available.
+```text
+origin
+```
+
+`origin` is the GitHub repository used for branch/master baselines, push instructions, CI/checkpoint closure, and independent remote verification.
+
+Other configured remotes such as `gitea`, `gitflic`, and `mos` are user-managed mirrors. Unless the user explicitly asks otherwise, do not:
+
+- use them as a baseline;
+- compare their divergence/status;
+- include them in push/verification instructions;
+- require them for checkpoint closure.
+
+After the user reports a push/merge/tag/release, do not mark it VERIFIED solely from the user's statement or local state when independent `origin` verification is available.
 
 ## Review contract
 
@@ -417,13 +439,17 @@ NOT ACCEPTED
 
 If review finds a known fixable in-scope defect, the result is `NOT ACCEPTED`.
 
-Before proposing corrective changes, review the entire current diff, all changed paths, applicable contracts, relevant API/version semantics, and available check evidence. Collect all known in-scope findings first.
+Before any corrective prompt or patch, complete review of the entire current batch: the full diff, all changed paths, applicable instructions/contracts, acceptance criteria, relevant API/version semantics, and available verification evidence. Collect all known in-scope findings first.
 
-One review cycle should normally produce one consolidated corrective batch. Do not issue a patch after the first finding while review of the rest of the diff is still ongoing.
+One review cycle produces one consolidated corrective batch for all known in-scope findings. Do not issue a corrective patch after the first finding while review of the remaining changed paths/contracts is still in progress.
 
-After correction, review the complete resulting diff again, not only the patched lines.
+A new diff alone does not justify another corrective cycle. An additional cycle requires a concrete new fact such as a regression introduced by the last correction, a previously unavailable check result, an objectively hidden interaction defect, or an owner-changed scope/contract. State explicitly why the finding could not have been established during the previous full review.
 
-Recommend commit/PR only after `ACCEPTED` with no known fixable in-scope defect.
+Findings with a shared architectural/root-cause source must be corrected together as one coherent correction. If the correct solution requires a materially new scope or product/architecture/security/platform/dependency decision, stop for owner decision instead of creating a sequence of local symptom patches.
+
+Do not expand approved scope or acceptance criteria during review/correction merely to chase a broader standard or ideal redesign.
+
+After correction, review the complete resulting diff and affected contracts again, not only the patched lines. Recommend commit/PR only after `ACCEPTED` with no known fixable in-scope defect.
 
 ## Stop conditions
 
