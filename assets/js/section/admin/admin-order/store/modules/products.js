@@ -16,7 +16,6 @@ const state = () => ({
     categoryId: "",
     productId: "",
     quantity: "",
-    pricePerOne: "",
   },
   staticStore: {
     orderId: window.staticStore.orderId,
@@ -84,7 +83,6 @@ const actions = {
 
     const url = state.staticStore.url.apiOrderProduct;
     const data = {
-      pricePerOne: state.newOrderProduct.pricePerOne.toString(),
       quantity: parseInt(state.newOrderProduct.quantity),
       product: "/api/products/" + state.newOrderProduct.productId,
       appOrder: "/api/orders/" + state.staticStore.orderId,
@@ -125,7 +123,6 @@ const mutations = {
     state.newOrderProduct.categoryId = formData.categoryId;
     state.newOrderProduct.productId = formData.productId;
     state.newOrderProduct.quantity = formData.quantity;
-    state.newOrderProduct.pricePerOne = formData.pricePerOne;
   },
   setOrderProducts(state, orderProducts) {
     state.orderProducts = orderProducts;

@@ -161,7 +161,6 @@ order.products.total_price: Total price
 order.products.choose_category: Choose a category
 order.products.choose_product: Choose a product
 order.products.quantity_placeholder: Quantity
-order.products.price_per_item_placeholder: Price per item
 order.products.action.details: Details
 order.products.action.add: Add
 order.products.action.remove: Remove

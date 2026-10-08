@@ -52,19 +52,6 @@
       />
     </div>
 
-    <div v-if="showProductOptions" class="col-md-2">
-      <input
-        v-model="form.pricePerOne"
-        type="number"
-        class="form-control"
-        :placeholder="staticStore.translations.pricePerItemPlaceholder"
-        step="0.01"
-        min="1"
-        :max="productPriceMax"
-        @change="updateMaxValue($event, 'pricePerOne', productPriceMax)"
-      />
-    </div>
-
     <div v-if="showProductOptions" class="col-md-3">
       <button class="btn btn-sm btn-outline-info" @click.prevent="viewDetails">
         {{ staticStore.translations.details }}
@@ -89,7 +76,6 @@ export default {
         categoryId: "",
         productId: "",
         quantity: "",
-        pricePerOne: "",
       },
     };
   },
@@ -98,9 +84,6 @@ export default {
     ...mapGetters("products", ["freeCategoryProducts"]),
     productQuantityMax() {
       return parseInt(this.selectedProduct.quantity);
-    },
-    productPriceMax() {
-      return parseFloat(this.selectedProduct.price);
     },
     selectedProduct() {
       return this.freeCategoryProducts.find(
@@ -154,7 +137,6 @@ export default {
     },
     changeProduct() {
       this.form.quantity = "";
-      this.form.pricePerOne = "";
     },
   },
 };

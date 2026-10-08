@@ -161,7 +161,6 @@ order.products.total_price: Общая стоимость
 order.products.choose_category: Выберите категорию
 order.products.choose_product: Выберите товар
 order.products.quantity_placeholder: Количество
-order.products.price_per_item_placeholder: Цена за единицу
 order.products.action.details: Подробнее
 order.products.action.add: Добавить
 order.products.action.remove: Удалить

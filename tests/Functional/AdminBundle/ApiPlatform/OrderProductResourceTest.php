@@ -59,7 +59,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         $schema = $document['components']['schemas'][substr($reference, strlen('#/components/schemas/'))];
         $properties = array_keys($schema['properties']);
         sort($properties);
-        self::assertSame(['appOrder', 'pricePerOne', 'product', 'quantity'], $properties);
+        self::assertSame(['appOrder', 'product', 'quantity'], $properties);
         self::assertFalse($schema['additionalProperties']);
     }
 
@@ -115,7 +115,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         $context = $this->createOrderContext();
         $countBefore = $this->countOrderProducts();
 
-        $this->requestPost($client, $this->validPostPayload($context, '9999999999999.99', 2));
+        $this->requestPost($client, $this->validPostPayload($context, 2));
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
         self::assertSame($countBefore + 1, $this->countOrderProducts());
@@ -125,6 +125,10 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertSame('320.21', $this->findOrder($context['orderId'])->getTotalPrice());
         self::assertSame('11.10', $this->findOrder($context['unrelatedOrderId'])->getTotalPrice());
         self::assertEmailCount(0);
+
+        $this->setProductPrice($context['freeProductId'], '99.99');
+        self::assertSame('89.99', $this->findLine($context['orderId'], $context['freeProductId'])->getPricePerOne());
+        self::assertSame('320.21', $this->findOrder($context['orderId'])->getTotalPrice());
     }
 
     #[DataProvider('forbiddenOrderProductFields')]
@@ -147,6 +151,7 @@ class OrderProductResourceTest extends ResourceTestUtils
     /** @return iterable<string, array{string, mixed}> */
     public static function forbiddenOrderProductFields(): iterable
     {
+        yield 'client price' => ['pricePerOne', '0.01'];
         yield 'unknown' => ['unexpected', true];
         yield 'id' => ['id', 123456];
     }
@@ -161,7 +166,6 @@ class OrderProductResourceTest extends ResourceTestUtils
         $this->requestPost($client, [
             'product' => $context['freeProductIri'],
             'quantity' => 1,
-            'pricePerOne' => '1.00',
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -176,7 +180,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         $context = $this->createOrderContext();
         $before = $this->aggregateSnapshot($context);
 
-        $this->requestPost($client, $this->validPostPayload($context, '1.00', 0));
+        $this->requestPost($client, $this->validPostPayload($context, 0));
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         self::assertSame($before, $this->aggregateSnapshot($context));
@@ -194,7 +198,6 @@ class OrderProductResourceTest extends ResourceTestUtils
             'appOrder' => $context['orderIri'],
             'product' => $context['existingProductIri'],
             'quantity' => 99,
-            'pricePerOne' => '0.01',
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
@@ -210,7 +213,7 @@ class OrderProductResourceTest extends ResourceTestUtils
         $this->setProductPrice($context['freeProductId'], '9999999999999.99');
         $before = $this->aggregateSnapshot($context);
 
-        $this->requestPost($client, $this->validPostPayload($context, '0.01', PHP_INT_MAX));
+        $this->requestPost($client, $this->validPostPayload($context, PHP_INT_MAX));
 
         self::assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR);
         self::assertSame($before, $this->aggregateSnapshot($context));
@@ -398,13 +401,12 @@ class OrderProductResourceTest extends ResourceTestUtils
     }
 
     /** @return array<string, mixed> */
-    private function validPostPayload(array $context, string $forgedPrice = '0.01', int $quantity = 1): array
+    private function validPostPayload(array $context, int $quantity = 1): array
     {
         return [
             'appOrder' => $context['orderIri'],
             'product' => $context['freeProductIri'],
             'quantity' => $quantity,
-            'pricePerOne' => $forgedPrice,
         ];
     }
 
