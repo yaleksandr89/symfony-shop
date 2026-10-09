@@ -12,7 +12,11 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPasswordValidator;
+use Symfony\Component\Validator\Constraint;
 
 #[Group(name: 'functional')]
 final class OAuthUnlinkTest extends WebTestCase
@@ -189,6 +193,49 @@ final class OAuthUnlinkTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         $this->assertIdentity($user, 'google', 'linked-google');
         self::assertEmailCount(0);
+    }
+
+    #[TestDox('Отвязка не стирает замену после проверки пароля и сохраняет ожидающее OAuth намерение')]
+    public function testReplacementAfterPostObservationIsDeniedAndPendingIntentIsPreserved(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $user = $this->createUser(['google' => 'observed']);
+        $client->loginUser($user, 'website');
+        $crawler = $client->request('GET', '/ru/profile/oauth/google/unlink');
+        $form = $crawler->filter('form')->form(['oauth_unlink_form[currentPassword]' => self::PASSWORD]);
+        $session = $client->getRequest()->getSession();
+        $session->set('oauth_link_intent', ['test-marker' => 'pending']);
+        $session->save();
+        $container = self::getContainer();
+        $validator = new class($container->get('security.token_storage'), $container->get('security.password_hasher_factory'), $container->get(EntityManagerInterface::class), $user->getId()) extends UserPasswordValidator {
+            public function __construct(TokenStorageInterface $tokenStorage, PasswordHasherFactoryInterface $hasherFactory, private EntityManagerInterface $manager, private int $userId)
+            {
+                parent::__construct($tokenStorage, $hasherFactory);
+            }
+
+            public function validate(mixed $password, Constraint $constraint): void
+            {
+                $before = $this->context->getViolations()->count();
+                parent::validate($password, $constraint);
+                if ($before === $this->context->getViolations()->count()) {
+                    $this->manager->getConnection()->executeStatement('UPDATE "user" SET google_id = ? WHERE id = ?', ['replacement', $this->userId]);
+                }
+            }
+
+        };
+        $container->set('security.validator.user_password', $validator);
+
+        $client->submit($form);
+
+        self::assertResponseRedirects('/ru/profile');
+        self::assertSame(['test-marker' => 'pending'], $client->getRequest()->getSession()->get('oauth_link_intent'));
+        self::assertTrue($container->get(EntityManagerInterface::class)->isOpen());
+        $this->assertIdentity($user, 'google', 'replacement');
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.alert-danger');
+        self::assertStringNotContainsString('replacement', (string) $client->getResponse()->getContent());
     }
 
     /** @return iterable<string, array{?string}> */

@@ -1,6 +1,7 @@
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
 RESET_PASSWORD_COMPOSE = $(COMPOSE) -f docker-compose.yml -f docker-compose.reset-password-test.yml
+OAUTH_COMPOSE = $(COMPOSE) -f docker-compose.yml -f docker-compose.oauth-test.yml
 
 INTERACTIVE_TARGETS = restart log in
 IN_SERVICES = php nginx postgres node
@@ -38,7 +39,7 @@ $(SERVICE): ;
 endif
 
 .PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core coverage coverage-html test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
-.PHONY: test-reset-password-postgresql
+.PHONY: test-reset-password-postgresql test-oauth-postgresql
 
 help:
 	@printf '%s\n' 'Bootstrap / Первичная настройка:'
@@ -86,6 +87,7 @@ help:
 	@printf '%s\n' '  make test-integration                  Run PHPUnit integration group / Запустить integration-группу PHPUnit'
 	@printf '%s\n' '  make test-functional                   Run PHPUnit functional group / Запустить functional-группу PHPUnit'
 	@printf '%s\n' '  make test-reset-password-postgresql CONFIRM=testdb  Run reset concurrency tests in disposable PostgreSQL / Проверить конкурентный сброс в одноразовой PostgreSQL БД'
+	@printf '%s\n' '  make test-oauth-postgresql CONFIRM=testdb  Run OAuth identity races in disposable PostgreSQL / Проверить конкурентные изменения OAuth в одноразовой PostgreSQL БД'
 	@printf '%s\n' '  make test-functional-panther           Run PHPUnit functional-panther group / Запустить browser-группу PHPUnit через Panther'
 	@printf '%s\n' '  make test-all-core CONFIRM=testdb       Build assets and run the core test baseline / Собрать assets и запустить основной набор тестов'
 	@printf '%s\n' '  make coverage CONFIRM=testdb            Run terminal-only core PHP/PHPUnit coverage after test DB reset, excluding Panther / Запустить terminal-only core-покрытие PHP/PHPUnit после пересоздания тестовой БД, без Panther'
@@ -277,6 +279,24 @@ test-reset-password-postgresql: check-env
 		-e TEST_DATABASE_URL='postgresql://reset_password_test:disposable_reset_password_test@reset-password-postgres:5432/reset_password_concurrency?serverVersion=18.4' \
 		php php /var/www/html/vendor/bin/phpunit -c phpunit.reset-password-postgresql.xml.dist --do-not-record-test-run-history --no-coverage; \
 	} 9>/tmp/symfony-shop-reset-password-postgresql.lock
+
+test-oauth-postgresql: check-env
+	@if [ "$(CONFIRM)" != "testdb" ]; then \
+		printf '%s\n' 'Refusing disposable OAuth DB tests. Re-run with: make test-oauth-postgresql CONFIRM=testdb'; \
+		exit 1; \
+	fi
+	@{ set -eu; \
+	flock -n 9 || { printf '%s\n' 'OAuth PostgreSQL tests are already running'; exit 1; }; \
+	if [ -n "$$( $(OAUTH_COMPOSE) ps -a -q oauth-postgres )" ]; then \
+		printf '%s\n' 'Refusing to reuse an existing OAuth test container'; exit 1; \
+	fi; \
+	trap '$(OAUTH_COMPOSE) rm --stop --force oauth-postgres' EXIT; \
+	trap 'exit 130' INT; trap 'exit 143' TERM; \
+	$(OAUTH_COMPOSE) up -d --no-deps --wait --wait-timeout 60 oauth-postgres; \
+	$(OAUTH_COMPOSE) exec -T --user app -e APP_ENV=test -e APP_DEBUG=1 -e TEST_TOKEN= \
+		-e TEST_DATABASE_URL='postgresql://oauth_identity_test:disposable_oauth_identity_test@oauth-postgres:5432/oauth_identity_concurrency?serverVersion=18.4' \
+		php php /var/www/html/vendor/bin/phpunit -c phpunit.oauth-postgresql.xml.dist --do-not-record-test-run-history --no-coverage; \
+	} 9>/tmp/symfony-shop-oauth-postgresql.lock
 
 test-functional-panther:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-record-test-run-history --no-coverage

@@ -14,6 +14,7 @@ use App\OAuthBundle\Security\OAuth\OAuthProvider;
 use App\Tests\TestUtils\OAuth\FakeOAuth2Client;
 use App\Tests\TestUtils\OAuth\FakeOAuthResourceOwner;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
@@ -143,6 +144,7 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
             }
         };
         $user->assignId(13);
+        $user->setEmail('callback@example.test')->setPassword('synthetic-hash');
         $user->setGoogleId(null);
         $user->setYandexId(null);
         $user->setVkontakteId(null);
@@ -186,7 +188,19 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         if ('link' === $failurePhase) {
             $flush->willThrowException(new \RuntimeException('secret-upstream-detail'));
         }
-        $linker = new OAuthAccountLinker(new OAuthIdentityAccessor(), $repository, $entityManager);
+        $entityManager->method('find')->willReturn($user);
+        $entityManager->method('getRepository')->willReturn($repository);
+        $entityManager->method('isOpen')->willReturn(true);
+        $entityManager->method('contains')->willReturn(true);
+        $entityManager->method('wrapInTransaction')->willReturnCallback(static function (callable $mutation) use ($entityManager): bool {
+            $accepted = $mutation($entityManager);
+            $entityManager->flush();
+
+            return $accepted;
+        });
+        $doctrine = $this->createStub(ManagerRegistry::class);
+        $doctrine->method('getManagerForClass')->willReturn($entityManager);
+        $linker = new OAuthAccountLinker(new OAuthIdentityAccessor(), $doctrine);
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator->expects($shouldLink ? self::once() : self::never())->method('generate')->willReturn('/ru/profile');
         $translator = $this->createMock(TranslatorInterface::class);

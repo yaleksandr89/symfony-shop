@@ -9,8 +9,10 @@ use App\OAuthBundle\Security\OAuth\OAuthProvider;
 use App\OAuthBundle\Security\OAuth\OAuthProviderAvailability;
 use App\Tests\TestUtils\OAuth\FakeOAuth2Client;
 use App\Tests\TestUtils\OAuth\FakeOAuthResourceOwner;
+use Closure;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -285,6 +287,81 @@ final class OAuthLinkTest extends WebTestCase
         self::assertStringNotContainsString($externalId, (string) $client->getResponse()->getContent());
     }
 
+    #[TestDox('Callback не перезаписывает привязку, появившуюся во время обмена с провайдером')]
+    public function testIdentityCommittedDuringProviderExchangeProducesGenericFailure(): void
+    {
+        $owner = new class(function (): void {
+            $manager = self::getContainer()->get(EntityManagerInterface::class);
+            self::assertSame(0, $manager->getConnection()->getTransactionNestingLevel());
+            $user = self::getContainer()->get('security.token_storage')->getToken()->getUser();
+            $manager->getConnection()->executeStatement('UPDATE "user" SET google_id = ? WHERE id = ?', ['winner', $user->getId()]);
+        }) implements ResourceOwnerInterface {
+            public function __construct(private Closure $duringExchange)
+            {
+            }
+
+            public function getId(): string
+            {
+                ($this->duringExchange)();
+
+                return 'loser';
+            }
+
+            public function toArray(): array
+            {
+                return [];
+            }
+        };
+        [$client, $user] = $this->linkClient(OAuthProvider::Google, $owner);
+        $this->startLink($client, OAuthProvider::Google);
+
+        $client->request('GET', '/ru/connect/google/check', ['code' => 'fake-code', 'state' => 'fake-oauth-state']);
+
+        self::assertResponseRedirects('/ru/profile');
+        self::assertSame('winner', $this->reload($user)->getGoogleId());
+        self::assertFalse($client->getRequest()->getSession()->has('oauth_link_intent'));
+        self::assertFalse($client->getRequest()->getSession()->has('knpu.oauth2_client_state'));
+        self::assertTrue(self::getContainer()->get(EntityManagerInterface::class)->isOpen());
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.alert-danger');
+        self::assertSame($user->getId(), self::getContainer()->get('security.token_storage')->getToken()?->getUser()?->getId());
+    }
+
+    #[TestDox('Изменение пароля во время обмена не подменяет проверенный security snapshot')]
+    public function testPasswordChangeDuringExchangeCannotRefreshAuthentication(): void
+    {
+        $owner = new class(function (): void {
+            $user = self::getContainer()->get('security.token_storage')->getToken()->getUser();
+            self::getContainer()->get(EntityManagerInterface::class)->getConnection()->executeStatement('UPDATE "user" SET password = ? WHERE id = ?', ['changed-synthetic-hash', $user->getId()]);
+        }) implements ResourceOwnerInterface {
+            public function __construct(private Closure $duringExchange)
+            {
+            }
+
+            public function getId(): string
+            {
+                ($this->duringExchange)();
+
+                return 'candidate';
+            }
+
+            public function toArray(): array
+            {
+                return [];
+            }
+        };
+        [$client, $user] = $this->linkClient(OAuthProvider::Google, $owner);
+        $this->startLink($client, OAuthProvider::Google);
+        $client->request('GET', '/ru/connect/google/check', ['code' => 'fake-code', 'state' => 'fake-oauth-state']);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        self::assertNull($this->reload($user)->getGoogleId());
+        self::assertFalse($client->getRequest()->getSession()->has('oauth_link_intent'));
+        self::assertFalse($client->getRequest()->getSession()->has('knpu.oauth2_client_state'));
+        $client->request('GET', '/ru/profile');
+        self::assertResponseRedirects('/ru/login');
+    }
+
     /** @return iterable<string, array{string}> */
     public static function invalidConfirmationCases(): iterable
     {
@@ -315,7 +392,7 @@ final class OAuthLinkTest extends WebTestCase
     }
 
     /** @return array{KernelBrowser, User, FakeOAuth2Client} */
-    private function linkClient(OAuthProvider $provider, string $externalId): array
+    private function linkClient(OAuthProvider $provider, string|ResourceOwnerInterface $externalId): array
     {
         $client = self::createClient();
         $client->disableReboot();
@@ -337,11 +414,11 @@ final class OAuthLinkTest extends WebTestCase
         self::assertResponseRedirects('https://provider.example/authorize?state=fake-oauth-state');
     }
 
-    private function installFakeClients(string $externalId): FakeOAuth2Client
+    private function installFakeClients(string|ResourceOwnerInterface $externalId): FakeOAuth2Client
     {
         $fake = new FakeOAuth2Client(
             self::getContainer()->get(RequestStack::class),
-            new FakeOAuthResourceOwner($externalId)
+            is_string($externalId) ? new FakeOAuthResourceOwner($externalId) : $externalId
         );
         $container = new class($fake) extends Container {
             public function __construct(private readonly FakeOAuth2Client $fake)

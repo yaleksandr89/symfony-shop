@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.3/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+         cacheDirectory="var/phpunit/oauth-postgresql"
+         failOnDeprecation="true"
+         failOnPhpunitDeprecation="true"
+         testdox="true">
+    <php>
+        <const name="OAUTH_POSTGRESQL_SUITE" value="1"/>
+        <ini name="display_errors" value="1"/>
+        <ini name="error_reporting" value="-1"/>
+        <server name="APP_ENV" value="test" force="true"/>
+        <server name="APP_DEBUG" value="1" force="true"/>
+        <server name="SHELL_VERBOSITY" value="-1"/>
+        <server name="TEST_TOKEN" value="" force="true"/>
+    </php>
+    <testsuites>
+        <testsuite name="OAuth identity PostgreSQL concurrency">
+            <file>tests/Integration/OAuthBundle/Security/OAuthIdentityMutationConcurrencyPostgreSqlTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

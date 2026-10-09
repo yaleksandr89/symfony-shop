@@ -1,0 +1,14 @@
+services:
+  oauth-postgres:
+    image: postgres:18.4-alpine3.24
+    environment:
+      POSTGRES_DB: oauth_identity_concurrency_test
+      POSTGRES_USER: oauth_identity_test
+      POSTGRES_PASSWORD: disposable_oauth_identity_test
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "oauth_identity_test", "-d", "oauth_identity_concurrency_test"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
