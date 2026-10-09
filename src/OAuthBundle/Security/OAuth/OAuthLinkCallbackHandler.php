@@ -15,9 +15,11 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
-final class OAuthLinkCallbackHandler
+final readonly class OAuthLinkCallbackHandler
 {
     public function __construct(
         private readonly TokenStorageInterface $tokenStorage,
@@ -33,7 +35,8 @@ final class OAuthLinkCallbackHandler
     {
         /** @var Session $session */
         $session = $request->getSession();
-        $user = $this->tokenStorage->getToken()?->getUser();
+        $token = $this->tokenStorage->getToken();
+        $user = $token?->getUser();
         if (!$user instanceof User) {
             throw new AccessDeniedHttpException();
         }
@@ -50,8 +53,15 @@ final class OAuthLinkCallbackHandler
         try {
             $client = $this->clientRegistry->getClient($provider->oauthClientName());
             $resourceOwner = $client->fetchUserFromToken($client->getAccessToken());
-            $this->accountLinker->link($user, $provider, $resourceOwner->getId());
-        } catch (\Throwable) {
+            $persistedUser = $this->accountLinker->link($user, $provider, $resourceOwner->getId());
+            $this->synchronizeUser($token, $user, $persistedUser);
+        } catch (Throwable) {
+            try {
+                $persistedUser = $this->accountLinker->recoverUser($user);
+            } catch (Throwable) {
+                throw new AccessDeniedHttpException('OAuth account is unavailable.');
+            }
+            $this->synchronizeUser($token, $user, $persistedUser);
             $session->getFlashBag()->add(
                 'danger',
                 $this->translator->trans('personal_account.social_group.oauth_link.failure')
@@ -68,5 +78,18 @@ final class OAuthLinkCallbackHandler
         );
 
         return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));
+    }
+
+    private function synchronizeUser(TokenInterface $token, User $authenticatedUser, User $persistedUser): void
+    {
+        if ($this->tokenStorage->getToken() !== $token || $token->getUser() !== $authenticatedUser
+            || $persistedUser->getId() !== $authenticatedUser->getId()
+            || !$authenticatedUser->isEqualTo($persistedUser)
+        ) {
+            throw new AccessDeniedHttpException('OAuth account is unavailable.');
+        }
+        // EN: Keep the existing authentication and token; replace only a verified same-account user snapshot.
+        // RU: Сохраняем аутентификацию и token; заменяем только проверенный снимок того же аккаунта.
+        $token->setUser($persistedUser);
     }
 }

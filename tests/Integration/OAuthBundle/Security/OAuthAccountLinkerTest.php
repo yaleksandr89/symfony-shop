@@ -86,6 +86,43 @@ final class OAuthAccountLinkerTest extends KernelTestCase
         self::assertNull($reloaded->getGoogleId());
     }
 
+    #[TestDox('Устаревший managed user обновляется до проверки; конфликт сохраняет manager')]
+    public function testStaleManagedUserCannotOverwriteCommittedIdentity(): void
+    {
+        $user = $this->persistUser('stale');
+        $this->entityManager->getConnection()->executeStatement('UPDATE "user" SET google_id = ? WHERE id = ?', ['winner', $user->getId()]);
+        self::assertNull($user->getGoogleId());
+        try {
+            $this->linker->link($user, OAuthProvider::Google, 'loser');
+            self::fail('Stale identity cannot overwrite the persisted winner.');
+        } catch (OAuthIdentityConflictException) {
+            self::assertTrue($this->entityManager->isOpen());
+            self::assertSame('winner', $this->linker->recoverUser($user)->getGoogleId());
+            self::assertNull($user->getGoogleId());
+            self::assertTrue($this->entityManager->contains($this->linker->recoverUser($user)));
+        }
+    }
+
+    #[TestDox('Запоздалая отвязка не удаляет новую привязку; последовательная смена остаётся доступной')]
+    public function testDelayedUnlinkCannotEraseSequentialReplacement(): void
+    {
+        $user = $this->persistUser('replacement');
+        $this->linker->link($user, OAuthProvider::GithubEn, 'old-identity');
+        $this->linker->unlink($user, OAuthProvider::GithubRus, 'old-identity');
+        $this->linker->link($user, OAuthProvider::GithubRus, 'new-identity');
+        try {
+            $this->linker->unlink($user, OAuthProvider::GithubEn, 'old-identity');
+            self::fail('Delayed unlink cannot erase a replacement.');
+        } catch (OAuthIdentityConflictException) {
+            self::assertTrue($this->entityManager->isOpen());
+            self::assertSame('new-identity', $this->linker->recoverUser($user)->getGithubId());
+        }
+        $this->linker->unlink($user, OAuthProvider::GithubEn, 'new-identity');
+        $this->linker->unlink($user, OAuthProvider::GithubRus, 'new-identity');
+        self::assertNull($user->getGithubId());
+        self::assertTrue($this->entityManager->isOpen());
+    }
+
     /** @return iterable<string, array{OAuthProvider}> */
     public static function providers(): iterable
     {

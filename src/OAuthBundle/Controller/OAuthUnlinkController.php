@@ -6,13 +6,15 @@ namespace App\OAuthBundle\Controller;
 
 use App\Entity\User;
 use App\OAuthBundle\Form\OAuthUnlinkFormType;
+use App\OAuthBundle\Security\OAuth\Exception\OAuthIdentityConflictException;
+use App\OAuthBundle\Security\OAuth\OAuthAccountLinker;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
-use Doctrine\Persistence\ManagerRegistry as Doctrine;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class OAuthUnlinkController extends AbstractController
@@ -21,18 +23,20 @@ final class OAuthUnlinkController extends AbstractController
         Request $request,
         OAuthProvider $provider,
         OAuthIdentityAccessor $identityAccessor,
-        Doctrine $doctrine,
+        OAuthAccountLinker $accountLinker,
         TranslatorInterface $translator,
+        TokenStorageInterface $tokenStorage,
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
 
         if (!$user instanceof User || !$provider->isCurrentIdentityProvider()) {
-            throw new NotFoundHttpException('User not found');
+            throw $this->createNotFoundException('User not found');
         }
 
-        if (null === $identityAccessor->getExternalId($user, $provider)) {
-            throw new NotFoundHttpException('OAuth identity not found');
+        $expectedId = $identityAccessor->getExternalId($user, $provider);
+        if (null === $expectedId) {
+            throw $this->createNotFoundException('OAuth identity not found');
         }
 
         $form = $this->createForm(OAuthUnlinkFormType::class, null, [
@@ -43,8 +47,15 @@ final class OAuthUnlinkController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $identityAccessor->unlink($user, $provider);
-            $doctrine->getManager()->flush();
+            try {
+                $persistedUser = $accountLinker->unlink($user, $provider, $expectedId);
+                $this->synchronizeUser($tokenStorage, $user, $persistedUser);
+            } catch (OAuthIdentityConflictException) {
+                $this->synchronizeUser($tokenStorage, $user, $accountLinker->recoverUser($user));
+                $this->addFlash('danger', $translator->trans('Denied'));
+
+                return $this->redirectToRoute('main_profile_index');
+            }
 
             $this->addFlash('success', $translator->trans('The social network has been successfully unlinked.'));
 
@@ -55,5 +66,16 @@ final class OAuthUnlinkController extends AbstractController
             'oauthUnlinkForm' => $form->createView(),
             'providerLabel' => $translator->trans('personal_account.social_group.'.$provider->identityFamily()),
         ]);
+    }
+
+    private function synchronizeUser(TokenStorageInterface $tokenStorage, User $authenticatedUser, User $persistedUser): void
+    {
+        $token = $tokenStorage->getToken();
+        if ($token?->getUser() !== $authenticatedUser || $persistedUser->getId() !== $authenticatedUser->getId()
+            || !$authenticatedUser->isEqualTo($persistedUser)
+        ) {
+            throw new AccessDeniedHttpException('OAuth account is unavailable.');
+        }
+        $token->setUser($persistedUser);
     }
 }
