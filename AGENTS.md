@@ -112,6 +112,7 @@ For new or materially edited first-party PHP:
 - use short arrays;
 - use explicit visibility;
 - use meaningful English identifiers;
+- import referenced classes, interfaces, traits, enums, and exception types from other namespaces (including global PHP types such as `Throwable`) through `use` statements; avoid leading-backslash fully qualified names in ordinary executable code unless there is a concrete technical reason;
 - do not replace a known type with `mixed` for convenience;
 - do not use deprecated API when a supported replacement exists;
 - use `final` / `readonly` semantically, not mechanically;
@@ -132,18 +133,18 @@ Do not perform a repository-wide strict-types, constructor-injection, comment-st
 
 ## Comments and PHPDoc
 
-For new or materially rewritten meaningful first-party comments/PHPDoc prose, use paired English/Russian text:
+For new or materially rewritten meaningful first-party comments/PHPDoc prose, use paired Russian/English text:
 
 ```php
 /**
- * EN: Explains the non-obvious contract.
  * RU: Объясняет неочевидный контракт.
+ * EN: Explains the non-obvious contract.
  */
 ```
 
 Rules:
 
-- English first, Russian second;
+- Russian first, English second; in multiline comments, group all Russian lines before the English translation;
 - semantic parity;
 - natural Russian;
 - technical identifiers remain English;
