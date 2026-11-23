@@ -24,8 +24,8 @@
     "support": {
         "issues": "https://github.com/yaleksandr89/symfony-shop/issues",
         "source": "https://github.com/yaleksandr89/symfony-shop",
-        "security": "https://github.com/yaleksandr89/symfony-shop/security/policy",
-        "forum": "https://github.com/yaleksandr89/symfony-shop/discussions"
+        "forum": "https://github.com/yaleksandr89/symfony-shop/discussions",
+        "security": "https://github.com/yaleksandr89/symfony-shop/security/policy"
     },
     "funding": [
         {
