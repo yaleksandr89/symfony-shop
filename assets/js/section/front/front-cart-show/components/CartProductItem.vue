@@ -64,7 +64,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { formatCents, multiplyPriceToCents } from "../../../../utils/money";
+import { formatCents, multiplyPriceToCents } from "../../../../utils/money.js";
 
 export default {
   name: "CartProductItem",
@@ -92,7 +92,7 @@ export default {
     },
     productPrice() {
       return formatCents(
-        multiplyPriceToCents(this.cartProduct.product.price, this.quantity)
+        multiplyPriceToCents(this.cartProduct.product.price, this.quantity),
       );
     },
     urlShowProduct() {
@@ -175,7 +175,7 @@ export default {
           stock,
         });
         this.quantity = updated ? this.cartProduct.quantity : persistedQuantity;
-      } catch (error) {
+      } catch {
         this.quantity = this.cartProduct.quantity;
       } finally {
         this.isSaving = false;

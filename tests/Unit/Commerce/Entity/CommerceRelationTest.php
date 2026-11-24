@@ -14,17 +14,17 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class CommerceRelationTest extends TestCase
 {
     #[TestDox('Коллекции сущностей инициализированы')]
     public function testCollectionsAreInitialized(): void
     {
-        self::assertCount(0, (new Order())->getOrderProducts());
-        self::assertCount(0, (new Cart())->getCartProducts());
-        self::assertCount(0, (new Product())->getCartProducts());
-        self::assertCount(0, (new Product())->getOrderProducts());
-        self::assertCount(0, (new User())->getOrders());
+        self::assertCount(0, new Order()->getOrderProducts());
+        self::assertCount(0, new Cart()->getCartProducts());
+        self::assertCount(0, new Product()->getCartProducts());
+        self::assertCount(0, new Product()->getOrderProducts());
+        self::assertCount(0, new User()->getOrders());
     }
 
     #[TestDox('Корень заказа синхронизирует и удаляет позицию без обнуления владельца')]

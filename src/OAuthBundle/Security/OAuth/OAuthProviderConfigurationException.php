@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\OAuthBundle\Security\OAuth;
 
-final class OAuthProviderConfigurationException extends \RuntimeException
+use RuntimeException;
+
+final class OAuthProviderConfigurationException extends RuntimeException
 {
     public function __construct(OAuthProvider $provider)
     {

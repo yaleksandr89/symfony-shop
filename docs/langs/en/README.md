@@ -8,7 +8,7 @@
 [![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../../LICENSE.md)
 
-![Symfony Shop — e-commerce application built with Symfony, Docker, and PostgreSQL](../../img/symfony-shop-readme-cover.png)
+![Symfony Shop — e-commerce application built with Symfony, Docker, and PostgreSQL](../../assets/symfony-shop-readme-cover.png)
 
 ## Choose language
 
@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|
 | [Русский](../../../README.md) | **Selected** | [Español](../es/README.md) | [中文](../zh/README.md) | [Français](../fr/README.md) | [Deutsch](../de/README.md) |
 
-Symfony Shop is an educational e-commerce application built with Symfony. It includes a product catalog, cart and checkout, user account, administration area, API, and OAuth login. Most pages are rendered with Twig, while Vue 2 is used for selected interactive interface elements.
+Symfony Shop is an educational e-commerce application built with Symfony. It includes a product catalog, cart and checkout, user account, administration area, API, and OAuth login. Most pages are rendered with Twig, while Vue 3 is used for selected interactive interface elements.
 
 The supported local development environment is based on Docker Compose. PHP, Composer, Node.js, PostgreSQL, and Chrome for Testing run inside containers or are installed into the Docker image, while the main workflows are exposed through a single Makefile. Running the project with PHP, Composer, and PostgreSQL installed directly on the host is not a supported workflow and is not covered by CI.
 
@@ -90,21 +90,25 @@ Supported providers, environment variables, routes, and security rules are docum
 
 ## Project structure
 
-```text
-Browser
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-  ↓
-Application services / Doctrine
-  ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Browser"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Controllers"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 in browser"]
+    Vue -->|"HTTP API requests"| Nginx
+    Controller --> Services["Application services / handlers"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-The main code is grouped into `Account`, `Catalog`, and `Commerce` areas. Administration, OAuth, and SEO are implemented as internal Symfony bundles. Vue 2 is used for selected interactive components rather than as a standalone SPA.
+The main code is grouped into `Account`, `Catalog`, and `Commerce` areas. Administration, OAuth, and SEO are implemented as internal Symfony bundles. Vue 3 is used for selected interactive components rather than as a standalone SPA.
 
 The directory map, routing, API Platform, Doctrine, and frontend boundaries are described in the [architecture guide](architecture.md).
 
@@ -112,14 +116,17 @@ The directory map, routing, API Platform, Doctrine, and frontend boundaries are 
 
 | Command | Purpose | Note |
 |---|---|---|
-| `make check` | Run ESLint, PHP-CS-Fixer check, and PHPStan | Tests are not included |
+| `make check` | Strict Composer validation, locked dependency audit, PHP lint, PHP CS Fixer, PHPStan and ESLint | Tests are not included |
 | `make test-unit` | Run unit tests | |
+| `make test-db-reset CONFIRM=testdb` | Recreate the separate test SQLite database | Deletes `var/db_for_test.db` |
 | `make test-integration` | Run integration tests | |
 | `make test-functional` | Run functional tests | |
 | `make test-functional-panther` | Run browser tests with Panther | Chrome is already included in the PHP image |
-| `make test-all CONFIRM=testdb` | Run the full test suite | Recreates the test database |
+| `make test-all CONFIRM=testdb` | Full suite including Panther and both PostgreSQL suites | Recreates the test database |
 | `make coverage CONFIRM=testdb` | Show PHP/PHPUnit coverage in the terminal | Panther is not included |
 | `make coverage-html CONFIRM=testdb` | Generate HTML and Clover reports | `var/coverage/html`, `var/coverage/clover.xml` |
+
+Before running integration, functional or Panther tests separately, prepare the test SQLite database with `make test-db-reset CONFIRM=testdb`.
 
 The full Make command list, test database workflow, and CI composition are documented in the [development guide](development.md).
 

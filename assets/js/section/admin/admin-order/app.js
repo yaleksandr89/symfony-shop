@@ -1,11 +1,7 @@
-import Vue from "vue";
-import App from "./App";
-import store from "./store";
+import { createApp } from "vue";
+import App from "./App.vue";
+import store from "./store/index.js";
 
 if (document.getElementById("app")) {
-  new Vue({
-    el: "#app",
-    store,
-    render: (h) => h(App),
-  });
+  createApp(App).use(store).mount("#app");
 }

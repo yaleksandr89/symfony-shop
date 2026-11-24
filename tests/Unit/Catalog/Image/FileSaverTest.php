@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Catalog\Image;
 
 use App\Catalog\Image\FileSaver;
 use App\Catalog\Image\FilesystemWorker;
+use GdImage;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class FileSaverTest extends TestCase
 {
     #[TestDox('Отсутствие выбранного файла возвращает null и не создаёт staging-каталог')]
@@ -23,7 +24,7 @@ final class FileSaverTest extends TestCase
     {
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/staging';
+        $uploadsTempDir = $root . '/staging';
 
         try {
             self::assertNull($this->fileSaver($filesystem, $uploadsTempDir)->saveUploadedFileIntoTemp(null));
@@ -38,21 +39,21 @@ final class FileSaverTest extends TestCase
     {
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/staging';
+        $uploadsTempDir = $root . '/staging';
         $filesystem->mkdir($root);
 
         try {
             $fileSaver = $this->fileSaver($filesystem, $uploadsTempDir);
-            $firstFilename = $fileSaver->saveUploadedFileIntoTemp($this->uploadedPng($root.'/first.png'));
-            $secondFilename = $fileSaver->saveUploadedFileIntoTemp($this->uploadedPng($root.'/second.png'));
+            $firstFilename = $fileSaver->saveUploadedFileIntoTemp($this->uploadedPng($root . '/first.png'));
+            $secondFilename = $fileSaver->saveUploadedFileIntoTemp($this->uploadedPng($root . '/second.png'));
 
             self::assertIsString($firstFilename);
             self::assertIsString($secondFilename);
             self::assertNotSame($firstFilename, $secondFilename);
             self::assertSame(basename($firstFilename), $firstFilename);
             self::assertStringNotContainsString('..', $firstFilename);
-            self::assertFileExists($uploadsTempDir.'/'.$firstFilename);
-            self::assertFileExists($uploadsTempDir.'/'.$secondFilename);
+            self::assertFileExists($uploadsTempDir . '/' . $firstFilename);
+            self::assertFileExists($uploadsTempDir . '/' . $secondFilename);
         } finally {
             $filesystem->remove($root);
         }
@@ -63,12 +64,12 @@ final class FileSaverTest extends TestCase
     {
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/staging';
+        $uploadsTempDir = $root . '/staging';
         $filesystem->mkdir($root);
-        $sourcePath = $root.'/source.png';
+        $sourcePath = $root . '/source.png';
         $this->writePng($sourcePath);
         $moveFailure = new FileException('Deterministic move failure.');
-        $uploadedFile = new class($sourcePath, $moveFailure) extends UploadedFile {
+        $uploadedFile = new class ($sourcePath, $moveFailure) extends UploadedFile {
             public ?string $partialPath = null;
 
             public function __construct(string $path, private FileException $moveFailure)
@@ -78,7 +79,7 @@ final class FileSaverTest extends TestCase
 
             public function move(string $directory, ?string $name = null): File
             {
-                $this->partialPath = $directory.'/'.$name;
+                $this->partialPath = $directory . '/' . $name;
                 file_put_contents($this->partialPath, 'partial');
 
                 throw $this->moveFailure;
@@ -115,12 +116,12 @@ final class FileSaverTest extends TestCase
     private function writePng(string $path): void
     {
         $image = imagecreatetruecolor(2, 1);
-        self::assertInstanceOf(\GdImage::class, $image);
+        self::assertInstanceOf(GdImage::class, $image);
         self::assertTrue(imagepng($image, $path));
     }
 
     private function temporaryDirectory(): string
     {
-        return sys_get_temp_dir().'/file-saver-'.bin2hex(random_bytes(8));
+        return sys_get_temp_dir() . '/file-saver-' . bin2hex(random_bytes(8));
     }
 }

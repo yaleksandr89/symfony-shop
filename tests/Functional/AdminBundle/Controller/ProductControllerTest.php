@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
+use App\Account\Repository\UserRepository;
+use App\Catalog\Image\FileSaver;
+use App\Catalog\Image\FilesystemWorker;
+use App\Catalog\Repository\ProductRepository;
 use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
-use App\Catalog\Repository\ProductRepository;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use App\Catalog\Image\FileSaver;
-use App\Catalog\Image\FilesystemWorker;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
+use GdImage;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -23,29 +24,32 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Field\FileFormField;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class ProductControllerTest extends WebTestCase
 {
     #[TestDox('Список товаров загружает обложки пакетно и не раздувает число запросов')]
     public function testListBatchesPageCoversAndKeepsQueryCountBounded(): void
     {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        /** @var ProductRepository $productRepository */
         $productRepository = self::getContainer()->get(ProductRepository::class);
         $existingCount = $productRepository->count(['isDeleted' => false]);
         $productCount = 10 + ((5 - (($existingCount + 10) % 10) + 10) % 10);
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Admin query category '.$suffix)
-            ->setSlug('admin-query-category-'.$suffix);
+        $category = new Category()
+            ->setTitle('Admin query category ' . $suffix)
+            ->setSlug('admin-query-category-' . $suffix);
         $entityManager->persist($category);
 
         $products = [];
         for ($index = 1; $index <= $productCount; ++$index) {
-            $product = (new Product())
+            $product = new Product()
                 ->setTitle(sprintf('Admin query product %02d %s', $index, $suffix))
                 ->setSlug(sprintf('admin-query-product-%02d-%s', $index, $suffix))
                 ->setPrice('19.99')
@@ -55,10 +59,10 @@ class ProductControllerTest extends WebTestCase
             if ($index < $productCount) {
                 $filename = sprintf('admin-query-%02d-%s.jpg', $index, $suffix);
                 $product->addProductImage(
-                    (new ProductImage())
+                    new ProductImage()
                         ->setFilenameBig($filename)
                         ->setFilenameMiddle($filename)
-                        ->setFilenameSmall($filename)
+                        ->setFilenameSmall($filename),
                 );
             }
             $entityManager->persist($product);
@@ -67,7 +71,7 @@ class ProductControllerTest extends WebTestCase
         $entityManager->flush();
 
         $expectedPageIds = array_reverse(array_map(
-            static fn (Product $product): int => (int) $product->getId(),
+            static fn(Product $product): int => (int) $product->getId(),
             array_slice($products, -10),
         ));
         $coverProduct = $products[$productCount - 2];
@@ -90,12 +94,12 @@ class ProductControllerTest extends WebTestCase
         self::assertCount(10, $rows);
         self::assertSame(
             $expectedPageIds,
-            $rows->each(static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text())),
+            $rows->each(static fn(Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text())),
         );
         self::assertSame($categoryTitle, trim($rows->first()->filter('td')->eq(1)->text()));
         self::assertCount(0, $rows->first()->filter('td')->eq(5)->filter('img'));
         $coverRow = $rows->reduce(
-            static fn (Crawler $row): bool => (int) trim($row->filter('td')->eq(0)->text()) === $coverProduct->getId(),
+            static fn(Crawler $row): bool => (int) trim($row->filter('td')->eq(0)->text()) === $coverProduct->getId(),
         );
         self::assertCount(1, $coverRow);
         self::assertCount(1, $coverRow->filter(sprintf('img[alt="%s"]', $coverFilename)));
@@ -155,6 +159,7 @@ class ProductControllerTest extends WebTestCase
         $client->submit($form);
 
         self::assertResponseRedirects(sprintf('/en/admin/product/edit/%d', $product->getId()));
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $updatedProduct = $entityManager->find(Product::class, $product->getId());
@@ -176,9 +181,9 @@ class ProductControllerTest extends WebTestCase
         $filesystem = new Filesystem();
         $blockedTempPath = tempnam(sys_get_temp_dir(), 'blocked-product-upload-');
         self::assertNotFalse($blockedTempPath);
-        $uploadPath = sys_get_temp_dir().'/product-upload-'.bin2hex(random_bytes(8)).'.png';
+        $uploadPath = sys_get_temp_dir() . '/product-upload-' . bin2hex(random_bytes(8)) . '.png';
         $image = imagecreatetruecolor(20, 10);
-        self::assertInstanceOf(\GdImage::class, $image);
+        self::assertInstanceOf(GdImage::class, $image);
         self::assertTrue(imagepng($image, $uploadPath));
 
         try {
@@ -192,7 +197,9 @@ class ProductControllerTest extends WebTestCase
             $form = $crawler->filter('form[name="edit_product_form"]')->form([
                 'edit_product_form[title]' => 'This change must not be saved',
             ]);
-            $form['edit_product_form[newImage]']->upload($uploadPath);
+            $fileField = $form['edit_product_form[newImage]'];
+            self::assertInstanceOf(FileFormField::class, $fileField);
+            $fileField->upload($uploadPath);
             $crawler = $client->submit($form);
 
             self::assertResponseIsSuccessful();
@@ -204,6 +211,7 @@ class ProductControllerTest extends WebTestCase
             );
             self::assertCount(0, $crawler->filter('.alert.alert-success'));
 
+            /** @var EntityManagerInterface $entityManager */
             $entityManager = self::getContainer()->get(EntityManagerInterface::class);
             $entityManager->clear();
             $persistedProduct = $entityManager->find(Product::class, $productId);
@@ -214,27 +222,32 @@ class ProductControllerTest extends WebTestCase
         }
     }
 
-    #[DataProvider(methodName: 'providePriceRanges')]
+    /**
+     * @param list<string> $excludedPrices
+     * @param list<string> $includedPrices
+     * @param array<string, string> $submitted
+     */
+    #[DataProvider('providePriceRanges')]
     #[TestDox('Диапазон цены отбирает заданные товары')]
     public function testPriceRangeFiltersControlledProducts(
         array $submitted,
         array $includedPrices,
         array $excludedPrices,
-    ): void
-    {
+    ): void {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Admin price filter category '.$suffix)
-            ->setSlug('admin-price-filter-category-'.$suffix);
+        $category = new Category()
+            ->setTitle('Admin price filter category ' . $suffix)
+            ->setSlug('admin-price-filter-category-' . $suffix);
         $entityManager->persist($category);
 
         $productsByPrice = [];
         foreach (['9.99', '10.00', '15.00', '20.00', '20.01'] as $price) {
-            $product = (new Product())
-                ->setTitle('Admin price filter product '.$price.' '.$suffix)
-                ->setSlug('admin-price-filter-product-'.str_replace('.', '-', $price).'-'.$suffix)
+            $product = new Product()
+                ->setTitle('Admin price filter product ' . $price . ' ' . $suffix)
+                ->setSlug('admin-price-filter-product-' . str_replace('.', '-', $price) . '-' . $suffix)
                 ->setPrice($price)
                 ->setQuantity(1)
                 ->setIsPublished(true)
@@ -284,20 +297,25 @@ class ProductControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[name="order_filter_form[createdAt][right_date]"][type="date"]'));
     }
 
-    #[DataProvider(methodName: 'provideDateRanges')]
+    /**
+     * @param list<string> $excludedDates
+     * @param list<string> $includedDates
+     * @param array<string, string> $submitted
+     */
+    #[DataProvider('provideDateRanges')]
     #[TestDox('Диапазон дат отбирает заданные товары')]
     public function testDateRangeFiltersControlledProducts(
         array $submitted,
         array $includedDates,
         array $excludedDates,
-    ): void
-    {
+    ): void {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Admin date filter category '.$suffix)
-            ->setSlug('admin-date-filter-category-'.$suffix);
+        $category = new Category()
+            ->setTitle('Admin date filter category ' . $suffix)
+            ->setSlug('admin-date-filter-category-' . $suffix);
         $entityManager->persist($category);
 
         $productsByDate = [];
@@ -308,9 +326,9 @@ class ProductControllerTest extends WebTestCase
             'next day midnight' => '2026-04-11 00:00:00',
             'after upper day' => '2026-04-12 00:00:00',
         ] as $label => $createdAt) {
-            $product = (new Product())
-                ->setTitle('Admin date filter product '.$label.' '.$suffix)
-                ->setSlug('admin-date-filter-product-'.str_replace(' ', '-', $label).'-'.$suffix)
+            $product = new Product()
+                ->setTitle('Admin date filter product ' . $label . ' ' . $suffix)
+                ->setSlug('admin-date-filter-product-' . str_replace(' ', '-', $label) . '-' . $suffix)
                 ->setPrice('10.00')
                 ->setQuantity(1)
                 ->setIsPublished(true)
@@ -349,7 +367,8 @@ class ProductControllerTest extends WebTestCase
         ], ['selected day early', 'selected day late'], ['previous day', 'next day midnight', 'after upper day']];
     }
 
-    #[DataProvider(methodName: 'provideFilterLocales')]
+    /** @param list<string> $booleanOptions */
+    #[DataProvider('provideFilterLocales')]
     #[TestDox('Фильтр товаров доступен и показывает ключевые элементы выбранной локали')]
     public function testFilterUiIsLocalized(
         string $locale,
@@ -375,7 +394,7 @@ class ProductControllerTest extends WebTestCase
         self::assertSame(
             $booleanOptions,
             $filters->filter('select[name="order_filter_form[isPublished]"] option')->each(
-                static fn (Crawler $option): string => trim($option->text()),
+                static fn(Crawler $option): string => trim($option->text()),
             ),
         );
     }
@@ -399,7 +418,7 @@ class ProductControllerTest extends WebTestCase
         ];
     }
 
-    #[DataProvider(methodName: 'provideListLocales')]
+    #[DataProvider('provideListLocales')]
     #[TestDox('Список товаров показывает ключевые действия выбранной локали')]
     public function testListUiIsLocalized(
         string $locale,
@@ -429,14 +448,13 @@ class ProductControllerTest extends WebTestCase
         ];
     }
 
-    #[DataProvider(methodName: 'provideReversedDateRangeLocales')]
+    #[DataProvider('provideReversedDateRangeLocales')]
     #[TestDox('Обратный диапазон дат показывает ошибку и не применяет фильтр')]
     public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(
         string $locale,
         string $title,
         string $message,
-    ): void
-    {
+    ): void {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', sprintf('/%s/admin/product/list', $locale));
         $unfilteredRows = $crawler->filter('#main_table tbody tr')->count();
@@ -472,7 +490,7 @@ class ProductControllerTest extends WebTestCase
         yield 'English' => ['en', 'Date range error', 'The "From" date cannot be later than the "To" date.'];
     }
 
-    #[DataProvider(methodName: 'provideProductAddLocales')]
+    #[DataProvider('provideProductAddLocales')]
     #[TestDox('Форма добавления товара доступна в выбранной локали')]
     public function testAddUiIsLocalized(
         string $locale,
@@ -503,7 +521,7 @@ class ProductControllerTest extends WebTestCase
         yield 'English' => ['en', 'Edit product', 'Products', 'Add new', 'Save changes'];
     }
 
-    #[DataProvider(methodName: 'provideProductEditLocales')]
+    #[DataProvider('provideProductEditLocales')]
     #[TestDox('Форма изменения товара сохраняет действия с изображениями и выбранную локаль')]
     public function testEditUiIsLocalized(
         string $locale,
@@ -537,7 +555,11 @@ class ProductControllerTest extends WebTestCase
         self::assertSame($saveLabel, trim($form->filter('button[name="edit_product_form[submit]"]')->text()));
     }
 
-    #[DataProvider(methodName: 'provideProductValidationLocales')]
+    /**
+     * @param list<string> $requiredMessages
+     * @param list<string> $unexpected
+     */
+    #[DataProvider('provideProductValidationLocales')]
     #[TestDox('Сообщения валидации фильтра локализованы')]
     public function testValidationMessagesAreLocalized(
         string $locale,
@@ -620,12 +642,13 @@ class ProductControllerTest extends WebTestCase
         $product = self::getContainer()->get(ProductRepository::class)->findOneBy(['isDeleted' => false]);
         self::assertInstanceOf(Product::class, $product);
 
-        $image = (new ProductImage())
+        $image = new ProductImage()
             ->setFilenameBig('functional-test_big.jpg')
             ->setFilenameMiddle('functional-test_middle.jpg')
             ->setFilenameSmall('functional-test_small.jpg');
         $product->addProductImage($image);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($image);
         $entityManager->flush();
@@ -637,7 +660,7 @@ class ProductControllerTest extends WebTestCase
     private function visibleListIds(Crawler $crawler): array
     {
         return $crawler->filter('#main_table tbody tr')->each(
-            static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text()),
+            static fn(Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text()),
         );
     }
 

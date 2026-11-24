@@ -10,10 +10,9 @@ use RuntimeException;
 
 final class ImageResizer
 {
-    public function __construct(private Imagine $imagine, private FilesystemWorker $filesystemWorker)
-    {
-    }
+    public function __construct(private Imagine $imagine, private FilesystemWorker $filesystemWorker) {}
 
+    /** @param array{width: int, height: int|false|null, newFolder: string, newFilename: string} $targetParams */
     public function resizeImageAndSave(string $originalFileFolder, string $originalFilename, array $targetParams): string
     {
         $originalFilePath = $this->filesystemWorker->generatePathToFile($originalFileFolder, $originalFilename);
@@ -39,7 +38,7 @@ final class ImageResizer
 
         $imagineFile = $this->imagine->open($originalFilePath);
         $imagineFile
-            ->resize(new Box($targetWidth, $targetHeight))
+            ->resize(new Box((int) round($targetWidth), (int) round($targetHeight)))
             ->save($targetFilePath);
 
         return $targetFilename;

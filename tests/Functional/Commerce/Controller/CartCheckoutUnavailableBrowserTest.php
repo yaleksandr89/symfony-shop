@@ -8,6 +8,7 @@ use App\Commerce\Cart\TokenGenerator;
 use App\Entity\Cart;
 use App\Entity\CartProduct;
 use App\Entity\Order;
+use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
@@ -21,10 +22,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
+use Throwable;
 
 class CartCheckoutUnavailableBrowserTest extends PantherTestCase
 {
-    #[Group(name: 'functional-panther')]
+    #[Group('functional-panther')]
     #[TestDox('Покупатель через интерфейс удаляет недоступные товары и оформляет оставшийся')]
     public function testCheckoutHighlightsUnavailableProductsUntilTheyAreRemoved(): void
     {
@@ -46,7 +48,7 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             self::assertSelectorIsEnabled('[data-checkout-button]');
             self::assertSelectorNotExists('[data-cart-unavailable-alert]');
             $checkoutButton = $client->getWebDriver()->findElement(
-                WebDriverBy::cssSelector('[data-checkout-button]')
+                WebDriverBy::cssSelector('[data-checkout-button]'),
             );
             self::assertTrue($checkoutButton->isDisplayed());
             self::assertTrue($checkoutButton->isEnabled());
@@ -59,42 +61,42 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             $this->activateRenderedControl($client, '[data-checkout-button]');
             $client->waitFor('[data-cart-unavailable-alert]');
 
-            self::assertSelectorNotExists($activeRow.'[data-unavailable-reason]');
-            self::assertSelectorExists($unpublishedRow.'[data-unavailable-reason="unpublished"]');
-            self::assertSelectorExists($deletedRow.'[data-unavailable-reason="deleted"]');
+            self::assertSelectorNotExists($activeRow . '[data-unavailable-reason]');
+            self::assertSelectorExists($unpublishedRow . '[data-unavailable-reason="unpublished"]');
+            self::assertSelectorExists($deletedRow . '[data-unavailable-reason="deleted"]');
             self::assertSelectorTextContains(
-                $unpublishedRow.' [data-cart-product-unavailable-message]',
-                'Товар снят с продажи и недоступен для заказа.'
+                $unpublishedRow . ' [data-cart-product-unavailable-message]',
+                'Товар снят с продажи и недоступен для заказа.',
             );
             self::assertSelectorTextContains(
-                $deletedRow.' [data-cart-product-unavailable-message]',
-                'Товар удалён и больше не может быть заказан.'
+                $deletedRow . ' [data-cart-product-unavailable-message]',
+                'Товар удалён и больше не может быть заказан.',
             );
             self::assertSelectorTextContains(
                 '[data-cart-unavailable-alert]',
-                'В корзине есть недоступные товары. Удалите их перед оформлением заказа.'
+                'В корзине есть недоступные товары. Удалите их перед оформлением заказа.',
             );
             self::assertSelectorIsDisabled('[data-checkout-button]');
-            self::assertSelectorIsDisabled($unpublishedRow.' input[type="number"]');
-            self::assertSelectorIsDisabled($deletedRow.' input[type="number"]');
-            self::assertSelectorNotExists($unpublishedRow.' figure a');
-            self::assertSelectorNotExists($unpublishedRow.' .product-title a');
-            self::assertSelectorNotExists($deletedRow.' figure a');
-            self::assertSelectorNotExists($deletedRow.' .product-title a');
-            self::assertSelectorExists($unpublishedRow.' [data-remove-cart-product]');
-            self::assertSelectorExists($deletedRow.' [data-remove-cart-product]');
+            self::assertSelectorIsDisabled($unpublishedRow . ' input[type="number"]');
+            self::assertSelectorIsDisabled($deletedRow . ' input[type="number"]');
+            self::assertSelectorNotExists($unpublishedRow . ' figure a');
+            self::assertSelectorNotExists($unpublishedRow . ' .product-title a');
+            self::assertSelectorNotExists($deletedRow . ' figure a');
+            self::assertSelectorNotExists($deletedRow . ' .product-title a');
+            self::assertSelectorExists($unpublishedRow . ' [data-remove-cart-product]');
+            self::assertSelectorExists($deletedRow . ' [data-remove-cart-product]');
             $this->assertCartExists($context['cartId']);
             self::assertSame($context['orderCount'], $this->getOrderCount());
 
-            $this->activateRenderedControl($client, $unpublishedRow.' [data-remove-cart-product]');
+            $this->activateRenderedControl($client, $unpublishedRow . ' [data-remove-cart-product]');
             $this->waitForSelectorAbsence($client, $unpublishedRow);
 
             self::assertSelectorNotExists($unpublishedRow);
-            self::assertSelectorExists($deletedRow.'[data-unavailable-reason="deleted"]');
+            self::assertSelectorExists($deletedRow . '[data-unavailable-reason="deleted"]');
             self::assertSelectorExists('[data-cart-unavailable-alert]');
             self::assertSelectorIsDisabled('[data-checkout-button]');
 
-            $this->activateRenderedControl($client, $deletedRow.' [data-remove-cart-product]');
+            $this->activateRenderedControl($client, $deletedRow . ' [data-remove-cart-product]');
             $this->waitForSelectorAbsence($client, $deletedRow);
             $this->waitForSelectorAbsence($client, '[data-cart-unavailable-alert]');
 
@@ -110,21 +112,21 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             self::assertSame($context['orderCount'] + 1, $this->getOrderCount());
             $this->assertOrderContainsOnlyActiveProduct($context['activeProductId']);
             $this->assertCartWasConsumed($context['cartId']);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $testFailure = $exception;
         } finally {
             $cleanupFailure = null;
 
             try {
                 static::stopWebServer();
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $cleanupFailure = $exception;
             }
 
             if (null !== $context) {
                 try {
                     $this->removeCartContext($context);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     $cleanupFailure ??= $exception;
                 }
             }
@@ -157,26 +159,26 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
     {
         $entityManager = $this->getEntityManager();
         $suffix = str_replace('.', '', uniqid('', true));
-        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $cart = new Cart()->setToken(TokenGenerator::generateToken());
         $products = [];
         $imageIds = [];
 
         foreach (['Active', 'Unpublished', 'Deleted'] as $name) {
-            $product = (new Product())
-                ->setTitle('Browser cart '.$name.' '.$suffix)
+            $product = new Product()
+                ->setTitle('Browser cart ' . $name . ' ' . $suffix)
                 ->setPrice('10.00')
                 ->setQuantity(10)
                 ->setIsPublished(true);
             $product->addProductImage(
-                (new ProductImage())
-                    ->setFilenameBig('browser-'.$suffix.'.jpg')
-                    ->setFilenameMiddle('browser-'.$suffix.'.jpg')
-                    ->setFilenameSmall('browser-'.$suffix.'.jpg')
+                new ProductImage()
+                    ->setFilenameBig('browser-' . $suffix . '.jpg')
+                    ->setFilenameMiddle('browser-' . $suffix . '.jpg')
+                    ->setFilenameSmall('browser-' . $suffix . '.jpg'),
             );
             $cart->addCartProduct(
-                (new CartProduct())
+                new CartProduct()
                     ->setProduct($product)
-                    ->setQuantity(1)
+                    ->setQuantity(1),
             );
             $entityManager->persist($product);
             $products[strtolower($name)] = $product;
@@ -201,17 +203,17 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             $product = $cartProduct->getProduct();
             self::assertInstanceOf(Product::class, $product);
             self::assertNotNull($cartProduct->getId());
-            $cartProductIds[$product->getId()] = $cartProduct->getId();
+            $cartProductIds[($product->getId() ?? self::fail('Expected initialized fixture field.'))] = $cartProduct->getId();
         }
         $this->commitCurrentTestTransactionForBrowser(false);
 
         return [
             'cartId' => $cartId,
-            'token' => $cart->getToken(),
+            'token' => ($cart->getToken() ?? self::fail('Expected initialized fixture field.')),
             'orderCount' => $orderCount,
-            'activeProductId' => $products['active']->getId(),
-            'unpublishedProductId' => $products['unpublished']->getId(),
-            'deletedProductId' => $products['deleted']->getId(),
+            'activeProductId' => ($products['active']->getId() ?? self::fail('Expected initialized fixture field.')),
+            'unpublishedProductId' => ($products['unpublished']->getId() ?? self::fail('Expected initialized fixture field.')),
+            'deletedProductId' => ($products['deleted']->getId() ?? self::fail('Expected initialized fixture field.')),
             'activeCartProductId' => $cartProductIds[$products['active']->getId()],
             'unpublishedCartProductId' => $cartProductIds[$products['unpublished']->getId()],
             'deletedCartProductId' => $cartProductIds[$products['deleted']->getId()],
@@ -230,7 +232,7 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             ->sendKeys('test3test3');
         $this->activateRenderedControl($client, '#form button[type="submit"]');
         $client->waitFor('#page_header_title');
-        self::assertSame(self::$baseUri.'/ru/profile', $client->getCurrentURL());
+        self::assertSame(self::$baseUri . '/ru/profile', $client->getCurrentURL());
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $token));
         $client->request('GET', '/ru/cart');
     }
@@ -255,14 +257,14 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
     {
         $driver = $client->getWebDriver();
         $by = WebDriverBy::cssSelector($selector);
-        $element = (new WebDriverWait($driver, 30))->until(
-            WebDriverExpectedCondition::presenceOfElementLocated($by)
+        $element = new WebDriverWait($driver, 30)->until(
+            WebDriverExpectedCondition::presenceOfElementLocated($by),
         );
         self::assertTrue($element->isDisplayed());
         self::assertTrue($element->isEnabled());
         $client->executeScript(
             'arguments[0].scrollIntoView({block: "center", inline: "nearest"});',
-            [$element]
+            [$element],
         );
         $client->executeScript('arguments[0].click();', [$element]);
     }
@@ -272,14 +274,14 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
         $driver = $client->getWebDriver();
         $by = WebDriverBy::cssSelector($selector);
 
-        (new WebDriverWait($driver, 30))->until(
-            static fn (): bool => [] === $driver->findElements($by)
+        new WebDriverWait($driver, 30)->until(
+            static fn(): bool => [] === $driver->findElements($by),
         );
     }
 
     private function cartProductSelector(int $cartProductId): string
     {
-        return '[data-cart-product-id="'.$cartProductId.'"]';
+        return '[data-cart-product-id="' . $cartProductId . '"]';
     }
 
     private function assertBrowserLogHasNoApplicationErrors(Client $client): void
@@ -288,7 +290,7 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
             $message = (string) ($entry['message'] ?? '');
             self::assertDoesNotMatchRegularExpression(
                 '/Uncaught|Unhandled|TypeError|status (?:code |of )?5\\d\\d/i',
-                $message
+                $message,
             );
         }
     }
@@ -325,6 +327,7 @@ class CartCheckoutUnavailableBrowserTest extends PantherTestCase
         self::assertInstanceOf(Order::class, $order);
         self::assertCount(1, $order->getOrderProducts());
         $orderProduct = $order->getOrderProducts()->first();
+        self::assertInstanceOf(OrderProduct::class, $orderProduct);
         self::assertSame($activeProductId, $orderProduct->getProduct()?->getId());
     }
 

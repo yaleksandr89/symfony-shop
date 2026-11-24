@@ -17,7 +17,7 @@ export function getUrlProductsByCategory(
   defaultUrl,
   categoryId,
   page,
-  itemsPerPage
+  itemsPerPage,
 ) {
   return (
     defaultUrl +

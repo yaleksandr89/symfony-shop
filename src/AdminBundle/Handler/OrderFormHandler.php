@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\AdminBundle\Handler;
 
 use App\AdminBundle\DTO\EditOrderModel;
+use App\AdminBundle\DTO\OrderFilterModel;
 use App\Commerce\Manager\OrderManager;
 use App\Commerce\Repository\OrderRepository;
 use App\Entity\Order;
@@ -12,9 +13,11 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use LogicException;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrderFormHandler
 {
@@ -24,15 +27,14 @@ class OrderFormHandler
         private EntityManagerInterface $entityManager,
         private PaginatorInterface $paginator,
         private FilterBuilderUpdater $filterBuilderUpdater,
-    ) {
-    }
+    ) {}
 
     public function processEditForm(EditOrderModel $editOrderModel): Order
     {
         $order = new Order();
 
         if ($editOrderModel->id) {
-            $order = $this->orderRepository->find($editOrderModel->id);
+            $order = $this->orderRepository->find($editOrderModel->id) ?? throw new NotFoundHttpException('Order no longer exists.');
         }
 
         $this->orderManager->calculationOrderTotalPrice($order);
@@ -44,6 +46,10 @@ class OrderFormHandler
         return $order;
     }
 
+    /**
+     * @param FormInterface<OrderFilterModel> $filterForm
+     * @return PaginationInterface<int, Order>
+     */
     public function processOrderFiltersForm(Request $request, FormInterface $filterForm): PaginationInterface
     {
         $queryBuilder = $this->orderRepository
@@ -65,9 +71,9 @@ class OrderFormHandler
 
     private function fillingCategoryData(Order $order, EditOrderModel $editCategoryModel): Order
     {
-        $order->setStatus($editCategoryModel->status);
+        $order->setStatus($editCategoryModel->status ?? throw new LogicException('Missing validated status field.'));
         $order->setOwner($editCategoryModel->owner);
-        $order->setIsDeleted($editCategoryModel->isDeleted);
+        $order->setIsDeleted($editCategoryModel->isDeleted ?? throw new LogicException('Missing validated isDeleted field.'));
         $order->setUpdatedAt(new DateTimeImmutable());
 
         return $order;

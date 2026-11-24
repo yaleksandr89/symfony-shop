@@ -22,14 +22,15 @@ final class Version20260720000000 extends AbstractMigration
             'Migration can only be executed safely on PostgreSQL.',
         );
 
-        $invalidCount = (int) $this->connection->fetchOne(<<<'SQL'
+        $invalidCount = (int) $this->connection->fetchOne(
+            <<<'SQL'
 SELECT COUNT(*)
 FROM "order"
 WHERE CASE
     WHEN total_price::text IN ('NaN', 'Infinity', '-Infinity') THEN TRUE
     ELSE ABS(ROUND(total_price::numeric, 2)) >= 100000000000000000::numeric
 END
-SQL
+SQL,
         );
         $this->abortIf(0 < $invalidCount, 'Order total_price contains non-finite or NUMERIC(19,2)-overflow values.');
 
@@ -43,7 +44,8 @@ SQL
             'Migration can only be executed safely on PostgreSQL.',
         );
 
-        // Reverting this migration returns the values to binary floating-point representation.
+        // RU: Откат возвращает значения к двоичному представлению с плавающей точкой.
+        // EN: Reverting this migration returns the values to binary floating-point representation.
         $this->addSql('ALTER TABLE "order" ALTER COLUMN total_price TYPE DOUBLE PRECISION USING total_price::double precision');
     }
 }

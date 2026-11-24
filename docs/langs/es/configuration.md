@@ -80,6 +80,8 @@ No añadas este archivo a Git ni publiques su contenido. En el entorno `test`, S
 
 El entorno de pruebas usa una base SQLite independiente en `var/db_for_test.db`, ajustes de Panther, transportes neutros de Mailer/Messenger y proveedores OAuth desactivados.
 
+La base SQLite de pruebas está fijada en `var/db_for_test.db`. `TEST_DATABASE_URL` se reserva para los dos escenarios protegidos de concurrencia PostgreSQL, no para conexiones arbitrarias. Consulta la [guía de desarrollo](development.md).
+
 ## Correo y Messenger
 
 Por defecto:

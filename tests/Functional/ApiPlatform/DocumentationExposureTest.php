@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class DocumentationExposureTest extends WebTestCase
 {
     /**
@@ -91,7 +91,7 @@ final class DocumentationExposureTest extends WebTestCase
                     $client->request($method, $uri);
 
                     $response = $client->getResponse();
-                    self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), $method.' '.$uri);
+                    self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), $method . ' ' . $uri);
                     self::assertFalse($response->headers->has('location'));
                     self::assertNotSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
                     self::assertNotSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());

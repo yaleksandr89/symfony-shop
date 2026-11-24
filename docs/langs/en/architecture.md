@@ -11,23 +11,25 @@ Symfony Shop is a single Symfony application with server-rendered pages, an admi
 
 ## Overview
 
-```text
-Browser
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-          ↓
-Application services / handlers
-          ↓
-Doctrine ORM
-          ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Browser"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Controllers"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 in browser"]
+    Vue -->|"HTTP API requests"| Nginx
+    Controller --> Services["Application services / handlers"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Vue 2 is mounted on selected Twig pages where interactivity is needed: the cart, cart indicator, and order editor. There is no standalone SPA and no Vue Router in the current architecture.
+Vue 3 is mounted on selected Twig pages where interactivity is needed: the cart, cart indicator, and order editor. There is no standalone SPA and no Vue Router in the current architecture.
 
 ## Application areas
 
@@ -98,9 +100,9 @@ When tracing API behavior, inspect not only entity attributes but also the corre
 
 Most pages are rendered with Twig. Shared templates live in [`templates`](../../../templates), while internal bundle templates live inside their respective modules.
 
-Webpack Encore builds assets from [`assets`](../../../assets) into `public/build`. Vue 2 is used selectively as an interactive layer over server-rendered pages.
+Webpack Encore 7 builds assets from [`assets`](../../../assets) into `public/build`. Vue 3 is used selectively as an interactive layer over server-rendered pages.
 
-The current client architecture remains in place until the separate migration to Inertia.js and Vue 3.
+The current client architecture remains in place until the separate migration to Inertia.js.
 
 ## Configuration and dependency injection
 

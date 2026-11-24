@@ -1,10 +1,10 @@
 import {
   concatUrlByParams,
   getUrlProductsByCategory,
-} from "../../../../../utils/url-generator";
+} from "../../../../../utils/url-generator.js";
 import axios from "axios";
 import { StatusCodes } from "http-status-codes";
-import { apiConfig } from "../../../../../utils/settings";
+import { apiConfig } from "../../../../../utils/settings.js";
 
 const state = () => ({
   categories: [],
@@ -36,7 +36,7 @@ const state = () => ({
 const getters = {
   freeCategoryProducts(state) {
     return state.categoryProducts.filter(
-      (item) => state.busyProductsIds.indexOf(item.id) === -1
+      (item) => state.busyProductsIds.indexOf(item.id) === -1,
     );
   },
 };
@@ -45,7 +45,7 @@ const actions = {
   async getOrderProducts({ commit, state }) {
     const url = concatUrlByParams(
       state.staticStore.url.apiOrder,
-      state.staticStore.orderId
+      state.staticStore.orderId,
     );
     const result = await axios.get(url, apiConfig);
 
@@ -59,7 +59,7 @@ const actions = {
       state.staticStore.url.apiProduct,
       state.newOrderProduct.categoryId,
       1,
-      state.itemsPerPage
+      state.itemsPerPage,
     );
     const result = await axios.get(url, apiConfig);
 
@@ -96,7 +96,7 @@ const actions = {
   async removeOrderProduct({ state, dispatch }, orderProductId) {
     const url = concatUrlByParams(
       state.staticStore.url.apiOrderProduct,
-      orderProductId
+      orderProductId,
     );
 
     if (false === state.staticStore.userIsVerified) {

@@ -9,8 +9,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Stringable;
+use UnexpectedValueException;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class LinkedinUserTest extends TestCase
 {
     #[TestDox('Раскрываются чувствительный к регистру subject, профиль и исходный ответ')]
@@ -33,29 +36,30 @@ final class LinkedinUserTest extends TestCase
     #[TestDox('Email и неверные необязательные поля профиля допускают null')]
     public function testEmailAndInvalidOptionalProfileValuesAreNullable(): void
     {
-        self::assertNull((new LinkedinUser(['sub' => 'subject']))->getEmail());
-        self::assertNull((new LinkedinUser(['sub' => 'subject', 'name' => [], 'email' => new \stdClass()]))->getName());
-        self::assertNull((new LinkedinUser(['sub' => 'subject', 'name' => [], 'email' => new \stdClass()]))->getEmail());
+        self::assertNull(new LinkedinUser(['sub' => 'subject'])->getEmail());
+        self::assertNull(new LinkedinUser(['sub' => 'subject', 'name' => [], 'email' => new stdClass()])->getName());
+        self::assertNull(new LinkedinUser(['sub' => 'subject', 'name' => [], 'email' => new stdClass()])->getEmail());
     }
 
     #[TestDox('Строковый subject обрезается без нормализации регистра')]
     public function testStringableSubjectIsTrimmedWithoutCaseNormalization(): void
     {
-        $subject = new class implements \Stringable {
+        $subject = new class implements Stringable {
             public function __toString(): string
             {
                 return '  CaseSensitiveSubject  ';
             }
         };
 
-        self::assertSame('CaseSensitiveSubject', (new LinkedinUser(['sub' => $subject]))->getId());
+        self::assertSame('CaseSensitiveSubject', new LinkedinUser(['sub' => $subject])->getId());
     }
 
+    /** @param array<string, mixed> $response */
     #[DataProvider('invalidSubjects')]
     #[TestDox('Некорректный subject отклоняется')]
     public function testInvalidSubjectIsRejected(array $response): void
     {
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
 
         new LinkedinUser($response);
     }
@@ -66,6 +70,6 @@ final class LinkedinUserTest extends TestCase
         yield 'missing' => [[]];
         yield 'blank' => [['sub' => '   ']];
         yield 'array' => [['sub' => ['subject']]];
-        yield 'object' => [['sub' => new \stdClass()]];
+        yield 'object' => [['sub' => new stdClass()]];
     }
 }

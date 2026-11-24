@@ -22,17 +22,19 @@ final class Version20260723000000 extends AbstractMigration
             'Migration can only be executed safely on PostgreSQL.',
         );
 
-        $invalidTokenCount = (int) $this->connection->fetchOne(<<<'SQL'
+        $invalidTokenCount = (int) $this->connection->fetchOne(
+            <<<'SQL'
             SELECT COUNT(*)
             FROM cart
             WHERE token IS NULL
                OR token = ''
                OR token !~ '^[0-9a-f]{32}$'
-            SQL
+            SQL,
         );
         $this->abortIf(0 < $invalidTokenCount, 'Cannot enforce Cart token invariant: invalid Cart tokens exist.');
 
-        $duplicateTokenGroupCount = (int) $this->connection->fetchOne(<<<'SQL'
+        $duplicateTokenGroupCount = (int) $this->connection->fetchOne(
+            <<<'SQL'
             SELECT COUNT(*)
             FROM (
                 SELECT token
@@ -40,11 +42,12 @@ final class Version20260723000000 extends AbstractMigration
                 GROUP BY token
                 HAVING COUNT(*) > 1
             ) AS duplicate_tokens
-            SQL
+            SQL,
         );
         $this->abortIf(0 < $duplicateTokenGroupCount, 'Cannot enforce Cart token uniqueness: duplicate Cart tokens exist.');
 
-        $duplicateCartProductGroupCount = (int) $this->connection->fetchOne(<<<'SQL'
+        $duplicateCartProductGroupCount = (int) $this->connection->fetchOne(
+            <<<'SQL'
             SELECT COUNT(*)
             FROM (
                 SELECT cart_id, product_id
@@ -52,7 +55,7 @@ final class Version20260723000000 extends AbstractMigration
                 GROUP BY cart_id, product_id
                 HAVING COUNT(*) > 1
             ) AS duplicate_cart_products
-            SQL
+            SQL,
         );
         $this->abortIf(0 < $duplicateCartProductGroupCount, 'Cannot enforce CartProduct uniqueness: duplicate cart/product pairs exist.');
 

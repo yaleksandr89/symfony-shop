@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class InternalBundlePathTest extends TestCase
 {
     /** @param class-string<AbstractBundle> $bundleClass */
@@ -23,7 +23,7 @@ final class InternalBundlePathTest extends TestCase
     {
         $projectRoot = dirname(__DIR__, 3);
 
-        self::assertSame($projectRoot.'/src/'.$directory, (new $bundleClass())->getPath());
+        self::assertSame($projectRoot . '/src/' . $directory, new $bundleClass()->getPath());
     }
 
     /** @return iterable<string, array{class-string<AbstractBundle>, string}> */

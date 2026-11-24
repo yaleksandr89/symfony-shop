@@ -16,11 +16,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
-use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class CartResourceTest extends ResourceTestUtils
 {
     #[TestDox('Прямой GET корзин сохраняет изоляцию по токену и требует явный административный контекст')]
@@ -40,11 +40,11 @@ class CartResourceTest extends ResourceTestUtils
         self::assertContains($ownCartId, array_column($ownCollection['member'], 'id'));
         self::assertNotContains($foreignCartId, array_column($ownCollection['member'], 'id'));
 
-        $client->request('GET', '/api/carts/'.$ownCartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $ownCartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertSame($ownCartId, $this->getResponseDecodedContent($client)['id']);
 
-        $client->request('GET', '/api/carts/'.$foreignCartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $foreignCartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $client->getCookieJar()->clear();
@@ -52,7 +52,7 @@ class CartResourceTest extends ResourceTestUtils
         self::assertSame([], $missingTokenCollection['member']);
         self::assertSame(0, $missingTokenCollection['totalItems']);
 
-        $client->request('GET', '/api/carts/'.$ownCartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $ownCartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
@@ -61,14 +61,14 @@ class CartResourceTest extends ResourceTestUtils
         self::assertContains($ownCartId, array_column($adminTokenCollection['member'], 'id'));
         self::assertNotContains($foreignCartId, array_column($adminTokenCollection['member'], 'id'));
 
-        $client->request('GET', '/api/carts/'.$foreignCartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $foreignCartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $adminCollection = $this->requestCartCollection($client, '?context=admin');
         self::assertContains($ownCartId, array_column($adminCollection['member'], 'id'));
         self::assertContains($foreignCartId, array_column($adminCollection['member'], 'id'));
 
-        $client->request('GET', '/api/carts/'.$foreignCartId.'?context=admin', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $foreignCartId . '?context=admin', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertSame($foreignCartId, $this->getResponseDecodedContent($client)['id']);
     }
@@ -159,6 +159,7 @@ class CartResourceTest extends ResourceTestUtils
         $client->request('POST', '/api/carts', [], [], self::REQUEST_HEADERS, '{}');
 
         self::assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertSame(1, $entityManager->getRepository(Cart::class)->count(['token' => $token]));
@@ -190,13 +191,14 @@ class CartResourceTest extends ResourceTestUtils
     {
         $client = self::createClient();
         [$ownCart, $foreignCart] = $this->createCartReadContext();
-        $product = (new Product())
-            ->setTitle('Protected cart product '.uniqid('', true))
+        $product = new Product()
+            ->setTitle('Protected cart product ' . uniqid('', true))
             ->setPrice('10.00')
             ->setQuantity(5)
             ->setIsPublished(true);
-        $line = (new CartProduct())->setProduct($product)->setQuantity(2);
+        $line = new CartProduct()->setProduct($product)->setQuantity(2);
         $foreignCart->addCartProduct($line);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);
         $entityManager->flush();
@@ -206,7 +208,7 @@ class CartResourceTest extends ResourceTestUtils
         $before = $this->cartSnapshot();
 
         $client->request('POST', '/api/carts', [], [], self::REQUEST_HEADERS, json_encode([
-            'cartProducts' => ['/api/cart_products/'.$lineId],
+            'cartProducts' => ['/api/cart_products/' . $lineId],
         ], JSON_THROW_ON_ERROR));
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -225,6 +227,7 @@ class CartResourceTest extends ResourceTestUtils
     /** @return array{carts: list<array<string, mixed>>, lines: list<array<string, mixed>>} */
     private function cartSnapshot(): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $connection = $entityManager->getConnection();
@@ -245,9 +248,10 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotNull($cartId);
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $cart['token']));
 
-        $client->request('DELETE', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('DELETE', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertNull($entityManager->find(Cart::class, $cartId));
@@ -263,9 +267,10 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotNull($cartId);
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'));
 
-        $client->request('DELETE', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('DELETE', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertInstanceOf(Cart::class, $entityManager->find(Cart::class, $cartId));
@@ -281,9 +286,10 @@ class CartResourceTest extends ResourceTestUtils
         self::assertNotNull($cartId);
         $client->getCookieJar()->clear();
 
-        $client->request('DELETE', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('DELETE', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertInstanceOf(Cart::class, $entityManager->find(Cart::class, $cartId));
@@ -294,7 +300,7 @@ class CartResourceTest extends ResourceTestUtils
      *
      * @return array{token: string}
      */
-    private function postCart(AbstractBrowser $client, array $payload = []): array
+    private function postCart(KernelBrowser $client, array $payload = []): array
     {
         $client->request(
             'POST',
@@ -314,6 +320,7 @@ class CartResourceTest extends ResourceTestUtils
 
     private function persistedCart(string $token): Cart
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $cart = $entityManager->getRepository(Cart::class)->findOneBy(['token' => $token]);
@@ -325,9 +332,10 @@ class CartResourceTest extends ResourceTestUtils
     /** @return array{Cart, Cart} */
     private function createCartReadContext(): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $ownCart = (new Cart())->setToken(TokenGenerator::generateToken());
-        $foreignCart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $ownCart = new Cart()->setToken(TokenGenerator::generateToken());
+        $foreignCart = new Cart()->setToken(TokenGenerator::generateToken());
         $entityManager->persist($ownCart);
         $entityManager->persist($foreignCart);
         $entityManager->flush();
@@ -344,9 +352,9 @@ class CartResourceTest extends ResourceTestUtils
     }
 
     /** @return array<string, mixed> */
-    private function requestCartCollection(AbstractBrowser $client, string $query = ''): array
+    private function requestCartCollection(KernelBrowser $client, string $query = ''): array
     {
-        $client->request('GET', '/api/carts'.$query, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts' . $query, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         return $this->getResponseDecodedContent($client);

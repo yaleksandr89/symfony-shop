@@ -9,9 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class OrderCreatedFromCartEvent extends Event
 {
-    public function __construct(private Order $order)
-    {
-    }
+    public function __construct(private Order $order) {}
 
     public function getOrder(): Order
     {

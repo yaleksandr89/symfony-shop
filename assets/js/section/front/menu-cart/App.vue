@@ -20,13 +20,13 @@
 </template>
 
 <script>
-import CartTotalPrice from "./components/CartTotalPrice";
-import CartActions from "./components/CartActions";
-import CartProductList from "./components/CartProductList";
+import CartTotalPrice from "./components/CartTotalPrice.vue";
+import CartActions from "./components/CartActions.vue";
+import CartProductList from "./components/CartProductList.vue";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "App",
+  name: "MenuCartApp",
   components: { CartProductList, CartActions, CartTotalPrice },
   computed: {
     ...mapState("cart", ["cart", "staticStore"]),

@@ -17,8 +17,7 @@ class EditOrderModel
         public ?string $totalPrice = null,
         public ?DateTimeImmutable $createdAt = null,
         public ?bool $isDeleted = null,
-    ) {
-    }
+    ) {}
 
     public static function makeFromOrder(?Order $order = null): self
     {

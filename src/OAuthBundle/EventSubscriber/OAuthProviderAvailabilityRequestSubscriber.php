@@ -15,9 +15,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class OAuthProviderAvailabilityRequestSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly OAuthProviderAvailability $availability)
-    {
-    }
+    public function __construct(private readonly OAuthProviderAvailability $availability) {}
 
     public function onKernelRequest(RequestEvent $event): void
     {

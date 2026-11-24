@@ -19,7 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class OrderProductResourceTest extends ResourceTestUtils
 {
     private const COLLECTION_URI = '/api/order_products';
@@ -28,6 +28,7 @@ class OrderProductResourceTest extends ResourceTestUtils
     public function testStandaloneGetRoutesAndOpenApiOperationsAreAbsentWhileCommandRoutesStayStable(): void
     {
         $client = self::createClient();
+        /** @var RouterInterface $router */
         $router = self::getContainer()->get(RouterInterface::class);
         $routes = $router->getRouteCollection();
 
@@ -51,9 +52,9 @@ class OrderProductResourceTest extends ResourceTestUtils
         self::assertArrayHasKey(self::COLLECTION_URI, $document['paths']);
         self::assertArrayHasKey('post', $document['paths'][self::COLLECTION_URI]);
         self::assertArrayNotHasKey('get', $document['paths'][self::COLLECTION_URI]);
-        self::assertArrayHasKey(self::COLLECTION_URI.'/{id}', $document['paths']);
-        self::assertArrayHasKey('delete', $document['paths'][self::COLLECTION_URI.'/{id}']);
-        self::assertArrayNotHasKey('get', $document['paths'][self::COLLECTION_URI.'/{id}']);
+        self::assertArrayHasKey(self::COLLECTION_URI . '/{id}', $document['paths']);
+        self::assertArrayHasKey('delete', $document['paths'][self::COLLECTION_URI . '/{id}']);
+        self::assertArrayNotHasKey('get', $document['paths'][self::COLLECTION_URI . '/{id}']);
 
         $reference = $document['paths'][self::COLLECTION_URI]['post']['requestBody']['content']['application/json']['schema']['$ref'];
         $schema = $document['components']['schemas'][substr($reference, strlen('#/components/schemas/'))];
@@ -326,36 +327,36 @@ class OrderProductResourceTest extends ResourceTestUtils
     {
         $entityManager = $this->entityManager();
         $suffix = str_replace('.', '', uniqid('', true));
-        $existingProduct = (new Product())
-            ->setTitle('Order command existing '.$suffix)
+        $existingProduct = new Product()
+            ->setTitle('Order command existing ' . $suffix)
             ->setPrice('19.99')
             ->setQuantity(100)
             ->setIsPublished(true);
-        $removableProduct = (new Product())
-            ->setTitle('Order command removable '.$suffix)
+        $removableProduct = new Product()
+            ->setTitle('Order command removable ' . $suffix)
             ->setPrice('0.10')
             ->setQuantity(100)
             ->setIsPublished(true);
-        $freeProduct = (new Product())
-            ->setTitle('Order command free '.$suffix)
+        $freeProduct = new Product()
+            ->setTitle('Order command free ' . $suffix)
             ->setPrice('89.99')
             ->setQuantity(100)
             ->setIsPublished(true);
-        $unrelatedProduct = (new Product())
-            ->setTitle('Order command unrelated '.$suffix)
+        $unrelatedProduct = new Product()
+            ->setTitle('Order command unrelated ' . $suffix)
             ->setPrice('5.55')
             ->setQuantity(100)
             ->setIsPublished(true);
 
-        $existingLine = (new OrderProduct())
+        $existingLine = new OrderProduct()
             ->setProduct($existingProduct)
             ->setQuantity(7)
             ->setPricePerOne('19.99');
-        $removableLine = (new OrderProduct())
+        $removableLine = new OrderProduct()
             ->setProduct($removableProduct)
             ->setQuantity(3)
             ->setPricePerOne('0.10');
-        $order = (new Order())
+        $order = new Order()
             ->setOwner($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL))
             ->setStatus(1)
             ->setTotalPrice($withRemovableLine ? '140.23' : '139.93')
@@ -364,11 +365,11 @@ class OrderProductResourceTest extends ResourceTestUtils
             $order->addOrderProduct($removableLine);
         }
 
-        $unrelatedLine = (new OrderProduct())
+        $unrelatedLine = new OrderProduct()
             ->setProduct($unrelatedProduct)
             ->setQuantity(2)
             ->setPricePerOne('5.55');
-        $unrelatedOrder = (new Order())
+        $unrelatedOrder = new Order()
             ->setOwner($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL))
             ->setStatus(1)
             ->setTotalPrice('11.10')
@@ -390,17 +391,20 @@ class OrderProductResourceTest extends ResourceTestUtils
 
         return [
             'orderId' => $orderId,
-            'orderIri' => '/api/orders/'.$orderId,
+            'orderIri' => '/api/orders/' . $orderId,
             'unrelatedOrderId' => $unrelatedOrderId,
             'existingLineId' => $existingLineId,
             'removableLineId' => $withRemovableLine ? (int) $removableLine->getId() : $existingLineId,
-            'existingProductIri' => '/api/products/'.$existingProduct->getUuid(),
+            'existingProductIri' => '/api/products/' . $existingProduct->getUuid(),
             'freeProductId' => $freeProductId,
-            'freeProductIri' => '/api/products/'.$freeProduct->getUuid(),
+            'freeProductIri' => '/api/products/' . $freeProduct->getUuid(),
         ];
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param array{orderIri: string, freeProductIri: string, ...} $context
+     * @return array<string, mixed>
+     */
     private function validPostPayload(array $context, int $quantity = 1): array
     {
         return [
@@ -419,16 +423,18 @@ class OrderProductResourceTest extends ResourceTestUtils
             [],
             [],
             self::REQUEST_HEADERS,
-            json_encode($payload, JSON_THROW_ON_ERROR)
+            json_encode($payload, JSON_THROW_ON_ERROR),
         );
     }
 
     private function requestDelete(KernelBrowser $client, int $lineId): void
     {
-        $client->request('DELETE', self::COLLECTION_URI.'/'.$lineId, [], [], self::REQUEST_HEADERS);
+        $client->request('DELETE', self::COLLECTION_URI . '/' . $lineId, [], [], self::REQUEST_HEADERS);
     }
 
     /**
+     * @param array{orderId: int, unrelatedOrderId: int, ...} $context
+     *
      * @return array{
      *     count: int,
      *     total: string|null,
@@ -511,8 +517,8 @@ class OrderProductResourceTest extends ResourceTestUtils
 
     private function createUnverifiedAdmin(): User
     {
-        $user = (new User())
-            ->setEmail('unverified-order-command-'.str_replace('.', '', uniqid('', true)).'@example.test')
+        $user = new User()
+            ->setEmail('unverified-order-command-' . str_replace('.', '', uniqid('', true)) . '@example.test')
             ->setPassword('not-used')
             ->setRoles(['ROLE_ADMIN'])
             ->setIsVerified(false);
@@ -525,6 +531,7 @@ class OrderProductResourceTest extends ResourceTestUtils
 
     private function entityManager(): EntityManagerInterface
     {
+        /** @var ManagerRegistry $registry */
         $registry = self::getContainer()->get(ManagerRegistry::class);
         $manager = $registry->getManager();
         if ($manager instanceof EntityManagerInterface && !$manager->isOpen()) {

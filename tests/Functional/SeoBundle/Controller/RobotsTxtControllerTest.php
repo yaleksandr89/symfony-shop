@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class RobotsTxtControllerTest extends WebTestCase
 {
     #[TestDox('robots.txt разрешает публичную индексацию без запросов к каталогу')]
@@ -25,7 +25,7 @@ final class RobotsTxtControllerTest extends WebTestCase
 
         self::assertSame(
             "User-agent: *\nDisallow:\n\nSitemap: http://localhost/sitemap.xml",
-            trim($content)
+            trim($content),
         );
         self::assertStringNotContainsString('Disallow: /', $content);
         self::assertStringNotContainsString('Yandex', $content);

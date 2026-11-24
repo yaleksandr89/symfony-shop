@@ -6,8 +6,10 @@ namespace App\Security\EventListener;
 
 use ApiPlatform\Metadata\HttpOperation;
 use ApiPlatform\Symfony\EventListener\AddFormatListener;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 final class ApiSecurityContentNegotiationListener
@@ -17,9 +19,7 @@ final class ApiSecurityContentNegotiationListener
     private const PHASE_POST_READ = 'post_read';
     private const PHASE_POST_DESERIALIZE = 'post_deserialize';
 
-    public function __construct(private AddFormatListener $addFormatListener)
-    {
-    }
+    public function __construct(private AddFormatListener $addFormatListener) {}
 
     public function onEarlyKernelRequest(RequestEvent $event): void
     {
@@ -57,6 +57,22 @@ final class ApiSecurityContentNegotiationListener
         $this->throwDeferredException($event->getRequest(), self::PHASE_POST_DESERIALIZE);
     }
 
+    public function onApiKernelResponse(ResponseEvent $event): void
+    {
+        $response = $event->getResponse();
+        $route = $event->getRequest()->attributes->get('_route');
+        if ($response instanceof JsonResponse || !is_string($route) || !str_starts_with($route, 'api_')) {
+            return;
+        }
+
+        // RU: Опубликованный API явно указывает UTF-8 в заголовках JSON-LD и Problem Details.
+        // EN: The published API explicitly declares UTF-8 in JSON-LD and Problem Details headers.
+        $type = $response->headers->get('Content-Type');
+        if (in_array($type, ['application/ld+json', 'application/problem+json'], true)) {
+            $response->headers->set('Content-Type', $type . '; charset=utf-8');
+        }
+    }
+
     private function initializeFormatWithoutAccept(RequestEvent $event, Request $request): void
     {
         $accept = $request->headers->all('accept');
@@ -65,7 +81,7 @@ final class ApiSecurityContentNegotiationListener
         try {
             $this->addFormatListener->onKernelRequest($event);
         } finally {
-            $request->headers->set('Accept', $accept);
+            $request->headers->set('Accept', array_filter($accept, is_string(...)));
         }
     }
 

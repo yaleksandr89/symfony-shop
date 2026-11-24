@@ -8,21 +8,21 @@ use App\AdminBundle\DTO\EditCategoryModel;
 use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CategoryFormHandler
 {
     public function __construct(
         private CategoryRepository $categoryRepository,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function processEditForm(EditCategoryModel $editCategoryModel): Category
     {
         $category = new Category();
 
         if ($editCategoryModel->id) {
-            $category = $this->categoryRepository->find($editCategoryModel->id);
+            $category = $this->categoryRepository->find($editCategoryModel->id) ?? throw new NotFoundHttpException('Category no longer exists.');
         }
 
         $this->entityManager->persist($category);

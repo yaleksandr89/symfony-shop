@@ -39,7 +39,7 @@ use Symfony\Component\Uid\UuidV4;
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['product:list']],
-            name: 'api_products_get_collection'
+            name: 'api_products_get_collection',
         ),
         new Post(
             normalizationContext: ['groups' => ['product:list:write']],
@@ -48,11 +48,11 @@ use Symfony\Component\Uid\UuidV4;
                 'allow_extra_attributes' => false,
             ],
             security: "is_granted('ROLE_ADMIN')",
-            name: 'api_products_post_collection'
+            name: 'api_products_post_collection',
         ),
         new Get(
             normalizationContext: ['groups' => ['product:item']],
-            name: 'api_products_get_item'
+            name: 'api_products_get_item',
         ),
         new Patch(
             inputFormats: ['json' => ['application/merge-patch+json']],
@@ -62,13 +62,13 @@ use Symfony\Component\Uid\UuidV4;
                 'allow_extra_attributes' => false,
             ],
             security: "is_granted('ROLE_ADMIN')",
-            name: 'api_products_patch_item'
+            name: 'api_products_patch_item',
         ),
     ],
     formats: ['jsonld', 'json'],
     order: ['id' => 'DESC'],
     paginationClientItemsPerPage: true,
-    paginationEnabled: true
+    paginationEnabled: true,
 )]
 #[ApiFilter(BooleanFilter::class, properties: ['isPublished'])]
 #[ApiFilter(SearchFilter::class, properties: ['category' => 'exact'])]
@@ -119,6 +119,7 @@ class Product
     #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write'])]
     protected bool $isOnSale;
 
+    /** @var Collection<int, ProductImage> */
     #[OneToMany(targetEntity: ProductImage::class, mappedBy: 'product', cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected Collection $productImages;
@@ -131,9 +132,11 @@ class Product
     #[Groups(['product:list', 'product:list:write', 'product:item', 'product:item:write', 'order:item', 'cart_product:list', 'cart_product:item', 'cart:list', 'cart:item'])]
     protected ?Category $category;
 
+    /** @var Collection<int, CartProduct> */
     #[OneToMany(targetEntity: CartProduct::class, mappedBy: 'product')]
     protected Collection $cartProducts;
 
+    /** @var Collection<int, OrderProduct> */
     #[OneToMany(targetEntity: OrderProduct::class, mappedBy: 'product')]
     protected Collection $orderProducts;
 
@@ -289,6 +292,7 @@ class Product
         return $this;
     }
 
+    /** @return Collection<int, ProductImage> */
     public function getProductImages(): Collection
     {
         return $this->productImages;
@@ -306,7 +310,8 @@ class Product
 
     public function removeProductImage(ProductImage $productImage): static
     {
-        // set the owning side to null (unless already changed)
+        // RU: Сбрасываем владеющую сторону связи, если она ещё не изменилась.
+        // EN: set the owning side to null (unless already changed)
         if ($this->productImages->removeElement($productImage) && $productImage->getProduct() === $this) {
             $productImage->setProduct(null);
         }
@@ -338,11 +343,13 @@ class Product
         return $this;
     }
 
+    /** @return Collection<int, CartProduct> */
     public function getCartProducts(): Collection
     {
         return $this->cartProducts;
     }
 
+    /** @return Collection<int, OrderProduct> */
     public function getOrderProducts(): Collection
     {
         return $this->orderProducts;

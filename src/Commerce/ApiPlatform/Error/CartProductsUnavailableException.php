@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Error as ErrorOperation;
 use ApiPlatform\Metadata\ErrorResource;
 use ApiPlatform\Metadata\Exception\ProblemExceptionInterface;
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ErrorResource(
@@ -22,9 +24,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
     ],
     status: 409,
-    graphQlOperations: []
+    graphQlOperations: [],
 )]
-final class CartProductsUnavailableException extends \RuntimeException implements ProblemExceptionInterface
+final class CartProductsUnavailableException extends RuntimeException implements ProblemExceptionInterface
 {
     public const TYPE = '/problems/cart-products-unavailable';
     public const TITLE = 'Some products are no longer available';
@@ -41,7 +43,7 @@ final class CartProductsUnavailableException extends \RuntimeException implement
     public function __construct(array $unavailableItems)
     {
         if ([] === $unavailableItems || !array_is_list($unavailableItems)) {
-            throw new \InvalidArgumentException('Unavailable cart products must be a non-empty list.');
+            throw new InvalidArgumentException('Unavailable cart products must be a non-empty list.');
         }
 
         $normalizedItems = [];
@@ -49,15 +51,15 @@ final class CartProductsUnavailableException extends \RuntimeException implement
             $cartProductId = $item['cartProductId'] ?? null;
             $reason = $item['reason'] ?? null;
             if (!is_int($cartProductId) || $cartProductId <= 0) {
-                throw new \InvalidArgumentException('Unavailable cart product IDs must be positive integers.');
+                throw new InvalidArgumentException('Unavailable cart product IDs must be positive integers.');
             }
 
             if (!in_array($reason, [self::REASON_DELETED, self::REASON_UNPUBLISHED], true)) {
-                throw new \InvalidArgumentException('Unavailable cart product reasons must be deleted or unpublished.');
+                throw new InvalidArgumentException('Unavailable cart product reasons must be deleted or unpublished.');
             }
 
             if (isset($normalizedItems[$cartProductId])) {
-                throw new \InvalidArgumentException('Unavailable cart product IDs must be unique.');
+                throw new InvalidArgumentException('Unavailable cart product IDs must be unique.');
             }
 
             $normalizedItems[$cartProductId] = [

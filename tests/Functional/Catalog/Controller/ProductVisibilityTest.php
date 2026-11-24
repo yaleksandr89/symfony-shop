@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Catalog\Controller;
 
+use App\Account\Repository\UserRepository;
 use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class ProductVisibilityTest extends WebTestCase
 {
     #[TestDox('Публичная витрина показывает только доступные товары')]
@@ -28,7 +28,7 @@ final class ProductVisibilityTest extends WebTestCase
         $deleted = $this->createProduct(true, true);
 
         foreach ([(string) $published->getUuid(), $published->getSlug()] as $identifier) {
-            $client->request('GET', '/ru/product/'.$identifier);
+            $client->request('GET', '/ru/product/' . $identifier);
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
         }
 
@@ -59,7 +59,7 @@ final class ProductVisibilityTest extends WebTestCase
         $ordinary = $this->createProduct(true, false);
         self::getContainer()->get(EntityManagerInterface::class)->flush();
 
-        $client->request('GET', '/en/product/'.$merchandised->getUuid());
+        $client->request('GET', '/en/product/' . $merchandised->getUuid());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorCount(1, '.product-full .sale-status-new');
@@ -67,7 +67,7 @@ final class ProductVisibilityTest extends WebTestCase
         self::assertSelectorCount(1, '.product-list .sale-status-new');
         self::assertSelectorCount(1, '.product-list .sale-status-sale');
 
-        $client->request('GET', '/en/product/'.$ordinary->getUuid());
+        $client->request('GET', '/en/product/' . $ordinary->getUuid());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorCount(0, '.product-full .product-merchandising-statuses');
@@ -75,15 +75,16 @@ final class ProductVisibilityTest extends WebTestCase
 
     private function createProduct(bool $isPublished, bool $isDeleted): Product
     {
-        $product = (new Product())
-            ->setTitle('Hidden storefront product '.uniqid('', true))
+        $product = new Product()
+            ->setTitle('Hidden storefront product ' . uniqid('', true))
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setDescription('Storefront test product')
             ->setIsPublished($isPublished)
             ->setIsDeleted($isDeleted);
-        $category = (new Category())->setTitle('Storefront category '.uniqid('', true));
+        $category = new Category()->setTitle('Storefront category ' . uniqid('', true));
         $product->setCategory($category);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($category);
         $entityManager->persist($product);
@@ -100,9 +101,9 @@ final class ProductVisibilityTest extends WebTestCase
         return $user;
     }
 
-    private function assertHiddenProductResponse(AbstractBrowser $client, Product $product, string $identifier): void
+    private function assertHiddenProductResponse(KernelBrowser $client, Product $product, string $identifier): void
     {
-        $client->request('GET', '/ru/product/'.$identifier);
+        $client->request('GET', '/ru/product/' . $identifier);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         self::assertFalse($client->getResponse()->isRedirect());

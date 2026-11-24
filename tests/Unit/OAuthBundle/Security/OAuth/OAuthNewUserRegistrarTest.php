@@ -4,31 +4,33 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 
+use App\Account\Mailer\UserRegisteredEmailSender;
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthNewUserRegistrar;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
-use App\Account\Mailer\UserRegisteredEmailSender;
+use DateTimeImmutable;
 use Doctrine\DBAL\Driver\Exception as DriverExceptionInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthNewUserRegistrarTest extends TestCase
 {
     #[TestDox('Сохраняет пользователя, затем формирует подпись и отправляет письмо')]
     public function testPersistsBeforeOneFlushThenBuildsSignatureAndSendsStandardEmail(): void
     {
-        $user = new class() extends User {
+        $user = new class extends User {
             public function assignId(int $id): void
             {
                 $this->id = $id;
@@ -45,7 +47,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
                 $rawSecret = $secret;
 
                 return 64 === strlen($secret) && ctype_xdigit($secret);
-            }
+            },
         ))->willReturn('hashed-internal-password');
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -53,23 +55,23 @@ final class OAuthNewUserRegistrarTest extends TestCase
             static function () use (&$step): void {
                 self::assertSame(0, $step);
                 $step = 1;
-            }
+            },
         );
         $entityManager->expects(self::once())->method('flush')->willReturnCallback(
             static function () use (&$step, $user): void {
                 self::assertSame(1, $step);
                 $user->assignId(42);
                 $step = 2;
-            }
+            },
         );
 
-        $signature = new VerifyEmailSignatureComponents(new \DateTimeImmutable('@3600'), 'https://example.test/verify?id=42', 0);
+        $signature = new VerifyEmailSignatureComponents(new DateTimeImmutable('@3600'), 'https://example.test/verify?id=42', 0);
         $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
         $verifyEmailHelper->expects(self::once())->method('generateSignature')->with(
             'main_verify_email',
             '42',
             'oauth-new@example.test',
-            ['id' => '42']
+            ['id' => '42'],
         )->willReturnCallback(static function () use (&$step, $signature): VerifyEmailSignatureComponents {
             self::assertSame(2, $step);
             $step = 3;
@@ -82,7 +84,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
             static function () use (&$step): void {
                 self::assertSame(3, $step);
                 $step = 4;
-            }
+            },
         );
 
         $this->registrar($passwordHasher, $entityManager, $verifyEmailHelper, $emailSender)
@@ -99,12 +101,12 @@ final class OAuthNewUserRegistrarTest extends TestCase
     #[TestDox('Сбой уникальности превращается в нейтральный отказ без подписи и письма')]
     public function testUniqueConstraintFailureBecomesGenericDenialWithoutSignatureOrEmail(): void
     {
-        $user = (new User())->setEmail('race@example.test');
+        $user = new User()->setEmail('race@example.test');
         $user->setYandexId('secret-external-id');
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $passwordHasher->expects(self::once())->method('hashPassword')->willReturn('hashed-password');
-        $driverException = new class('database detail race@example.test secret-external-id') extends \RuntimeException implements DriverExceptionInterface {
-            public function getSQLState(): ?string
+        $driverException = new class ('database detail race@example.test secret-external-id') extends RuntimeException implements DriverExceptionInterface {
+            public function getSQLState(): string
             {
                 return '23000';
             }
@@ -112,7 +114,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist')->with($user);
         $entityManager->expects(self::once())->method('flush')->willThrowException(
-            new UniqueConstraintViolationException($driverException, null)
+            new UniqueConstraintViolationException($driverException, null),
         );
         $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
         $verifyEmailHelper->expects(self::never())->method('generateSignature');
@@ -134,11 +136,11 @@ final class OAuthNewUserRegistrarTest extends TestCase
     #[TestDox('Неожиданный сбой сохранения пробрасывается без подмены до подписи и письма')]
     public function testUnexpectedFlushFailureRethrowsSameInstanceBeforeSignatureOrEmail(): void
     {
-        $user = (new User())->setEmail('failure@example.test');
+        $user = new User()->setEmail('failure@example.test');
         $user->setVkontakteId('vk-id');
         $passwordHasher = $this->createStub(UserPasswordHasherInterface::class);
         $passwordHasher->method('hashPassword')->willReturn('hashed-password');
-        $failure = new \RuntimeException('storage unavailable');
+        $failure = new RuntimeException('storage unavailable');
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('persist')->with($user);
         $entityManager->expects(self::once())->method('flush')->willThrowException($failure);
@@ -151,7 +153,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
             $this->registrar($passwordHasher, $entityManager, $verifyEmailHelper, $emailSender)
                 ->register($user, OAuthProvider::Vkontakte);
             self::fail('The storage failure must be rethrown.');
-        } catch (\RuntimeException $exception) {
+        } catch (RuntimeException $exception) {
             self::assertSame($failure, $exception);
         }
     }
@@ -159,7 +161,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
     #[TestDox('Сбой доставки письма после сохранения не отменяет OAuth-регистрацию')]
     public function testTransportFailureAfterPersistenceRemainsBestEffort(): void
     {
-        $user = new class() extends User {
+        $user = new class extends User {
             public function assignId(int $id): void
             {
                 $this->id = $id;
@@ -175,10 +177,10 @@ final class OAuthNewUserRegistrarTest extends TestCase
         $entityManager->expects(self::once())->method('flush')->willReturnCallback(
             static function () use ($user): void {
                 $user->assignId(43);
-            }
+            },
         );
         $signature = new VerifyEmailSignatureComponents(
-            new \DateTimeImmutable('@3600'),
+            new DateTimeImmutable('@3600'),
             'https://example.test/verify?id=43',
             0,
         );
@@ -205,7 +207,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
     #[DataProvider('missingEmails')]
     public function testMissingEmailIsDeniedBeforeAnyRegistrationSideEffect(?string $email): void
     {
-        $user = new class() extends User {
+        $user = new class extends User {
             public function assignNullableEmail(?string $email): void
             {
                 $this->email = $email;
@@ -239,7 +241,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
     #[TestDox('Без авторитетного идентификатора обработка останавливается до пароля и сохранения')]
     public function testMissingAuthoritativeIdentityIsDeniedBeforePasswordOrPersistence(): void
     {
-        $user = (new User())->setEmail('missing-identity@example.test');
+        $user = new User()->setEmail('missing-identity@example.test');
         $user->setGithubId(null);
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $passwordHasher->expects(self::never())->method('hashPassword');
@@ -267,7 +269,7 @@ final class OAuthNewUserRegistrarTest extends TestCase
             $passwordHasher,
             $entityManager,
             $verifyEmailHelper,
-            $emailSender
+            $emailSender,
         );
     }
 }

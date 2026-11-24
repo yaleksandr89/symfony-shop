@@ -1,18 +1,14 @@
-import Vue from "vue";
-import App from "./App";
-import store from "./store";
-import cartSync from "../cart-sync";
+import { createApp } from "vue";
+import App from "./App.vue";
+import store from "./store/index.js";
+import cartSync from "../cart-sync.js";
 
 cartSync.subscribe((cart) => store.commit("cart/setCart", cart));
 
 if (document.getElementById("appFrontMenuCart")) {
-  const vueMenuCartInstance = new Vue({
-    el: "#appFrontMenuCart",
-    store,
-    render: (h) => h(App),
-  });
+  createApp(App).use(store).mount("#appFrontMenuCart");
 
   window.vueMenuCartInstance = {};
   window.vueMenuCartInstance.addCartProduct = (productData) =>
-    vueMenuCartInstance.$store.dispatch("cart/addCartProduct", productData);
+    store.dispatch("cart/addCartProduct", productData);
 }

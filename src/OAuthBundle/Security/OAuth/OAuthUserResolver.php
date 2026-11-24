@@ -8,6 +8,7 @@ use App\Account\Repository\UserRepository;
 use App\Account\Security\UserChecker\DeletedUserChecker;
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
+use Stringable;
 
 final class OAuthUserResolver
 {
@@ -15,8 +16,7 @@ final class OAuthUserResolver
         private readonly UserRepository $userRepository,
         private readonly DeletedUserChecker $deletedUserChecker,
         private readonly OAuthIdentityAccessor $identityAccessor,
-    ) {
-    }
+    ) {}
 
     /**
      * @param callable(): User $newUserFactory
@@ -27,7 +27,7 @@ final class OAuthUserResolver
             throw new OAuthLoginDeniedException();
         }
 
-        $externalId = is_scalar($externalId) || $externalId instanceof \Stringable ? trim((string) $externalId) : '';
+        $externalId = is_scalar($externalId) || $externalId instanceof Stringable ? trim((string) $externalId) : '';
         if ('' === $externalId) {
             throw new OAuthLoginDeniedException();
         }

@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class FilterCartQueryExtensionTest extends TestCase
 {
     #[TestDox('Коллекция корзины использует привязку параметров')]
@@ -96,7 +96,7 @@ class FilterCartQueryExtensionTest extends TestCase
         $queryBuilder = $this->queryBuilder('cart');
         $queryNameGenerator = $this->createMock(QueryNameGeneratorInterface::class);
         $queryNameGenerator->expects(self::never())->method('generateParameterName');
-        $admin = (new User())->setRoles(['ROLE_ADMIN']);
+        $admin = new User()->setRoles(['ROLE_ADMIN']);
 
         $this->extension(Request::create('/api/carts?context=admin', 'GET'), $admin)
             ->applyToCollection($queryBuilder, $queryNameGenerator, Cart::class);
@@ -108,7 +108,7 @@ class FilterCartQueryExtensionTest extends TestCase
     #[TestDox('Не-администратор не обходит фильтр')]
     public function testNonAdminsCannotBypassFilter(): void
     {
-        foreach ([null, (new User())->setRoles(['ROLE_USER'])] as $user) {
+        foreach ([null, new User()->setRoles(['ROLE_USER'])] as $user) {
             $queryBuilder = $this->queryBuilder('cart');
 
             $this->extension(Request::create('/api/carts?context=admin', 'GET', [], ['CART_TOKEN' => 'opaque-token']), $user)
@@ -129,14 +129,14 @@ class FilterCartQueryExtensionTest extends TestCase
             $requestStack->push($request);
         }
 
-        return (new FilterCartQueryExtension())
+        return new FilterCartQueryExtension()
             ->setSecurity($security)
             ->setRequest($requestStack);
     }
 
     private function queryBuilder(string $alias): QueryBuilder
     {
-        return (new QueryBuilder($this->createStub(EntityManagerInterface::class)))
+        return new QueryBuilder($this->createStub(EntityManagerInterface::class))
             ->select($alias)
             ->from(Cart::class, $alias);
     }

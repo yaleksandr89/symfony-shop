@@ -41,7 +41,7 @@ final class OAuthUnlinkController extends AbstractController
 
         $form = $this->createForm(OAuthUnlinkFormType::class, null, [
             'action' => $this->generateUrl('main_profile_unlink_social_network', ['provider' => $provider->value]),
-            'csrf_token_id' => 'oauth_unlink_'.$provider->value,
+            'csrf_token_id' => 'oauth_unlink_' . $provider->value,
             'method' => 'POST',
         ]);
         $form->handleRequest($request);
@@ -64,7 +64,7 @@ final class OAuthUnlinkController extends AbstractController
 
         return $this->render('@OAuth/profile/oauth_unlink.html.twig', [
             'oauthUnlinkForm' => $form->createView(),
-            'providerLabel' => $translator->trans('personal_account.social_group.'.$provider->identityFamily()),
+            'providerLabel' => $translator->trans('personal_account.social_group.' . $provider->identityFamily()),
         ]);
     }
 

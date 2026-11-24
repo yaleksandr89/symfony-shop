@@ -13,9 +13,10 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class CategoryControllerTest extends WebTestCase
 {
     #[TestDox('Активная категория находится по slug')]
@@ -23,20 +24,20 @@ final class CategoryControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Explicit category '.$suffix)
-            ->setSlug('explicit-category-'.$suffix);
-        $product = (new Product())
-            ->setTitle('Explicit product '.$suffix)
+        $category = new Category()
+            ->setTitle('Explicit category ' . $suffix)
+            ->setSlug('explicit-category-' . $suffix);
+        $product = new Product()
+            ->setTitle('Explicit product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setIsPublished(true)
             ->setCategory($category);
         $product->addProductImage(
-            (new ProductImage())
-                ->setFilenameBig('explicit-'.$suffix.'.jpg')
-                ->setFilenameMiddle('explicit-'.$suffix.'.jpg')
-                ->setFilenameSmall('explicit-'.$suffix.'.jpg')
+            new ProductImage()
+                ->setFilenameBig('explicit-' . $suffix . '.jpg')
+                ->setFilenameMiddle('explicit-' . $suffix . '.jpg')
+                ->setFilenameSmall('explicit-' . $suffix . '.jpg'),
         );
 
         $entityManager = $this->getEntityManager();
@@ -48,8 +49,8 @@ final class CategoryControllerTest extends WebTestCase
             '_locale' => 'ru',
             'slug' => $category->getSlug(),
         ]);
-        self::assertSame('/ru/category/'.$category->getSlug(), $url);
-        self::assertStringNotContainsString('/'.$category->getId(), $url);
+        self::assertSame('/ru/category/' . $category->getSlug(), $url);
+        self::assertStringNotContainsString('/' . $category->getId(), $url);
 
         $client->request('GET', $url);
 
@@ -62,7 +63,7 @@ final class CategoryControllerTest extends WebTestCase
     #[TestDox('Неизвестный slug возвращает 404')]
     public function testUnknownSlugRemainsNotFound(): void
     {
-        $slug = 'missing-category-'.str_replace('.', '', uniqid('', true));
+        $slug = 'missing-category-' . str_replace('.', '', uniqid('', true));
         $client = self::createClient();
         $client->request('GET', $this->getRouter()->generate('main_category_show', [
             '_locale' => 'ru',
@@ -78,16 +79,16 @@ final class CategoryControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Complete category '.$suffix)
-            ->setSlug('complete-category-'.$suffix);
+        $category = new Category()
+            ->setTitle('Complete category ' . $suffix)
+            ->setSlug('complete-category-' . $suffix);
         $entityManager = $this->getEntityManager();
         $entityManager->persist($category);
 
         $activeTitles = [];
         for ($index = 1; $index <= 6; ++$index) {
             $title = sprintf('Complete product %d %s', $index, $suffix);
-            $product = (new Product())
+            $product = new Product()
                 ->setSlug(sprintf('complete-product-%d-%s', $index, $suffix))
                 ->setTitle($title)
                 ->setPrice('10.00')
@@ -99,10 +100,10 @@ final class CategoryControllerTest extends WebTestCase
             if (1 !== $index) {
                 $filename = sprintf('complete-%d-%s.jpg', $index, $suffix);
                 $product->addProductImage(
-                    (new ProductImage())
+                    new ProductImage()
                         ->setFilenameBig($filename)
                         ->setFilenameMiddle($filename)
-                        ->setFilenameSmall($filename)
+                        ->setFilenameSmall($filename),
                 );
             }
             $entityManager->persist($product);
@@ -111,14 +112,14 @@ final class CategoryControllerTest extends WebTestCase
 
         foreach ([['Deleted', true, true], ['Unpublished', false, false]] as [$label, $isPublished, $isDeleted]) {
             $entityManager->persist(
-                (new Product())
-                    ->setSlug(strtolower($label).'-product-'.$suffix)
-                    ->setTitle($label.' product '.$suffix)
+                new Product()
+                    ->setSlug(strtolower($label) . '-product-' . $suffix)
+                    ->setTitle($label . ' product ' . $suffix)
                     ->setPrice('10.00')
                     ->setQuantity(1)
                     ->setIsPublished($isPublished)
                     ->setIsDeleted($isDeleted)
-                    ->setCategory($category)
+                    ->setCategory($category),
             );
         }
         $entityManager->flush();
@@ -144,15 +145,15 @@ final class CategoryControllerTest extends WebTestCase
         self::assertSelectorCount(2, '.product-item .sale-status-new');
         self::assertSelectorCount(2, '.product-item .sale-status-sale');
         $ordinaryCard = $crawler->filter('.product-item')->reduce(
-            static fn ($node): bool => str_contains($node->text(), $activeTitles[3]),
+            static fn($node): bool => str_contains($node->text(), $activeTitles[3]),
         );
         self::assertCount(1, $ordinaryCard);
         self::assertCount(0, $ordinaryCard->filter('.product-merchandising-statuses'));
         foreach ($activeTitles as $title) {
             self::assertStringContainsString($title, (string) $client->getResponse()->getContent());
         }
-        self::assertStringNotContainsString('Deleted product '.$suffix, (string) $client->getResponse()->getContent());
-        self::assertStringNotContainsString('Unpublished product '.$suffix, (string) $client->getResponse()->getContent());
+        self::assertStringNotContainsString('Deleted product ' . $suffix, (string) $client->getResponse()->getContent());
+        self::assertStringNotContainsString('Unpublished product ' . $suffix, (string) $client->getResponse()->getContent());
         $initialQueryCount = $this->doctrineQueryCount($client);
         self::assertLessThanOrEqual(4, $initialQueryCount);
 
@@ -161,13 +162,13 @@ final class CategoryControllerTest extends WebTestCase
         self::assertInstanceOf(Category::class, $managedCategory);
         for ($index = 7; $index <= 12; ++$index) {
             $entityManager->persist(
-                (new Product())
+                new Product()
                     ->setSlug(sprintf('complete-product-%d-%s', $index, $suffix))
                     ->setTitle(sprintf('Complete product %d %s', $index, $suffix))
                     ->setPrice('10.00')
                     ->setQuantity(1)
                     ->setIsPublished(true)
-                    ->setCategory($managedCategory)
+                    ->setCategory($managedCategory),
             );
         }
         $entityManager->flush();
@@ -188,9 +189,9 @@ final class CategoryControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Deleted category '.$suffix)
-            ->setSlug('deleted-category-'.$suffix)
+        $category = new Category()
+            ->setTitle('Deleted category ' . $suffix)
+            ->setSlug('deleted-category-' . $suffix)
             ->setIsDeleted(true);
         $entityManager = $this->getEntityManager();
         $entityManager->persist($category);
@@ -203,11 +204,13 @@ final class CategoryControllerTest extends WebTestCase
 
         self::assertResponseRedirects(
             $this->getRouter()->generate('main_homepage', ['_locale' => 'ru']),
-            Response::HTTP_FOUND
+            Response::HTTP_FOUND,
         );
+        $flashSession = $client->getRequest()->getSession();
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $flashSession);
         self::assertSame(
             [sprintf('The category %s not found!', $category->getTitle())],
-            $client->getRequest()->getSession()->getFlashBag()->peek('warning')
+            $flashSession->getFlashBag()->peek('warning'),
         );
         self::assertStringNotContainsString((string) $category->getTitle(), (string) $client->getResponse()->getContent());
     }

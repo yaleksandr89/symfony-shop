@@ -9,12 +9,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method Category|null find($id, $lockMode = null, $lockVersion = null)
- * @method Category|null findOneBy(array $criteria, array $orderBy = null)
- * @method Category[]    findAll()
- * @method Category[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<Category> */
 class CategoryRepository extends ServiceEntityRepository
 {
     public function __construct(
@@ -27,7 +22,8 @@ class CategoryRepository extends ServiceEntityRepository
     /** @return list<array{slug: string}> */
     public function findSitemapRows(): array
     {
-        return $this->createQueryBuilder('category')
+        /** @var list<array{slug: string}> $rows */
+        $rows = $this->createQueryBuilder('category')
             ->select('DISTINCT category.slug AS slug')
             ->innerJoin('category.products', 'product')
             ->andWhere('category.isDeleted = false')
@@ -38,6 +34,8 @@ class CategoryRepository extends ServiceEntityRepository
             ->orderBy('category.slug', 'ASC')
             ->getQuery()
             ->getArrayResult();
+
+        return $rows;
     }
 
     public function forFormQueryBuilderFindActiveCategory(): QueryBuilder
@@ -46,10 +44,11 @@ class CategoryRepository extends ServiceEntityRepository
             ->andWhere('c.isDeleted = FALSE');
     }
 
-    /** @return list<array{title: string, slug: string}> */
+    /** @return list<array{id: int, title: string|null, slug: string}> */
     public function findActiveNavigationRows(): array
     {
-        return $this->createQueryBuilder('category')
+        /** @var list<array{id: int, title: string|null, slug: string}> $rows */
+        $rows = $this->createQueryBuilder('category')
             ->select('DISTINCT category.id AS id, category.title AS title, category.slug AS slug')
             ->innerJoin('category.products', 'product')
             ->andWhere('category.isDeleted = false')
@@ -58,6 +57,8 @@ class CategoryRepository extends ServiceEntityRepository
             ->orderBy('category.id', 'ASC')
             ->getQuery()
             ->getArrayResult();
+
+        return $rows;
     }
 
     /**
@@ -78,10 +79,10 @@ class CategoryRepository extends ServiceEntityRepository
             ->addOrderBy('product.id', 'ASC')
             ->getQuery()
             ->getArrayResult();
-        $covers = $this->productImageRepository->findFirstCoversByProductIds(array_map(
-            static fn (array $row): int => (int) $row['productId'],
+        $covers = $this->productImageRepository->findFirstCoversByProductIds(array_values(array_map(
+            static fn(array $row): int => (int) $row['productId'],
             $rows,
-        ));
+        )));
 
         $candidates = [];
         foreach ($rows as $row) {

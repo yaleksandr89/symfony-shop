@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class SecurityControllerTest extends WebTestCase
 {
     #[TestDox('Обычный ROLE_USER получает стандартный отказ и не входит в admin firewall')]
@@ -65,7 +65,11 @@ class SecurityControllerTest extends WebTestCase
         self::assertNotSame($defaultDashboard, $client->getResponse()->headers->get('location'));
     }
 
-    #[DataProvider(methodName: 'provideLocales')]
+    /**
+     * @param array<string, string> $expected
+     * @param array<string, string> $unexpected
+     */
+    #[DataProvider('provideLocales')]
     #[TestDox('Страница входа администратора локализована')]
     public function testLoginPageIsLocalized(string $locale, array $expected, array $unexpected): void
     {

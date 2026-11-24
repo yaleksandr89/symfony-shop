@@ -8,6 +8,8 @@ use App\Account\Repository\UserRepository;
 use App\AdminBundle\DTO\EditUserModel;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFormHandler
@@ -16,15 +18,14 @@ class UserFormHandler
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $hasher,
-    ) {
-    }
+    ) {}
 
     public function processEditForm(EditUserModel $editUserModel): User
     {
         $user = new User();
 
         if ($editUserModel->id) {
-            $user = $this->userRepository->find($editUserModel->id);
+            $user = $this->userRepository->find($editUserModel->id) ?? throw new NotFoundHttpException('User no longer exists.');
         }
 
         $this->entityManager->persist($user);
@@ -47,16 +48,16 @@ class UserFormHandler
             $user->setPassword($encodedPassword);
         }
 
-        if ($editUserModel->email) {
+        if ($email) {
             $user->setEmail($email);
         }
 
-        $user->setRoles($editUserModel->roles);
+        $user->setRoles($editUserModel->roles ?? throw new LogicException('Missing validated roles field.'));
         $user->setFullName($editUserModel->fullName);
         $user->setPhone($editUserModel->phone);
         $user->setAddress($editUserModel->address);
         $user->setZipCode($zipCode);
-        $user->setIsDeleted($editUserModel->isDeleted);
+        $user->setIsDeleted($editUserModel->isDeleted ?? throw new LogicException('Missing validated isDeleted field.'));
 
         return $user;
     }

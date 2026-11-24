@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Security;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
 use App\Account\Security\UserChecker\DeletedUserChecker;
+use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
@@ -17,7 +17,7 @@ use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class DeletedUserAuthenticationTest extends WebTestCase
 {
     #[TestDox('Оба firewall используют проверку удалённого пользователя')]
@@ -28,7 +28,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
             self::assertInstanceOf(DeletedUserChecker::class, $checker);
 
             try {
-                $checker->checkPreAuth((new User())->setIsDeleted(true));
+                $checker->checkPreAuth(new User()->setIsDeleted(true));
                 self::fail(sprintf('%s does not use the deleted-user checker.', $serviceId));
             } catch (CustomUserMessageAccountStatusException $exception) {
                 self::assertSame('Invalid credentials.', $exception->getMessageKey());
@@ -174,6 +174,7 @@ class DeletedUserAuthenticationTest extends WebTestCase
 
     private function softDelete(string $email): void
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $this->getUser($email);
         $user->setIsDeleted(true);

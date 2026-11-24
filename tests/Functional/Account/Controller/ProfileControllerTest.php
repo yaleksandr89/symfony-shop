@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportException;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class ProfileControllerTest extends WebTestCase
 {
     #[TestDox('Корректная форма профиля сохраняет изменённые контактные данные')]
@@ -24,6 +24,7 @@ final class ProfileControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->disableReboot();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $this->fixtureUser($entityManager);
         $userId = $user->getId();
@@ -65,6 +66,7 @@ final class ProfileControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->disableReboot();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $this->fixtureUser($entityManager);
         $userId = $user->getId();
@@ -104,6 +106,7 @@ final class ProfileControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->disableReboot();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy([
             'email' => UserFixtures::USER_1_EMAIL,
@@ -134,12 +137,14 @@ final class ProfileControllerTest extends WebTestCase
         }
     }
 
+    /** @param array<string, string> $parameters */
     #[DataProvider('rejectedResendRequests')]
     #[TestDox('GET и POST без действительного CSRF не отправляют письмо подтверждения')]
     public function testResendRejectsUnsafeRequestsWithoutSendingEmail(string $method, array $parameters, int $status): void
     {
         $client = self::createClient();
         $client->disableReboot();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $this->fixtureUser($entityManager);
         $wasVerified = $user->isVerified();
@@ -176,6 +181,7 @@ final class ProfileControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->disableReboot();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $this->fixtureUser($entityManager);
         $wasVerified = $user->isVerified();

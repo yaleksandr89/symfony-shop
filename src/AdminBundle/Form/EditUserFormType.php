@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\Regex;
 
+/** @extends AbstractType<EditUserModel> */
 class EditUserFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

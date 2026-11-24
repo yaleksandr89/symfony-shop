@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
+use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use Generator;
@@ -15,10 +15,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class UserControllerTest extends WebTestCase
 {
-    #[DataProvider(methodName: 'provideLocales')]
+    #[DataProvider('provideLocales')]
     #[TestDox('Суперадминистратор управляет пользователями с локализованной проверкой дубликатов')]
     public function testSuperAdminCanListAddEditAndRejectDuplicatesInSelectedLocale(
         string $locale,
@@ -57,6 +57,7 @@ class UserControllerTest extends WebTestCase
             'edit_user_form[fullName]' => 'Managed User',
         ]));
         self::assertResponseRedirects();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $created = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => $createdEmail]);

@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 
+/** @extends AbstractType<EditProductModel> */
 class EditProductFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -82,7 +83,7 @@ class EditProductFormType extends AbstractType
                     new File(
                         maxSize: '10M',
                         mimeTypes: ['image/jpeg', 'image/png'],
-                        mimeTypesMessage: 'product.validation.image.invalid_type'
+                        mimeTypesMessage: 'product.validation.image.invalid_type',
                     ),
                 ],
             ])

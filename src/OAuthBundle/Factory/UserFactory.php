@@ -10,6 +10,7 @@ use App\OAuthBundle\Provider\Linkedin\LinkedinUser;
 use App\OAuthBundle\Provider\Vk\VkUser;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use League\OAuth2\Client\Provider\GoogleUser;
+use UnexpectedValueException;
 use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
 class UserFactory
@@ -17,7 +18,7 @@ class UserFactory
     public static function createUserFromGoogle(GoogleUser $googleUser): User
     {
         $user = new User();
-        $user->setEmail($googleUser->getEmail());
+        $user->setEmail($googleUser->getEmail() ?? throw new UnexpectedValueException('OAuth account has no email address.'));
         $user->setFullName($googleUser->getName());
         $user->setGoogleId($googleUser->getId());
 
@@ -37,7 +38,7 @@ class UserFactory
     public static function createUserFromVk(VkUser $vkontakteUser): User
     {
         $user = new User();
-        $user->setEmail($vkontakteUser->getEmail());
+        $user->setEmail($vkontakteUser->getEmail() ?? throw new UnexpectedValueException('OAuth account has no email address.'));
         $user->setFullName($vkontakteUser->getFullName());
         $user->setVkontakteId($vkontakteUser->getId());
 
@@ -47,7 +48,7 @@ class UserFactory
     public static function createUserFromGithub(GithubResourceOwner $githubUser): User
     {
         $user = new User();
-        $user->setEmail($githubUser->getEmail());
+        $user->setEmail($githubUser->getEmail() ?? throw new UnexpectedValueException('OAuth account has no email address.'));
         $user->setFullName($githubUser->getName());
         $user->setGithubId((string) $githubUser->getId());
 

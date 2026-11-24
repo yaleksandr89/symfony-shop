@@ -23,11 +23,10 @@ use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+/** @extends AbstractType<ProductFilterModel> */
 class ProductFilterFormType extends AbstractType
 {
-    public function __construct(private ExclusiveDateRangeFilter $exclusiveDateRangeFilter)
-    {
-    }
+    public function __construct(private ExclusiveDateRangeFilter $exclusiveDateRangeFilter) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

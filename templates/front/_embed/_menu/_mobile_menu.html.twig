@@ -5,7 +5,7 @@
     <nav class="mobile-nav">
         <ul class="mobile-menu">
             {{ headerNavigation|raw }}
-            <li class="menu-item font-weight-bold {% if 'profile' in app.request.pathInfo %}active{% endif %}">
+            <li class="menu-item fw-bold {% if 'profile' in app.request.pathInfo %}active{% endif %}">
                 {% if app.user is not null %}
                     <a href="{{ path('main_profile_index') }}">
                         <div>{{ 'header_menu.profile'|trans }}</div>
@@ -16,13 +16,13 @@
                     </a>
                 {% endif %}
             </li>
-            <li class="menu-item font-weight-bold {% if 'cart' in app.request.pathInfo %}active{% endif %}">
+            <li class="menu-item fw-bold {% if 'cart' in app.request.pathInfo %}active{% endif %}">
                 <a href="{{ path('main_cart_show') }}">
                     <div>{{ 'cart.head'|trans }}</div>
                 </a>
             </li>
             <li class="menu-item">
-                <select class="custom-select custom-select-sm" id="mobile-select-language">
+                <select class="form-select form-select-sm" id="mobile-select-language">
                     <option value="/en/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.en'|trans }}</option>
                     <option value="/ru/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.ru'|trans }}</option>
                 </select>

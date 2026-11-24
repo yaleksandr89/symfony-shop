@@ -34,7 +34,7 @@ final class FacebookAuthenticator extends AbstractOAuthAuthenticator
                 OAuthProvider::Facebook,
                 $facebookUser->getId(),
                 $email,
-                static fn (): User => UserFactory::createUserFromFacebook($facebookUser, (string) $email),
+                static fn(): User => UserFactory::createUserFromFacebook($facebookUser, (string) $email),
             );
         }));
     }

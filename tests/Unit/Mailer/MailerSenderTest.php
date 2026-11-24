@@ -14,36 +14,38 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Stringable;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\RawMessage;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class MailerSenderTest extends TestCase
 {
     private string $projectDir;
 
     protected function setUp(): void
     {
-        $this->projectDir = sys_get_temp_dir().'/mailer-sender-'.bin2hex(random_bytes(8));
-        self::assertTrue(mkdir($this->projectDir.'/assets/images/icons', 0777, true));
-        self::assertTrue(mkdir($this->projectDir.'/public/build', 0777, true));
+        $this->projectDir = sys_get_temp_dir() . '/mailer-sender-' . bin2hex(random_bytes(8));
+        self::assertTrue(mkdir($this->projectDir . '/assets/images/icons', 0777, true));
+        self::assertTrue(mkdir($this->projectDir . '/public/build', 0777, true));
         self::assertNotFalse(file_put_contents(
-            $this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png',
+            $this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png',
             'test-logo',
         ));
-        self::assertNotFalse(file_put_contents($this->projectDir.'/public/build/email.css', '.email { color: #123; }'));
+        self::assertNotFalse(file_put_contents($this->projectDir . '/public/build/email.css', '.email { color: #123; }'));
     }
 
     protected function tearDown(): void
     {
         foreach ([
-            $this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png',
-            $this->projectDir.'/public/build/email.css',
+            $this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png',
+            $this->projectDir . '/public/build/email.css',
         ] as $file) {
             if (is_file($file)) {
                 unlink($file);
@@ -51,11 +53,11 @@ final class MailerSenderTest extends TestCase
         }
 
         foreach ([
-            $this->projectDir.'/assets/images/icons',
-            $this->projectDir.'/assets/images',
-            $this->projectDir.'/assets',
-            $this->projectDir.'/public/build',
-            $this->projectDir.'/public',
+            $this->projectDir . '/assets/images/icons',
+            $this->projectDir . '/assets/images',
+            $this->projectDir . '/assets',
+            $this->projectDir . '/public/build',
+            $this->projectDir . '/public',
             $this->projectDir,
         ] as $directory) {
             if (is_dir($directory)) {
@@ -73,7 +75,7 @@ final class MailerSenderTest extends TestCase
         $mailer->expects(self::once())->method('send')->willReturnCallback(
             static function (RawMessage $message) use (&$sent): void {
                 $sent = $message;
-            }
+            },
         );
         $logger = new RecordingLogger();
 
@@ -86,7 +88,7 @@ final class MailerSenderTest extends TestCase
         self::assertSame('.email { color: #123; }', $result->getContext()['email_inline_css']);
         self::assertSame('cid:symfony-shop-logo@symfony-shop', $result->getContext()['email_logo_cid']);
         self::assertSame(null === $cc ? [] : [$cc], array_map(
-            static fn ($address): string => $address->getAddress(),
+            static fn($address): string => $address->getAddress(),
             $result->getCc(),
         ));
         self::assertSame([], $logger->records);
@@ -114,7 +116,7 @@ final class MailerSenderTest extends TestCase
                 }
 
                 $fallback = $message;
-            }
+            },
         );
         $logger = new RecordingLogger();
 
@@ -130,7 +132,7 @@ final class MailerSenderTest extends TestCase
         self::assertNotInstanceOf(TemplatedEmail::class, $fallback);
         self::assertSame('admin@example.test', $fallback->getTo()[0]->getAddress());
         self::assertSame(
-            "Primary email delivery failed.\nException class: ".TransportException::class,
+            "Primary email delivery failed.\nException class: " . TransportException::class,
             $fallback->getTextBody(),
         );
         self::assertSame([[
@@ -138,14 +140,14 @@ final class MailerSenderTest extends TestCase
             'Primary email delivery failed.',
             ['exception_class' => TransportException::class, 'mail_stage' => 'primary'],
         ]], $logger->records);
-        $this->assertSensitiveDiagnosticsAbsent($logger, $fallback->getTextBody() ?? '');
+        $this->assertSensitiveDiagnosticsAbsent($logger, $fallback->getTextBody());
     }
 
     #[TestDox('Сбой fallback не заменяет исходный transport-сбой и ограничивает отправку двумя попытками')]
     public function testPrimaryAndFallbackFailuresRethrowOriginalAfterExactlyTwoAttempts(): void
     {
         $primary = $this->sensitiveTransportFailure();
-        $fallback = new \RuntimeException('fallback-credential must remain private');
+        $fallback = new RuntimeException('fallback-credential must remain private');
         $attempt = 0;
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::exactly(2))->method('send')->willReturnCallback(
@@ -153,7 +155,7 @@ final class MailerSenderTest extends TestCase
                 ++$attempt;
 
                 throw 1 === $attempt ? $primary : $fallback;
-            }
+            },
         );
         $logger = new RecordingLogger();
 
@@ -174,7 +176,7 @@ final class MailerSenderTest extends TestCase
             [
                 'critical',
                 'Fallback email delivery failed.',
-                ['exception_class' => \RuntimeException::class, 'mail_stage' => 'fallback'],
+                ['exception_class' => RuntimeException::class, 'mail_stage' => 'fallback'],
             ],
         ], $logger->records);
         $this->assertSensitiveDiagnosticsAbsent($logger, '');
@@ -184,7 +186,7 @@ final class MailerSenderTest extends TestCase
     #[TestDox('Не-transport сбой отправки пробрасывается без fallback и transport-логов')]
     public function testNonTransportPrimaryFailurePropagatesWithoutFallback(): void
     {
-        $failure = new \RuntimeException('composition failure');
+        $failure = new RuntimeException('composition failure');
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())->method('send')->willThrowException($failure);
         $logger = new RecordingLogger();
@@ -192,7 +194,7 @@ final class MailerSenderTest extends TestCase
         try {
             $this->sender($mailer, $logger)->sendTemplatedEmail($this->options());
             self::fail('The non-transport failure must propagate.');
-        } catch (\RuntimeException $exception) {
+        } catch (RuntimeException $exception) {
             self::assertSame($failure, $exception);
         }
 
@@ -202,7 +204,7 @@ final class MailerSenderTest extends TestCase
     #[TestDox('Отсутствующая таблица стилей даёт safe warning и не отменяет письмо с логотипом')]
     public function testMissingStylesheetDegradesToUnstyledEmail(): void
     {
-        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
+        self::assertTrue(unlink($this->projectDir . '/public/build/email.css'));
         $sent = null;
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())->method('send')->willReturnCallback(
@@ -228,7 +230,7 @@ final class MailerSenderTest extends TestCase
     #[TestDox('Отсутствующий логотип даёт safe warning и отправляет письмо без inline attachment')]
     public function testMissingLogoDegradesToEmailWithoutInlinePart(): void
     {
-        self::assertTrue(unlink($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png'));
+        self::assertTrue(unlink($this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png'));
         $sent = null;
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())->method('send')->willReturnCallback(
@@ -254,8 +256,8 @@ final class MailerSenderTest extends TestCase
     #[TestDox('Отсутствие обоих декоративных ресурсов даёт два bounded warning и одну business-отправку')]
     public function testBothAssetsMissingStillSendsOnceWithTwoWarnings(): void
     {
-        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
-        self::assertTrue(unlink($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png'));
+        self::assertTrue(unlink($this->projectDir . '/public/build/email.css'));
+        self::assertTrue(unlink($this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png'));
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())->method('send');
         $logger = new RecordingLogger();
@@ -290,7 +292,7 @@ final class MailerSenderTest extends TestCase
             $this->sender($mailer, $logger, 'https://example.test/build/email.css')
                 ->sendTemplatedEmail($this->options());
             self::fail('Unsafe asset configuration must fail.');
-        } catch (\RuntimeException $exception) {
+        } catch (RuntimeException $exception) {
             self::assertNotInstanceOf(EmailAssetUnavailableException::class, $exception);
         }
 
@@ -300,7 +302,7 @@ final class MailerSenderTest extends TestCase
     #[TestDox('Сбой warning-логгера не отменяет отправку письма без декоративного ресурса')]
     public function testUnavailableAssetWarningFailureDoesNotPreventSend(): void
     {
-        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
+        self::assertTrue(unlink($this->projectDir . '/public/build/email.css'));
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())->method('send');
 
@@ -313,15 +315,14 @@ final class MailerSenderTest extends TestCase
         MailerInterface $mailer,
         LoggerInterface $logger,
         string $stylesheetUrl = '/build/email.css',
-    ): MailerSender
-    {
+    ): MailerSender {
         $parameterBag = $this->createStub(ParameterBagInterface::class);
         $parameterBag->method('get')->willReturnCallback(
             static function (string $name): string {
                 self::assertSame('admin_email', $name);
 
                 return 'admin@example.test';
-            }
+            },
         );
         $packages = $this->createStub(Packages::class);
         $packages->method('getUrl')->willReturnCallback(
@@ -329,7 +330,7 @@ final class MailerSenderTest extends TestCase
                 self::assertSame('build/email.css', $path);
 
                 return $stylesheetUrl;
-            }
+            },
         );
         $sender = new MailerSender(
             $parameterBag,
@@ -343,7 +344,7 @@ final class MailerSenderTest extends TestCase
 
     private function options(?string $cc = null): MailerOptionModel
     {
-        $options = (new MailerOptionModel())
+        $options = new MailerOptionModel()
             ->setRecipient('recipient@example.test')
             ->setSubject('Test subject')
             ->setHtmlTemplate('front/email/test.html.twig')
@@ -374,7 +375,7 @@ final class MailerSenderTest extends TestCase
 
     private function assertSensitiveDiagnosticsAbsent(RecordingLogger $logger, string $fallbackBody): void
     {
-        $diagnostics = serialize($logger->records).$fallbackBody;
+        $diagnostics = serialize($logger->records) . $fallbackBody;
 
         foreach ([
             'recipient-private@example.test',
@@ -394,7 +395,7 @@ final class RecordingLogger extends AbstractLogger
     /** @var list<array{mixed, string, array<string, mixed>}> */
     public array $records = [];
 
-    public function log($level, string|\Stringable $message, array $context = []): void
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         $this->records[] = [$level, (string) $message, $context];
     }
@@ -402,10 +403,10 @@ final class RecordingLogger extends AbstractLogger
 
 final class ThrowingWarningLogger extends AbstractLogger
 {
-    public function log($level, string|\Stringable $message, array $context = []): void
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         if ('warning' === $level) {
-            throw new \RuntimeException('logger failure');
+            throw new RuntimeException('logger failure');
         }
     }
 }

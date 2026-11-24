@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\OAuthBundle\Security\OAuth;
 
+use LogicException;
+
 enum OAuthProvider: string
 {
     case Google = 'google';
@@ -58,7 +60,7 @@ enum OAuthProvider: string
             self::GithubRus => 'github_ru',
             self::Facebook => 'facebook_main',
             self::Linkedin => 'linkedin_main',
-            default => throw new \LogicException('Unsupported OAuth client provider.'),
+            default => throw new LogicException('Unsupported OAuth client provider.'),
         };
     }
 

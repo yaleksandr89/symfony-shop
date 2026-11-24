@@ -10,11 +10,11 @@ use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
-use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class ProblemDetailsContractTest extends ResourceTestUtils
 {
     private const JSON_HEADERS = [
@@ -106,12 +106,13 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
     {
         $suffix = str_replace('.', '', uniqid('', true));
         $token = bin2hex(random_bytes(16));
-        $product = (new Product())
-            ->setTitle('Problem details product '.$suffix)
+        $product = new Product()
+            ->setTitle('Problem details product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(10)
             ->setIsPublished(true);
-        $cart = (new Cart())->setToken($token);
+        $cart = new Cart()->setToken($token);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);
         $entityManager->persist($cart);
@@ -125,13 +126,14 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
             'productId' => $product->getId(),
             'productUuid' => (string) $product->getUuid(),
             'token' => $token,
-            'productQuantity' => $product->getQuantity(),
+            'productQuantity' => $product->getQuantity() ?? self::fail('Fixture product has no quantity.'),
         ];
     }
 
     /** @return array{cartProducts: int, carts: int, products: int} */
     private function counts(): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
 
         return [
@@ -141,17 +143,20 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
         ];
     }
 
-    private function setCartToken(AbstractBrowser $client, string $token): void
+    private function setCartToken(KernelBrowser $client, string $token): void
     {
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $token));
     }
 
-    /** @param array{cartId: int, productId: int, productUuid: string, token: string, productQuantity: int} $context */
-    private function postInvalidQuantity(AbstractBrowser $client, array $context, array $headers): void
+    /**
+     * @param array{cartId: int, productUuid: string, ...} $context
+     * @param array<string, string> $headers
+     */
+    private function postInvalidQuantity(KernelBrowser $client, array $context, array $headers): void
     {
         $client->request('POST', '/api/cart_products', [], [], $headers, json_encode([
-            'cart' => '/api/carts/'.$context['cartId'],
-            'product' => '/api/products/'.$context['productUuid'],
+            'cart' => '/api/carts/' . $context['cartId'],
+            'product' => '/api/products/' . $context['productUuid'],
             'quantity' => 0,
         ], JSON_THROW_ON_ERROR));
     }
@@ -196,6 +201,7 @@ final class ProblemDetailsContractTest extends ResourceTestUtils
      */
     private function assertNoSideEffects(array $context, array $counts): void
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertSame($counts, $this->counts());

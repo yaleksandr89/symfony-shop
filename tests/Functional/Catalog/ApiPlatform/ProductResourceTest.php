@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Catalog\ApiPlatform;
 
+use App\Account\Repository\UserRepository;
+use App\Catalog\Repository\ProductRepository;
 use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
-use App\Catalog\Repository\ProductRepository;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
+use FilesystemIterator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTestUtils
 {
     /** @var string */
@@ -42,7 +45,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $client = self::createClient();
         $product = $this->getStableProduct('DESC');
 
-        $client->request('GET', $this->uriKey.'?itemsPerPage=2', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '?itemsPerPage=2', [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -62,7 +65,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         self::assertArrayHasKey('first', $document['view']);
         self::assertArrayHasKey('last', $document['view']);
 
-        $expectedIri = $this->uriKey.'/'.$product->getUuid();
+        $expectedIri = $this->uriKey . '/' . $product->getUuid();
         $member = $this->findMemberByIri($document['member'], $expectedIri);
 
         self::assertSame('Product', $member['@type']);
@@ -84,7 +87,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $client = self::createClient();
         $product = $this->getStableProduct();
 
-        $uri = $this->uriKey.'/'.$product->getUuid();
+        $uri = $this->uriKey . '/' . $product->getUuid();
 
         $client->request('GET', $uri, [], [], self::REQUEST_HEADERS);
 
@@ -97,9 +100,9 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         self::assertSame((string) $product->getUuid(), $document['uuid']);
         self::assertMatchesRegularExpression(
             '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/D',
-            $document['uuid']
+            $document['uuid'],
         );
-        self::assertStringEndsWith('/'.$document['uuid'], $document['@id']);
+        self::assertStringEndsWith('/' . $document['uuid'], $document['@id']);
         self::assertSame($product->getTitle(), $document['title']);
         self::assertSame($product->getPrice(), $document['price']);
         self::assertSame($product->getQuantity(), $document['quantity']);
@@ -119,22 +122,22 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $unpublished = $this->createProduct('Unpublished product');
         $deleted = $this->createProduct('Deleted product', true, true);
 
-        $client->request('GET', $this->uriKey.'?itemsPerPage=100', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '?itemsPerPage=100', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $iris = array_column($this->getResponseDecodedContent($client)['member'], '@id');
-        self::assertContains($this->uriKey.'/'.$published->getUuid(), $iris);
-        self::assertNotContains($this->uriKey.'/'.$unpublished->getUuid(), $iris);
-        self::assertNotContains($this->uriKey.'/'.$deleted->getUuid(), $iris);
+        self::assertContains($this->uriKey . '/' . $published->getUuid(), $iris);
+        self::assertNotContains($this->uriKey . '/' . $unpublished->getUuid(), $iris);
+        self::assertNotContains($this->uriKey . '/' . $deleted->getUuid(), $iris);
 
-        $client->request('GET', $this->uriKey.'/'.$published->getUuid(), [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '/' . $published->getUuid(), [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         foreach ([$unpublished, $deleted] as $product) {
-            $client->request('GET', $this->uriKey.'/'.$product->getUuid(), [], [], self::REQUEST_HEADERS);
+            $client->request('GET', $this->uriKey . '/' . $product->getUuid(), [], [], self::REQUEST_HEADERS);
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
 
-        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '?isPublished=false', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertSame([], $this->getResponseDecodedContent($client)['member']);
     }
@@ -148,15 +151,15 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $deleted = $this->createProduct('User deleted product', true, true);
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
 
-        $client->request('GET', $this->uriKey.'/'.$published->getUuid(), [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '/' . $published->getUuid(), [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         foreach ([$unpublished, $deleted] as $product) {
-            $client->request('GET', $this->uriKey.'/'.$product->getUuid(), [], [], self::REQUEST_HEADERS);
+            $client->request('GET', $this->uriKey . '/' . $product->getUuid(), [], [], self::REQUEST_HEADERS);
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
 
-        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '?isPublished=false', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertSame([], $this->getResponseDecodedContent($client)['member']);
     }
@@ -169,14 +172,14 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $deleted = $this->createProduct('Admin deleted product', true, true);
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
 
-        $client->request('GET', $this->uriKey.'?isPublished=false', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '?isPublished=false', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertContains(
-            $this->uriKey.'/'.$unpublished->getUuid(),
-            array_column($this->getResponseDecodedContent($client)['member'], '@id')
+            $this->uriKey . '/' . $unpublished->getUuid(),
+            array_column($this->getResponseDecodedContent($client)['member'], '@id'),
         );
 
-        $uri = $this->uriKey.'/'.$unpublished->getUuid();
+        $uri = $this->uriKey . '/' . $unpublished->getUuid();
         $client->request('GET', $uri, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -185,6 +188,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $document = $this->getResponseDecodedContent($client);
         self::assertSame('Updated admin draft', $document['title']);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $reloaded = self::getContainer()->get(ProductRepository::class)->findOneBy([
@@ -193,7 +197,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         self::assertInstanceOf(Product::class, $reloaded);
         self::assertSame('Updated admin draft', $reloaded->getTitle());
 
-        $client->request('GET', $this->uriKey.'/'.$deleted->getUuid(), [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '/' . $deleted->getUuid(), [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
@@ -221,14 +225,14 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             [],
             [],
             self::REQUEST_HEADERS,
-            json_encode($context, JSON_THROW_ON_ERROR)
+            json_encode($context, JSON_THROW_ON_ERROR),
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
 
         $document = $this->getResponseDecodedContent($client);
         self::assertSame('Product', $document['@type']);
-        self::assertStringStartsWith($this->uriKey.'/', $document['@id']);
+        self::assertStringStartsWith($this->uriKey . '/', $document['@id']);
         self::assertSame($context['title'], $document['title']);
         self::assertSame($context['price'], $document['price']);
         self::assertSame(5, $document['quantity']);
@@ -237,9 +241,10 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         self::assertResponseHeaderSame('location', $document['@id']);
         self::assertSame(
             $productCount + 1,
-            self::getContainer()->get(ProductRepository::class)->count([])
+            self::getContainer()->get(ProductRepository::class)->count([]),
         );
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $created = self::getContainer()->get(ProductRepository::class)->findOneBy([
@@ -277,13 +282,13 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             [],
             [],
             self::REQUEST_HEADERS,
-            json_encode($context, JSON_THROW_ON_ERROR)
+            json_encode($context, JSON_THROW_ON_ERROR),
         );
 
         $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
         self::assertSame(
             $productCount,
-            self::getContainer()->get(ProductRepository::class)->count([])
+            self::getContainer()->get(ProductRepository::class)->count([]),
         );
     }
 
@@ -305,13 +310,13 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             [],
             [],
             self::REQUEST_HEADERS,
-            json_encode($context, JSON_THROW_ON_ERROR)
+            json_encode($context, JSON_THROW_ON_ERROR),
         );
 
         $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
         self::assertSame(
             $productCount,
-            self::getContainer()->get(ProductRepository::class)->count([])
+            self::getContainer()->get(ProductRepository::class)->count([]),
         );
     }
 
@@ -324,7 +329,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
 
         $client->loginUser($user, 'website');
 
-        $uri = $this->uriKey.'/'.$product->getUuid();
+        $uri = $this->uriKey . '/' . $product->getUuid();
         $context = [
             'title' => 'Update product',
             'isNew' => true,
@@ -337,7 +342,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             [],
             [],
             self::REQUEST_HEADERS_PATCH,
-            json_encode($context, JSON_THROW_ON_ERROR)
+            json_encode($context, JSON_THROW_ON_ERROR),
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -365,6 +370,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
     {
         $client = self::createClient();
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $productCount = $entityManager->getRepository(Product::class)->count([]);
         $imageCount = $entityManager->getRepository(ProductImage::class)->count([]);
@@ -377,6 +383,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         ], JSON_THROW_ON_ERROR));
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertSame($productCount, $entityManager->getRepository(Product::class)->count([]));
@@ -393,7 +400,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $uuid = (string) $product->getUuid();
         $before = $this->productSnapshot($uuid);
 
-        $client->request('PATCH', $this->uriKey.'/'.$uuid, [], [], self::REQUEST_HEADERS_PATCH, json_encode([
+        $client->request('PATCH', $this->uriKey . '/' . $uuid, [], [], self::REQUEST_HEADERS_PATCH, json_encode([
             'title' => 'Rejected update',
             $field => $value,
         ], JSON_THROW_ON_ERROR));
@@ -407,6 +414,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
     {
         $client = self::createClient();
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $productCount = $entityManager->getRepository(Product::class)->count([]);
         $imageCount = $entityManager->getRepository(ProductImage::class)->count([]);
@@ -424,6 +432,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         ], JSON_THROW_ON_ERROR));
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertSame($productCount, $entityManager->getRepository(Product::class)->count([]));
@@ -437,11 +446,12 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $client = self::createClient();
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
         $product = $this->createProduct('Protected image product');
-        $image = (new ProductImage())
+        $image = new ProductImage()
             ->setFilenameBig('protected_big.jpg')
             ->setFilenameMiddle('protected_middle.jpg')
             ->setFilenameSmall('protected_small.jpg');
         $product->addProductImage($image);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->flush();
         $imageCount = $entityManager->getRepository(ProductImage::class)->count([]);
@@ -449,7 +459,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $before = $this->productSnapshot($uuid);
         $files = $this->uploadSnapshot();
 
-        $client->request('PATCH', $this->uriKey.'/'.$uuid, [], [], self::REQUEST_HEADERS_PATCH, json_encode([
+        $client->request('PATCH', $this->uriKey . '/' . $uuid, [], [], self::REQUEST_HEADERS_PATCH, json_encode([
             'title' => 'Rejected image removal',
             'productImages' => [],
         ], JSON_THROW_ON_ERROR));
@@ -469,7 +479,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $document = $this->getResponseDecodedContent($client);
 
         foreach (['post', 'patch'] as $method) {
-            $path = 'post' === $method ? $this->uriKey : $this->uriKey.'/{uuid}';
+            $path = 'post' === $method ? $this->uriKey : $this->uriKey . '/{uuid}';
             $contentType = 'post' === $method ? 'application/json' : 'application/merge-patch+json';
             $reference = $document['paths'][$path][$method]['requestBody']['content'][$contentType]['schema']['$ref'];
             $schema = $document['components']['schemas'][substr($reference, strlen('#/components/schemas/'))];
@@ -493,13 +503,14 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
     /** @return array<string, mixed> */
     private function productSnapshot(string $uuid): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $product = $entityManager->getRepository(Product::class)->findOneBy(['uuid' => $uuid]);
         self::assertInstanceOf(Product::class, $product);
         $images = [];
         foreach ($product->getProductImages() as $image) {
-            $images[$image->getId()] = [
+            $images[$image->getId() ?? self::fail('Fixture image has no ID.')] = [
                 $image->getProduct()?->getId(),
                 $image->getFilenameBig(),
                 $image->getFilenameMiddle(),
@@ -534,15 +545,14 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
         $snapshot = [];
         foreach (['uploads_dir', 'uploads_temp_dir'] as $parameter) {
             $directory = self::getContainer()->getParameter($parameter);
-            self::assertIsString($directory);
             if (!is_dir($directory)) {
                 $snapshot[$directory] = 'absent';
                 continue;
             }
             $snapshot[$directory] = 'directory';
-            $iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::SELF_FIRST,
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST,
             );
             foreach ($iterator as $file) {
                 if ($file->isDir()) {
@@ -570,7 +580,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
 
         $client->loginUser($user, 'website');
 
-        $uri = $this->uriKey.'/'.$product->getUuid();
+        $uri = $this->uriKey . '/' . $product->getUuid();
         $context = [
             'title' => 'Update product',
         ];
@@ -581,7 +591,7 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
             [],
             [],
             self::REQUEST_HEADERS_PATCH,
-            json_encode($context, JSON_THROW_ON_ERROR)
+            json_encode($context, JSON_THROW_ON_ERROR),
         );
 
         $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
@@ -596,23 +606,25 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
     public function testProductCategorySearchFilterAcceptsNumericIdWithoutCategoryItemRoute(): void
     {
         $client = self::createClient();
+        /** @var RouterInterface $router */
         $router = self::getContainer()->get(RouterInterface::class);
         self::assertNull($router->getRouteCollection()->get('api_categories_get_item'));
         $suffix = str_replace('.', '', uniqid('', true));
-        $selectedCategory = (new Category())->setTitle('Filtered category '.$suffix);
-        $otherCategory = (new Category())->setTitle('Other category '.$suffix);
-        $selectedProduct = (new Product())
-            ->setTitle('Selected product '.$suffix)
+        $selectedCategory = new Category()->setTitle('Filtered category ' . $suffix);
+        $otherCategory = new Category()->setTitle('Other category ' . $suffix);
+        $selectedProduct = new Product()
+            ->setTitle('Selected product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setIsPublished(true)
             ->setCategory($selectedCategory);
-        $otherProduct = (new Product())
-            ->setTitle('Other product '.$suffix)
+        $otherProduct = new Product()
+            ->setTitle('Other product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setIsPublished(true)
             ->setCategory($otherCategory);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         foreach ([$selectedCategory, $otherCategory, $selectedProduct, $otherProduct] as $entity) {
             $entityManager->persist($entity);
@@ -621,10 +633,10 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
 
         $selectedCategoryId = $selectedCategory->getId();
         self::assertIsInt($selectedCategoryId);
-        $selectedProductIri = $this->uriKey.'/'.$selectedProduct->getUuid();
-        $otherProductIri = $this->uriKey.'/'.$otherProduct->getUuid();
+        $selectedProductIri = $this->uriKey . '/' . $selectedProduct->getUuid();
+        $otherProductIri = $this->uriKey . '/' . $otherProduct->getUuid();
 
-        $client->request('GET', $this->uriKey.'?category='.$selectedCategoryId.'&isPublished=true&itemsPerPage=100', [], [], self::REQUEST_HEADERS);
+        $client->request('GET', $this->uriKey . '?category=' . $selectedCategoryId . '&isPublished=true&itemsPerPage=100', [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $numericDocument = $this->getResponseDecodedContent($client);
         $numericIris = array_column($numericDocument['member'], '@id');
@@ -657,12 +669,13 @@ class ProductResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTest
 
     private function createProduct(string $title, bool $isPublished = false, bool $isDeleted = false): Product
     {
-        $product = (new Product())
-            ->setTitle($title.' '.uniqid('', true))
+        $product = new Product()
+            ->setTitle($title . ' ' . uniqid('', true))
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setIsPublished($isPublished)
             ->setIsDeleted($isDeleted);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);
         $entityManager->flush();

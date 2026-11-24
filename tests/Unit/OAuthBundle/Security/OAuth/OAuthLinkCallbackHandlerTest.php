@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
+use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\OAuthAccountLinker;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthLinkCallbackHandler;
@@ -21,15 +21,18 @@ use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
-use PHPUnit\Framework\Attributes\Group;
+use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -37,8 +40,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthLinkCallbackHandlerTest extends TestCase
 {
     #[TestDox('Аутентифицированный callback без намерения отклоняется до внешнего доступа')]
@@ -110,10 +114,12 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         $response = $handler->handle($request, OAuthProvider::Google);
 
         self::assertSame('/ru/profile', $response->headers->get('Location'));
+        $flashSession = $request->getSession();
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $flashSession);
         self::assertSame([
             'danger' => ['personal_account.social_group.oauth_link.failure'],
-        ], $request->getSession()->getFlashBag()->peekAll());
-        self::assertStringNotContainsString('secret-upstream-detail', serialize($request->getSession()->getFlashBag()->peekAll()));
+        ], $flashSession->getFlashBag()->peekAll());
+        self::assertStringNotContainsString('secret-upstream-detail', serialize($flashSession->getFlashBag()->peekAll()));
         self::assertFalse($request->getSession()->has(OAuth2Client::OAUTH2_SESSION_STATE_KEY));
         self::assertFalse($store->hasPending());
         self::assertSame($token, $tokenStorage->getToken());
@@ -130,14 +136,14 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         yield 'account link persistence' => ['link'];
     }
 
-    /** @return array{OAuthLinkCallbackHandler, OAuth2ClientInterface, Request, User, OAuthLinkIntentStore, TokenStorage} */
+    /** @return array{OAuthLinkCallbackHandler, FakeOAuth2Client|ThrowingOAuth2Client, Request, User, OAuthLinkIntentStore, TokenStorage} */
     private function handler(bool $loggedIn, bool $pending, ?string $failurePhase = null): array
     {
         $request = $this->request();
         $requestStack = new RequestStack();
         $requestStack->push($request);
         $store = new OAuthLinkIntentStore($requestStack, new MockClock('2026-08-06 12:00:00 UTC'));
-        $user = new class() extends User {
+        $user = new class extends User {
             public function assignId(int $id): void
             {
                 $this->id = $id;
@@ -159,10 +165,10 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         }
 
         $fake = 'external' === $failurePhase
-            ? new ThrowingOAuth2Client(new \RuntimeException('secret-upstream-detail'))
+            ? new ThrowingOAuth2Client(new RuntimeException('secret-upstream-detail'))
             : new FakeOAuth2Client($requestStack, new FakeOAuthResourceOwner('external-id'));
-        $container = new class($fake) extends Container {
-            public function __construct(private readonly OAuth2ClientInterface $fake)
+        $container = new class ($fake) extends Container {
+            public function __construct(private readonly FakeOAuth2Client|ThrowingOAuth2Client $fake)
             {
                 parent::__construct();
             }
@@ -186,7 +192,7 @@ final class OAuthLinkCallbackHandlerTest extends TestCase
         $flush = $entityManager->expects($shouldLink && 'external' !== $failurePhase ? self::once() : self::never())
             ->method('flush');
         if ('link' === $failurePhase) {
-            $flush->willThrowException(new \RuntimeException('secret-upstream-detail'));
+            $flush->willThrowException(new RuntimeException('secret-upstream-detail'));
         }
         $entityManager->method('find')->willReturn($user);
         $entityManager->method('getRepository')->willReturn($repository);
@@ -245,21 +251,22 @@ final class ThrowingOAuth2Client implements OAuth2ClientInterface
     public int $tokenRequests = 0;
     public int $userInfoRequests = 0;
 
-    public function __construct(private readonly \Throwable $failure)
-    {
-    }
+    public function __construct(private readonly Throwable $failure) {}
 
-    public function setAsStateless(): void
-    {
-    }
+    public function setAsStateless(): void {}
 
+    /**
+     * @param array<string, mixed> $options
+     * @param list<string> $scopes
+     */
     public function redirect(array $scopes = [], array $options = []): RedirectResponse
     {
         ++$this->redirectCalls;
 
-        throw new \LogicException('Redirect is not used by this callback test.');
+        throw new LogicException('Redirect is not used by this callback test.');
     }
 
+    /** @param array<string, mixed> $options */
     public function getAccessToken(array $options = []): AccessToken
     {
         ++$this->tokenRequests;
@@ -271,7 +278,7 @@ final class ThrowingOAuth2Client implements OAuth2ClientInterface
     {
         ++$this->userInfoRequests;
 
-        throw new \LogicException('User info must not be requested after token exchange fails.');
+        throw new LogicException('User info must not be requested after token exchange fails.');
     }
 
     public function fetchUser(): ResourceOwnerInterface
@@ -281,6 +288,6 @@ final class ThrowingOAuth2Client implements OAuth2ClientInterface
 
     public function getOAuth2Provider(): AbstractProvider
     {
-        throw new \LogicException('The throwing fake has no provider.');
+        throw new LogicException('The throwing fake has no provider.');
     }
 }

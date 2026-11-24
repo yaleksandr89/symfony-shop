@@ -20,8 +20,7 @@ final class AdminOrderProductRemoveProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderManager $orderManager,
-    ) {
-    }
+    ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {

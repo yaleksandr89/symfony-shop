@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Commerce\ApiPlatform;
 
+use App\Account\Repository\UserRepository;
 use App\Commerce\Cart\TokenGenerator;
 use App\Commerce\Event\OrderCreatedFromCartEvent;
 use App\Commerce\Order\OrderStaticStorage;
@@ -13,10 +14,9 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
+use App\Money\DecimalMoney;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use App\Money\DecimalMoney;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreFlushEventArgs;
@@ -24,13 +24,14 @@ use Doctrine\ORM\Events;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
-use Symfony\Component\BrowserKit\AbstractBrowser;
+use RuntimeException;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Email;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class OrderCheckoutResourceTest extends ResourceTestUtils
 {
     private const URI = '/api/orders';
@@ -97,14 +98,14 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
                 'priceCents' => DecimalMoney::toCents($price),
             ];
         }
-        usort($actualLines, static fn (array $left, array $right): int => $left['productId'] <=> $right['productId']);
+        usort($actualLines, static fn(array $left, array $right): int => $left['productId'] <=> $right['productId']);
         $expectedLines = $cart['lines'];
         foreach ($expectedLines as &$expectedLine) {
             $expectedLine['priceCents'] = DecimalMoney::toCents($expectedLine['price']);
             unset($expectedLine['price']);
         }
         unset($expectedLine);
-        usort($expectedLines, static fn (array $left, array $right): int => $left['productId'] <=> $right['productId']);
+        usort($expectedLines, static fn(array $left, array $right): int => $left['productId'] <=> $right['productId']);
         self::assertSame($expectedLines, $actualLines);
         $this->assertCartConsumed($cart);
     }
@@ -138,7 +139,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertNotNull($pricePerOne);
         self::assertSame(
             DecimalMoney::toCents($cart['lines'][0]['price']),
-            DecimalMoney::toCents($pricePerOne)
+            DecimalMoney::toCents($pricePerOne),
         );
         $this->assertCartConsumed($cart);
 
@@ -166,7 +167,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $listener = new class {
             public function preFlush(PreFlushEventArgs $eventArgs): void
             {
-                throw new \RuntimeException('Forced checkout flush failure.');
+                throw new RuntimeException('Forced checkout flush failure.');
             }
         };
         $eventManager->addEventListener([Events::preFlush], $listener);
@@ -182,7 +183,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM cart WHERE id = ?', [$cart['id']]));
         self::assertSame(
             count($cart['lines']),
-            (int) $connection->fetchOne('SELECT COUNT(*) FROM cart_product WHERE cart_id = ?', [$cart['id']])
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM cart_product WHERE cart_id = ?', [$cart['id']]),
         );
         foreach ($cart['lines'] as $line) {
             self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product WHERE id = ?', [$line['productId']]));
@@ -198,12 +199,13 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $counts = $this->getOrderCounts();
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
         $this->setCartToken($client, $cart['token']);
+        /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         self::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
         $listener = static function (OrderCreatedFromCartEvent $event): void {
             self::assertNotNull($event->getOrder()->getId());
 
-            throw new \RuntimeException('Forced post-commit checkout event failure.');
+            throw new RuntimeException('Forced post-commit checkout event failure.');
         };
         $eventDispatcher->addListener(OrderCreatedFromCartEvent::class, $listener, -255);
 
@@ -268,6 +270,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    /** @param array{cartId?: int|null} $payload */
     #[DataProvider('invalidCartIdPayloads')]
     #[TestDox('Валидация отклоняет отсутствующий или неположительный идентификатор корзины')]
     public function testMissingOrNonPositiveCartIdIsRejectedByValidationWithoutSideEffects(array $payload): void
@@ -479,6 +482,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $counts = $this->getOrderCounts();
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
         $this->setCartToken($client, $cart['token']);
+        /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = self::getContainer()->get(EventDispatcherInterface::class);
         self::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
         $eventCount = 0;
@@ -584,7 +588,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
             ['cartProductId' => $unpublishedLineId, 'reason' => 'unpublished'],
             ['cartProductId' => $deletedLineId, 'reason' => 'deleted'],
         ];
-        usort($expected, static fn (array $left, array $right): int => $left['cartProductId'] <=> $right['cartProductId']);
+        usort($expected, static fn(array $left, array $right): int => $left['cartProductId'] <=> $right['cartProductId']);
         $this->assertUnavailableProductsProblem($client, $expected);
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
         $this->assertCartProductVisibilityState($unpublishedLineId, false, false);
@@ -615,6 +619,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $this->assertNoCheckoutSideEffects($counts, [$cart]);
     }
 
+    /** @param 'deleted'|'unpublished' $reason */
     #[DataProvider('unavailableProductAcceptHeaders')]
     #[TestDox('Недоступный товар при оформлении всегда описывается Problem Details')]
     public function testCheckoutUnavailableProductAlwaysUsesProblemDetails(string $accept, bool $isDeleted, string $reason): void
@@ -708,16 +713,16 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $entityManager = $this->getEntityManager();
         $suffix = str_replace('.', '', uniqid('', true));
         $token = TokenGenerator::generateToken();
-        $cart = (new Cart())->setToken($token);
+        $cart = new Cart()->setToken($token);
         $lines = [];
 
         foreach ($definitions as [$price, $quantity]) {
-            $product = (new Product())
-                ->setTitle('Checkout product '.$suffix.'-'.$quantity)
+            $product = new Product()
+                ->setTitle('Checkout product ' . $suffix . '-' . $quantity)
                 ->setPrice($price)
                 ->setQuantity(100)
                 ->setIsPublished(true);
-            $line = (new CartProduct())
+            $line = new CartProduct()
                 ->setProduct($product)
                 ->setQuantity($quantity);
             $cart->addCartProduct($line);
@@ -733,7 +738,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
             $productId = $line->getProduct()?->getId();
             self::assertNotNull($productId);
             self::assertNotNull($line->getQuantity());
-            self::assertNotNull($line->getProduct()?->getPrice());
+            self::assertNotNull($line->getProduct()->getPrice());
             $lines[] = [
                 'productId' => $productId,
                 'quantity' => $line->getQuantity(),
@@ -758,8 +763,9 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
 
     /**
      * @param array<string, mixed> $payload
+     * @param array<string, string> $headers
      */
-    private function requestCheckout(AbstractBrowser $client, array $payload, array $headers = self::REQUEST_HEADERS): void
+    private function requestCheckout(KernelBrowser $client, array $payload, array $headers = self::REQUEST_HEADERS): void
     {
         $client->request(
             'POST',
@@ -767,16 +773,16 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
             [],
             [],
             $headers,
-            json_encode($payload, JSON_THROW_ON_ERROR)
+            json_encode($payload, JSON_THROW_ON_ERROR),
         );
     }
 
-    private function requestCheckoutRaw(AbstractBrowser $client, string $content): void
+    private function requestCheckoutRaw(KernelBrowser $client, string $content): void
     {
         $client->request('POST', self::URI, [], [], self::REQUEST_HEADERS, $content);
     }
 
-    private function assertCheckoutUnavailableResponse(AbstractBrowser $client): void
+    private function assertCheckoutUnavailableResponse(KernelBrowser $client): void
     {
         $content = $client->getResponse()->getContent();
         self::assertIsString($content);
@@ -786,7 +792,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
     /**
      * @param list<array{cartProductId: int, reason: 'deleted'|'unpublished'}> $expectedItems
      */
-    private function assertUnavailableProductsProblem(AbstractBrowser $client, array $expectedItems, ?string $productTitle = null, ?string $productUuid = null): void
+    private function assertUnavailableProductsProblem(KernelBrowser $client, array $expectedItems, ?string $productTitle = null, ?string $productUuid = null): void
     {
         self::assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
         $document = $this->getResponseDecodedContent($client);
@@ -844,19 +850,19 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
             $price = $line->getProduct()?->getPrice();
             self::assertNotNull($price);
             $actualLines[] = [
-                'productId' => $line->getProduct()?->getId(),
+                'productId' => $line->getProduct()->getId(),
                 'quantity' => $line->getQuantity(),
                 'priceCents' => DecimalMoney::toCents($price),
             ];
         }
-        usort($actualLines, static fn (array $left, array $right): int => $left['productId'] <=> $right['productId']);
+        usort($actualLines, static fn(array $left, array $right): int => $left['productId'] <=> $right['productId']);
         $expectedLines = $expected['lines'];
         foreach ($expectedLines as &$expectedLine) {
             $expectedLine['priceCents'] = DecimalMoney::toCents($expectedLine['price']);
             unset($expectedLine['price']);
         }
         unset($expectedLine);
-        usort($expectedLines, static fn (array $left, array $right): int => $left['productId'] <=> $right['productId']);
+        usort($expectedLines, static fn(array $left, array $right): int => $left['productId'] <=> $right['productId']);
         self::assertSame($expectedLines, $actualLines);
     }
 
@@ -905,7 +911,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         $cart = $entityManager->find(Cart::class, $cartId);
         self::assertInstanceOf(Cart::class, $cart);
         $lines = $cart->getCartProducts()->toArray();
-        usort($lines, static fn (CartProduct $left, CartProduct $right): int => $left->getId() <=> $right->getId());
+        usort($lines, static fn(CartProduct $left, CartProduct $right): int => $left->getId() <=> $right->getId());
 
         return $lines;
     }
@@ -939,7 +945,7 @@ class OrderCheckoutResourceTest extends ResourceTestUtils
         return $user;
     }
 
-    private function setCartToken(AbstractBrowser $client, string $token): void
+    private function setCartToken(KernelBrowser $client, string $token): void
     {
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $token));
     }

@@ -35,9 +35,9 @@ class GithubRusAuthenticator extends AbstractOAuthAuthenticator
                     OAuthProvider::GithubRus,
                     (string) $githubUser->getId(),
                     $githubUserEmail,
-                    static fn (): User => UserFactory::createUserFromGithub($githubUser)
+                    static fn(): User => UserFactory::createUserFromGithub($githubUser),
                 );
-            })
+            }),
         );
     }
 }

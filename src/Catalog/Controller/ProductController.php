@@ -14,9 +14,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class ProductController extends AbstractController
 {
-    public function __construct(private readonly ProductRepository $productRepository)
-    {
-    }
+    public function __construct(private readonly ProductRepository $productRepository) {}
 
     public function show(string $identifier): Response
     {

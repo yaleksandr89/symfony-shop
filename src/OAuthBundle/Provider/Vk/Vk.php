@@ -19,6 +19,7 @@ class Vk extends AbstractProvider
 
     protected ?string $lang = '1';
 
+    /** @var list<string> */
     protected array $fields = ['id'];
 
     /**
@@ -29,6 +30,7 @@ class Vk extends AbstractProvider
         return 'https://oauth.vk.com/authorize';
     }
 
+    /** @param array<string, mixed> $params */
     public function getBaseAccessTokenUrl(array $params): string
     {
         return 'https://oauth.vk.com/access_token';
@@ -49,17 +51,13 @@ class Vk extends AbstractProvider
         return "https://api.vk.com/method/users.get?$query";
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @return list<string> */
     protected function getDefaultScopes(): array
     {
         return ['offline', 'email'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @param array<string, mixed>|string|null $data */
     protected function checkResponse(ResponseInterface $response, $data): void
     {
         $hasProviderError = is_array($data) && array_key_exists('error', $data);
@@ -71,9 +69,7 @@ class Vk extends AbstractProvider
         throw new IdentityProviderException('VK OAuth request failed.', $statusCode >= 400 ? $statusCode : 0, ['status_code' => $statusCode]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** @param array<string, mixed> $response */
     protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface
     {
         $data = [];

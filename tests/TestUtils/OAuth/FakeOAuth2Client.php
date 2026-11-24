@@ -9,6 +9,8 @@ use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
+use LogicException;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -28,21 +30,23 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
         private readonly string $state = 'fake-oauth-state',
         private readonly bool $failTokenRequest = false,
         private readonly bool $failUserInfoRequest = false,
-    ) {
-    }
+    ) {}
 
-    public function setAsStateless(): void
-    {
-    }
+    public function setAsStateless(): void {}
 
+    /**
+     * @param array<string, mixed> $options
+     * @param list<string> $scopes
+     */
     public function redirect(array $scopes = [], array $options = []): RedirectResponse
     {
         ++$this->redirectCalls;
         $this->requestStack->getCurrentRequest()?->getSession()->set(OAuth2Client::OAUTH2_SESSION_STATE_KEY, $this->state);
 
-        return new RedirectResponse('https://provider.example/authorize?state='.$this->state);
+        return new RedirectResponse('https://provider.example/authorize?state=' . $this->state);
     }
 
+    /** @param array<string, mixed> $options */
     public function getAccessToken(array $options = []): AccessToken
     {
         ++$this->tokenRequests;
@@ -50,10 +54,10 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
         $expectedState = $request?->getSession()->get(OAuth2Client::OAUTH2_SESSION_STATE_KEY);
         $actualState = $request?->query->get('state');
         if ($expectedState !== $actualState) {
-            throw new \RuntimeException('Invalid state.');
+            throw new RuntimeException('Invalid state.');
         }
         if ($this->failTokenRequest) {
-            throw new \RuntimeException('Token exchange exposed '.self::TOKEN_FAILURE_MARKER);
+            throw new RuntimeException('Token exchange exposed ' . self::TOKEN_FAILURE_MARKER);
         }
 
         return new AccessToken(['access_token' => 'fake-token']);
@@ -63,7 +67,7 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
     {
         ++$this->userInfoRequests;
         if ($this->failUserInfoRequest) {
-            throw new \RuntimeException('Resource owner fetch exposed '.self::USER_INFO_FAILURE_MARKER);
+            throw new RuntimeException('Resource owner fetch exposed ' . self::USER_INFO_FAILURE_MARKER);
         }
 
         return $this->resourceOwner;
@@ -76,6 +80,6 @@ final class FakeOAuth2Client implements OAuth2ClientInterface
 
     public function getOAuth2Provider(): AbstractProvider
     {
-        throw new \LogicException('The fake has no provider.');
+        throw new LogicException('The fake has no provider.');
     }
 }

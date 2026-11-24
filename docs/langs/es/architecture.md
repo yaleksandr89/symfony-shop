@@ -11,23 +11,25 @@ Symfony Shop es una única aplicación Symfony con páginas renderizadas en serv
 
 ## Esquema general
 
-```text
-Navegador
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-          ↓
-Servicios de aplicación / handlers
-          ↓
-Doctrine ORM
-          ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Navegador"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Controladores"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 en el navegador"]
+    Vue -->|"Solicitudes HTTP a la API"| Nginx
+    Controller --> Services["Servicios de aplicación / manejadores"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Vue 2 se monta sobre páginas Twig concretas donde hace falta interacción: carrito, indicador del carrito y editor de pedidos. La arquitectura actual no tiene una SPA independiente ni Vue Router.
+Vue 3 se monta sobre páginas Twig concretas donde hace falta interacción: carrito, indicador del carrito y editor de pedidos. La arquitectura actual no tiene una SPA independiente ni Vue Router.
 
 ## Áreas de aplicación
 
@@ -98,9 +100,9 @@ Al investigar el comportamiento de la API, revisa no solo los atributos de la en
 
 La mayoría de las páginas se renderizan con Twig. Las plantillas comunes están en [`templates`](../../../templates), y las plantillas de bundles internos dentro de sus módulos.
 
-Webpack Encore compila recursos desde [`assets`](../../../assets) a `public/build`. Vue 2 se utiliza de forma puntual como capa interactiva sobre páginas renderizadas en servidor.
+Webpack Encore 7 compila recursos desde [`assets`](../../../assets) a `public/build`. Vue 3 se utiliza de forma puntual como capa interactiva sobre páginas renderizadas en servidor.
 
-La arquitectura cliente actual se mantiene hasta la migración separada a Inertia.js y Vue 3.
+La arquitectura cliente actual se mantiene hasta la migración separada a Inertia.js.
 
 ## Configuración e inyección de dependencias
 

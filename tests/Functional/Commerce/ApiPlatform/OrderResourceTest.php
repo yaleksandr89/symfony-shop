@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Commerce\ApiPlatform;
 
+use App\Account\Repository\UserRepository;
 use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
+use App\Money\DecimalMoney;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
-use App\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class OrderResourceTest extends ResourceTestUtils
 {
     #[TestDox('Анонимный пользователь не получает коллекцию заказов')]
@@ -62,7 +62,7 @@ class OrderResourceTest extends ResourceTestUtils
         self::assertNotNull($orderId);
 
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
-        $uri = '/api/orders/'.$orderId;
+        $uri = '/api/orders/' . $orderId;
         $client->request('GET', $uri, [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -114,7 +114,7 @@ class OrderResourceTest extends ResourceTestUtils
         self::assertNotNull($orderId);
 
         $client->loginUser($this->getUser(UserFixtures::USER_1_EMAIL), 'website');
-        $client->request('GET', '/api/orders/'.$orderId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/orders/' . $orderId, [], [], self::REQUEST_HEADERS);
 
         $this->assertSecurityProblem($client, Response::HTTP_FORBIDDEN);
     }
@@ -127,7 +127,7 @@ class OrderResourceTest extends ResourceTestUtils
         $orderId = $order->getId();
         self::assertNotNull($orderId);
 
-        $client->request('GET', '/api/orders/'.$orderId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/orders/' . $orderId, [], [], self::REQUEST_HEADERS);
 
         $this->assertSecurityProblem($client, Response::HTTP_UNAUTHORIZED);
     }
@@ -137,29 +137,30 @@ class OrderResourceTest extends ResourceTestUtils
      */
     private function createOrderWithTwoLines(): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $firstCategory = (new Category())->setTitle('API boots '.$suffix);
-        $secondCategory = (new Category())->setTitle('API socks '.$suffix);
-        $firstProduct = (new Product())
-            ->setTitle('API Trail Boot '.$suffix)
+        $firstCategory = new Category()->setTitle('API boots ' . $suffix);
+        $secondCategory = new Category()->setTitle('API socks ' . $suffix);
+        $firstProduct = new Product()
+            ->setTitle('API Trail Boot ' . $suffix)
             ->setPrice('89.99')
             ->setQuantity(100)
             ->setCategory($firstCategory);
-        $secondProduct = (new Product())
-            ->setTitle('API Merino Sock '.$suffix)
+        $secondProduct = new Product()
+            ->setTitle('API Merino Sock ' . $suffix)
             ->setPrice('94.90')
             ->setQuantity(50)
             ->setCategory($secondCategory);
-        $firstLine = (new OrderProduct())
+        $firstLine = new OrderProduct()
             ->setProduct($firstProduct)
             ->setQuantity(2)
             ->setPricePerOne('89.99');
-        $secondLine = (new OrderProduct())
+        $secondLine = new OrderProduct()
             ->setProduct($secondProduct)
             ->setQuantity(1)
             ->setPricePerOne('94.90');
-        $order = (new Order())
+        $order = new Order()
             ->setOwner($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL))
             ->setStatus(1)
             ->setTotalPrice('274.88');
@@ -177,24 +178,24 @@ class OrderResourceTest extends ResourceTestUtils
 
         return [$order, [
             [
-                'id' => $firstLine->getId(),
+                'id' => ($firstLine->getId() ?? self::fail('Expected initialized fixture field.')),
                 'quantity' => 2,
                 'pricePerOne' => '89.99',
-                'productId' => $firstProduct->getId(),
-                'productTitle' => $firstProduct->getTitle(),
+                'productId' => ($firstProduct->getId() ?? self::fail('Expected initialized fixture field.')),
+                'productTitle' => ($firstProduct->getTitle() ?? self::fail('Expected initialized fixture field.')),
                 'productPrice' => '89.99',
-                'categoryId' => $firstCategory->getId(),
-                'categoryTitle' => $firstCategory->getTitle(),
+                'categoryId' => ($firstCategory->getId() ?? self::fail('Expected initialized fixture field.')),
+                'categoryTitle' => ($firstCategory->getTitle() ?? self::fail('Expected initialized fixture field.')),
             ],
             [
-                'id' => $secondLine->getId(),
+                'id' => ($secondLine->getId() ?? self::fail('Expected initialized fixture field.')),
                 'quantity' => 1,
                 'pricePerOne' => '94.90',
-                'productId' => $secondProduct->getId(),
-                'productTitle' => $secondProduct->getTitle(),
+                'productId' => ($secondProduct->getId() ?? self::fail('Expected initialized fixture field.')),
+                'productTitle' => ($secondProduct->getTitle() ?? self::fail('Expected initialized fixture field.')),
                 'productPrice' => '94.90',
-                'categoryId' => $secondCategory->getId(),
-                'categoryTitle' => $secondCategory->getTitle(),
+                'categoryId' => ($secondCategory->getId() ?? self::fail('Expected initialized fixture field.')),
+                'categoryTitle' => ($secondCategory->getTitle() ?? self::fail('Expected initialized fixture field.')),
             ],
         ]];
     }

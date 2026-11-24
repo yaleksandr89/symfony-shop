@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class OAuthLinkTest extends WebTestCase
 {
     private const PASSWORD = 'current-password';
@@ -52,7 +52,7 @@ final class OAuthLinkTest extends WebTestCase
         $fake = $this->installFakeClients('external-id');
 
         foreach (['yandex', 'google', 'linkedin', 'unknown'] as $provider) {
-            $client->request('GET', '/ru/profile/oauth/'.$provider.'/link');
+            $client->request('GET', '/ru/profile/oauth/' . $provider . '/link');
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
 
@@ -71,7 +71,7 @@ final class OAuthLinkTest extends WebTestCase
         $fake = $this->installFakeClients('external-id');
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Google->value => true],
-            [OAuthProvider::Google->value => ['clientId' => '', 'clientSecret' => 'not-for-output']]
+            [OAuthProvider::Google->value => ['clientId' => '', 'clientSecret' => 'not-for-output']],
         ));
 
         $client->request('GET', '/ru/profile/oauth/google/link');
@@ -229,7 +229,7 @@ final class OAuthLinkTest extends WebTestCase
         string $callbackPath,
     ): void {
         $nonce = str_replace('.', '', uniqid('', true));
-        $externalId = OAuthProvider::Linkedin === $provider ? 'LiNkEdIn-Link-Sub-'.$nonce : 'linked-'.$provider->value.'-'.$nonce;
+        $externalId = OAuthProvider::Linkedin === $provider ? 'LiNkEdIn-Link-Sub-' . $nonce : 'linked-' . $provider->value . '-' . $nonce;
         [$client, $user, $fake] = $this->linkClient($provider, $externalId);
         $beforeCount = $this->userCount();
         $beforeEmail = $user->getEmail();
@@ -249,7 +249,9 @@ final class OAuthLinkTest extends WebTestCase
         $expectedIdentities[$provider->identityFamily()] = $externalId;
         self::assertSame($expectedIdentities, $this->identities($reloaded));
         self::assertSame($beforeEmail, $reloaded->getEmail());
-        self::assertSame($user->getId(), $client->getContainer()->get('security.token_storage')->getToken()?->getUser()?->getId());
+        $authenticatedUser = $client->getContainer()->get('security.token_storage')->getToken()?->getUser();
+        self::assertInstanceOf(User::class, $authenticatedUser);
+        self::assertSame($user->getId(), $authenticatedUser->getId());
         self::assertSame($beforeCount, $this->userCount());
         self::assertEmailCount(0);
 
@@ -266,7 +268,7 @@ final class OAuthLinkTest extends WebTestCase
     #[TestDox('Чужой внешний идентификатор даёт нейтральную ошибку без изменения текущего пользователя')]
     public function testOwnedExternalIdentityProducesGenericFailureWithoutCurrentUserMutation(): void
     {
-        $externalId = 'owned-'.str_replace('.', '', uniqid('', true));
+        $externalId = 'owned-' . str_replace('.', '', uniqid('', true));
         [$client, $user, $fake] = $this->linkClient(OAuthProvider::Google, $externalId);
         $owner = $this->createUser(['google' => $externalId]);
         $beforeCount = $this->userCount();
@@ -279,7 +281,9 @@ final class OAuthLinkTest extends WebTestCase
         self::assertSame($externalId, $this->reload($owner)->getGoogleId());
         self::assertSame($beforeCount, $this->userCount());
         self::assertSame(1, $fake->tokenRequests);
-        self::assertSame($user->getId(), $client->getContainer()->get('security.token_storage')->getToken()?->getUser()?->getId());
+        $authenticatedUser = $client->getContainer()->get('security.token_storage')->getToken()?->getUser();
+        self::assertInstanceOf(User::class, $authenticatedUser);
+        self::assertSame($user->getId(), $authenticatedUser->getId());
         self::assertEmailCount(0);
 
         $client->followRedirect();
@@ -290,15 +294,15 @@ final class OAuthLinkTest extends WebTestCase
     #[TestDox('Callback не перезаписывает привязку, появившуюся во время обмена с провайдером')]
     public function testIdentityCommittedDuringProviderExchangeProducesGenericFailure(): void
     {
-        $owner = new class(function (): void {
+        $owner = new class (function (): void {
+            /** @var EntityManagerInterface $manager */
             $manager = self::getContainer()->get(EntityManagerInterface::class);
             self::assertSame(0, $manager->getConnection()->getTransactionNestingLevel());
-            $user = self::getContainer()->get('security.token_storage')->getToken()->getUser();
+            $user = self::getContainer()->get('security.token_storage')->getToken()?->getUser();
+            self::assertInstanceOf(User::class, $user);
             $manager->getConnection()->executeStatement('UPDATE "user" SET google_id = ? WHERE id = ?', ['winner', $user->getId()]);
         }) implements ResourceOwnerInterface {
-            public function __construct(private Closure $duringExchange)
-            {
-            }
+            public function __construct(private Closure $duringExchange) {}
 
             public function getId(): string
             {
@@ -307,6 +311,7 @@ final class OAuthLinkTest extends WebTestCase
                 return 'loser';
             }
 
+            /** @return array<string, mixed> */
             public function toArray(): array
             {
                 return [];
@@ -325,19 +330,20 @@ final class OAuthLinkTest extends WebTestCase
         $client->followRedirect();
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('.alert-danger');
-        self::assertSame($user->getId(), self::getContainer()->get('security.token_storage')->getToken()?->getUser()?->getId());
+        $authenticatedUser = self::getContainer()->get('security.token_storage')->getToken()?->getUser();
+        self::assertInstanceOf(User::class, $authenticatedUser);
+        self::assertSame($user->getId(), $authenticatedUser->getId());
     }
 
     #[TestDox('Изменение пароля во время обмена не подменяет проверенный security snapshot')]
     public function testPasswordChangeDuringExchangeCannotRefreshAuthentication(): void
     {
-        $owner = new class(function (): void {
-            $user = self::getContainer()->get('security.token_storage')->getToken()->getUser();
+        $owner = new class (function (): void {
+            $user = self::getContainer()->get('security.token_storage')->getToken()?->getUser();
+            self::assertInstanceOf(User::class, $user);
             self::getContainer()->get(EntityManagerInterface::class)->getConnection()->executeStatement('UPDATE "user" SET password = ? WHERE id = ?', ['changed-synthetic-hash', $user->getId()]);
         }) implements ResourceOwnerInterface {
-            public function __construct(private Closure $duringExchange)
-            {
-            }
+            public function __construct(private Closure $duringExchange) {}
 
             public function getId(): string
             {
@@ -346,6 +352,7 @@ final class OAuthLinkTest extends WebTestCase
                 return 'candidate';
             }
 
+            /** @return array<string, mixed> */
             public function toArray(): array
             {
                 return [];
@@ -406,7 +413,7 @@ final class OAuthLinkTest extends WebTestCase
 
     private function startLink(KernelBrowser $client, OAuthProvider $provider): void
     {
-        $crawler = $client->request('GET', '/ru/profile/oauth/'.$provider->value.'/link');
+        $crawler = $client->request('GET', '/ru/profile/oauth/' . $provider->value . '/link');
         $form = $crawler->filter('form')->form([
             'oauth_link_form[currentPassword]' => self::PASSWORD,
         ]);
@@ -418,9 +425,9 @@ final class OAuthLinkTest extends WebTestCase
     {
         $fake = new FakeOAuth2Client(
             self::getContainer()->get(RequestStack::class),
-            is_string($externalId) ? new FakeOAuthResourceOwner($externalId) : $externalId
+            is_string($externalId) ? new FakeOAuthResourceOwner($externalId) : $externalId,
         );
-        $container = new class($fake) extends Container {
+        $container = new class ($fake) extends Container {
             public function __construct(private readonly FakeOAuth2Client $fake)
             {
                 parent::__construct();
@@ -453,8 +460,8 @@ final class OAuthLinkTest extends WebTestCase
             if ($provider->isImplemented()) {
                 $enabled[$provider->value] = true;
                 $credentials[$provider->value] = [
-                    'clientId' => 'test-'.$provider->value.'-id',
-                    'clientSecret' => 'test-'.$provider->value.'-secret',
+                    'clientId' => 'test-' . $provider->value . '-id',
+                    'clientSecret' => 'test-' . $provider->value . '-secret',
                 ];
             }
         }
@@ -466,7 +473,7 @@ final class OAuthLinkTest extends WebTestCase
     {
         $nonce = str_replace('.', '', uniqid('', true));
         $user = new User();
-        $user->setEmail('oauth-link-'.$nonce.'@example.test')->setIsVerified(true);
+        $user->setEmail('oauth-link-' . $nonce . '@example.test')->setIsVerified(true);
         $user->setPassword(self::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword($user, self::PASSWORD));
         $user->setGoogleId($identities['google'] ?? null);
         $user->setYandexId($identities['yandex'] ?? null);
@@ -474,6 +481,7 @@ final class OAuthLinkTest extends WebTestCase
         $user->setGithubId($identities['github'] ?? null);
         $user->setFacebookId($identities['facebook'] ?? null);
         $user->setLinkedinId($identities['linkedin'] ?? null);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
         $entityManager->flush();
@@ -483,6 +491,7 @@ final class OAuthLinkTest extends WebTestCase
 
     private function reload(User $user): User
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $reloaded = $entityManager->find(User::class, $user->getId());
@@ -494,19 +503,6 @@ final class OAuthLinkTest extends WebTestCase
     private function userCount(): int
     {
         return (int) self::getContainer()->get(EntityManagerInterface::class)->getRepository(User::class)->count([]);
-    }
-
-    private function identity(User $user, OAuthProvider $provider): ?string
-    {
-        return match ($provider) {
-            OAuthProvider::Google => $user->getGoogleId(),
-            OAuthProvider::Yandex => $user->getYandexId(),
-            OAuthProvider::Vkontakte => $user->getVkontakteId(),
-            OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->getGithubId(),
-            OAuthProvider::Facebook => $user->getFacebookId(),
-            OAuthProvider::Linkedin => $user->getLinkedinId(),
-            default => null,
-        };
     }
 
     /** @return array<string, ?string> */

@@ -1,5 +1,8 @@
 COMPOSE = docker compose -p symfony-shop --env-file .env.docker
 CMD ?=
+PHP_APP = $(COMPOSE) exec -T --user app
+SQLITE_TEST_PHP = $(PHP_APP) -e APP_ENV=test -e SYMFONY_SHOP_TEST_DB_GUARD=sqlite -e TEST_DATABASE_URL -e TEST_TOKEN
+CORE_COVERAGE = --group unit --group integration --group functional --exclude-group functional-panther --exclude-group reset-password-postgresql --exclude-group oauth-postgresql --do-not-record-test-run-history
 RESET_PASSWORD_COMPOSE = $(COMPOSE) -f docker-compose.yml -f docker-compose.reset-password-test.yml
 OAUTH_COMPOSE = $(COMPOSE) -f docker-compose.yml -f docker-compose.oauth-test.yml
 
@@ -39,7 +42,7 @@ $(SERVICE): ;
 endif
 
 .PHONY: help init check-env config build up down restart ps log log-all in cache-prod-clear console composer composer-install npm npm-install assets-build watch migrate demo-init postgres-reinit check eslint-fix eslint-check php-cs-fixer php-cs-fixer-check phpstan-check test-all-core coverage coverage-html test-all test-groups test-list test-unit test-db-reset test-integration test-functional test-functional-panther
-.PHONY: test-reset-password-postgresql test-oauth-postgresql
+.PHONY: composer-validate composer-audit php-lint test-reset-password-postgresql test-oauth-postgresql
 
 help:
 	@printf '%s\n' 'Bootstrap / Первичная настройка:'
@@ -73,12 +76,15 @@ help:
 	@printf '%s\n' '  make watch                             Run frontend watcher / Запустить watcher frontend assets'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Quality / Качество:'
-	@printf '%s\n' '  make check                             Run all read-only quality checks / Запустить все проверки качества без изменения файлов'
-	@printf '%s\n' '  make eslint-check                      Run ESLint without writing files / Проверить ESLint без изменения файлов'
+	@printf '%s\n' '  make check                             Run Composer, PHP and ESLint checks (may write caches) / Проверить Composer, PHP и ESLint (возможна запись кешей)'
+	@printf '%s\n' '  make composer-validate                 Validate composer.json and its lock strictly / Строго проверить composer.json и lock-файл'
+	@printf '%s\n' '  make composer-audit                    Audit locked PHP dependencies / Проверить зафиксированные PHP-зависимости на уязвимости'
+	@printf '%s\n' '  make php-lint                          Lint first-party PHP, including bin/console / Проверить синтаксис PHP-кода проекта, включая bin/console'
+	@printf '%s\n' '  make eslint-check                      Check first-party JS and Vue in assets / Проверить JS и Vue проекта в assets'
 	@printf '%s\n' '  make eslint-fix                        Fix ESLint issues through Node container / Исправить ESLint через Node-контейнер'
-	@printf '%s\n' '  make php-cs-fixer                      Fix src/ + tools/demo/ formatting in php as app / Исправить форматирование src/ + tools/demo/ в PHP-контейнере от app'
-	@printf '%s\n' '  make php-cs-fixer-check                Check PHP-CS-Fixer rules without writing files / Проверить PHP-CS-Fixer без изменения файлов'
-	@printf '%s\n' '  make phpstan-check                     Run PHPStan read-only analysis / Запустить PHPStan без изменения файлов'
+	@printf '%s\n' '  make php-cs-fixer                      Fix first-party PHP formatting as app / Исправить форматирование PHP-кода проекта от app'
+	@printf '%s\n' '  make php-cs-fixer-check                Check first-party PHP style (may write cache) / Проверить стиль PHP-кода проекта (возможна запись кеша)'
+	@printf '%s\n' '  make phpstan-check                     Run PHPStan level 8 (may write cache) / Запустить PHPStan уровня 8 (возможна запись кеша)'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Tests / Тесты:'
 	@printf '%s\n' '  make test-groups                       List available PHPUnit groups / Показать доступные группы PHPUnit'
@@ -90,9 +96,9 @@ help:
 	@printf '%s\n' '  make test-oauth-postgresql CONFIRM=testdb  Run OAuth identity races in disposable PostgreSQL / Проверить конкурентные изменения OAuth в одноразовой PostgreSQL БД'
 	@printf '%s\n' '  make test-functional-panther           Run PHPUnit functional-panther group / Запустить browser-группу PHPUnit через Panther'
 	@printf '%s\n' '  make test-all-core CONFIRM=testdb       Build assets and run the core test baseline / Собрать assets и запустить основной набор тестов'
-	@printf '%s\n' '  make coverage CONFIRM=testdb            Run terminal-only core PHP/PHPUnit coverage after test DB reset, excluding Panther / Запустить terminal-only core-покрытие PHP/PHPUnit после пересоздания тестовой БД, без Panther'
+	@printf '%s\n' '  make coverage CONFIRM=testdb            Run core PHP/PHPUnit coverage after SQLite reset, excluding browser and PostgreSQL suites / Получить покрытие основных тестов после пересоздания SQLite, без браузерных и PostgreSQL-тестов'
 	@printf '%s\n' '  make coverage-html CONFIRM=testdb       Run the same core coverage with HTML/Clover reports / Запустить то же core-покрытие с HTML/Clover-отчётами'
-	@printf '%s\n' '  make test-all CONFIRM=testdb            Run the full baseline, including Panther / Запустить полный набор тестов, включая Panther'
+	@printf '%s\n' '  make test-all CONFIRM=testdb            Run core, Panther and both PostgreSQL suites / Запустить основные тесты, Panther и оба набора PostgreSQL-тестов'
 	@printf '%s\n' ''
 	@printf '%s\n' 'Destructive maintenance / Деструктивные операции:'
 	@printf '%s\n' '  make cache-prod-clear                   Remove generated prod cache in php as app / Удалить сгенерированный prod-кеш в PHP-контейнере от app'
@@ -186,22 +192,33 @@ postgres-reinit: check-env
 		printf '%s\n' 'PostgreSQL volume symfony-shop_postgres-data does not exist; nothing to remove'; \
 	fi
 
-check: eslint-check php-cs-fixer-check phpstan-check
+check:
+	$(PHP_APP) php composer check
+	$(MAKE) eslint-check
+
+composer-validate:
+	$(PHP_APP) php composer validate --strict --no-check-publish
+
+composer-audit:
+	$(PHP_APP) php composer audit --locked
+
+php-lint:
+	$(PHP_APP) php composer lint
 
 eslint-fix:
-	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue --fix'
+	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/ --ext .js,.vue --fix'
 
 eslint-check:
-	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/js/ --ext .js,.vue'
+	$(MAKE) npm CMD='./node_modules/.bin/eslint assets/ --ext .js,.vue'
 
 php-cs-fixer:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix --config=/var/www/html/.php-cs-fixer.dist.php src/ tools/demo/ --verbose
+	$(PHP_APP) php composer cs:fix
 
 php-cs-fixer-check:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/php-cs-fixer fix --config=/var/www/html/.php-cs-fixer.dist.php src/ tools/demo/ --dry-run --diff --using-cache=no --verbose
+	$(PHP_APP) php composer cs:check
 
 phpstan-check:
-	$(COMPOSE) exec --user app php php /var/www/html/vendor/bin/phpstan analyse src tools/demo --level 4
+	$(PHP_APP) php composer analyse
 
 test-all-core:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
@@ -221,22 +238,23 @@ coverage:
 	fi
 	$(MAKE) assets-build
 	$(MAKE) test-db-reset CONFIRM="$(CONFIRM)"
-	$(COMPOSE) exec --user app -e APP_ENV=test -e XDEBUG_MODE=coverage php php /var/www/html/vendor/bin/phpunit --exclude-group functional-panther --do-not-record-test-run-history --coverage-text
+	$(SQLITE_TEST_PHP) -e XDEBUG_MODE=coverage php php vendor/bin/phpunit $(CORE_COVERAGE) --coverage-text
 
 coverage-html:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
 		printf '%s\n' 'Refusing to run core PHP/PHPUnit coverage with reports. Re-run with: make coverage-html CONFIRM=testdb'; \
 		exit 1; \
 	fi
-	$(COMPOSE) exec --user app php rm -rf var/coverage/html var/coverage/clover.xml
-	$(COMPOSE) exec --user app php mkdir -p var/coverage
 	$(MAKE) assets-build
 	$(MAKE) test-db-reset CONFIRM="$(CONFIRM)"
-	$(COMPOSE) exec --user app -e APP_ENV=test -e XDEBUG_MODE=coverage php php /var/www/html/vendor/bin/phpunit --exclude-group functional-panther --do-not-record-test-run-history --coverage-text --coverage-html var/coverage/html --coverage-clover var/coverage/clover.xml
+	$(PHP_APP) php sh -ec 'test ! -L var/coverage && rm -rf var/coverage/html var/coverage/clover.xml && mkdir -p var/coverage'
+	$(SQLITE_TEST_PHP) -e XDEBUG_MODE=coverage php php vendor/bin/phpunit $(CORE_COVERAGE) --coverage-text --coverage-html var/coverage/html --coverage-clover var/coverage/clover.xml
 
 test-all:
 	$(MAKE) test-all-core CONFIRM="$(CONFIRM)"
 	$(MAKE) test-functional-panther
+	$(MAKE) test-reset-password-postgresql CONFIRM="$(CONFIRM)"
+	$(MAKE) test-oauth-postgresql CONFIRM="$(CONFIRM)"
 
 test-groups:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-groups
@@ -245,22 +263,22 @@ test-list:
 	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --list-tests
 
 test-unit:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group unit --do-not-record-test-run-history --no-coverage
+	$(PHP_APP) -e APP_ENV=test php composer test:unit
 
 test-db-reset:
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
 		printf '%s\n' 'Refusing to reset APP_ENV=test SQLite DB var/db_for_test.db. Re-run with: make test-db-reset CONFIRM=testdb'; \
 		exit 1; \
 	fi
-	$(COMPOSE) exec --user app -e APP_ENV=test php rm -f var/db_for_test.db
-	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console doctrine:schema:update --force
-	$(COMPOSE) exec --user app -e APP_ENV=test php php bin/console hautelook:fixtures:load --no-interaction
+	$(SQLITE_TEST_PHP) php sh -ec 'php tests/TestUtils/Database/verify.php && rm -f var/db_for_test.db'
+	$(SQLITE_TEST_PHP) php php bin/console doctrine:schema:update --force
+	$(SQLITE_TEST_PHP) php php bin/console hautelook:fixtures:load --no-interaction
 
 test-integration:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group integration --do-not-record-test-run-history --no-coverage
+	$(SQLITE_TEST_PHP) php composer test:integration
 
 test-functional:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional --do-not-record-test-run-history --no-coverage
+	$(SQLITE_TEST_PHP) php composer test:functional
 
 test-reset-password-postgresql: check-env
 	@if [ "$(CONFIRM)" != "testdb" ]; then \
@@ -269,13 +287,14 @@ test-reset-password-postgresql: check-env
 	fi
 	@{ set -eu; \
 	flock -n 9 || { printf '%s\n' 'Reset-password PostgreSQL tests are already running'; exit 1; }; \
-	if [ -n "$$( $(RESET_PASSWORD_COMPOSE) ps -a -q reset-password-postgres )" ]; then \
+	existing="$$( $(RESET_PASSWORD_COMPOSE) ps -a -q reset-password-postgres )"; \
+	if [ -n "$$existing" ]; then \
 		printf '%s\n' 'Refusing to reuse an existing reset-password test container'; exit 1; \
 	fi; \
 	trap '$(RESET_PASSWORD_COMPOSE) rm --stop --force reset-password-postgres' EXIT; \
 	trap 'exit 130' INT; trap 'exit 143' TERM; \
 	$(RESET_PASSWORD_COMPOSE) up -d --no-deps --wait --wait-timeout 60 reset-password-postgres; \
-	$(RESET_PASSWORD_COMPOSE) exec -T --user app -e APP_ENV=test -e APP_DEBUG=1 -e TEST_TOKEN= \
+	$(RESET_PASSWORD_COMPOSE) exec -T --user app -e APP_ENV=test -e APP_DEBUG=1 -e TEST_TOKEN= -e SYMFONY_SHOP_TEST_DB_GUARD=reset-password-postgresql \
 		-e TEST_DATABASE_URL='postgresql://reset_password_test:disposable_reset_password_test@reset-password-postgres:5432/reset_password_concurrency?serverVersion=18.4' \
 		php php /var/www/html/vendor/bin/phpunit -c phpunit.reset-password-postgresql.xml.dist --do-not-record-test-run-history --no-coverage; \
 	} 9>/tmp/symfony-shop-reset-password-postgresql.lock
@@ -287,16 +306,18 @@ test-oauth-postgresql: check-env
 	fi
 	@{ set -eu; \
 	flock -n 9 || { printf '%s\n' 'OAuth PostgreSQL tests are already running'; exit 1; }; \
-	if [ -n "$$( $(OAUTH_COMPOSE) ps -a -q oauth-postgres )" ]; then \
+	existing="$$( $(OAUTH_COMPOSE) ps -a -q oauth-postgres )"; \
+	if [ -n "$$existing" ]; then \
 		printf '%s\n' 'Refusing to reuse an existing OAuth test container'; exit 1; \
 	fi; \
 	trap '$(OAUTH_COMPOSE) rm --stop --force oauth-postgres' EXIT; \
 	trap 'exit 130' INT; trap 'exit 143' TERM; \
 	$(OAUTH_COMPOSE) up -d --no-deps --wait --wait-timeout 60 oauth-postgres; \
-	$(OAUTH_COMPOSE) exec -T --user app -e APP_ENV=test -e APP_DEBUG=1 -e TEST_TOKEN= \
+	$(OAUTH_COMPOSE) exec -T --user app -e APP_ENV=test -e APP_DEBUG=1 -e TEST_TOKEN= -e SYMFONY_SHOP_TEST_DB_GUARD=oauth-postgresql \
 		-e TEST_DATABASE_URL='postgresql://oauth_identity_test:disposable_oauth_identity_test@oauth-postgres:5432/oauth_identity_concurrency?serverVersion=18.4' \
 		php php /var/www/html/vendor/bin/phpunit -c phpunit.oauth-postgresql.xml.dist --do-not-record-test-run-history --no-coverage; \
 	} 9>/tmp/symfony-shop-oauth-postgresql.lock
 
 test-functional-panther:
-	$(COMPOSE) exec --user app -e APP_ENV=test php php /var/www/html/vendor/bin/phpunit --group functional-panther --do-not-record-test-run-history --no-coverage
+	$(SQLITE_TEST_PHP) php php tests/TestUtils/Database/verify.php
+	$(SQLITE_TEST_PHP) php php vendor/bin/phpunit --group functional-panther --do-not-record-test-run-history --no-coverage

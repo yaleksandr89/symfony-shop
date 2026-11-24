@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthProviderAvailabilityTest extends TestCase
 {
     #[DataProvider('providers')]
@@ -40,7 +40,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
 
         self::assertSame(
             [OAuthProvider::Google, OAuthProvider::GithubRus],
-            $availability->enabledProviders()
+            $availability->enabledProviders(),
         );
     }
 
@@ -56,11 +56,13 @@ final class OAuthProviderAvailabilityTest extends TestCase
     #[TestDox('Настроенный и включённый провайдер работает')]
     public function testConfiguredEnabledImplementedProviderIsOperational(OAuthProvider $provider): void
     {
-        $this->availability([$provider->value => true])->assertOperational($provider);
+        $availability = $this->availability([$provider->value => true]);
+        $availability->assertOperational($provider);
 
-        self::assertTrue(true);
+        self::assertTrue($availability->isEnabled($provider));
     }
 
+    /** @param array<string, array{clientId: string, clientSecret: string}> $credentials */
     #[DataProvider('blankCredentialSets')]
     #[TestDox('Включённый провайдер с пустыми учётными данными возвращает безопасную ошибку')]
     public function testEnabledImplementedProviderWithBlankCredentialsIsSanitized(array $credentials): void
@@ -72,7 +74,7 @@ final class OAuthProviderAvailabilityTest extends TestCase
         ];
         $availability = new OAuthProviderAvailability(
             [OAuthProvider::Yandex->value => true],
-            $credentials
+            $credentials,
         );
 
         try {
@@ -141,8 +143,8 @@ final class OAuthProviderAvailabilityTest extends TestCase
         foreach (OAuthProvider::cases() as $provider) {
             if ($provider->isImplemented()) {
                 $credentials[$provider->value] = [
-                    'clientId' => $provider->value.'-id',
-                    'clientSecret' => $provider->value.'-secret',
+                    'clientId' => $provider->value . '-id',
+                    'clientSecret' => $provider->value . '-secret',
                 ];
             }
         }

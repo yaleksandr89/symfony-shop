@@ -1,5 +1,4 @@
-@import "~foundation-emails";
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+@use "foundation-emails/dist/foundation-emails.css";
 
 body {
   margin: 0;

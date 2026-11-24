@@ -1,0 +1,21 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+        - migrations
+        - tools/demo
+        - fixtures/demo
+        - config/bundles.php
+        - config/preload.php
+        - public/index.php
+        - bin/console
+        - .php-cs-fixer.dist.php
+    tmpDir: %currentWorkingDirectory%/var/cache/phpstan
+
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml

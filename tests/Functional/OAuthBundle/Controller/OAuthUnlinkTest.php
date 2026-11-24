@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Validator\Constraints\UserPasswordValidator;
 use Symfony\Component\Validator\Constraint;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class OAuthUnlinkTest extends WebTestCase
 {
     private const PASSWORD = 'current-password';
@@ -120,17 +120,17 @@ final class OAuthUnlinkTest extends WebTestCase
     public function testValidCurrentPasswordUnlinksOnlyTheSelectedIdentity(OAuthProvider $provider): void
     {
         $identities = [
-            'google' => 'google-'.$provider->value,
-            'yandex' => 'yandex-'.$provider->value,
-            'vkontakte' => 'vkontakte-'.$provider->value,
-            'github' => 'github-'.$provider->value,
-            'facebook' => 'facebook-'.$provider->value,
-            'linkedin' => 'LiNkEdIn-'.$provider->value.'-Sub',
+            'google' => 'google-' . $provider->value,
+            'yandex' => 'yandex-' . $provider->value,
+            'vkontakte' => 'vkontakte-' . $provider->value,
+            'github' => 'github-' . $provider->value,
+            'facebook' => 'facebook-' . $provider->value,
+            'linkedin' => 'LiNkEdIn-' . $provider->value . '-Sub',
         ];
         $client = self::createClient();
         $user = $this->createUser($identities);
         $client->loginUser($user, 'website');
-        $url = '/ru/profile/oauth/'.$provider->value.'/unlink';
+        $url = '/ru/profile/oauth/' . $provider->value . '/unlink';
         $crawler = $client->request('GET', $url);
         $form = $crawler->filter('form')->form([
             'oauth_unlink_form[currentPassword]' => self::PASSWORD,
@@ -153,7 +153,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $client = self::createClient();
         $user = $this->createUser([$provider->identityFamily() => $externalId]);
         $client->loginUser($user, 'website');
-        $crawler = $client->request('GET', '/ru/profile/oauth/'.$provider->value.'/unlink');
+        $crawler = $client->request('GET', '/ru/profile/oauth/' . $provider->value . '/unlink');
         $form = $crawler->filter('form')->form([
             'oauth_unlink_form[currentPassword]' => self::PASSWORD,
         ]);
@@ -173,7 +173,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $client->loginUser($user, 'website');
 
         foreach (['mailru', 'not-a-provider', 'google'] as $provider) {
-            $client->request('GET', '/ru/profile/oauth/'.$provider.'/unlink');
+            $client->request('GET', '/ru/profile/oauth/' . $provider . '/unlink');
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         }
 
@@ -208,7 +208,9 @@ final class OAuthUnlinkTest extends WebTestCase
         $session->set('oauth_link_intent', ['test-marker' => 'pending']);
         $session->save();
         $container = self::getContainer();
-        $validator = new class($container->get('security.token_storage'), $container->get('security.password_hasher_factory'), $container->get(EntityManagerInterface::class), $user->getId()) extends UserPasswordValidator {
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+        $validator = new class ($container->get('security.token_storage'), $container->get('security.password_hasher_factory'), $container->get(EntityManagerInterface::class), $userId) extends UserPasswordValidator {
             public function __construct(TokenStorageInterface $tokenStorage, PasswordHasherFactoryInterface $hasherFactory, private EntityManagerInterface $manager, private int $userId)
             {
                 parent::__construct($tokenStorage, $hasherFactory);
@@ -270,7 +272,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $nonce = str_replace('.', '', uniqid('', true));
         $user = new User();
         $user
-            ->setEmail('oauth-unlink-'.$nonce.'@example.test')
+            ->setEmail('oauth-unlink-' . $nonce . '@example.test')
             ->setIsVerified(true);
         $user->setPassword(self::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword($user, self::PASSWORD));
         $user->setGoogleId($linkedIdentities['google'] ?? null);
@@ -280,6 +282,7 @@ final class OAuthUnlinkTest extends WebTestCase
         $user->setFacebookId($linkedIdentities['facebook'] ?? null);
         $user->setLinkedinId($linkedIdentities['linkedin'] ?? null);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
         $entityManager->flush();
@@ -290,6 +293,7 @@ final class OAuthUnlinkTest extends WebTestCase
     /** @return array<string, ?string> */
     private function identities(User $user): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $reloadedUser = $entityManager->find(User::class, $user->getId());

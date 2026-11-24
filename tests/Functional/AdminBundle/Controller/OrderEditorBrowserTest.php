@@ -4,29 +4,36 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
+use App\Account\Repository\UserRepository;
 use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
-use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Money\DecimalMoney;
+use App\Tests\TestUtils\Fixtures\UserFixtures;
 use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
 use Doctrine\ORM\EntityManagerInterface;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverKeys;
 use Facebook\WebDriver\WebDriverSelect;
 use Facebook\WebDriver\WebDriverWait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use RuntimeException;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
+use Throwable;
 
 class OrderEditorBrowserTest extends PantherTestCase
 {
-    #[Group(name: 'functional-panther')]
+    #[Group('functional-panther')]
     #[TestDox('Администратор через интерфейс добавляет и удаляет позицию заказа в Panther')]
     public function testAdminOrderEditorMutatesControlledLinesWithPanther(): void
     {
@@ -35,16 +42,29 @@ class OrderEditorBrowserTest extends PantherTestCase
         try {
             static::stopWebServer();
             $context = $this->createControlledOrder();
-            $client = static::createPantherClient(['browser' => self::CHROME]);
+            // RU: Предупреждение Chrome о тестовом пароле может перехватить фокус после входа.
+            // EN: Chrome's warning about the fixture password can take focus after login.
+            $options = new ChromeOptions()->setExperimentalOption('prefs', ['profile.password_manager_leak_detection' => false]);
+            $client = static::createPantherClient(['browser' => self::CHROME], [], [
+                'capabilities' => [ChromeOptions::CAPABILITY => $options],
+            ]);
 
             $client->request('GET', '/ru/admin/login');
             $client->submitForm('Войти', [
                 'email' => 'test2@test.com',
                 'password' => 'test2test2',
             ]);
-            $editorUri = '/ru/admin/order/edit/'.$context['orderId'];
+            $editorUri = '/ru/admin/order/edit/' . $context['orderId'];
             $client->request('GET', $editorUri);
             $crawler = $client->waitForElementToContain('body', $context['expectedLines'][1]['productTitle']);
+
+            $this->observeSidebar($client);
+            self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
+            self::assertTrue($this->sidebarPanelHasState($client, 'collapseProducts', false));
+            $this->assertProductsActivation($client, 'First pointer open', true);
+            $this->assertProductsActivation($client, 'Pointer close', false);
+            $this->assertProductsActivation($client, 'Pointer reopen', true);
+            $this->assertProductsActivation($client, 'Close with Enter', false, keyboard: true);
 
             $app = $crawler->filter('.table-additional-selection');
             self::assertCount(1, $app);
@@ -65,12 +85,12 @@ class OrderEditorBrowserTest extends PantherTestCase
             $this->selectOptionByValue(
                 $client,
                 'select[name="add_product_category_select"]',
-                (string) $context['addedCategoryId']
+                (string) $context['addedCategoryId'],
             );
             $this->selectOptionByValue(
                 $client,
                 'select[name="add_product_product_select"]',
-                $context['addedProductUuid']
+                $context['addedProductUuid'],
             );
             $inputSelector = '.table-additional-selection > .row.mb-2 input[type="number"]';
             $this->setVueBoundInputValue($client, $inputSelector, 0, '3');
@@ -78,20 +98,20 @@ class OrderEditorBrowserTest extends PantherTestCase
             $categorySelect = $driver->findElement(WebDriverBy::cssSelector('select[name="add_product_category_select"]'));
             $productSelect = $driver->findElement(WebDriverBy::cssSelector('select[name="add_product_product_select"]'));
             $inputs = $driver->findElements(
-                WebDriverBy::cssSelector('.table-additional-selection > .row.mb-2 input[type="number"]')
+                WebDriverBy::cssSelector('.table-additional-selection > .row.mb-2 input[type="number"]'),
             );
             $addButton = $driver->findElement(
-                WebDriverBy::cssSelector('.table-additional-selection > .row.mb-2 .btn-outline-success')
+                WebDriverBy::cssSelector('.table-additional-selection > .row.mb-2 .btn-outline-success'),
             );
-            self::assertSame((string) $context['addedCategoryId'], $categorySelect->getDomProperty('value'));
-            self::assertSame($context['addedProductUuid'], $productSelect->getDomProperty('value'));
+            self::assertSame((string) $context['addedCategoryId'], self::domProperty($categorySelect, 'value'));
+            self::assertSame($context['addedProductUuid'], self::domProperty($productSelect, 'value'));
             self::assertCount(1, $inputs);
-            self::assertSame('3', $inputs[0]->getDomProperty('value'));
+            self::assertSame('3', self::domProperty($inputs[0], 'value'));
             self::assertTrue($addButton->isDisplayed());
             self::assertTrue($addButton->isEnabled());
             $this->activateRenderedControl(
                 $client,
-                '.table-additional-selection > .row.mb-2 .btn-outline-success'
+                '.table-additional-selection > .row.mb-2 .btn-outline-success',
             );
 
             $addedRow = $this->waitForOrderProductRow($client, $context['addedProductTitle']);
@@ -109,7 +129,7 @@ class OrderEditorBrowserTest extends PantherTestCase
 
             $this->activateRenderedElement(
                 $client,
-                $addedRow->findElement(WebDriverBy::cssSelector('.btn-outline-danger'))
+                $addedRow->findElement(WebDriverBy::cssSelector('.btn-outline-danger')),
             );
             $this->waitForOrderProductRowAbsence($client, $context['addedProductTitle']);
             $this->assertComputedTotal($client, 27488, '$274.88');
@@ -120,21 +140,22 @@ class OrderEditorBrowserTest extends PantherTestCase
             $this->assertComputedTotal($client, 27488, '$274.88');
             $this->assertStoredTotal($crawler, 27488);
 
+            $this->assertResponsiveSidebarClosesOnResize($client);
             $this->assertBrowserLogHasNoApplicationErrors($client);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $testFailure = $exception;
         } finally {
             $cleanupFailure = null;
             try {
                 static::stopWebServer();
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $cleanupFailure = $exception;
             }
 
             if (null !== $context) {
                 try {
                     $this->removeControlledOrder($context);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     $cleanupFailure ??= $exception;
                 }
             }
@@ -147,6 +168,171 @@ class OrderEditorBrowserTest extends PantherTestCase
         if (null !== $testFailure) {
             throw $testFailure;
         }
+    }
+
+    private function assertProductsActivation(Client $client, string $stage, bool $expanded, bool $keyboard = false): void
+    {
+        $driver = $client->getWebDriver();
+        try {
+            $client->executeScript('sidebarTrace.begin();');
+            new WebDriverWait($driver, 5, 50)->until(
+                static fn(): bool => true === $client->executeAsyncScript(<<<'JS'
+                    const done = arguments[arguments.length - 1];
+                    const first = sidebarTrace.geometry();
+                    if (!first) {
+                        done(false);
+                        return;
+                    }
+                    requestAnimationFrame(() => requestAnimationFrame(() => done(first === sidebarTrace.geometry())));
+                    JS),
+                'Products trigger was not ready for desktop input.',
+            );
+            $client->executeScript("sidebarTrace.mark('ready');");
+            $control = $driver->findElement(WebDriverBy::cssSelector('a[data-bs-target="#collapseProducts"]'));
+            if ($keyboard) {
+                $control->sendKeys(WebDriverKeys::ENTER);
+            } else {
+                self::assertInstanceOf(RemoteWebDriver::class, $driver);
+                $driver->action()->moveToElement($control)->click()->perform();
+            }
+            $client->executeScript("sidebarTrace.mark('returned');");
+            new WebDriverWait($driver, 5, 50)->until(
+                static fn(): bool => true === $client->executeScript('return sidebarTrace.delivered(arguments[0]);', [$keyboard]),
+                'Expected trusted activation did not reach the Products trigger.',
+            );
+            $this->waitForSidebarPanelState($client, 'collapseProducts', $expanded);
+            $this->waitForSidebarPanelState($client, 'collapseOrders', false);
+        } catch (Throwable $failure) {
+            throw $this->sidebarFailure($client, $stage, $failure);
+        }
+    }
+
+    private function observeSidebar(Client $client): void
+    {
+        $client->executeScript(<<<'JS'
+            const trace = [];
+            const trigger = id => document.querySelector('a[aria-controls="' + id + '"]');
+            const identify = node => {
+                if (node === window) return 'window';
+                if (!(node instanceof Element)) return 'document';
+                const control = node.closest('a,button,.collapse,.collapsing');
+                if (control && control === trigger('collapseProducts')) return 'Products trigger';
+                if (control && control === trigger('collapseOrders')) return 'Orders trigger';
+                if (['collapseProducts', 'collapseOrders', 'sidebarToggleTop', 'sidebarToggle'].includes(control?.id)) {
+                    return control.id;
+                }
+                return node.tagName;
+            };
+            const panel = id => {
+                const element = document.getElementById(id);
+                if (!element) return null;
+                return {
+                    classes: ['collapse', 'collapsing', 'show'].filter(c => element.classList.contains(c)),
+                    aria: trigger(id)?.ariaExpanded,
+                    display: getComputedStyle(element).display,
+                    visibility: getComputedStyle(element).visibility,
+                };
+            };
+            const state = () => {
+                const rect = trigger('collapseProducts')?.getBoundingClientRect();
+                const hit = rect && document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+                return {
+                    inner: [innerWidth, innerHeight], outer: [outerWidth, outerHeight], scroll: [scrollX, scrollY],
+                    focus: document.hasFocus(), active: identify(document.activeElement), visible: document.visibilityState,
+                    ready: document.readyState, fonts: document.fonts.status, hit: identify(hit),
+                    rect: rect && [rect.x, rect.y, rect.width, rect.height],
+                    animations: document.getElementById('accordionSidebar')?.getAnimations({subtree: true}).length,
+                    orders: panel('collapseOrders'), products: panel('collapseProducts'),
+                };
+            };
+            const record = (type, data) => {
+                trace.push({ms: Math.round(performance.now()), type, ...data});
+                if (trace.length > 32) trace.shift();
+            };
+            for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click', 'keydown', 'focus', 'blur',
+                                'resize', 'visibilitychange', 'show.bs.collapse', 'shown.bs.collapse',
+                                'hide.bs.collapse', 'hidden.bs.collapse']) {
+                window.addEventListener(type, event => record(type, {
+                    target: identify(event.target), trusted: event.isTrusted, x: event.clientX, y: event.clientY,
+                }), {capture: true, passive: true});
+            }
+            window.sidebarTrace = {
+                begin() { trace.length = 0; this.mark('before'); },
+                mark(type) { record(type, state()); },
+                geometry() {
+                    const s = state();
+                    if (s.inner[0] < 768 || !s.focus || s.visible !== 'visible' || s.ready !== 'complete' ||
+                        s.fonts !== 'loaded' || s.hit !== 'Products trigger' || s.animations) return null;
+                    return JSON.stringify([s.inner, s.rect, s.scroll]);
+                },
+                delivered(keyboard) {
+                    const expected = keyboard ? ['keydown', 'click'] : ['pointerdown', 'pointerup', 'click'];
+                    return expected.every(type => trace.some(e =>
+                        e.type === type && e.trusted && e.target === 'Products trigger'));
+                },
+                report() { return {trace, actual: state()}; },
+            };
+            JS);
+    }
+
+    private function sidebarFailure(Client $client, string $stage, Throwable $failure): Throwable
+    {
+        try {
+            $report = $client->executeScript('return window.sidebarTrace?.report() ?? {};');
+            $errors = [];
+            foreach ($client->getWebDriver()->manage()->getLog('browser') as $entry) {
+                if ('SEVERE' === ($entry['level'] ?? null)) {
+                    $kind = str_contains((string) ($entry['message'] ?? ''), 'TypeError') ? 'TypeError' : 'other severe';
+                    $errors[$kind] = ($errors[$kind] ?? 0) + 1;
+                }
+            }
+
+            return new RuntimeException(
+                $stage . ' ' . json_encode(['sidebar' => $report, 'browserErrors' => $errors], JSON_THROW_ON_ERROR),
+                previous: $failure,
+            );
+        } catch (Throwable) {
+            return $failure;
+        }
+    }
+
+    private function assertResponsiveSidebarClosesOnResize(Client $client): void
+    {
+        $this->observeSidebar($client);
+        try {
+            $client->executeScript('sidebarTrace.begin();');
+            $driver = $client->getWebDriver();
+            $sidebar = $driver->findElement(WebDriverBy::id('accordionSidebar'));
+            self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
+
+            $driver->manage()->window()->setSize(new WebDriverDimension(390, 844));
+            $this->waitForSidebarPanelState($client, 'collapseOrders', false);
+            self::assertStringContainsString('toggled', $sidebar->getAttribute('class') ?? '');
+        } catch (Throwable $failure) {
+            throw $this->sidebarFailure($client, 'Resize below 480px closes Orders', $failure);
+        }
+    }
+
+    private function waitForSidebarPanelState(Client $client, string $id, bool $expanded): void
+    {
+        new WebDriverWait($client->getWebDriver(), 5, 50)->until(
+            fn(): bool => $this->sidebarPanelHasState($client, $id, $expanded),
+            sprintf('Sidebar panel #%s did not settle in the %s state.', $id, $expanded ? 'expanded' : 'collapsed'),
+        );
+    }
+
+    private function sidebarPanelHasState(Client $client, string $id, bool $expanded): bool
+    {
+        $driver = $client->getWebDriver();
+        $panel = $driver->findElement(WebDriverBy::id($id));
+        $trigger = $driver->findElement(WebDriverBy::cssSelector(sprintf('a[aria-controls="%s"]', $id)));
+        $classes = preg_split('/\s+/', $panel->getAttribute('class') ?? '') ?: [];
+
+        return in_array('collapse', $classes, true)
+            && !in_array('collapsing', $classes, true)
+            && $expanded === in_array('show', $classes, true)
+            && $expanded === $panel->isDisplayed()
+            && ($expanded ? 'true' : 'false') === $trigger->getAttribute('aria-expanded');
     }
 
     /**
@@ -162,32 +348,33 @@ class OrderEditorBrowserTest extends PantherTestCase
      */
     private function createControlledOrder(): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $firstCategory = (new Category())->setTitle('Browser boots '.$suffix);
-        $secondCategory = (new Category())->setTitle('Browser socks '.$suffix);
-        $addedCategory = (new Category())->setTitle('Browser sandals '.$suffix);
-        $firstProduct = (new Product())
-            ->setTitle('Browser Trail Boot '.$suffix)
+        $firstCategory = new Category()->setTitle('Browser boots ' . $suffix);
+        $secondCategory = new Category()->setTitle('Browser socks ' . $suffix);
+        $addedCategory = new Category()->setTitle('Browser sandals ' . $suffix);
+        $firstProduct = new Product()
+            ->setTitle('Browser Trail Boot ' . $suffix)
             ->setPrice('89.99')
             ->setQuantity(100)
             ->setCategory($firstCategory);
-        $secondProduct = (new Product())
-            ->setTitle('Browser Merino Sock '.$suffix)
+        $secondProduct = new Product()
+            ->setTitle('Browser Merino Sock ' . $suffix)
             ->setPrice('94.90')
             ->setQuantity(50)
             ->setCategory($secondCategory);
-        $addedProduct = (new Product())
-            ->setTitle('Browser Summer Sandal '.$suffix)
+        $addedProduct = new Product()
+            ->setTitle('Browser Summer Sandal ' . $suffix)
             ->setPrice('12.34')
             ->setQuantity(25)
             ->setIsPublished(true)
             ->setCategory($addedCategory);
-        $firstLine = (new OrderProduct())
+        $firstLine = new OrderProduct()
             ->setProduct($firstProduct)
             ->setQuantity(2)
             ->setPricePerOne('89.99');
-        $secondLine = (new OrderProduct())
+        $secondLine = new OrderProduct()
             ->setProduct($secondProduct)
             ->setQuantity(1)
             ->setPricePerOne('94.90');
@@ -196,7 +383,7 @@ class OrderEditorBrowserTest extends PantherTestCase
         ]);
         self::assertInstanceOf(User::class, $owner);
 
-        $order = (new Order())
+        $order = new Order()
             ->setOwner($owner)
             ->setStatus(1)
             ->setTotalPrice('274.88');
@@ -228,11 +415,15 @@ class OrderEditorBrowserTest extends PantherTestCase
                 ['productTitle' => $firstProductTitle, 'quantity' => 2, 'pricePerOneCents' => 8999],
                 ['productTitle' => $secondProductTitle, 'quantity' => 1, 'pricePerOneCents' => 9490],
             ],
-            'addedCategoryId' => $addedCategory->getId(),
+            'addedCategoryId' => ($addedCategory->getId() ?? self::fail('Expected initialized fixture field.')),
             'addedProductUuid' => (string) $addedProduct->getUuid(),
             'addedProductTitle' => $addedProductTitle,
-            'productIds' => [$firstProduct->getId(), $secondProduct->getId(), $addedProduct->getId()],
-            'categoryIds' => [$firstCategory->getId(), $secondCategory->getId(), $addedCategory->getId()],
+            'productIds' => [($firstProduct->getId() ?? self::fail('Expected initialized fixture field.')), ($secondProduct->getId() ?? self::fail('Expected initialized fixture field.')), ($addedProduct->getId() ?? self::fail('Expected initialized fixture field.'))],
+            'categoryIds' => [
+                $firstCategory->getId() ?? self::fail('Expected a persisted category.'),
+                $secondCategory->getId() ?? self::fail('Expected a persisted category.'),
+                $addedCategory->getId(),
+            ],
         ];
     }
 
@@ -257,6 +448,7 @@ class OrderEditorBrowserTest extends PantherTestCase
      */
     private function removeControlledOrder(array $context): void
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         if (!$entityManager->getConnection()->isTransactionActive()) {
             StaticDriver::beginTransaction();
@@ -296,7 +488,7 @@ class OrderEditorBrowserTest extends PantherTestCase
         $driver = $client->getWebDriver();
         $by = WebDriverBy::cssSelector($selector);
 
-        (new WebDriverWait($driver, 30))->until(
+        new WebDriverWait($driver, 30)->until(
             static function () use ($driver, $by, $value): bool {
                 $selects = $driver->findElements($by);
                 if ([] === $selects) {
@@ -304,18 +496,18 @@ class OrderEditorBrowserTest extends PantherTestCase
                 }
 
                 foreach ($selects[0]->findElements(WebDriverBy::tagName('option')) as $option) {
-                    if ($value === $option->getDomProperty('value')) {
+                    if ($value === self::domProperty($option, 'value')) {
                         return true;
                     }
                 }
 
                 return false;
-            }
+            },
         );
 
-        (new WebDriverSelect($driver->findElement($by)))->selectByValue($value);
-        (new WebDriverWait($driver, 30))->until(
-            static fn (): bool => $value === $driver->findElement($by)->getDomProperty('value')
+        new WebDriverSelect($driver->findElement($by))->selectByValue($value);
+        new WebDriverWait($driver, 30)->until(
+            static fn(): bool => $value === self::domProperty($driver->findElement($by), 'value'),
         );
     }
 
@@ -323,21 +515,23 @@ class OrderEditorBrowserTest extends PantherTestCase
         Client $client,
         string $selector,
         int $index,
-        string $value
+        string $value,
     ): void {
         $driver = $client->getWebDriver();
         $by = WebDriverBy::cssSelector($selector);
 
-        (new WebDriverWait($driver, 30))->until(
-            static fn (): bool => count($driver->findElements($by)) > $index
+        new WebDriverWait($driver, 30)->until(
+            static fn(): bool => count($driver->findElements($by)) > $index,
         );
 
         $element = $driver->findElements($by)[$index];
         self::assertTrue($element->isDisplayed());
         self::assertTrue($element->isEnabled());
-        self::assertSame('number', $element->getDomProperty('type'));
+        self::assertSame('number', self::domProperty($element, 'type'));
 
-        // Manual smoke proves physical usability; automation stays at the rendered DOM → Vue boundary.
+        // RU: Ручная проверка подтверждает доступность элемента для взаимодействия, а автоматическая проверяет связь между отрисованным DOM и Vue.
+
+        // EN: Manual smoke proves physical usability; automation stays at the rendered DOM → Vue boundary.
         $client->executeScript(
             <<<'JS'
             const element = arguments[0];
@@ -349,11 +543,11 @@ class OrderEditorBrowserTest extends PantherTestCase
             element.dispatchEvent(new Event("change", { bubbles: true }));
             element.blur();
             JS,
-            [$element, $value]
+            [$element, $value],
         );
 
-        (new WebDriverWait($driver, 30))->until(
-            static fn (): bool => $value === $driver->findElements($by)[$index]->getDomProperty('value')
+        new WebDriverWait($driver, 30)->until(
+            static fn(): bool => $value === self::domProperty($driver->findElements($by)[$index], 'value'),
         );
     }
 
@@ -361,8 +555,8 @@ class OrderEditorBrowserTest extends PantherTestCase
     {
         $driver = $client->getWebDriver();
         $by = WebDriverBy::cssSelector($selector);
-        $element = (new WebDriverWait($driver, 30))->until(
-            WebDriverExpectedCondition::presenceOfElementLocated($by)
+        $element = new WebDriverWait($driver, 30)->until(
+            WebDriverExpectedCondition::presenceOfElementLocated($by),
         );
 
         $this->activateRenderedElement($client, $element);
@@ -374,15 +568,15 @@ class OrderEditorBrowserTest extends PantherTestCase
         self::assertTrue($element->isEnabled());
         $client->executeScript(
             'arguments[0].scrollIntoView({block: "center", inline: "nearest"});',
-            [$element]
+            [$element],
         );
         $client->executeScript('arguments[0].click();', [$element]);
     }
 
     private function waitForOrderProductRow(Client $client, string $productTitle): WebDriverElement
     {
-        $row = (new WebDriverWait($client->getWebDriver(), 30))->until(
-            fn (): ?WebDriverElement => $this->findOrderProductRow($client, $productTitle)
+        $row = new WebDriverWait($client->getWebDriver(), 30)->until(
+            fn(): ?WebDriverElement => $this->findOrderProductRow($client, $productTitle),
         );
         self::assertInstanceOf(WebDriverElement::class, $row);
 
@@ -391,15 +585,15 @@ class OrderEditorBrowserTest extends PantherTestCase
 
     private function waitForOrderProductRowAbsence(Client $client, string $productTitle): void
     {
-        (new WebDriverWait($client->getWebDriver(), 30))->until(
-            fn (): bool => null === $this->findOrderProductRow($client, $productTitle)
+        new WebDriverWait($client->getWebDriver(), 30)->until(
+            fn(): bool => null === $this->findOrderProductRow($client, $productTitle),
         );
     }
 
     private function findOrderProductRow(Client $client, string $productTitle): ?WebDriverElement
     {
         $rows = $client->getWebDriver()->findElements(
-            WebDriverBy::cssSelector('.table-additional-selection > .row.mb-1')
+            WebDriverBy::cssSelector('.table-additional-selection > .row.mb-1'),
         );
         foreach ($rows as $row) {
             if (str_contains($row->getText(), $productTitle)) {
@@ -432,7 +626,7 @@ class OrderEditorBrowserTest extends PantherTestCase
         self::assertMatchesRegularExpression('/(?<amount>\d+(?:[.,]\d{1,2})?)/', $currencyText);
         preg_match('/(?<amount>\d+(?:[.,]\d{1,2})?)/', $currencyText, $matches);
 
-        return $this->decimalAmountToCents($matches['amount']);
+        return $this->decimalAmountToCents(($matches['amount'] ?? self::fail('Expected an amount in the rendered value.')));
     }
 
     private function productPriceTextToCents(string $rowText): int
@@ -440,7 +634,7 @@ class OrderEditorBrowserTest extends PantherTestCase
         self::assertMatchesRegularExpression('/\\$(?<amount>\d+(?:\.\d{1,2})?)/', $rowText);
         preg_match('/\\$(?<amount>\d+(?:\.\d{1,2})?)/', $rowText, $matches);
 
-        return $this->decimalAmountToCents($matches['amount']);
+        return $this->decimalAmountToCents(($matches['amount'] ?? self::fail('Expected an amount in the rendered value.')));
     }
 
     private function decimalAmountToCents(string $amount): int
@@ -453,6 +647,13 @@ class OrderEditorBrowserTest extends PantherTestCase
         }
 
         return DecimalMoney::toCents($amount);
+    }
+
+    private static function domProperty(WebDriverElement $element, string $name): mixed
+    {
+        self::assertInstanceOf(RemoteWebElement::class, $element);
+
+        return $element->getDomProperty($name);
     }
 
     private function assertBrowserLogHasNoApplicationErrors(Client $client): void

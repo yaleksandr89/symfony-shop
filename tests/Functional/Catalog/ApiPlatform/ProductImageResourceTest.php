@@ -16,7 +16,7 @@ use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class ProductImageResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTestUtils
 {
     private const COLLECTION_URI = '/api/product_images';
@@ -25,6 +25,7 @@ class ProductImageResourceTest extends \App\Tests\Functional\ApiPlatform\Resourc
     public function testStandaloneReadRoutesAndOpenApiPathsAreAbsentWhileCartImagesRemainEmbedded(): void
     {
         $client = self::createClient();
+        /** @var RouterInterface $router */
         $router = self::getContainer()->get(RouterInterface::class);
         $routes = $router->getRouteCollection();
 
@@ -35,7 +36,7 @@ class ProductImageResourceTest extends \App\Tests\Functional\ApiPlatform\Resourc
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $document = $this->getResponseDecodedContent($client);
         self::assertArrayNotHasKey(self::COLLECTION_URI, $document['paths']);
-        self::assertArrayNotHasKey(self::COLLECTION_URI.'/{id}', $document['paths']);
+        self::assertArrayNotHasKey(self::COLLECTION_URI . '/{id}', $document['paths']);
 
         $context = $this->createCartImageContext();
         $imageId = $context['image']->getId();
@@ -46,11 +47,11 @@ class ProductImageResourceTest extends \App\Tests\Functional\ApiPlatform\Resourc
         $client->request('GET', self::COLLECTION_URI, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
-        $client->request('GET', self::COLLECTION_URI.'/'.$imageId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', self::COLLECTION_URI . '/' . $imageId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $context['token']));
-        $client->request('GET', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $cartDocument = $this->getResponseDecodedContent($client);
         self::assertIsArray($cartDocument['cartProducts']);
@@ -64,18 +65,18 @@ class ProductImageResourceTest extends \App\Tests\Functional\ApiPlatform\Resourc
         self::assertSame('cart-image_small.jpg', $imageDocument['filenameSmall']);
         self::assertArrayHasKey('@id', $imageDocument);
         self::assertIsString($imageDocument['@id']);
-        self::assertStringNotContainsString(self::COLLECTION_URI.'/', $imageDocument['@id']);
+        self::assertStringNotContainsString(self::COLLECTION_URI . '/', $imageDocument['@id']);
         self::assertArrayNotHasKey('product', $imageDocument);
         self::assertArrayNotHasKey('filenameBig', $imageDocument);
         self::assertArrayNotHasKey('filenameMiddle', $imageDocument);
 
         $client->getCookieJar()->clear();
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', TokenGenerator::generateToken()));
-        $client->request('GET', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $client->getCookieJar()->clear();
-        $client->request('GET', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
@@ -83,21 +84,22 @@ class ProductImageResourceTest extends \App\Tests\Functional\ApiPlatform\Resourc
     private function createCartImageContext(): array
     {
         $suffix = str_replace('.', '', uniqid('', true));
-        $product = (new Product())
-            ->setTitle('Cart image product '.$suffix)
+        $product = new Product()
+            ->setTitle('Cart image product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setIsPublished(true);
-        $image = (new ProductImage())
+        $image = new ProductImage()
             ->setFilenameBig('cart-image_big.jpg')
             ->setFilenameMiddle('cart-image_middle.jpg')
             ->setFilenameSmall('cart-image_small.jpg');
         $product->addProductImage($image);
 
         $token = TokenGenerator::generateToken();
-        $cart = (new Cart())->setToken($token);
-        $cart->addCartProduct((new CartProduct())->setProduct($product)->setQuantity(1));
+        $cart = new Cart()->setToken($token);
+        $cart->addCartProduct(new CartProduct()->setProduct($product)->setQuantity(1));
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);
         $entityManager->persist($cart);

@@ -23,9 +23,12 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use LogicException;
 use RuntimeException;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPasswordValidator;
@@ -42,7 +45,13 @@ final class OAuthIdentityMutationPostgreSqlWorker
         $kernel = new Kernel('test', true);
         $kernel->boot();
         $container = $kernel->getContainer()->get('test.service_container');
+        if (!$container instanceof ContainerInterface) {
+            throw new RuntimeException('Test service container is unavailable.');
+        }
         $client = $container->get('test.client');
+        if (!$client instanceof KernelBrowser) {
+            throw new RuntimeException('Test HTTP client is unavailable.');
+        }
         $client->disableReboot();
         $client->catchExceptions(false);
         $manager = $container->get(EntityManagerInterface::class);
@@ -53,7 +62,11 @@ final class OAuthIdentityMutationPostgreSqlWorker
         $connection->executeStatement("SET lock_timeout = '15s'");
         $connection->executeStatement("SET statement_timeout = '20s'");
         $registry = $container->get('doctrine');
-        $trackingRegistry = new class($kernel->getContainer(), $registry->getConnectionNames(), $registry->getManagerNames(), $registry->getDefaultConnectionName(), $registry->getDefaultManagerName()) extends Registry {
+        $kernelContainer = $kernel->getContainer();
+        if (!$kernelContainer instanceof Container) {
+            throw new RuntimeException('Expected a compiled Symfony container.');
+        }
+        $trackingRegistry = new class ($kernelContainer, $registry->getConnectionNames(), $registry->getManagerNames(), $registry->getDefaultConnectionName(), $registry->getDefaultManagerName()) extends Registry {
             public bool $closedObserved = false;
             public int $resets = 0;
 
@@ -84,12 +97,11 @@ final class OAuthIdentityMutationPostgreSqlWorker
             ['google' => true, 'github_en' => true, 'github_rus' => true],
             array_fill_keys(['google', 'github_en', 'github_rus'], ['clientId' => 'synthetic-id', 'clientSecret' => 'synthetic-secret']),
         ));
-        $listener = new class($input, $provider, $accessor) {
+        $listener = new class ($input, $provider, $accessor) {
             private bool $active = false;
 
-            public function __construct(private array $input, private OAuthProvider $provider, private OAuthIdentityAccessor $accessor)
-            {
-            }
+            /** @param array<string, mixed> $input */
+            public function __construct(private array $input, private OAuthProvider $provider, private OAuthIdentityAccessor $accessor) {}
 
             public function preFlush(PreFlushEventArgs $args): void
             {
@@ -122,10 +134,9 @@ final class OAuthIdentityMutationPostgreSqlWorker
             }
         };
         if ('link' === $input['action']) {
-            $owner = new class($input, $connection) implements ResourceOwnerInterface {
-                public function __construct(private array $input, private Connection $connection)
-                {
-                }
+            $owner = new class ($input, $connection) implements ResourceOwnerInterface {
+                /** @param array<string, mixed> $input */
+                public function __construct(private array $input, private Connection $connection) {}
 
                 public function getId(): string
                 {
@@ -136,6 +147,7 @@ final class OAuthIdentityMutationPostgreSqlWorker
                     return $this->input['external_id'];
                 }
 
+                /** @return array<string, mixed> */
                 public function toArray(): array
                 {
                     return [];
@@ -146,7 +158,11 @@ final class OAuthIdentityMutationPostgreSqlWorker
             $clients->set('fake.oauth', $fake);
             $container->set('knpu.oauth2.registry', new ClientRegistry($clients, [$provider->oauthClientName() => 'fake.oauth']));
             $session = $container->get('session.factory')->createSession();
-            $session->setId($client->getCookieJar()->get($session->getName())->getValue());
+            $sessionCookie = $client->getCookieJar()->get($session->getName());
+            if (null === $sessionCookie) {
+                throw new RuntimeException('The test client did not receive a session cookie.');
+            }
+            $session->setId($sessionCookie->getValue());
             $requestStack = $container->get(RequestStack::class);
             $request = Request::create('/');
             $request->setSession($session);
@@ -162,7 +178,7 @@ final class OAuthIdentityMutationPostgreSqlWorker
                 default => '/ru/connect/google/check',
             };
         } else {
-            $validator = new class($container->get('security.token_storage'), $container->get('security.password_hasher_factory'), $connection) extends UserPasswordValidator {
+            $validator = new class ($container->get('security.token_storage'), $container->get('security.password_hasher_factory'), $connection) extends UserPasswordValidator {
                 public function __construct(TokenStorageInterface $tokenStorage, PasswordHasherFactoryInterface $factory, private Connection $connection)
                 {
                     parent::__construct($tokenStorage, $factory);
@@ -178,12 +194,15 @@ final class OAuthIdentityMutationPostgreSqlWorker
                 }
             };
             $container->set('security.validator.user_password', $validator);
-            $crawler = $client->request('GET', '/ru/profile/oauth/'.$provider->value.'/unlink');
+            $crawler = $client->request('GET', '/ru/profile/oauth/' . $provider->value . '/unlink');
             if (200 !== $client->getResponse()->getStatusCode()) {
                 throw new RuntimeException('Unlink form missing.');
             }
             $form = $crawler->filter('form')->form(['oauth_unlink_form[currentPassword]' => 'synthetic-current-password']);
             $session = $client->getRequest()->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                throw new RuntimeException('Test session has no flash storage.');
+            }
             $session->set('oauth_worker', $input['worker']);
             $session->set('oauth_link_intent', ['test-marker' => 'pending']);
             $session->save();
@@ -206,6 +225,9 @@ final class OAuthIdentityMutationPostgreSqlWorker
         $manager = $container->get(EntityManagerInterface::class);
         $manager->getEventManager()->removeEventListener([Events::preFlush, Events::postFlush], $listener);
         $session = $client->getRequest()->getSession();
+        if (!$session instanceof FlashBagAwareSessionInterface) {
+            throw new RuntimeException('Test session has no flash storage.');
+        }
         $token = $container->get('security.token_storage')->getToken();
         $tokenUser = $token?->getUser();
         $column = $manager->getClassMetadata(User::class)->getColumnName($accessor->identityField($provider));
@@ -221,7 +243,7 @@ final class OAuthIdentityMutationPostgreSqlWorker
             'transaction_active' => $connection->isTransactionActive(),
             'same_account' => $tokenUser instanceof User && $tokenUser->getId() === $input['user_id'],
             'managed_snapshot' => $tokenUser instanceof User && $manager->contains($tokenUser),
-            'snapshot_matches_database' => $tokenUser instanceof User && $accessor->getExternalId($tokenUser, $provider) === $connection->fetchOne('SELECT '.$column.' FROM "user" WHERE id = ?', [$input['user_id']]),
+            'snapshot_matches_database' => $tokenUser instanceof User && $accessor->getExternalId($tokenUser, $provider) === $connection->fetchOne('SELECT ' . $column . ' FROM "user" WHERE id = ?', [$input['user_id']]),
             'intent_clean' => !$session->has('oauth_link_intent'),
             'pending_intent_preserved' => ['test-marker' => 'pending'] === $session->get('oauth_link_intent'),
             'state_clean' => !$session->has('knpu.oauth2_client_state'),
@@ -232,7 +254,7 @@ final class OAuthIdentityMutationPostgreSqlWorker
         $nextUser = $container->get('security.token_storage')->getToken()?->getUser();
         $snapshot['next_authenticated'] = 200 === $client->getResponse()->getStatusCode() && $nextUser instanceof User && $nextUser->getId() === $input['user_id'];
         $snapshot['roles_unchanged'] = $roles === $container->get('security.token_storage')->getToken()?->getRoleNames();
-        $snapshot['next_snapshot_matches_database'] = $nextUser instanceof User && $accessor->getExternalId($nextUser, $provider) === $connection->fetchOne('SELECT '.$column.' FROM "user" WHERE id = ?', [$input['user_id']]);
+        $snapshot['next_snapshot_matches_database'] = $nextUser instanceof User && $accessor->getExternalId($nextUser, $provider) === $connection->fetchOne('SELECT ' . $column . ' FROM "user" WHERE id = ?', [$input['user_id']]);
         if ('link' === $input['action']) {
             $client->catchExceptions(true);
             $client->request('GET', $callback, ['code' => 'fake-code', 'state' => 'fake-oauth-state']);
@@ -242,6 +264,7 @@ final class OAuthIdentityMutationPostgreSqlWorker
         $kernel->shutdown();
     }
 
+    /** @param array<string, mixed> $details */
     public static function barrier(string $event, array $details = []): void
     {
         self::emit(['event' => $event] + $details);
@@ -250,9 +273,10 @@ final class OAuthIdentityMutationPostgreSqlWorker
         }
     }
 
+    /** @param array<string, mixed> $event */
     private static function emit(array $event): void
     {
-        fwrite(STDOUT, json_encode($event, JSON_THROW_ON_ERROR)."\n");
+        fwrite(STDOUT, json_encode($event, JSON_THROW_ON_ERROR) . "\n");
         fflush(STDOUT);
     }
 
@@ -273,13 +297,13 @@ final class OAuthIdentityMutationPostgreSqlWorker
 }
 
 if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
-    require dirname(__DIR__, 2).'/bootstrap.php';
+    require dirname(__DIR__, 2) . '/bootstrap.php';
     try {
         OAuthIdentityMutationPostgreSqlWorker::run();
     } catch (Throwable $exception) {
         // EN: Never emit exception messages, requests, sessions or connection parameters.
         // RU: Не выводим сообщения исключений, запросы, сессии и параметры соединения.
-        fwrite(STDOUT, json_encode(['event' => 'error', 'type' => $exception::class], JSON_THROW_ON_ERROR)."\n");
+        fwrite(STDOUT, json_encode(['event' => 'error', 'type' => $exception::class], JSON_THROW_ON_ERROR) . "\n");
         exit(1);
     }
 }

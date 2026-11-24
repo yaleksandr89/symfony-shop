@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Account\Security;
 
 use App\Account\Repository\UserRepository;
@@ -14,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\UriSigner;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class EmailVerifierTest extends KernelTestCase
 {
     private UserRepository $userRepository;
@@ -102,6 +104,11 @@ class EmailVerifierTest extends KernelTestCase
     private static function createUrlWithQuery(string $url, array $changes): string
     {
         $parts = parse_url($url);
+        self::assertIsArray($parts);
+        $host = $parts['host'] ?? null;
+        $scheme = $parts['scheme'] ?? null;
+        self::assertNotNull($host);
+        self::assertNotNull($scheme);
         parse_str($parts['query'] ?? '', $query);
 
         foreach ($changes as $name => $value) {
@@ -114,11 +121,11 @@ class EmailVerifierTest extends KernelTestCase
             $query[$name] = $value;
         }
 
-        $authority = $parts['host'];
+        $authority = $host;
         if (isset($parts['port'])) {
-            $authority .= ':'.$parts['port'];
+            $authority .= ':' . $parts['port'];
         }
 
-        return $parts['scheme'].'://'.$authority.($parts['path'] ?? '').'?'.http_build_query($query);
+        return $scheme . '://' . $authority . ($parts['path'] ?? '') . '?' . http_build_query($query);
     }
 }

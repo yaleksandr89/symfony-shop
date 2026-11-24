@@ -23,7 +23,7 @@ function assertNonNegativeSafeInteger(value, fieldName) {
 export function decimalToCents(amount) {
   if (typeof amount !== "string" || !DECIMAL_AMOUNT_PATTERN.test(amount)) {
     throw new Error(
-      "Amount must be a non-negative decimal string with no more than two fractional digits."
+      "Amount must be a non-negative decimal string with no more than two fractional digits.",
     );
   }
 
@@ -54,7 +54,7 @@ export function sumCartProductsToCents(cartProducts) {
 
     const lineTotalCents = multiplyPriceToCents(
       cartProduct.product.price,
-      cartProduct.quantity
+      cartProduct.quantity,
     );
     const nextTotalCents = totalCents + lineTotalCents;
     assertNonNegativeSafeInteger(nextTotalCents, "Cart total");

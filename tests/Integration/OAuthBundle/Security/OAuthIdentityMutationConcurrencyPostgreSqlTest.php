@@ -33,6 +33,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
             self::markTestSkipped('Opt-in suite: make test-oauth-postgresql CONFIRM=testdb');
         }
         self::bootKernel();
+        /** @var EntityManagerInterface $manager */
         $manager = self::getContainer()->get(EntityManagerInterface::class);
         $this->observer = $manager->getConnection();
         self::assertInstanceOf(PostgreSQLPlatform::class, $this->observer->getDatabasePlatform());
@@ -41,7 +42,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         self::assertSame('read committed', $this->observer->fetchOne('SHOW transaction_isolation'));
         self::assertFalse(StaticDriver::isKeepStaticConnections());
         self::assertFalse($this->observer->isTransactionActive());
-        (new SchemaTool($manager))->updateSchema($manager->getMetadataFactory()->getAllMetadata());
+        new SchemaTool($manager)->updateSchema($manager->getMetadataFactory()->getAllMetadata());
     }
 
     protected function tearDown(): void
@@ -63,9 +64,9 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
     public static function raceOrderings(): iterable
     {
         foreach (['A', 'B'] as $first) {
-            yield $first.' commits' => [$first, false, false];
-            yield $first.' rolls back' => [$first, true, false];
-            yield 'GitHub '.$first.' commits' => [$first, false, true];
+            yield $first . ' commits' => [$first, false, false];
+            yield $first . ' rolls back' => [$first, true, false];
+            yield 'GitHub ' . $first . ' commits' => [$first, false, true];
         }
     }
 
@@ -76,7 +77,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         $second = 'A' === $first ? 'B' : 'A';
         $providers = $this->providers($github);
         $users = ['A' => $this->user(), 'B' => $this->user()];
-        $externalId = 'shared-'.bin2hex(random_bytes(8));
+        $externalId = 'shared-' . bin2hex(random_bytes(8));
         foreach (['A', 'B'] as $name) {
             $this->start($name, $users[$name], $providers[$name], 'link', $externalId, null, $rollback && $name === $first);
         }
@@ -123,7 +124,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         $second = 'A' === $first ? 'B' : 'A';
         $providers = $this->providers($github);
         $user = $this->user();
-        $ids = ['A' => 'candidate-A-'.bin2hex(random_bytes(8)), 'B' => 'candidate-B-'.bin2hex(random_bytes(8))];
+        $ids = ['A' => 'candidate-A-' . bin2hex(random_bytes(8)), 'B' => 'candidate-B-' . bin2hex(random_bytes(8))];
         foreach (['A', 'B'] as $name) {
             $this->start($name, $user, $providers[$name], 'link', $ids[$name], null, $rollback && $name === $first);
         }
@@ -163,9 +164,10 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
     public function testDelayedUnlinkCannotEraseSequentiallyLinkedReplacement(): void
     {
         $user = $this->user();
+        /** @var OAuthAccountLinker $linker */
         $linker = self::getContainer()->get(OAuthAccountLinker::class);
-        $oldId = 'observed-old-'.$user->getId();
-        $newId = 'replacement-new-'.$user->getId();
+        $oldId = 'observed-old-' . $user->getId();
+        $newId = 'replacement-new-' . $user->getId();
         $linker->link($user, OAuthProvider::GithubEn, $oldId);
         $this->start('A', $user, OAuthProvider::GithubEn, 'unlink', '', $oldId, false);
         $this->assertReady($this->event('A', 'ready'));
@@ -195,7 +197,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
     {
         $second = 'A' === $first ? 'B' : 'A';
         $user = $this->user();
-        $externalId = 'observed-double-'.$user->getId();
+        $externalId = 'observed-double-' . $user->getId();
         self::getContainer()->get(OAuthAccountLinker::class)->link($user, OAuthProvider::Google, $externalId);
         foreach (['A', 'B'] as $name) {
             $this->start($name, $user, OAuthProvider::Google, 'unlink', '', $externalId, false);
@@ -227,12 +229,13 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
 
     private function user(): User
     {
-        $user = (new User())->setEmail('oauth-race-'.bin2hex(random_bytes(8)).'@example.test')->setIsVerified(true)->setFullName('Preserved name');
+        $user = new User()->setEmail('oauth-race-' . bin2hex(random_bytes(8)) . '@example.test')->setIsVerified(true)->setFullName('Preserved name');
         $user->setPassword(self::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword($user, 'synthetic-current-password'));
         $user->setGoogleId(null);
-        $user->setYandexId('unrelated-'.bin2hex(random_bytes(8)));
+        $user->setYandexId('unrelated-' . bin2hex(random_bytes(8)));
         $user->setVkontakteId(null);
         $user->setGithubId(null);
+        /** @var EntityManagerInterface $manager */
         $manager = self::getContainer()->get(EntityManagerInterface::class);
         $manager->persist($user);
         $manager->flush();
@@ -248,12 +251,13 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
 
     private function identity(User $user, OAuthProvider $provider): ?string
     {
+        /** @var EntityManagerInterface $manager */
         $manager = self::getContainer()->get(EntityManagerInterface::class);
-        $column = $manager->getClassMetadata(User::class)->getColumnName((new OAuthIdentityAccessor())->identityField($provider));
+        $column = $manager->getClassMetadata(User::class)->getColumnName(new OAuthIdentityAccessor()->identityField($provider));
         self::assertSame('Preserved name', $this->observer->fetchOne('SELECT full_name FROM "user" WHERE id = ?', [$user->getId()]));
         self::assertSame($user->getYandexId(), $this->observer->fetchOne('SELECT yandex_id FROM "user" WHERE id = ?', [$user->getId()]));
 
-        return $this->observer->fetchOne('SELECT '.$column.' FROM "user" WHERE id = ?', [$user->getId()]);
+        return $this->observer->fetchOne('SELECT ' . $column . ' FROM "user" WHERE id = ?', [$user->getId()]);
     }
 
     private function start(string $name, User $user, OAuthProvider $provider, string $action, string $externalId, ?string $observedId, bool $rollback): void
@@ -264,7 +268,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         fwrite($pipes[0], json_encode([
             'worker' => $name, 'user_id' => $user->getId(), 'provider' => $provider->value,
             'action' => $action, 'external_id' => $externalId, 'observed_id' => $observedId, 'rollback' => $rollback,
-        ], JSON_THROW_ON_ERROR)."\n");
+        ], JSON_THROW_ON_ERROR) . "\n");
         fflush($pipes[0]);
     }
 
@@ -284,6 +288,7 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         return $pids;
     }
 
+    /** @param array<string, mixed> $event */
     private function assertReady(array $event): void
     {
         self::assertSame(180004, $event['version']);
@@ -299,10 +304,11 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         self::assertTrue($event['refreshed_matches_expected']);
     }
 
+    /** @param array<string, mixed> $result */
     private function assertRecoveredResult(string $name, array $result, bool $link): void
     {
         foreach (['redirect', 'manager_open', 'same_account', 'managed_snapshot', 'snapshot_matches_database', 'next_authenticated', 'roles_unchanged', 'next_snapshot_matches_database', 'state_clean'] as $flag) {
-            self::assertTrue($result[$flag], $name.' '.$flag);
+            self::assertTrue($result[$flag], $name . ' ' . $flag);
         }
         self::assertFalse($result['transaction_active']);
         self::assertSame($name, $result['session_owner']);
@@ -313,18 +319,19 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
         }
     }
 
+    /** @return array<string, mixed> */
     private function event(string $name, string $expected): array
     {
         $read = [$this->workers[$name]['pipes'][1]];
         $write = $except = [];
-        self::assertSame(1, stream_select($read, $write, $except, 25), 'Worker deadline: '.$name.' '.$expected);
+        self::assertSame(1, stream_select($read, $write, $except, 25), 'Worker deadline: ' . $name . ' ' . $expected);
         $line = fgets($read[0]);
         self::assertNotFalse($line, 'Worker output closed.');
         $event = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
         if ('error' === $event['event']) {
-            self::fail('Worker failed: '.$event['type']);
+            self::fail('Worker failed: ' . $event['type']);
         }
-        self::assertSame($expected, $event['event'], $name.' unexpected worker event');
+        self::assertSame($expected, $event['event'], $name . ' unexpected worker event');
 
         return $event;
     }
@@ -339,12 +346,12 @@ final class OAuthIdentityMutationConcurrencyPostgreSqlTest extends KernelTestCas
     {
         $deadline = microtime(true) + 10;
         do {
-            if (1 === (int) $this->observer->fetchOne("SELECT COUNT(*) FROM pg_stat_activity WHERE pid = ? AND wait_event_type = 'Lock' AND ? = ANY(pg_blocking_pids(pid)) AND query LIKE ?", [$waiter, $holder, '%'.$queryFragment.'%'])) {
+            if (1 === (int) $this->observer->fetchOne("SELECT COUNT(*) FROM pg_stat_activity WHERE pid = ? AND wait_event_type = 'Lock' AND ? = ANY(pg_blocking_pids(pid)) AND query LIKE ?", [$waiter, $holder, '%' . $queryFragment . '%'])) {
                 return;
             }
             // EN: Observe the actual PostgreSQL waiter; IPC polling never releases a worker based on elapsed time.
             // RU: Наблюдаем реальное ожидание PostgreSQL; опрос IPC не освобождает worker по истечении времени.
-            $read = array_map(static fn (array $worker) => $worker['pipes'][1], $this->workers);
+            $read = array_map(static fn(array $worker) => $worker['pipes'][1], $this->workers);
             $write = $except = [];
             self::assertSame(0, stream_select($read, $write, $except, 0, 20000), 'Worker completed before observable database contention.');
         } while (microtime(true) < $deadline);

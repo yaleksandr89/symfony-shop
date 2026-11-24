@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
-use App\Entity\Category;
+use App\Account\Repository\UserRepository;
+use App\Catalog\Repository\CategoryRepository;
+use App\Catalog\Repository\ProductRepository;
 use App\Commerce\Repository\OrderRepository;
+use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Catalog\Repository\CategoryRepository;
-use App\Catalog\Repository\ProductRepository;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -21,10 +21,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class SidebarControllerTest extends WebTestCase
 {
-    #[DataProvider(methodName: 'provideRouteScenarios')]
+    #[DataProvider('provideRouteScenarios')]
     #[TestDox('Боковая панель отмечает текущий маршрут')]
     public function testSidebarReflectsCurrentRoute(string $route, string $activeSection, ?string $activeChild): void
     {
@@ -83,7 +83,7 @@ class SidebarControllerTest extends WebTestCase
         yield 'categories edit' => ['admin_category_edit', 'categories', null];
     }
 
-    #[DataProvider(methodName: 'provideUserRouteScenarios')]
+    #[DataProvider('provideUserRouteScenarios')]
     #[TestDox('Боковая панель супер-администратора отмечает текущий маршрут')]
     public function testSuperAdminUserSidebarReflectsCurrentRoute(string $route, ?string $activeChild): void
     {
@@ -145,11 +145,13 @@ class SidebarControllerTest extends WebTestCase
             'admin_category_add' => '/ru/admin/category/add',
             'admin_category_edit' => sprintf('/ru/admin/category/edit/%d', $this->getEditableCategory()->getId()),
             'admin_user_list' => '/ru/admin/user/list',
+            default => self::fail('Unsupported sidebar route: ' . $route),
             'admin_user_add' => '/ru/admin/user/add',
             'admin_user_edit' => sprintf('/ru/admin/user/edit/%d', $this->getEditableUser()->getId()),
         };
     }
 
+    /** @return array<string, array{trigger: string, collapse: string}> */
     private function getSectionSelectors(): array
     {
         return [
@@ -161,7 +163,7 @@ class SidebarControllerTest extends WebTestCase
 
     private function hasClass(Crawler $crawler, string $class): bool
     {
-        return in_array($class, preg_split('/\s+/', $crawler->attr('class') ?? ''), true);
+        return in_array($class, preg_split('/\s+/', $crawler->attr('class') ?? '') ?: [], true);
     }
 
     private function getEditableOrder(): Order

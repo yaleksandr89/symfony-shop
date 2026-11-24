@@ -7,11 +7,11 @@ namespace App\Tests\Unit\Money;
 use App\Money\DecimalMoney;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class DecimalMoneyTest extends TestCase
 {
     #[TestWith(['89.99', 3, 26997, '269.97'])]
@@ -33,7 +33,7 @@ class DecimalMoneyTest extends TestCase
     {
         $totalCents = DecimalMoney::addCents(
             DecimalMoney::toCents('94.90'),
-            DecimalMoney::multiplyToCents('89.99', 3)
+            DecimalMoney::multiplyToCents('89.99', 3),
         );
 
         self::assertSame(36487, $totalCents);

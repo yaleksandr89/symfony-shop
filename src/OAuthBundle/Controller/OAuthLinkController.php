@@ -51,7 +51,7 @@ final class OAuthLinkController extends AbstractController
 
         $form = $this->createForm(OAuthLinkFormType::class, null, [
             'action' => $this->generateUrl('main_profile_link_social_network', ['provider' => $provider->value]),
-            'csrf_token_id' => 'oauth_link_'.$provider->value,
+            'csrf_token_id' => 'oauth_link_' . $provider->value,
             'method' => 'POST',
         ]);
         $form->handleRequest($request);
@@ -73,7 +73,7 @@ final class OAuthLinkController extends AbstractController
 
         return $this->render('@OAuth/profile/oauth_link.html.twig', [
             'oauthLinkForm' => $form->createView(),
-            'providerLabel' => $translator->trans('personal_account.social_group.'.$provider->identityFamily()),
+            'providerLabel' => $translator->trans('personal_account.social_group.' . $provider->identityFamily()),
         ]);
     }
 }

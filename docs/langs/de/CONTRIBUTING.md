@@ -18,7 +18,7 @@ Prüfe vorhandene Discussions, Issues und Pull Requests und beschränke jede Än
 - PHP, Composer, PostgreSQL, Node.js und die Browser-Umgebung werden im normalen Entwicklungsablauf nicht direkt auf dem Host ausgeführt.
 - Änderungen dürfen Zugriffsregeln, OAuth-Abläufe, Warenkorb-/Bestellintegrität oder andere bestehende Verträge nicht unbemerkt abschwächen.
 - Keine breiten Refactorings oder Dependency-Upgrades ohne Bezug zur Aufgabe.
-- Die Vue-2-Frontend-Architektur bleibt bis zur separaten Migration auf Inertia.js und Vue 3 bestehen.
+- Die Vue-3-Frontend-Architektur bleibt bis zur separaten Migration auf Inertia.js bestehen.
 
 Die Architektur ist in [`architecture.md`](architecture.md) beschrieben, Entwicklungsbefehle in [`development.md`](development.md).
 
@@ -52,12 +52,16 @@ Lies vor dem Ausführen von Befehlen das aktuelle Makefile. Wichtigste Prüfunge
 
 | Befehl | Zweck |
 |---|---|
-| `make check` | ESLint + PHP-CS-Fixer-Prüfung + PHPStan |
+| `make check` | Strikte Composer-Validierung, Audit der Lockfile-Abhängigkeiten, PHP lint, PHP CS Fixer, PHPStan und ESLint |
 | `make test-unit` | Unit-Tests |
 | `make test-integration` | Integrationstests |
 | `make test-functional` | Funktionstests |
 | `make test-functional-panther` | Panther-Browser-Tests |
-| `make test-all CONFIRM=testdb` | vollständige Testsuite einschließlich Panther |
+| `make test-all CONFIRM=testdb` | Vollständige Suite inklusive Panther und beider PostgreSQL-Suiten |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Nebenläufige Vorgänge zum Zurücksetzen von Passwörtern |
+| `make test-oauth-postgresql CONFIRM=testdb` | Nebenläufige Änderungen von OAuth-Identitäten |
+
+Normale Integrations-, Functional- und Panther-Tests nutzen ausschließlich die lokale `var/db_for_test.db`. Vor dem separaten Start dieser Gruppen die Datenbank mit `make test-db-reset CONFIRM=testdb` vorbereiten. Die abgesicherten Make-Ziele verwenden: beliebige Testdatenbankverbindungen sind nicht erlaubt. PostgreSQL-Nebenläufigkeitstests ausschließlich über die beiden obigen Ziele in temporären Diensten starten. Niemals die Arbeitsdatenbank oder eine externe Verbindung für Tests verwenden.
 
 Führe die zur Änderung passenden Prüfungen aus. Die vollständige Suite ist sinnvoll, wenn gemeinsame Anwendungsgrenzen betroffen sind oder vor der finalen Prüfung einer größeren Änderung.
 

@@ -35,9 +35,9 @@ class VkontakteAuthenticator extends AbstractOAuthAuthenticator
                     OAuthProvider::Vkontakte,
                     $vkUser->getId(),
                     $email,
-                    static fn (): User => UserFactory::createUserFromVk($vkUser)
+                    static fn(): User => UserFactory::createUserFromVk($vkUser),
                 );
-            })
+            }),
         );
     }
 }

@@ -15,8 +15,7 @@ final class FileSaver
         private SluggerInterface $slugger,
         private FilesystemWorker $filesystemWorker,
         private string $uploadsTempDir,
-    ) {
-    }
+    ) {}
 
     public function saveUploadedFileIntoTemp(?UploadedFile $uploadedFile): ?string
     {
@@ -38,7 +37,8 @@ final class FileSaver
             try {
                 $this->filesystemWorker->remove($targetPath);
             } catch (Throwable) {
-                // Cleanup must not replace the upload failure.
+                // RU: Ошибка очистки не должна подменять исходную ошибку загрузки.
+                // EN: Cleanup must not replace the upload failure.
             }
 
             throw $exception;

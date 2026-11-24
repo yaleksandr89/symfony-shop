@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Tests\Functional\OAuthBundle\Controller;
 
 use App\Entity\User;
-use App\OAuthBundle\Security\OAuth\OAuthProvider;
-use App\OAuthBundle\Security\OAuth\OAuthProviderAvailability;
-use App\Tests\TestUtils\OAuth\FakeOAuth2Client;
 use App\OAuthBundle\Provider\Facebook\FacebookUser;
 use App\OAuthBundle\Provider\Linkedin\LinkedinUser;
 use App\OAuthBundle\Provider\Vk\VkUser;
+use App\OAuthBundle\Security\OAuth\OAuthProvider;
+use App\OAuthBundle\Security\OAuth\OAuthProviderAvailability;
+use App\Tests\TestUtils\OAuth\FakeOAuth2Client;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\GithubResourceOwner;
 use League\OAuth2\Client\Provider\GoogleUser;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -24,11 +25,12 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Mime\RawMessage;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class OAuthOrdinaryLoginTest extends WebTestCase
 {
     #[DataProvider('providerCallbacks')]
@@ -39,9 +41,9 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         string $callbackPath,
     ): void {
         $nonce = str_replace('.', '', uniqid('', true));
-        $externalId = OAuthProvider::Linkedin === $provider ? 'LiNkEdIn-Linked-Sub-'.$nonce : 'linked-'.$provider->value.'-'.$nonce;
-        $localEmail = 'local-'.$provider->value.'-'.str_replace('.', '', uniqid('', true)).'@example.test';
-        $providerEmail = 'provider-'.$provider->value.'-'.str_replace('.', '', uniqid('', true)).'@example.test';
+        $externalId = OAuthProvider::Linkedin === $provider ? 'LiNkEdIn-Linked-Sub-' . $nonce : 'linked-' . $provider->value . '-' . $nonce;
+        $localEmail = 'local-' . $provider->value . '-' . str_replace('.', '', uniqid('', true)) . '@example.test';
+        $providerEmail = 'provider-' . $provider->value . '-' . str_replace('.', '', uniqid('', true)) . '@example.test';
         [$client, $fake] = $this->ordinaryClient($this->resourceOwner($provider, $externalId, $providerEmail));
         $user = $this->createUser($localEmail, $provider, $externalId);
         $beforePassword = $user->getPassword();
@@ -69,12 +71,11 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         OAuthProvider $provider,
         string $startPath,
         string $callbackPath,
-    ): void
-    {
-        $email = 'collision-'.str_replace('.', '', uniqid('', true)).'@example.test';
+    ): void {
+        $email = 'collision-' . str_replace('.', '', uniqid('', true)) . '@example.test';
         $externalId = OAuthProvider::Linkedin === $provider
-            ? 'LiNkEdIn-Collision-Sub-'.str_replace('.', '', uniqid('', true))
-            : 'collision-facebook-'.str_replace('.', '', uniqid('', true));
+            ? 'LiNkEdIn-Collision-Sub-' . str_replace('.', '', uniqid('', true))
+            : 'collision-facebook-' . str_replace('.', '', uniqid('', true));
         [$client] = $this->ordinaryClient($this->resourceOwner($provider, $externalId, $email));
         $user = $this->createUser($email);
         $beforeCount = $this->userCount();
@@ -102,11 +103,10 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         OAuthProvider $provider,
         string $startPath,
         string $callbackPath,
-    ): void
-    {
+    ): void {
         $externalId = OAuthProvider::Linkedin === $provider
-            ? 'LiNkEdIn-Missing-Email-Sub-'.str_replace('.', '', uniqid('', true))
-            : 'missing-email-facebook-'.str_replace('.', '', uniqid('', true));
+            ? 'LiNkEdIn-Missing-Email-Sub-' . str_replace('.', '', uniqid('', true))
+            : 'missing-email-facebook-' . str_replace('.', '', uniqid('', true));
         [$client] = $this->ordinaryClient($this->resourceOwner($provider, $externalId, null));
         $beforeCount = $this->userCount();
 
@@ -130,12 +130,11 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         OAuthProvider $provider,
         string $startPath,
         string $callbackPath,
-    ): void
-    {
+    ): void {
         $externalId = OAuthProvider::Linkedin === $provider
-            ? 'LiNkEdIn-New-User-Sub-'.str_replace('.', '', uniqid('', true))
-            : 'new-facebook-'.str_replace('.', '', uniqid('', true));
-        $email = 'new-'.$provider->value.'-'.str_replace('.', '', uniqid('', true)).'@example.test';
+            ? 'LiNkEdIn-New-User-Sub-' . str_replace('.', '', uniqid('', true))
+            : 'new-facebook-' . str_replace('.', '', uniqid('', true));
+        $email = 'new-' . $provider->value . '-' . str_replace('.', '', uniqid('', true)) . '@example.test';
         [$client] = $this->ordinaryClient($this->resourceOwner($provider, $externalId, $email));
         $beforeCount = $this->userCount();
 
@@ -253,7 +252,9 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         self::assertTrue($reloaded->getIsDeleted());
         self::assertEmailCount(0);
 
-        $dangerFlashes = $client->getRequest()->getSession()->getFlashBag()->peek('danger');
+        $flashSession = $client->getRequest()->getSession();
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $flashSession);
+        $dangerFlashes = $flashSession->getFlashBag()->peek('danger');
         self::assertCount(1, $dangerFlashes);
         self::assertStringContainsString('Не удалось выполнить вход через социальную сеть.', $dangerFlashes[0]);
         self::assertStringNotContainsString($externalId, $dangerFlashes[0]);
@@ -295,8 +296,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         ResourceOwnerInterface $resourceOwner,
         bool $failTokenRequest = false,
         bool $failUserInfoRequest = false,
-    ): array
-    {
+    ): array {
         $client = self::createClient();
         $client->disableReboot();
         $fake = new FakeOAuth2Client(
@@ -305,7 +305,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
             failTokenRequest: $failTokenRequest,
             failUserInfoRequest: $failUserInfoRequest,
         );
-        $container = new class($fake) extends Container {
+        $container = new class ($fake) extends Container {
             public function __construct(private readonly FakeOAuth2Client $fake)
             {
                 parent::__construct();
@@ -343,8 +343,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         string $providerEmail,
         int $expectedTokenRequests,
         int $expectedUserInfoRequests,
-    ): void
-    {
+    ): void {
         self::assertResponseRedirects('/ru/login', Response::HTTP_FOUND);
         self::assertSame($expectedTokenRequests, $fake->tokenRequests);
         self::assertSame($expectedUserInfoRequests, $fake->userInfoRequests);
@@ -356,7 +355,9 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
         self::assertSame($beforePassword, $reloaded->getPassword());
         self::assertEmailCount(0);
 
-        $dangerFlashes = $client->getRequest()->getSession()->getFlashBag()->peek('danger');
+        $flashSession = $client->getRequest()->getSession();
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $flashSession);
+        $dangerFlashes = $flashSession->getFlashBag()->peek('danger');
         self::assertCount(1, $dangerFlashes);
         self::assertStringContainsString('Не удалось выполнить вход через социальную сеть.', $dangerFlashes[0]);
         self::assertStringNotContainsString($secretMarker, $dangerFlashes[0]);
@@ -390,8 +391,8 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
             if ($provider->isImplemented()) {
                 $enabled[$provider->value] = true;
                 $credentials[$provider->value] = [
-                    'clientId' => 'test-'.$provider->value.'-id',
-                    'clientSecret' => 'test-'.$provider->value.'-secret',
+                    'clientId' => 'test-' . $provider->value . '-id',
+                    'clientSecret' => 'test-' . $provider->value . '-secret',
                 ];
             }
         }
@@ -413,7 +414,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
                 'client_id' => 'client-id',
                 'psuid' => 'psuid',
                 'default_email' => $email,
-            ], static fn (?string $value): bool => null !== $value)),
+            ], static fn(?string $value): bool => null !== $value)),
             OAuthProvider::Vkontakte => new VkUser([
                 'user_id' => $externalId,
                 'email' => $email,
@@ -430,20 +431,20 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
                 'id' => $externalId,
                 'name' => 'Facebook User',
                 'email' => $email,
-            ], static fn (?string $value): bool => null !== $value)),
+            ], static fn(?string $value): bool => null !== $value)),
             OAuthProvider::Linkedin => new LinkedinUser(array_filter([
                 'sub' => $externalId,
                 'name' => 'LinkedIn User',
                 'email' => $email,
                 'email_verified' => true,
-            ], static fn (mixed $value): bool => null !== $value)),
-            default => throw new \LogicException('Unsupported test provider.'),
+            ], static fn(mixed $value): bool => null !== $value)),
+            default => throw new LogicException('Unsupported test provider.'),
         };
     }
 
     private function createUser(string $email, ?OAuthProvider $provider = null, ?string $externalId = null): User
     {
-        $user = (new User())->setEmail($email)->setIsVerified(true);
+        $user = new User()->setEmail($email)->setIsVerified(true);
         $user->setPassword(self::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword($user, 'known-password'));
         $user->setGoogleId(null);
         $user->setYandexId(null);
@@ -459,7 +460,7 @@ final class OAuthOrdinaryLoginTest extends WebTestCase
                 OAuthProvider::GithubEn, OAuthProvider::GithubRus => $user->setGithubId($externalId),
                 OAuthProvider::Facebook => $user->setFacebookId($externalId),
                 OAuthProvider::Linkedin => $user->setLinkedinId($externalId),
-                default => throw new \LogicException('Unsupported test provider.'),
+                default => throw new LogicException('Unsupported test provider.'),
             };
         }
         $this->entityManager()->persist($user);

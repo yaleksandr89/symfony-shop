@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\AdminBundle\Form\FilterType;
 
-use App\AdminBundle\Form\FilterType\OrderFilterFormType;
 use App\AdminBundle\DTO\OrderFilterModel;
+use App\AdminBundle\Form\FilterType\OrderFilterFormType;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class OrderFilterFormTypeTest extends KernelTestCase
 {
     private const DATE_RANGE_ERROR_KEY = 'admin.filter.date_range.invalid_order';
@@ -43,7 +43,11 @@ class OrderFilterFormTypeTest extends KernelTestCase
         self::assertSame(['left_date' => null, 'right_date' => null], $model->createdAt);
     }
 
-    #[DataProvider(methodName: 'provideNumberRanges')]
+    /**
+     * @param array<string, int|float|null> $expected
+     * @param array<string, string> $submitted
+     */
+    #[DataProvider('provideNumberRanges')]
     #[TestDox('Сопоставляет границы итоговой суммы')]
     public function testTotalPriceMapping(array $submitted, array $expected): void
     {
@@ -61,7 +65,8 @@ class OrderFilterFormTypeTest extends KernelTestCase
         yield 'both' => [['left_number' => '10', 'right_number' => '20'], ['left_number' => 10, 'right_number' => 20]];
     }
 
-    #[DataProvider(methodName: 'provideDateRangeValidation')]
+    /** @param array<string, string> $submitted */
+    #[DataProvider('provideDateRangeValidation')]
     #[TestDox('Проверяет корректность диапазона дат')]
     public function testDateRangeValidation(array $submitted, bool $expectedValid): void
     {

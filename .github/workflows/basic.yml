@@ -9,6 +9,9 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,9 +22,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
+          persist-credentials: false
 
       - name: Download Chrome for Testing
         env:
@@ -51,13 +55,14 @@ jobs:
           make composer-install
           make npm-install
           make assets-build
-          make eslint-check
+          make check
           make test-unit
           make test-db-reset CONFIRM=testdb
           make test-integration
           make test-functional
           make test-functional-panther
-          make phpstan-check
+          make test-reset-password-postgresql CONFIRM=testdb
+          make test-oauth-postgresql CONFIRM=testdb
 
       - name: Cleanup Docker
         if: always()

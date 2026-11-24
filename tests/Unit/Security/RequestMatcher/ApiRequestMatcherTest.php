@@ -11,14 +11,14 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class ApiRequestMatcherTest extends TestCase
 {
     #[DataProvider('paths')]
     #[TestDox('API matcher соблюдает точную границу пути')]
     public function testMatchesOnlyApiPathBoundary(string $path, bool $expected): void
     {
-        self::assertSame($expected, (new ApiRequestMatcher())->matches(Request::create($path)));
+        self::assertSame($expected, new ApiRequestMatcher()->matches(Request::create($path)));
     }
 
     /** @return iterable<string, array{string, bool}> */

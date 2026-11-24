@@ -16,6 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use RuntimeException;
@@ -39,7 +40,7 @@ final class OAuthAccountLinkerTest extends TestCase
 
         foreach (OAuthProvider::cases() as $other) {
             if ($other->isImplemented()) {
-                self::assertSame($other->identityFamily() === $provider->identityFamily() ? 'external-id' : null, (new OAuthIdentityAccessor())->getExternalId($user, $other));
+                self::assertSame($other->identityFamily() === $provider->identityFamily() ? 'external-id' : null, new OAuthIdentityAccessor()->getExternalId($user, $other));
             }
         }
         self::assertSame('unchanged', $user->getFullName());
@@ -52,7 +53,7 @@ final class OAuthAccountLinkerTest extends TestCase
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->expects(self::never())->method('getManagerForClass');
         $this->expectException(OAuthIdentityConflictException::class);
-        (new OAuthAccountLinker(new OAuthIdentityAccessor(), $registry))->link($this->user(), OAuthProvider::Google, $externalId);
+        new OAuthAccountLinker(new OAuthIdentityAccessor(), $registry)->link($this->user(), OAuthProvider::Google, $externalId);
     }
 
     #[TestDox('Проверка обновлённого поля отклоняет устаревший callback без исключения внутри транзакции')]
@@ -61,7 +62,7 @@ final class OAuthAccountLinkerTest extends TestCase
         $user = $this->user();
         [$linker, $manager, $repository] = $this->linker($user);
         $manager->method('find')->willReturn($user);
-        $manager->method('refresh')->willReturnCallback(static fn () => $user->setGithubId('winner'));
+        $manager->method('refresh')->willReturnCallback(static fn() => $user->setGithubId('winner'));
         $repository->expects(self::never())->method('findOneBy');
         try {
             $linker->link($user, OAuthProvider::GithubRus, 'loser');
@@ -95,7 +96,7 @@ final class OAuthAccountLinkerTest extends TestCase
         $user->setGoogleId('observed');
         [$linker, $manager, $repository] = $this->linker($user);
         $manager->method('find')->willReturn($user);
-        $manager->method('refresh')->willReturnCallback(static fn () => $user->setGoogleId($current));
+        $manager->method('refresh')->willReturnCallback(static fn() => $user->setGoogleId($current));
         $repository->expects(self::never())->method('findOneBy');
         if ($conflict) {
             $this->expectException(OAuthIdentityConflictException::class);
@@ -138,7 +139,7 @@ final class OAuthAccountLinkerTest extends TestCase
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('getManagerForClass')->willReturnOnConsecutiveCalls($closed, $fresh);
         $registry->expects(self::once())->method('resetManager');
-        self::assertSame($persisted, (new OAuthAccountLinker(new OAuthIdentityAccessor(), $registry))->recoverUser($user));
+        self::assertSame($persisted, new OAuthAccountLinker(new OAuthIdentityAccessor(), $registry)->recoverUser($user));
     }
 
     /** @return iterable<string, array{OAuthProvider, string}> */
@@ -169,7 +170,7 @@ final class OAuthAccountLinkerTest extends TestCase
         yield 'replacement identity' => ['replacement', true];
     }
 
-    /** @return array{OAuthAccountLinker, EntityManagerInterface, UserRepository} */
+    /** @return array{OAuthAccountLinker, EntityManagerInterface&MockObject, UserRepository&MockObject} */
     private function linker(User $user, ?Throwable $failure = null): array
     {
         $repository = $this->createMock(UserRepository::class);
@@ -194,8 +195,8 @@ final class OAuthAccountLinkerTest extends TestCase
 
     private function user(): User
     {
-        $user = (new User())->setEmail('unit@example.test')->setPassword('synthetic-hash');
-        (new ReflectionProperty(User::class, 'id'))->setValue($user, 13);
+        $user = new User()->setEmail('unit@example.test')->setPassword('synthetic-hash');
+        new ReflectionProperty(User::class, 'id')->setValue($user, 13);
         $user->setGoogleId(null);
         $user->setYandexId(null);
         $user->setVkontakteId(null);

@@ -11,23 +11,25 @@ Symfony Shop ist eine einzelne Symfony-Anwendung mit servergerenderten Seiten, A
 
 ## Übersicht
 
-```text
-Browser
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-          ↓
-Anwendungsdienste / Handler
-          ↓
-Doctrine ORM
-          ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Browser"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Controller"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 im Browser"]
+    Vue -->|"HTTP-API-Anfragen"| Nginx
+    Controller --> Services["Anwendungsservices / Handler"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Vue 2 wird auf ausgewählten Twig-Seiten eingebunden, wenn Interaktivität benötigt wird: Warenkorb, Warenkorb-Indikator und Bestelleditor. Die aktuelle Architektur besitzt weder eine eigenständige SPA noch Vue Router.
+Vue 3 wird auf ausgewählten Twig-Seiten eingebunden, wenn Interaktivität benötigt wird: Warenkorb, Warenkorb-Indikator und Bestelleditor. Die aktuelle Architektur besitzt weder eine eigenständige SPA noch Vue Router.
 
 ## Anwendungsbereiche
 
@@ -98,9 +100,9 @@ Beim Nachvollziehen von API-Verhalten nicht nur Entity-Attribute prüfen, sonder
 
 Die meisten Seiten werden mit Twig gerendert. Gemeinsame Templates liegen in [`templates`](../../../templates), Templates interner Bundles in den jeweiligen Modulen.
 
-Webpack Encore baut Assets aus [`assets`](../../../assets) nach `public/build`. Vue 2 wird punktuell als interaktive Schicht auf servergerenderten Seiten eingesetzt.
+Webpack Encore 7 baut Assets aus [`assets`](../../../assets) nach `public/build`. Vue 3 wird punktuell als interaktive Schicht auf servergerenderten Seiten eingesetzt.
 
-Die aktuelle Client-Architektur bleibt bis zur separaten Migration auf Inertia.js und Vue 3 bestehen.
+Die aktuelle Client-Architektur bleibt bis zur separaten Migration auf Inertia.js bestehen.
 
 ## Konfiguration und Dependency Injection
 

@@ -35,9 +35,9 @@ class YandexAuthenticator extends AbstractOAuthAuthenticator
                     OAuthProvider::Yandex,
                     $yandexUser->getId(),
                     $email,
-                    static fn (): User => UserFactory::createUserFromYandex($yandexUser, (string) $email)
+                    static fn(): User => UserFactory::createUserFromYandex($yandexUser, (string) $email),
                 );
-            })
+            }),
         );
     }
 }

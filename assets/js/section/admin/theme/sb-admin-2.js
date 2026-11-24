@@ -1,26 +1,33 @@
+import { Collapse } from "bootstrap";
+import $ from "jquery";
 (function ($) {
   "use strict"; // Start of use strict
+
+  function hideSidebarPanels() {
+    for (const panel of document.querySelectorAll(".sidebar .collapse.show")) {
+      Collapse.getOrCreateInstance(panel, { toggle: false }).hide();
+    }
+  }
 
   // Toggle the side navigation
   $("#sidebarToggle, #sidebarToggleTop").on("click", function () {
     $("body").toggleClass("sidebar-toggled");
     $(".sidebar").toggleClass("toggled");
     if ($(".sidebar").hasClass("toggled")) {
-      $(".sidebar .collapse").collapse("hide");
+      hideSidebarPanels();
     }
   });
 
   // Close any open menu accordions when window is resized below 768px
-  $(window).resize(function () {
+  $(window).on("resize", function () {
     if ($(window).width() < 768) {
-      $(".sidebar .collapse").collapse("hide");
+      hideSidebarPanels();
     }
 
     // Toggle the side navigation when window is resized below 480px
     if ($(window).width() < 480 && !$(".sidebar").hasClass("toggled")) {
       $("body").addClass("sidebar-toggled");
       $(".sidebar").addClass("toggled");
-      $(".sidebar .collapse").collapse("hide");
     }
   });
 
@@ -34,7 +41,7 @@
         this.scrollTop += (delta < 0 ? 1 : -1) * 30;
         e.preventDefault();
       }
-    }
+    },
   );
 
   // Scroll to top button appear
@@ -57,8 +64,8 @@
           scrollTop: $($anchor.attr("href")).offset().top,
         },
         1000,
-        "easeInOutExpo"
+        "easeInOutExpo",
       );
     e.preventDefault();
   });
-})(jQuery); // End of use strict
+})($); // End of use strict

@@ -11,12 +11,11 @@ use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 final class OrderManager
 {
-    public function __construct(private EntityManagerInterface $em)
-    {
-    }
+    public function __construct(private EntityManagerInterface $em) {}
 
     public function addOrdersProductsFromVerifiedCart(Order $order, Cart $cart): void
     {
@@ -27,12 +26,13 @@ final class OrderManager
             $price = $product->getPrice();
 
             if (null === $price) {
-                throw new \InvalidArgumentException('Product price must be set.');
+                throw new InvalidArgumentException('Product price must be set.');
             }
 
             $orderProduct = new OrderProduct();
             $orderProduct->setAppOrder($order);
-            $orderProduct->setQuantity($cartProduct->getQuantity());
+            $quantity = $cartProduct->getQuantity() ?? throw new InvalidArgumentException('Cart product quantity must be set.');
+            $orderProduct->setQuantity($quantity);
             $orderProduct->setPricePerOne(DecimalMoney::fromCents(DecimalMoney::toCents($price)));
             $orderProduct->setProduct($product);
 
@@ -51,12 +51,12 @@ final class OrderManager
             $pricePerOne = $orderProduct->getPricePerOne();
 
             if (null === $quantity || null === $pricePerOne) {
-                throw new \InvalidArgumentException('Order product price and quantity must be set.');
+                throw new InvalidArgumentException('Order product price and quantity must be set.');
             }
 
             $orderTotalCents = DecimalMoney::addCents(
                 $orderTotalCents,
-                DecimalMoney::multiplyToCents($pricePerOne, $quantity)
+                DecimalMoney::multiplyToCents($pricePerOne, $quantity),
             );
         }
 
@@ -67,7 +67,7 @@ final class OrderManager
     {
         $price = $product->getPrice();
         if (null === $price) {
-            throw new \InvalidArgumentException('Product price must be set.');
+            throw new InvalidArgumentException('Product price must be set.');
         }
 
         return DecimalMoney::normalize($price);
@@ -77,7 +77,7 @@ final class OrderManager
     {
         $order = $orderProduct->getAppOrder();
         if (!$order instanceof Order) {
-            throw new \InvalidArgumentException('Order product order must be set.');
+            throw new InvalidArgumentException('Order product order must be set.');
         }
 
         $orderProduct->setPricePerOne($normalizedProductPrice);
@@ -90,7 +90,7 @@ final class OrderManager
     {
         $order = $orderProduct->getAppOrder();
         if (!$order instanceof Order) {
-            throw new \InvalidArgumentException('Order product order must be set.');
+            throw new InvalidArgumentException('Order product order must be set.');
         }
 
         $order->removeOrderProduct($orderProduct);

@@ -28,8 +28,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { getUrlViewProduct } from "../../../../utils/url-generator";
-import { getProductInformativeTitle } from "../../../../utils/title-formatter";
+import { getUrlViewProduct } from "../../../../utils/url-generator.js";
+import { getProductInformativeTitle } from "../../../../utils/title-formatter.js";
 
 export default {
   name: "OrderProductItem",
@@ -66,7 +66,7 @@ export default {
     viewDetails() {
       const url = getUrlViewProduct(
         this.staticStore.url.viewProduct,
-        this.orderProduct.product.id
+        this.orderProduct.product.id,
       );
       window.open(url, "_blank").focus();
     },

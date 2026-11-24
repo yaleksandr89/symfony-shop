@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['cart:list']],
-            name: 'api_carts_get_collection'
+            name: 'api_carts_get_collection',
         ),
         new Post(
             exceptionToStatus: [UniqueConstraintViolationException::class => 409],
@@ -42,19 +42,19 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'allow_extra_attributes' => false,
             ],
             securityPostDenormalize: "is_granted('CART_EDIT', object)",
-            name: 'api_carts_post_collection'
+            name: 'api_carts_post_collection',
         ),
         new Get(
             normalizationContext: ['groups' => ['cart:item']],
             security: "is_granted('CART_READ', object)",
-            name: 'api_carts_get_item'
+            name: 'api_carts_get_item',
         ),
         new Delete(
             security: "is_granted('CART_DELETE', object)",
-            name: 'api_carts_delete_item'
+            name: 'api_carts_delete_item',
         ),
     ],
-    order: ['cartProducts.id' => 'ASC']
+    order: ['cartProducts.id' => 'ASC'],
 )]
 class Cart
 {
@@ -72,6 +72,7 @@ class Cart
     #[Column(type: 'datetime_immutable')]
     protected DateTimeImmutable $createdAt;
 
+    /** @var Collection<int, CartProduct> */
     #[OneToMany(targetEntity: CartProduct::class, mappedBy: 'cart', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['cart:list', 'cart:item'])]
     protected Collection $cartProducts;
@@ -100,6 +101,7 @@ class Cart
         return $this;
     }
 
+    /** @return Collection<int, CartProduct> */
     public function getCartProducts(): Collection
     {
         return $this->cartProducts;

@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class AdminVerifiedMutationSecurityTest extends WebTestCase
 {
     #[DataProvider('referers')]
@@ -22,13 +22,14 @@ final class AdminVerifiedMutationSecurityTest extends WebTestCase
     public function testUnverifiedAdminIsRedirectedLocallyWithoutMutation(string $case, ?string $referer): void
     {
         $client = self::createClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('Verified guard '.$suffix)
-            ->setSlug('verified-guard-'.$suffix);
-        $admin = (new User())
-            ->setEmail('unverified-guard-'.$suffix.'@example.test')
+        $category = new Category()
+            ->setTitle('Verified guard ' . $suffix)
+            ->setSlug('verified-guard-' . $suffix);
+        $admin = new User()
+            ->setEmail('unverified-guard-' . $suffix . '@example.test')
             ->setPassword('not-used')
             ->setRoles(['ROLE_ADMIN'])
             ->setIsVerified(false);

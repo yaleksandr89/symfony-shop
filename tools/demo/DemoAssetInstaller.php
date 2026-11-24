@@ -7,6 +7,8 @@ namespace Tools\Demo;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
+use FilesystemIterator;
+use RuntimeException;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 final class DemoAssetInstaller
@@ -23,8 +25,7 @@ final class DemoAssetInstaller
         private EntityManagerInterface $entityManager,
         private KernelInterface $kernel,
         private string $productImagesDir,
-    ) {
-    }
+    ) {}
 
     /** @param array<int, array<string, mixed>> $products */
     public function assertSourcesExist(array $products): void
@@ -32,7 +33,7 @@ final class DemoAssetInstaller
         foreach ($products as $product) {
             foreach ($this->getSourcePaths((string) $product['image_key']) as $path) {
                 if (!is_file($path)) {
-                    throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product['slug'], $path));
+                    throw new RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product['slug'], $path));
                 }
             }
         }
@@ -45,20 +46,20 @@ final class DemoAssetInstaller
     {
         $productId = $product->getId();
         if (null === $productId) {
-            throw new \RuntimeException(sprintf('Demo product "%s" must be flushed before installing images.', $product->getSlug()));
+            throw new RuntimeException(sprintf('Demo product "%s" must be flushed before installing images.', $product->getSlug()));
         }
 
         $sourcePaths = $this->getSourcePaths($imageKey);
         foreach ($sourcePaths as $path) {
             if (!is_file($path)) {
-                throw new \RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product->getSlug(), $path));
+                throw new RuntimeException(sprintf('Missing demo image fixture for product "%s": %s', $product->getSlug(), $path));
             }
         }
 
         $targetDirectory = sprintf('%s/%d', rtrim($this->productImagesDir, '/'), $productId);
         if (!is_dir($targetDirectory)) {
             if (!mkdir($targetDirectory, 0775, true) && !is_dir($targetDirectory)) {
-                throw new \RuntimeException(sprintf('Unable to create demo product image directory: %s', $targetDirectory));
+                throw new RuntimeException(sprintf('Unable to create demo product image directory: %s', $targetDirectory));
             }
             $this->createdDirectories[] = $targetDirectory;
         }
@@ -74,7 +75,7 @@ final class DemoAssetInstaller
             } else {
                 $backup = tempnam(sys_get_temp_dir(), 'demo-image-backup-');
                 if (false === $backup || !copy($targetPath, $backup)) {
-                    throw new \RuntimeException(sprintf('Unable to back up demo product image: %s', $targetPath));
+                    throw new RuntimeException(sprintf('Unable to back up demo product image: %s', $targetPath));
                 }
                 $this->copyWithJournal($sourcePath, $targetPath, $backup);
                 ++$fileCounts['updated'];
@@ -110,7 +111,7 @@ final class DemoAssetInstaller
             }
         }
         foreach (array_reverse($this->createdDirectories) as $directory) {
-            if (is_dir($directory) && !(new \FilesystemIterator($directory))->valid()) {
+            if (is_dir($directory) && !new FilesystemIterator($directory)->valid()) {
                 rmdir($directory);
             }
         }
@@ -129,9 +130,6 @@ final class DemoAssetInstaller
         $matchingImage = null;
         $conflictingImages = [];
         foreach ($product->getProductImages() as $image) {
-            if (!$image instanceof ProductImage) {
-                continue;
-            }
             if ($image->getFilenameBig() === $expected['big'] && $image->getFilenameMiddle() === $expected['middle'] && $image->getFilenameSmall() === $expected['small']) {
                 $matchingImage ??= $image;
                 if ($matchingImage !== $image) {
@@ -144,7 +142,7 @@ final class DemoAssetInstaller
 
         $recordState = null === $matchingImage ? (count($conflictingImages) > 0 ? 'updated' : 'created') : (count($conflictingImages) > 0 ? 'updated' : 'existing');
         if (null === $matchingImage) {
-            $matchingImage = (new ProductImage())
+            $matchingImage = new ProductImage()
                 ->setFilenameBig($expected['big'])
                 ->setFilenameMiddle($expected['middle'])
                 ->setFilenameSmall($expected['small']);
@@ -163,7 +161,7 @@ final class DemoAssetInstaller
     {
         $this->fileJournal[] = ['target' => $target, 'backup' => $backup];
         if (!copy($source, $target)) {
-            throw new \RuntimeException(sprintf('Unable to install demo image: %s -> %s', $source, $target));
+            throw new RuntimeException(sprintf('Unable to install demo image: %s -> %s', $source, $target));
         }
     }
 

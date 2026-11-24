@@ -12,11 +12,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class OAuthProviderAvailabilityTest extends WebTestCase
 {
     #[DataProvider('locales')]
@@ -26,11 +26,11 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client = self::createClient();
 
         foreach (['/login', '/registration'] as $path) {
-            $client->request('GET', '/'.$locale.$path);
+            $client->request('GET', '/' . $locale . $path);
 
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
             foreach (self::START_PATHS as $oauthPath) {
-                self::assertStringNotContainsString('href="/'.$locale.$oauthPath.'"', (string) $client->getResponse()->getContent());
+                self::assertStringNotContainsString('href="/' . $locale . $oauthPath . '"', (string) $client->getResponse()->getContent());
             }
 
             if ('/login' === $path) {
@@ -46,13 +46,13 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     public function testConfiguredEnabledFacebookRendersSocialWrapperAndOnlyFacebookButton(string $locale): void
     {
         foreach (['/login', '/registration'] as $path) {
-            $client = $this->requestWithAvailability('/'.$locale.$path, [OAuthProvider::Facebook->value => true]);
+            $client = $this->requestWithAvailability('/' . $locale . $path, [OAuthProvider::Facebook->value => true]);
 
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
             self::assertSelectorExists('.form-additional.mt-2.pt-1');
-            self::assertSelectorCount(1, 'a[href="/'.$locale.'/connect/facebook"]');
+            self::assertSelectorCount(1, 'a[href="/' . $locale . '/connect/facebook"]');
             foreach (array_diff(self::START_PATHS, ['/connect/facebook']) as $oauthPath) {
-                self::assertSelectorNotExists('a[href="/'.$locale.$oauthPath.'"]');
+                self::assertSelectorNotExists('a[href="/' . $locale . $oauthPath . '"]');
             }
         }
     }
@@ -62,14 +62,14 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     public function testConfiguredEnabledLinkedinRendersSocialWrapperAndOnlyLinkedinButton(string $locale): void
     {
         foreach (['/login', '/registration'] as $path) {
-            $client = $this->requestWithAvailability('/'.$locale.$path, [OAuthProvider::Linkedin->value => true]);
+            $client = $this->requestWithAvailability('/' . $locale . $path, [OAuthProvider::Linkedin->value => true]);
 
             self::assertResponseStatusCodeSame(Response::HTTP_OK);
             self::assertSelectorExists('.form-additional.mt-2.pt-1');
-            self::assertSelectorCount(1, 'a[href="/'.$locale.'/connect/linkedin"]');
-            self::assertSelectorTextContains('a[href="/'.$locale.'/connect/linkedin"]', 'ru' === $locale ? 'Авторизоваться через LinkedIn' : 'Sign in with LinkedIn');
+            self::assertSelectorCount(1, 'a[href="/' . $locale . '/connect/linkedin"]');
+            self::assertSelectorTextContains('a[href="/' . $locale . '/connect/linkedin"]', 'ru' === $locale ? 'Авторизоваться через LinkedIn' : 'Sign in with LinkedIn');
             foreach (array_diff(self::START_PATHS, ['/connect/linkedin']) as $oauthPath) {
-                self::assertSelectorNotExists('a[href="/'.$locale.$oauthPath.'"]');
+                self::assertSelectorNotExists('a[href="/' . $locale . $oauthPath . '"]');
             }
         }
     }
@@ -78,11 +78,12 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     public function testDisabledRoutesAreNotFoundWithoutRedirectOrUserMutation(): void
     {
         $client = self::createClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $before = (int) $entityManager->getRepository(User::class)->count([]);
 
         foreach (array_merge(self::START_PATHS, self::CALLBACK_PATHS) as $oauthPath) {
-            $client->request('GET', '/ru'.$oauthPath, ['code' => 'must-not-be-exchanged', 'state' => 'must-not-be-used']);
+            $client->request('GET', '/ru' . $oauthPath, ['code' => 'must-not-be-exchanged', 'state' => 'must-not-be-used']);
 
             self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
             self::assertFalse($client->getResponse()->isRedirect());
@@ -95,6 +96,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     public function testProfileHidesDisabledConnectButtonsButKeepsLinkedIdentityUnlinkAction(): void
     {
         $client = self::createClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
@@ -125,6 +127,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
     public function testDisabledUnlinkedLinkedinProfileHidesLinkAndUnlinkActions(): void
     {
         $client = self::createClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
@@ -145,8 +148,9 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client->disableReboot();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Linkedin->value => true],
-            [OAuthProvider::Linkedin->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Linkedin->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']],
         ));
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
@@ -168,8 +172,9 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client->disableReboot();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Facebook->value => true],
-            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']],
         ));
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
@@ -196,7 +201,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client = self::createClient();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Yandex->value => true],
-            [OAuthProvider::Yandex->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Yandex->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']],
         ));
 
         $client->request('GET', '/ru/connect/yandex');
@@ -215,7 +220,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client = self::createClient();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Facebook->value => true],
-            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']],
         ));
 
         $client->request('GET', '/ru/connect/facebook');
@@ -231,8 +236,9 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client->disableReboot();
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Facebook->value => true],
-            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']]
+            [OAuthProvider::Facebook->value => ['clientId' => 'test-client-id', 'clientSecret' => 'test-client-secret']],
         ));
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertInstanceOf(User::class, $user);
@@ -259,7 +265,7 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         $client = self::createClient(['debug' => false]);
         self::getContainer()->set(OAuthProviderAvailability::class, new OAuthProviderAvailability(
             [OAuthProvider::Yandex->value => true],
-            [OAuthProvider::Yandex->value => ['clientId' => '', 'clientSecret' => '']]
+            [OAuthProvider::Yandex->value => ['clientId' => '', 'clientSecret' => '']],
         ));
 
         $client->request('GET', '/ru/connect/yandex');
@@ -306,8 +312,8 @@ final class OAuthProviderAvailabilityTest extends WebTestCase
         foreach (OAuthProvider::cases() as $provider) {
             if ($provider->isImplemented()) {
                 $credentials[$provider->value] = [
-                    'clientId' => 'test-'.$provider->value.'-id',
-                    'clientSecret' => 'test-'.$provider->value.'-secret',
+                    'clientId' => 'test-' . $provider->value . '-id',
+                    'clientSecret' => 'test-' . $provider->value . '-secret',
                 ];
             }
         }

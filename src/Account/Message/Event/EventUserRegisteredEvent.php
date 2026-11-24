@@ -6,9 +6,7 @@ namespace App\Account\Message\Event;
 
 class EventUserRegisteredEvent
 {
-    public function __construct(private int $userId)
-    {
-    }
+    public function __construct(private int $userId) {}
 
     public function getUserId(): int
     {

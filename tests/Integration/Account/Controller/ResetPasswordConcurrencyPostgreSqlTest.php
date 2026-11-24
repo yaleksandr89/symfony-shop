@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelper;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 #[Group('reset-password-postgresql')]
@@ -31,6 +32,7 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
             self::markTestSkipped('Opt-in suite: make test-reset-password-postgresql CONFIRM=testdb');
         }
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $this->observer = $entityManager->getConnection();
         self::assertInstanceOf(PostgreSQLPlatform::class, $this->observer->getDatabasePlatform(), 'Dedicated PostgreSQL target required.');
@@ -39,7 +41,7 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
         self::assertSame('read committed', $this->observer->fetchOne('SHOW transaction_isolation'));
         self::assertFalse(StaticDriver::isKeepStaticConnections(), 'DAMA outer transaction extension must be absent.');
         self::assertFalse($this->observer->isTransactionActive());
-        (new SchemaTool($entityManager))->updateSchema($entityManager->getMetadataFactory()->getAllMetadata());
+        new SchemaTool($entityManager)->updateSchema($entityManager->getMetadataFactory()->getAllMetadata());
     }
 
     protected function tearDown(): void
@@ -71,16 +73,20 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
     public function testTokenCanCommitOnlyOnceAndSurvivesRollback(string $first, bool $rollback): void
     {
         $second = 'A' === $first ? 'B' : 'A';
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        /** @var UserPasswordHasherInterface $hasher */
         $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
-        $user = (new User())->setEmail('reset-concurrency-'.bin2hex(random_bytes(8)).'@example.test')->setIsVerified(true);
+        $user = new User()->setEmail('reset-concurrency-' . bin2hex(random_bytes(8)) . '@example.test')->setIsVerified(true);
         $user->setPassword($hasher->hashPassword($user, 'original-password'));
         $entityManager->persist($user);
         $entityManager->flush();
         $userId = $user->getId();
         self::assertNotNull($userId);
         $originalHash = $user->getPassword();
+        /** @var ResetPasswordHelperInterface $helper */
         $helper = self::getContainer()->get(ResetPasswordHelperInterface::class);
+        self::assertInstanceOf(ResetPasswordHelper::class, $helper);
         $helper->generateResetToken($user, -1);
         $token = $helper->generateResetToken($user)->getToken();
         self::assertSame(2, $this->requestCount($userId));
@@ -134,7 +140,7 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
         }
         $secondResult = $this->event($second, 'result');
         $results = [$first => $firstResult, $second => $secondResult];
-        self::assertCount(1, array_filter($results, static fn (array $result): bool => 'success' === $result['outcome']));
+        self::assertCount(1, array_filter($results, static fn(array $result): bool => 'success' === $result['outcome']));
         $winner = $rollback ? $second : $first;
         $loser = $rollback ? $first : $second;
         self::assertSame('success', $results[$winner]['outcome']);
@@ -174,6 +180,7 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
         return (int) $this->observer->fetchOne('SELECT COUNT(*) FROM reset_password_request WHERE user_id = ?', [$userId]);
     }
 
+    /** @param array<string, mixed> $input */
     private function startWorker(string $name, array $input): void
     {
         $process = proc_open(
@@ -184,22 +191,23 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
         );
         self::assertIsResource($process);
         $this->workers[$name] = ['process' => $process, 'pipes' => $pipes];
-        fwrite($pipes[0], json_encode($input, JSON_THROW_ON_ERROR)."\n");
+        fwrite($pipes[0], json_encode($input, JSON_THROW_ON_ERROR) . "\n");
         fflush($pipes[0]);
     }
 
+    /** @return array<string, mixed> */
     private function event(string $name, string $expected): array
     {
         $read = [$this->workers[$name]['pipes'][1]];
         $write = $except = [];
-        self::assertSame(1, stream_select($read, $write, $except, 25), 'Worker event deadline exceeded: '.$name.' '.$expected);
+        self::assertSame(1, stream_select($read, $write, $except, 25), 'Worker event deadline exceeded: ' . $name . ' ' . $expected);
         $line = fgets($read[0]);
-        self::assertNotFalse($line, 'Worker output closed: '.$name);
+        self::assertNotFalse($line, 'Worker output closed: ' . $name);
         $event = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
         if ('error' === $event['event']) {
-            self::fail('Worker failed: '.$event['type']);
+            self::fail('Worker failed: ' . $event['type']);
         }
-        self::assertSame($expected, $event['event'], 'Unexpected worker stage: '.$name);
+        self::assertSame($expected, $event['event'], 'Unexpected worker stage: ' . $name);
 
         return $event;
     }
@@ -222,7 +230,7 @@ final class ResetPasswordConcurrencyPostgreSqlTest extends KernelTestCase
             }
             // EN: Poll the observable database lock with bounded IPC waits, never a timing-based release.
             // RU: Проверяем реальную блокировку БД с ограниченным ожиданием IPC, без освобождения по таймеру.
-            $read = array_map(static fn (array $worker) => $worker['pipes'][1], $this->workers);
+            $read = array_map(static fn(array $worker) => $worker['pipes'][1], $this->workers);
             $write = $except = [];
             self::assertSame(0, stream_select($read, $write, $except, 0, 20000), 'Worker completed before lock contention was observed.');
         } while (microtime(true) < $deadline);

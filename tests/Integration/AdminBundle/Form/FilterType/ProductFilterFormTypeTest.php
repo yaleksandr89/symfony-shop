@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\AdminBundle\Form\FilterType;
 
-use App\AdminBundle\Form\FilterType\ProductFilterFormType;
 use App\AdminBundle\DTO\ProductFilterModel;
+use App\AdminBundle\Form\FilterType\ProductFilterFormType;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class ProductFilterFormTypeTest extends KernelTestCase
 {
     private const DATE_RANGE_ERROR_KEY = 'admin.filter.date_range.invalid_order';
@@ -45,7 +45,11 @@ class ProductFilterFormTypeTest extends KernelTestCase
         self::assertNull($model->isPublished);
     }
 
-    #[DataProvider(methodName: 'provideNumberRanges')]
+    /**
+     * @param array<string, int|float|null> $expected
+     * @param array<string, string> $submitted
+     */
+    #[DataProvider('provideNumberRanges')]
     #[TestDox('Сопоставляет числовые границы фильтра')]
     public function testNumberRangeMapping(string $field, array $submitted, array $expected): void
     {
@@ -59,13 +63,14 @@ class ProductFilterFormTypeTest extends KernelTestCase
     public static function provideNumberRanges(): Generator
     {
         foreach (['price', 'quantity'] as $field) {
-            yield $field.' lower' => [$field, ['left_number' => '10', 'right_number' => ''], ['left_number' => 10, 'right_number' => null]];
-            yield $field.' upper' => [$field, ['left_number' => '', 'right_number' => '20'], ['left_number' => null, 'right_number' => 20]];
-            yield $field.' both' => [$field, ['left_number' => '10', 'right_number' => '20'], ['left_number' => 10, 'right_number' => 20]];
+            yield $field . ' lower' => [$field, ['left_number' => '10', 'right_number' => ''], ['left_number' => 10, 'right_number' => null]];
+            yield $field . ' upper' => [$field, ['left_number' => '', 'right_number' => '20'], ['left_number' => null, 'right_number' => 20]];
+            yield $field . ' both' => [$field, ['left_number' => '10', 'right_number' => '20'], ['left_number' => 10, 'right_number' => 20]];
         }
     }
 
-    #[DataProvider(methodName: 'provideDateRangeValidation')]
+    /** @param array<string, string> $submitted */
+    #[DataProvider('provideDateRangeValidation')]
     #[TestDox('Валидация диапазона дат')]
     public function testDateRangeValidation(array $submitted, bool $expectedValid): void
     {
@@ -102,7 +107,7 @@ class ProductFilterFormTypeTest extends KernelTestCase
         yield 'empty' => [['left_date' => '', 'right_date' => ''], true];
     }
 
-    #[DataProvider(methodName: 'provideBooleanValues')]
+    #[DataProvider('provideBooleanValues')]
     #[TestDox('Сопоставление логического поля')]
     public function testBooleanMapping(string $submitted, ?string $expected): void
     {

@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Demo;
 
-use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
-use App\Entity\Product;
-use App\Entity\ProductImage;
-use App\Entity\User;
 use App\Money\DecimalMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
@@ -17,7 +13,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tools\Demo\DemoDataInitializer;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class DemoDataInitializerTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
@@ -31,6 +27,7 @@ class DemoDataInitializerTest extends KernelTestCase
     #[TestDox('Инициализатор строит идемпотентный каталог и заменяемые заказы')]
     public function testInitializerBuildsIdempotentCatalogAndReplaceableOrders(): void
     {
+        /** @var DemoDataInitializer $initializer */
         $initializer = self::getContainer()->get(DemoDataInitializer::class);
         $first = $initializer->initialize();
         $this->entityManager->clear();

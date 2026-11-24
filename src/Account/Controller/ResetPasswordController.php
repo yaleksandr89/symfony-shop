@@ -27,8 +27,7 @@ class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function request(Request $request, MessageBusInterface $messageBus): Response
     {
@@ -51,8 +50,10 @@ class ResetPasswordController extends AbstractController
 
     public function checkEmail(): Response
     {
-        // Generate a fake token if the user does not exist or someone hit this page directly.
-        // This prevents exposing whether a user was found with the given email address or not
+        // RU: Подставляем фиктивный токен, если аккаунт не найден или страницу открыли напрямую.
+        // Это не позволяет определить, зарегистрирован ли указанный адрес.
+        // EN: Use a fake token when the account does not exist or the page was opened directly.
+        // This keeps the response from revealing whether the address is registered.
         if (null === ($resetToken = $this->getTokenObjectFromSession())) {
             $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
         }
@@ -65,8 +66,10 @@ class ResetPasswordController extends AbstractController
     public function reset(Request $request, UserPasswordHasherInterface $userPasswordHasherInterface, ?string $token = null): Response
     {
         if ($token) {
-            // We store the token in session and remove it from the URL, to avoid the URL being
-            // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
+            // RU: Сохраняем токен в сессии и убираем из URL, чтобы сторонний JavaScript
+            // не получил его из адреса страницы.
+            // EN: Store the token in the session and remove it from the URL so third-party
+            // JavaScript cannot read it from the page URL.
             $this->storeTokenInSession($token);
 
             return $this->redirectToRoute('main_reset_password');
@@ -84,14 +87,16 @@ class ResetPasswordController extends AbstractController
             return $this->resetTokenFailure($e);
         }
 
-        // The token is valid; allow the user to change their password.
+        // RU: Действительный токен разрешает пользователю сменить пароль.
+
+        // EN: The token is valid; allow the user to change their password.
         $form = $this->createForm(ChangePasswordFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $encodedPassword = $userPasswordHasherInterface->hashPassword(
                 $user,
-                $form->get('plainPassword')->getData()
+                $form->get('plainPassword')->getData(),
             );
 
             $userId = $user->getId();
@@ -116,7 +121,9 @@ class ResetPasswordController extends AbstractController
                 return $this->resetTokenFailure($e);
             }
 
-            // The session is cleaned up after the password has been changed.
+            // RU: Данные сброса удаляются из сессии после смены пароля.
+
+            // EN: The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
 
             return $this->redirectToRoute('main_homepage');
@@ -131,7 +138,7 @@ class ResetPasswordController extends AbstractController
     {
         $this->addFlash(
             'reset_password_error',
-            sprintf('There was a problem validating your reset request - %s', $exception->getReason())
+            sprintf('There was a problem validating your reset request - %s', $exception->getReason()),
         );
 
         return $this->redirectToRoute('main_forgot_password_request');

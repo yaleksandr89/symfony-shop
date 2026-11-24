@@ -11,8 +11,7 @@ final class OAuthUserResolution
     public function __construct(
         private readonly User $user,
         private readonly bool $newUser,
-    ) {
-    }
+    ) {}
 
     public function user(): User
     {

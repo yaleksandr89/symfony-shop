@@ -8,7 +8,7 @@
 [![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-![Symfony Shop — интернет-магазин на Symfony с Docker и PostgreSQL](docs/img/symfony-shop-readme-cover.png)
+![Symfony Shop — интернет-магазин на Symfony с Docker и PostgreSQL](docs/assets/symfony-shop-readme-cover.png)
 
 ## Выберите язык
 
@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|
 | **Русский** | [English](docs/langs/en/README.md) | [Español](docs/langs/es/README.md) | [中文](docs/langs/zh/README.md) | [Français](docs/langs/fr/README.md) | [Deutsch](docs/langs/de/README.md) |
 
-Symfony Shop — учебный интернет-магазин на Symfony. В проекте реализованы каталог товаров, корзина и оформление заказов, личный кабинет, административная часть, API и вход через OAuth. Основные страницы формируются Twig, а Vue 2 используется для отдельных интерактивных элементов интерфейса.
+Symfony Shop — учебный интернет-магазин на Symfony. В проекте реализованы каталог товаров, корзина и оформление заказов, личный кабинет, административная часть, API и вход через OAuth. Основные страницы формируются Twig, а Vue 3 используется для отдельных интерактивных элементов интерфейса.
 
 Поддерживаемая среда локальной разработки построена на Docker Compose. PHP, Composer, Node.js, PostgreSQL и Chrome for Testing запускаются внутри контейнеров или устанавливаются в Docker-образ, а основные операции собраны в Makefile. Отдельный сценарий запуска с PHP, Composer и PostgreSQL, установленными непосредственно на хосте, проектом не поддерживается и в CI не проверяется.
 
@@ -90,21 +90,25 @@ make console CMD='messenger:consume async -vv'
 
 ## Как устроен проект
 
-```text
-Браузер
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-  ↓
-Прикладные сервисы / Doctrine
-  ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Браузер"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Контроллеры"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 в браузере"]
+    Vue -->|"HTTP-запросы к API"| Nginx
+    Controller --> Services["Прикладные сервисы / обработчики"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Основной код сгруппирован по областям `Account`, `Catalog` и `Commerce`. Административная часть, OAuth и SEO оформлены как внутренние Symfony-бандлы. Vue 2 используется для отдельных интерактивных компонентов, а не как самостоятельное SPA.
+Основной код сгруппирован по областям `Account`, `Catalog` и `Commerce`. Административная часть, OAuth и SEO оформлены как внутренние Symfony-бандлы. Vue 3 используется для отдельных интерактивных компонентов, а не как самостоятельное SPA.
 
 Карта каталогов, маршрутизация, API Platform, Doctrine и границы фронтенда разобраны в [описании архитектуры](docs/langs/ru/architecture.md).
 
@@ -112,14 +116,17 @@ PostgreSQL
 
 | Команда | Что делает | Примечание |
 |---|---|---|
-| `make check` | Запускает ESLint, проверку PHP-CS-Fixer и PHPStan | Тесты сюда не входят |
+| `make check` | Строгая валидация Composer, аудит lock-файла, PHP lint, PHP CS Fixer, PHPStan и ESLint | Тесты сюда не входят |
 | `make test-unit` | Запускает unit-тесты | |
+| `make test-db-reset CONFIRM=testdb` | Пересоздаёт отдельную тестовую SQLite-базу | Удаляет `var/db_for_test.db` |
 | `make test-integration` | Запускает integration-тесты | |
 | `make test-functional` | Запускает functional-тесты | |
 | `make test-functional-panther` | Запускает браузерные тесты через Panther | Chrome уже находится в PHP-образе |
-| `make test-all CONFIRM=testdb` | Запускает полный набор тестов | Пересоздаёт тестовую БД |
+| `make test-all CONFIRM=testdb` | Полный набор, включая Panther и оба PostgreSQL-контура | Пересоздаёт тестовую БД |
 | `make coverage CONFIRM=testdb` | Показывает покрытие PHP/PHPUnit в терминале | Panther не входит в отчёт |
 | `make coverage-html CONFIRM=testdb` | Создаёт HTML- и Clover-отчёты | `var/coverage/html`, `var/coverage/clover.xml` |
+
+Перед отдельным запуском integration-, functional- и Panther-тестов подготовьте тестовую SQLite-базу через `make test-db-reset CONFIRM=testdb`.
 
 Полный список Make-команд, устройство тестовой базы и состав CI приведены в [руководстве по разработке](docs/langs/ru/development.md).
 

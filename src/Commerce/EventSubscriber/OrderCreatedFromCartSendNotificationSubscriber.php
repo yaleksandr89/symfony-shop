@@ -26,7 +26,9 @@ class OrderCreatedFromCartSendNotificationSubscriber implements EventSubscriberI
     {
         $order = $event->getOrder();
 
-        // Email delivery is best-effort after the order has already been committed.
+        // RU: Письмо отправляется после фиксации заказа и может завершиться ошибкой без влияния на заказ.
+
+        // EN: Email delivery is best-effort after the order has already been committed.
         try {
             $this->orderCreatedFromCartEmailSender->sendEmailToClient($order);
         } catch (TransportExceptionInterface) {

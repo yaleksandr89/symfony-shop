@@ -12,76 +12,77 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class SitemapControllerTest extends WebTestCase
 {
     #[TestDox('sitemap.xml публикует eligible категории и товары canonical slug URL за два запроса')]
     public function testSitemapContainsEligibleCanonicalUrlsInStableOrderWithTwoQueries(): void
     {
         $client = self::createClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $prefix = 'functional-sitemap-'.str_replace('.', '', uniqid('', true)).'-';
+        $prefix = 'functional-sitemap-' . str_replace('.', '', uniqid('', true)) . '-';
 
-        $activeA = $this->createCategory($entityManager, $prefix.'category-a');
-        $activeZ = $this->createCategory($entityManager, $prefix.'category-z');
-        $invalidProductCategory = $this->createCategory($entityManager, $prefix.'category-invalid-product');
-        $deletedCategory = $this->createCategory($entityManager, $prefix.'category-deleted', true);
-        $unpublishedOnlyCategory = $this->createCategory($entityManager, $prefix.'category-unpublished-only');
-        $deletedOnlyCategory = $this->createCategory($entityManager, $prefix.'category-deleted-only');
-        $blankCategory = $this->createCategory($entityManager, $prefix.'category-blank-source');
+        $activeA = $this->createCategory($entityManager, $prefix . 'category-a');
+        $activeZ = $this->createCategory($entityManager, $prefix . 'category-z');
+        $invalidProductCategory = $this->createCategory($entityManager, $prefix . 'category-invalid-product');
+        $deletedCategory = $this->createCategory($entityManager, $prefix . 'category-deleted', true);
+        $unpublishedOnlyCategory = $this->createCategory($entityManager, $prefix . 'category-unpublished-only');
+        $deletedOnlyCategory = $this->createCategory($entityManager, $prefix . 'category-deleted-only');
+        $blankCategory = $this->createCategory($entityManager, $prefix . 'category-blank-source');
 
-        $eligibleA = $this->createProduct($entityManager, $prefix.'product-a', $activeA);
-        $eligibleZ = $this->createProduct($entityManager, $prefix.'product-z', $activeZ);
+        $eligibleA = $this->createProduct($entityManager, $prefix . 'product-a', $activeA);
+        $eligibleZ = $this->createProduct($entityManager, $prefix . 'product-z', $activeZ);
         $invalidSlugProduct = $this->createProduct(
             $entityManager,
-            $prefix.'product-null-slug-source',
-            $invalidProductCategory
+            $prefix . 'product-null-slug-source',
+            $invalidProductCategory,
         );
         $blankSlugProduct = $this->createProduct(
             $entityManager,
-            $prefix.'product-blank-slug-source',
-            $activeA
+            $prefix . 'product-blank-slug-source',
+            $activeA,
         );
         $unpublished = $this->createProduct(
             $entityManager,
-            $prefix.'product-unpublished',
+            $prefix . 'product-unpublished',
             $activeA,
-            false
+            false,
         );
         $deleted = $this->createProduct(
             $entityManager,
-            $prefix.'product-deleted',
+            $prefix . 'product-deleted',
             $activeA,
             true,
-            true
+            true,
         );
         $withoutCategory = $this->createProduct(
             $entityManager,
-            $prefix.'product-without-category',
-            null
+            $prefix . 'product-without-category',
+            null,
         );
         $inDeletedCategory = $this->createProduct(
             $entityManager,
-            $prefix.'product-in-deleted-category',
-            $deletedCategory
+            $prefix . 'product-in-deleted-category',
+            $deletedCategory,
         );
         $inBlankCategory = $this->createProduct(
             $entityManager,
-            $prefix.'product-in-blank-category',
-            $blankCategory
+            $prefix . 'product-in-blank-category',
+            $blankCategory,
         );
         $this->createProduct(
             $entityManager,
-            $prefix.'product-unpublished-only',
+            $prefix . 'product-unpublished-only',
             $unpublishedOnlyCategory,
-            false
+            false,
         );
         $this->createProduct(
             $entityManager,
-            $prefix.'product-deleted-only',
+            $prefix . 'product-deleted-only',
             $deletedOnlyCategory,
             true,
-            true
+            true,
         );
         $entityManager->flush();
 
@@ -117,11 +118,11 @@ final class SitemapControllerTest extends WebTestCase
 
         $categoryUrls = array_values(array_filter(
             $urls,
-            static fn (string $url): bool => str_contains($url, '/ru/category/')
+            static fn(string $url): bool => str_contains($url, '/ru/category/'),
         ));
         $productUrls = array_values(array_filter(
             $urls,
-            static fn (string $url): bool => str_contains($url, '/ru/product/')
+            static fn(string $url): bool => str_contains($url, '/ru/product/'),
         ));
         self::assertSame(array_merge(['http://localhost/ru/'], $categoryUrls, $productUrls), $urls);
         $this->assertUrlsAreSortedBySlug($categoryUrls);
@@ -129,35 +130,35 @@ final class SitemapControllerTest extends WebTestCase
 
         $ownCategoryUrls = array_values(array_filter(
             $categoryUrls,
-            static fn (string $url): bool => str_contains($url, '/'.$prefix)
+            static fn(string $url): bool => str_contains($url, '/' . $prefix),
         ));
         $expectedCategoryUrls = [
-            'http://localhost/ru/category/'.$activeA->getSlug(),
-            'http://localhost/ru/category/'.$activeZ->getSlug(),
-            'http://localhost/ru/category/'.$invalidProductCategory->getSlug(),
+            'http://localhost/ru/category/' . $activeA->getSlug(),
+            'http://localhost/ru/category/' . $activeZ->getSlug(),
+            'http://localhost/ru/category/' . $invalidProductCategory->getSlug(),
         ];
         sort($expectedCategoryUrls);
         self::assertSame($expectedCategoryUrls, $ownCategoryUrls);
 
         $ownProductUrls = array_values(array_filter(
             $productUrls,
-            static fn (string $url): bool => str_contains($url, '/'.$prefix)
+            static fn(string $url): bool => str_contains($url, '/' . $prefix),
         ));
         $expectedProductUrls = [
-            'http://localhost/ru/product/'.$eligibleA->getSlug(),
-            'http://localhost/ru/product/'.$eligibleZ->getSlug(),
-            'http://localhost/ru/product/'.$inDeletedCategory->getSlug(),
-            'http://localhost/ru/product/'.$inBlankCategory->getSlug(),
+            'http://localhost/ru/product/' . $eligibleA->getSlug(),
+            'http://localhost/ru/product/' . $eligibleZ->getSlug(),
+            'http://localhost/ru/product/' . $inDeletedCategory->getSlug(),
+            'http://localhost/ru/product/' . $inBlankCategory->getSlug(),
         ];
         sort($expectedProductUrls);
         self::assertSame($expectedProductUrls, $ownProductUrls);
         self::assertSame([], array_intersect([
-            'http://localhost/ru/category/'.$deletedCategory->getSlug(),
-            'http://localhost/ru/category/'.$unpublishedOnlyCategory->getSlug(),
-            'http://localhost/ru/category/'.$deletedOnlyCategory->getSlug(),
-            'http://localhost/ru/product/'.$unpublished->getSlug(),
-            'http://localhost/ru/product/'.$deleted->getSlug(),
-            'http://localhost/ru/product/'.$withoutCategory->getSlug(),
+            'http://localhost/ru/category/' . $deletedCategory->getSlug(),
+            'http://localhost/ru/category/' . $unpublishedOnlyCategory->getSlug(),
+            'http://localhost/ru/category/' . $deletedOnlyCategory->getSlug(),
+            'http://localhost/ru/product/' . $unpublished->getSlug(),
+            'http://localhost/ru/product/' . $deleted->getSlug(),
+            'http://localhost/ru/product/' . $withoutCategory->getSlug(),
         ], $urls));
         foreach (array_merge($categoryUrls, $productUrls) as $url) {
             $path = (string) parse_url($url, PHP_URL_PATH);
@@ -182,8 +183,8 @@ final class SitemapControllerTest extends WebTestCase
         string $slug,
         bool $isDeleted = false,
     ): Category {
-        $category = (new Category())
-            ->setTitle('Functional sitemap category '.uniqid('', true))
+        $category = new Category()
+            ->setTitle('Functional sitemap category ' . uniqid('', true))
             ->setSlug($slug)
             ->setIsDeleted($isDeleted);
         $entityManager->persist($category);
@@ -198,8 +199,8 @@ final class SitemapControllerTest extends WebTestCase
         bool $isPublished = true,
         bool $isDeleted = false,
     ): Product {
-        $product = (new Product())
-            ->setTitle('Functional sitemap product '.uniqid('', true))
+        $product = new Product()
+            ->setTitle('Functional sitemap product ' . uniqid('', true))
             ->setSlug($slug)
             ->setPrice('10.00')
             ->setQuantity(1)
@@ -215,8 +216,8 @@ final class SitemapControllerTest extends WebTestCase
     private function assertUrlsAreSortedBySlug(array $urls): void
     {
         $slugs = array_map(
-            static fn (string $url): string => urldecode(basename((string) parse_url($url, PHP_URL_PATH))),
-            $urls
+            static fn(string $url): string => urldecode(basename((string) parse_url($url, PHP_URL_PATH))),
+            $urls,
         );
         $sortedSlugs = $slugs;
         sort($sortedSlugs);

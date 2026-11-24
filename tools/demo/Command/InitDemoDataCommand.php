@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Throwable;
 use Tools\Demo\DemoDataInitializer;
 
 class InitDemoDataCommand extends Command
@@ -37,7 +38,7 @@ class InitDemoDataCommand extends Command
         if (!in_array($environment, self::ALLOWED_ENVIRONMENTS, true)) {
             $io->error(sprintf(
                 'The app:demo:init command is allowed only in dev and test environments. Current environment: %s.',
-                $environment
+                $environment,
             ));
 
             return Command::FAILURE;
@@ -45,7 +46,7 @@ class InitDemoDataCommand extends Command
 
         try {
             $result = $this->demoDataInitializer->initialize();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $io->error($exception->getMessage());
 
             return Command::FAILURE;

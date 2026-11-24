@@ -11,8 +11,7 @@ final class OAuthLoginHandler
     public function __construct(
         private readonly OAuthUserResolver $userResolver,
         private readonly OAuthNewUserRegistrar $newUserRegistrar,
-    ) {
-    }
+    ) {}
 
     /**
      * @param callable(): User $newUserFactory

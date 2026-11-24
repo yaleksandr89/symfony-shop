@@ -15,18 +15,23 @@ use Tools\Demo\Command\InitDemoDataCommand;
 use Tools\Demo\DemoAssetInstaller;
 use Tools\Demo\DemoDataInitializer;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class InitDemoDataCommandTest extends KernelTestCase
 {
     #[TestDox('Команда повторно выполняется и сообщает учётные данные и сводные счётчики')]
     public function testCommandReportsCountersAndDemoCredentialsInTest(): void
     {
         self::bootKernel();
+        /** @var InitDemoDataCommand $command */
         $command = self::getContainer()->get(InitDemoDataCommand::class);
         $tester = new CommandTester($command);
 
-        self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
         $output = $tester->getDisplay();
         self::assertStringContainsString('super-admin@example.test / DemoSuperAdmin123!', $output);
         self::assertStringContainsString('admin@example.test / DemoAdmin123!', $output);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
+use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -13,10 +13,14 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class DashboardControllerTest extends WebTestCase
 {
-    #[DataProvider(methodName: 'provideLocales')]
+    /**
+     * @param array<string, string> $expected
+     * @param array<string, string> $unexpected
+     */
+    #[DataProvider('provideLocales')]
     #[TestDox('Панель управления и общий макет локализованы')]
     public function testDashboardAndSharedLayoutAreLocalized(string $locale, array $expected, array $unexpected): void
     {
@@ -34,7 +38,7 @@ class DashboardControllerTest extends WebTestCase
         self::assertSame($expected['copyright'], trim($crawler->filter('footer .copyright')->text()));
         self::assertStringContainsString($expected['layout'], $crawler->filter('title')->text());
         self::assertStringContainsString($expected['brand'], $crawler->filter('title')->text());
-        self::assertStringNotContainsString('Ranked'.'Choice', $crawler->filter('title, footer')->text());
+        self::assertStringNotContainsString('Ranked' . 'Choice', $crawler->filter('title, footer')->text());
         foreach ($unexpected as $text) {
             self::assertStringNotContainsString($text, $crawler->filter('title, h1, .topbar, footer')->text());
         }

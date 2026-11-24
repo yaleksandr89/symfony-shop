@@ -34,7 +34,7 @@ final class LinkedinAuthenticator extends AbstractOAuthAuthenticator
                 OAuthProvider::Linkedin,
                 $linkedinUser->getId(),
                 $email,
-                static fn (): User => UserFactory::createUserFromLinkedin($linkedinUser, (string) $email),
+                static fn(): User => UserFactory::createUserFromLinkedin($linkedinUser, (string) $email),
             );
         }));
     }

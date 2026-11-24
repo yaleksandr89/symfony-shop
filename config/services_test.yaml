@@ -1,2 +1,9 @@
 imports:
   - { resource: services_demo.yaml }
+
+services:
+  App\Tests\TestUtils\Database\TestDatabaseGuard:
+    arguments:
+      $environment: '%kernel.environment%'
+      $projectDir: '%kernel.project_dir%'
+    tags: ['container.env_var_processor']

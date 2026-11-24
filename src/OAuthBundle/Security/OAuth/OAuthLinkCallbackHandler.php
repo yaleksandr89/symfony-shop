@@ -28,8 +28,7 @@ final readonly class OAuthLinkCallbackHandler
         private readonly OAuthAccountLinker $accountLinker,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TranslatorInterface $translator,
-    ) {
-    }
+    ) {}
 
     public function handle(Request $request, OAuthProvider $provider): Response
     {
@@ -64,7 +63,7 @@ final readonly class OAuthLinkCallbackHandler
             $this->synchronizeUser($token, $user, $persistedUser);
             $session->getFlashBag()->add(
                 'danger',
-                $this->translator->trans('personal_account.social_group.oauth_link.failure')
+                $this->translator->trans('personal_account.social_group.oauth_link.failure'),
             );
 
             return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));
@@ -74,7 +73,7 @@ final readonly class OAuthLinkCallbackHandler
 
         $session->getFlashBag()->add(
             'success',
-            $this->translator->trans('The social network has been successfully linked.')
+            $this->translator->trans('The social network has been successfully linked.'),
         );
 
         return new RedirectResponse($this->urlGenerator->generate('main_profile_index'));

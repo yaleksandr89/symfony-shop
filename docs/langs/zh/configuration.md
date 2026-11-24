@@ -80,6 +80,8 @@ Compose 把 `.env.docker` 作为 PHP 容器的 `env_file`，因此这些值会�
 
 测试环境使用独立 SQLite 数据库 `var/db_for_test.db`、Panther 设置、中性的 Mailer/Messenger transport，并关闭 OAuth provider。
 
+测试 SQLite 数据库固定为 `var/db_for_test.db`。`TEST_DATABASE_URL` 仅用于两个受保护的 PostgreSQL 并发场景，不允许任意连接。参见[开发指南](development.md)。
+
 ## 邮件与 Messenger
 
 默认值：

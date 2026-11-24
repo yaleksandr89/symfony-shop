@@ -11,10 +11,12 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
+use App\Tests\TestUtils\Database\GuardedConnection;
+use Closure;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +24,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class CommerceAggregateLifecycleTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
@@ -61,7 +63,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     public function testCartRootPersistsAndOrphanRemovesItsLines(): void
     {
         [, $product] = $this->persistUserAndProduct();
-        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $cart = new Cart()->setToken(TokenGenerator::generateToken());
         $cartProduct = $this->newCartProduct($product);
         $cart->addCartProduct($cartProduct);
 
@@ -88,7 +90,9 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         $this->entityManager->flush();
 
         $orderId = $order->getId();
-        $orderProductId = $order->getOrderProducts()->first()->getId();
+        $orderProduct = $order->getOrderProducts()->first();
+        self::assertInstanceOf(OrderProduct::class, $orderProduct);
+        $orderProductId = $orderProduct->getId();
         $this->entityManager->remove($order);
         $this->entityManager->flush();
         $this->entityManager->clear();
@@ -103,13 +107,15 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     public function testRemovingCartRemovesItsLinesButKeepsProduct(): void
     {
         [, $product] = $this->persistUserAndProduct();
-        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $cart = new Cart()->setToken(TokenGenerator::generateToken());
         $cart->addCartProduct($this->newCartProduct($product));
         $this->entityManager->persist($cart);
         $this->entityManager->flush();
 
         $cartId = $cart->getId();
-        $cartProductId = $cart->getCartProducts()->first()->getId();
+        $cartProduct = $cart->getCartProducts()->first();
+        self::assertInstanceOf(CartProduct::class, $cartProduct);
+        $cartProductId = $cartProduct->getId();
         $this->entityManager->remove($cart);
         $this->entityManager->flush();
         $this->entityManager->clear();
@@ -199,12 +205,12 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
     private function persistUserAndProduct(): array
     {
         $suffix = uniqid('', true);
-        $user = (new User())
-            ->setEmail('commerce-lifecycle-'.$suffix.'@example.test')
+        $user = new User()
+            ->setEmail('commerce-lifecycle-' . $suffix . '@example.test')
             ->setPassword('not-used-by-this-test')
             ->setIsVerified(true);
-        $product = (new Product())
-            ->setTitle('Commerce lifecycle '.$suffix)
+        $product = new Product()
+            ->setTitle('Commerce lifecycle ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(1);
 
@@ -217,7 +223,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
 
     private function newOrder(User $user): Order
     {
-        return (new Order())
+        return new Order()
             ->setOwner($user)
             ->setStatus(1)
             ->setTotalPrice('10.00');
@@ -225,7 +231,7 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
 
     private function newOrderProduct(Product $product): OrderProduct
     {
-        return (new OrderProduct())
+        return new OrderProduct()
             ->setProduct($product)
             ->setQuantity(1)
             ->setPricePerOne('10.00');
@@ -233,22 +239,18 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
 
     private function newCartProduct(Product $product): CartProduct
     {
-        return (new CartProduct())
+        return new CartProduct()
             ->setProduct($product)
             ->setQuantity(1);
     }
 
-    private function withForeignKeyEnforcement(\Closure $assertions): void
+    private function withForeignKeyEnforcement(Closure $assertions): void
     {
         $configuration = new Configuration();
         $configuration->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
-        $connection = DriverManager::getConnection(
-            [
-                'driver' => 'pdo_sqlite',
-                'path' => self::getContainer()->getParameter('kernel.project_dir').'/var/db_for_test.db',
-            ],
-            $configuration,
-        );
+        $guardedConnection = self::getContainer()->get('doctrine.dbal.default_connection');
+        self::assertInstanceOf(GuardedConnection::class, $guardedConnection);
+        $connection = DriverManager::getConnection($guardedConnection->getParams(), $configuration);
         $connection->executeStatement('PRAGMA foreign_keys = ON');
         self::assertSame(1, (int) $connection->fetchOne('PRAGMA foreign_keys'));
         $connection->beginTransaction();
@@ -301,12 +303,12 @@ class CommerceAggregateLifecycleTest extends KernelTestCase
         $suffix = uniqid('', true);
         $connection->executeStatement(
             'INSERT INTO "user" (email, roles, password, is_verified, is_deleted) VALUES (?, ?, ?, 1, 0)',
-            ['commerce-lifecycle-'.$suffix.'@example.test', '[]', 'not-used-by-this-test'],
+            ['commerce-lifecycle-' . $suffix . '@example.test', '[]', 'not-used-by-this-test'],
         );
         $userId = (int) $connection->lastInsertId();
         $connection->executeStatement(
             'INSERT INTO product (uuid, title, price, quantity, created_at, updated_at, is_published, is_deleted) VALUES (?, ?, 10.00, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 0)',
-            ['00000000-0000-4000-8000-'.str_replace('.', '', $suffix), 'Commerce lifecycle '.$suffix],
+            ['00000000-0000-4000-8000-' . str_replace('.', '', $suffix), 'Commerce lifecycle ' . $suffix],
         );
 
         return [$userId, (int) $connection->lastInsertId()];

@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import CartProductItem from "./CartProductItem";
+import CartProductItem from "./CartProductItem.vue";
 import { mapState } from "vuex";
 
 export default {

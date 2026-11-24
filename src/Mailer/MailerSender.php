@@ -15,6 +15,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\File;
 use Symfony\Contracts\Service\Attribute\Required;
+use Throwable;
 
 class MailerSender
 {
@@ -59,10 +60,10 @@ class MailerSender
         $logoPart = null;
         $logoCid = null;
         try {
-            $logoPart = (new DataPart(new File($this->emailAssetResolver->getLogoPath())))
+            $logoPart = new DataPart(new File($this->emailAssetResolver->getLogoPath()))
                 ->asInline()
                 ->setContentId('symfony-shop-logo@symfony-shop');
-            $logoCid = 'cid:'.$logoPart->getContentId();
+            $logoCid = 'cid:' . $logoPart->getContentId();
         } catch (EmailAssetUnavailableException $exception) {
             $this->logUnavailableAsset('logo', $exception);
         }
@@ -120,7 +121,7 @@ class MailerSender
                 ->text($mailerOptionModel->getText());
 
             $this->mailer->send($email);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logDeliveryFailure(
                 'Fallback email delivery failed.',
                 $exception,
@@ -144,15 +145,16 @@ class MailerSender
         return new Email();
     }
 
-    private function logDeliveryFailure(string $message, \Throwable $exception, string $mailStage): void
+    private function logDeliveryFailure(string $message, Throwable $exception, string $mailStage): void
     {
         try {
             $this->logger->critical($message, [
                 'exception_class' => $exception::class,
                 'mail_stage' => $mailStage,
             ]);
-        } catch (\Throwable) {
-            // Logging is best-effort and must not replace the primary mail failure.
+        } catch (Throwable) {
+            // RU: Сбой логирования не должен подменять исходную ошибку отправки письма.
+            // EN: Logging is best-effort and must not replace the primary mail failure.
         }
     }
 
@@ -163,8 +165,9 @@ class MailerSender
                 'asset' => $asset,
                 'exception_class' => $exception::class,
             ]);
-        } catch (\Throwable) {
-            // Logging is best-effort and must not prevent business email delivery.
+        } catch (Throwable) {
+            // RU: Сбой логирования не должен мешать отправке письма.
+            // EN: Logging is best-effort and must not prevent business email delivery.
         }
     }
 }

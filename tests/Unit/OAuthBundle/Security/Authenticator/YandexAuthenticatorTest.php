@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\OAuthBundle\Security\Authenticator;
 
-use App\Entity\User;
+use App\Account\Mailer\UserRegisteredEmailSender;
 use App\Account\Repository\UserRepository;
+use App\Account\Security\UserChecker\DeletedUserChecker;
+use App\Entity\User;
 use App\OAuthBundle\Security\Authenticator\YandexAuthenticator;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthLoginHandler;
 use App\OAuthBundle\Security\OAuth\OAuthNewUserRegistrar;
 use App\OAuthBundle\Security\OAuth\OAuthUserResolver;
-use App\Account\Security\UserChecker\DeletedUserChecker;
-use App\Account\Mailer\UserRegisteredEmailSender;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
@@ -22,9 +23,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -35,7 +38,7 @@ use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class YandexAuthenticatorTest extends TestCase
 {
     #[DataProvider('invalidEmails')]
@@ -61,9 +64,10 @@ final class YandexAuthenticatorTest extends TestCase
     public function testProviderDataIsNormalizedAndRegisteredThroughCommonHandler(): void
     {
         $repository = $this->createMock(UserRepository::class);
-        $repository->expects(self::exactly(2))->method('findOneBy')->willReturnCallback(static fn (array $criteria): ?User => match ($criteria) {
+        $repository->expects(self::exactly(2))->method('findOneBy')->willReturnCallback(static fn(array $criteria): ?User => match ($criteria) {
             ['yandexId' => 'yandex-id'] => null,
             ['email' => 'user@example.test'] => null,
+            default => self::fail('Unexpected lookup criteria during OAuth registration.'),
         });
         $checker = $this->createMock(DeletedUserChecker::class);
         $checker->expects(self::never())->method('checkPreAuth');
@@ -72,32 +76,33 @@ final class YandexAuthenticatorTest extends TestCase
         $entityManager->expects(self::once())->method('persist')->with(self::isInstanceOf(User::class))->willReturnCallback(
             static function (User $user) use (&$persistedUser): void {
                 $persistedUser = $user;
-            }
+            },
         );
         $entityManager->expects(self::once())->method('flush')->willReturnCallback(
             static function () use (&$persistedUser): void {
                 self::assertInstanceOf(User::class, $persistedUser);
-                (new \ReflectionProperty(User::class, 'id'))->setValue($persistedUser, 51);
-            }
+                new ReflectionProperty(User::class, 'id')->setValue($persistedUser, 51);
+            },
         );
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $passwordHasher->expects(self::once())->method('hashPassword')->willReturn('hashed-password');
-        $signature = new VerifyEmailSignatureComponents(new \DateTimeImmutable('@3600'), 'https://example.test/verify?id=51', 0);
+        $signature = new VerifyEmailSignatureComponents(new DateTimeImmutable('@3600'), 'https://example.test/verify?id=51', 0);
         $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
         $verifyEmailHelper->expects(self::once())->method('generateSignature')->with(
             'main_verify_email',
             '51',
             'user@example.test',
-            ['id' => '51']
+            ['id' => '51'],
         )->willReturn($signature);
         $emailSender = $this->createMock(UserRegisteredEmailSender::class);
         $emailSender->expects(self::once())->method('sendEmailToClient')->with(self::isInstanceOf(User::class), $signature);
 
         $badge = $this->authenticate(
             $this->yandexUser('  user@example.test  '),
-            $this->handler($repository, $checker, $entityManager, $passwordHasher, $verifyEmailHelper, $emailSender)
+            $this->handler($repository, $checker, $entityManager, $passwordHasher, $verifyEmailHelper, $emailSender),
         );
         $user = $badge->getUser();
+        self::assertInstanceOf(User::class, $user);
 
         self::assertSame('user@example.test', $user->getEmail());
         self::assertSame('yandex-id', $user->getYandexId());
@@ -117,10 +122,10 @@ final class YandexAuthenticatorTest extends TestCase
             $this->handler(
                 $this->createStub(UserRepository::class),
                 $this->createStub(DeletedUserChecker::class),
-                $this->createStub(EntityManagerInterface::class)
+                $this->createStub(EntityManagerInterface::class),
             ),
             $router,
-            $translator
+            $translator,
         );
         $request = new Request();
         $request->setLocale('en');
@@ -130,7 +135,9 @@ final class YandexAuthenticatorTest extends TestCase
 
         self::assertInstanceOf(RedirectResponse::class, $response);
         self::assertSame('/en/login', $response->getTargetUrl());
-        self::assertSame(['Translated neutral failure'], $request->getSession()->getFlashBag()->get('danger'));
+        $flashSession = $request->getSession();
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $flashSession);
+        self::assertSame(['Translated neutral failure'], $flashSession->getFlashBag()->get('danger'));
     }
 
     /** @return iterable<string, array{?string}> */
@@ -154,7 +161,7 @@ final class YandexAuthenticatorTest extends TestCase
             new ClientRegistry($container, ['yandex_main' => 'yandex-client']),
             $handler,
             $this->createStub(RouterInterface::class),
-            $this->createStub(TranslatorInterface::class)
+            $this->createStub(TranslatorInterface::class),
         );
         $passport = $authenticator->authenticate(new Request());
         $badge = $passport->getBadge(UserBadge::class);
@@ -180,8 +187,8 @@ final class YandexAuthenticatorTest extends TestCase
                 $passwordHasher ?? $this->createStub(UserPasswordHasherInterface::class),
                 $entityManager,
                 $verifyEmailHelper ?? $this->createStub(VerifyEmailHelperInterface::class),
-                $emailSender ?? $this->createStub(UserRegisteredEmailSender::class)
-            )
+                $emailSender ?? $this->createStub(UserRegisteredEmailSender::class),
+            ),
         );
     }
 
@@ -193,6 +200,6 @@ final class YandexAuthenticatorTest extends TestCase
             'client_id' => 'client-id',
             'psuid' => 'psuid',
             'default_email' => $email,
-        ], static fn (?string $value): bool => null !== $value));
+        ], static fn(?string $value): bool => null !== $value));
     }
 }

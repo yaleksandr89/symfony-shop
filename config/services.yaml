@@ -54,6 +54,7 @@ services:
       - { name: kernel.event_listener, event: kernel.request, method: onEarlyKernelRequest, priority: 28 }
       - { name: kernel.event_listener, event: kernel.request, method: onPostReadKernelRequest, priority: 3 }
       - { name: kernel.event_listener, event: kernel.request, method: onPostDeserializeKernelRequest, priority: 1 }
+      - { name: kernel.event_listener, event: kernel.response, method: onApiKernelResponse }
 
   App\OAuthBundle\Security\OAuth\OAuthProviderAvailability:
     arguments:

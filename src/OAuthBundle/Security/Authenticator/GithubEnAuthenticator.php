@@ -35,9 +35,9 @@ class GithubEnAuthenticator extends AbstractOAuthAuthenticator
                     OAuthProvider::GithubEn,
                     (string) $githubUser->getId(),
                     $email,
-                    static fn (): User => UserFactory::createUserFromGithub($githubUser)
+                    static fn(): User => UserFactory::createUserFromGithub($githubUser),
                 );
-            })
+            }),
         );
     }
 }

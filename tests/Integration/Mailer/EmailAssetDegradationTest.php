@@ -16,14 +16,14 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class EmailAssetDegradationTest extends KernelTestCase
 {
     private string $projectDir;
 
     protected function setUp(): void
     {
-        $this->projectDir = sys_get_temp_dir().'/email-asset-degradation-'.bin2hex(random_bytes(8));
+        $this->projectDir = sys_get_temp_dir() . '/email-asset-degradation-' . bin2hex(random_bytes(8));
         self::assertTrue(mkdir($this->projectDir));
     }
 
@@ -48,6 +48,7 @@ final class EmailAssetDegradationTest extends KernelTestCase
                 return '/build/email.css';
             },
         );
+        /** @var MailerInterface $mailer */
         $mailer = self::getContainer()->get(MailerInterface::class);
         self::assertInstanceOf(MailerInterface::class, $mailer);
         $sender = new MailerSender(
@@ -58,7 +59,7 @@ final class EmailAssetDegradationTest extends KernelTestCase
         $sender->setLogger(new NullLogger());
 
         $sender->sendTemplatedEmail(
-            (new MailerOptionModel())
+            new MailerOptionModel()
                 ->setRecipient('recipient@example.test')
                 ->setSubject('Decorative assets unavailable')
                 ->setHtmlTemplate('email/base.html.twig'),
@@ -68,7 +69,7 @@ final class EmailAssetDegradationTest extends KernelTestCase
         $message = self::getMailerMessage(0);
         self::assertInstanceOf(Email::class, $message);
         $html = $message->getHtmlBody();
-        self::assertNotNull($html);
+        self::assertIsString($html);
         self::assertStringContainsString('By Symfony shop (pet projects)', $html);
         self::assertStringNotContainsString('Alexander Yurchenko', $html);
         self::assertStringNotContainsString('symfony-shop-logo@symfony-shop', $html);

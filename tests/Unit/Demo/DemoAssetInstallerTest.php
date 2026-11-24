@@ -10,20 +10,22 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
+use RuntimeException;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Tools\Demo\DemoAssetInstaller;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class DemoAssetInstallerTest extends TestCase
 {
     private string $directory;
 
     protected function setUp(): void
     {
-        $this->directory = sys_get_temp_dir().'/demo-assets-'.uniqid('', true);
-        mkdir($this->directory.'/fixtures/demo/images/demo-key', 0775, true);
+        $this->directory = sys_get_temp_dir() . '/demo-assets-' . uniqid('', true);
+        mkdir($this->directory . '/fixtures/demo/images/demo-key', 0775, true);
         foreach (['big', 'middle', 'small'] as $variant) {
-            file_put_contents($this->directory.'/fixtures/demo/images/demo-key/demo-key_'.$variant.'.jpg', 'fixture-'.$variant);
+            file_put_contents($this->directory . '/fixtures/demo/images/demo-key/demo-key_' . $variant . '.jpg', 'fixture-' . $variant);
         }
     }
 
@@ -53,7 +55,7 @@ class DemoAssetInstallerTest extends TestCase
     public function testDifferentTargetIsUpdatedAndRollbackRestoresIt(): void
     {
         $installer = $this->installer();
-        $target = $this->directory.'/uploads/102/demo-key_big.jpg';
+        $target = $this->directory . '/uploads/102/demo-key_big.jpg';
         mkdir(dirname($target), 0775, true);
         file_put_contents($target, 'outdated');
 
@@ -62,7 +64,7 @@ class DemoAssetInstallerTest extends TestCase
         self::assertSame('fixture-big', file_get_contents($target));
         $installer->rollback();
         self::assertSame('outdated', file_get_contents($target));
-        self::assertFileDoesNotExist($this->directory.'/uploads/102/demo-key_middle.jpg');
+        self::assertFileDoesNotExist($this->directory . '/uploads/102/demo-key_middle.jpg');
     }
 
     #[TestDox('Один источник можно установить для разных идентификаторов товаров')]
@@ -72,22 +74,22 @@ class DemoAssetInstallerTest extends TestCase
         $installer->install($this->product(103), 'demo-key');
         $installer->install($this->product(104), 'demo-key');
 
-        self::assertFileExists($this->directory.'/uploads/103/demo-key_small.jpg');
-        self::assertFileExists($this->directory.'/uploads/104/demo-key_small.jpg');
+        self::assertFileExists($this->directory . '/uploads/103/demo-key_small.jpg');
+        self::assertFileExists($this->directory . '/uploads/104/demo-key_small.jpg');
         $installer->rollback();
     }
 
     #[TestDox('Отсутствующий источник завершается ошибкой до изменения цели')]
     public function testMissingSourceFailsBeforeTargetMutation(): void
     {
-        unlink($this->directory.'/fixtures/demo/images/demo-key/demo-key_middle.jpg');
+        unlink($this->directory . '/fixtures/demo/images/demo-key/demo-key_middle.jpg');
         $installer = $this->installer();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         try {
             $installer->assertSourcesExist([['slug' => 'demo-product', 'image_key' => 'demo-key']]);
         } finally {
-            self::assertDirectoryDoesNotExist($this->directory.'/uploads');
+            self::assertDirectoryDoesNotExist($this->directory . '/uploads');
         }
     }
 
@@ -95,7 +97,7 @@ class DemoAssetInstallerTest extends TestCase
     public function testExactProductImageTupleIsNotDuplicated(): void
     {
         $product = $this->product(105);
-        $product->addProductImage((new ProductImage())->setFilenameBig('demo-key_big.jpg')->setFilenameMiddle('demo-key_middle.jpg')->setFilenameSmall('demo-key_small.jpg'));
+        $product->addProductImage(new ProductImage()->setFilenameBig('demo-key_big.jpg')->setFilenameMiddle('demo-key_middle.jpg')->setFilenameSmall('demo-key_small.jpg'));
         $installer = $this->installer();
 
         $result = $installer->install($product, 'demo-key');
@@ -109,13 +111,13 @@ class DemoAssetInstallerTest extends TestCase
         $kernel = $this->createStub(KernelInterface::class);
         $kernel->method('getProjectDir')->willReturn($this->directory);
 
-        return new DemoAssetInstaller($this->createStub(EntityManagerInterface::class), $kernel, $this->directory.'/uploads');
+        return new DemoAssetInstaller($this->createStub(EntityManagerInterface::class), $kernel, $this->directory . '/uploads');
     }
 
     private function product(int $id): Product
     {
-        $product = (new Product())->setSlug('demo-product-'.$id);
-        $property = new \ReflectionProperty(Product::class, 'id');
+        $product = new Product()->setSlug('demo-product-' . $id);
+        $property = new ReflectionProperty(Product::class, 'id');
         $property->setValue($product, $id);
 
         return $product;
@@ -130,7 +132,7 @@ class DemoAssetInstallerTest extends TestCase
             if ('.' === $item || '..' === $item) {
                 continue;
             }
-            $path = $directory.'/'.$item;
+            $path = $directory . '/' . $item;
             is_dir($path) ? $this->removeDirectory($path) : unlink($path);
         }
         rmdir($directory);

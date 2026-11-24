@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/** @extends AbstractType<User> */
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -41,10 +42,10 @@ class RegistrationFormType extends AbstractType
                 'required' => true,
                 'label_html' => true,
                 'attr' => [
-                    'class' => 'custom-control-input',
+                    'class' => 'form-check-input',
                 ],
                 'label_attr' => [
-                    'class' => 'custom-control-label',
+                    'class' => 'form-check-label',
                 ],
                 'constraints' => [
                     new IsTrue(),

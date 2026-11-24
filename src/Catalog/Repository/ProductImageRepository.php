@@ -8,12 +8,7 @@ use App\Entity\ProductImage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method ProductImage|null find($id, $lockMode = null, $lockVersion = null)
- * @method ProductImage|null findOneBy(array $criteria, array $orderBy = null)
- * @method ProductImage[]    findAll()
- * @method ProductImage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<ProductImage> */
 class ProductImageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

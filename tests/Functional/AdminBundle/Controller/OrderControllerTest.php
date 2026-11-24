@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
-use App\Commerce\Repository\OrderRepository;
+use App\Account\Repository\UserRepository;
+use App\Catalog\Repository\ProductRepository;
 use App\Commerce\Manager\OrderManager;
 use App\Commerce\Order\OrderStaticStorage;
+use App\Commerce\Repository\OrderRepository;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Catalog\Repository\ProductRepository;
-use App\Account\Repository\UserRepository;
-use App\Tests\TestUtils\Fixtures\UserFixtures;
 use App\Money\DecimalMoney;
+use App\Tests\TestUtils\Fixtures\UserFixtures;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,42 +27,44 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class OrderControllerTest extends WebTestCase
 {
     #[TestDox('Список заказов загружает счётчики позиций пакетно и не раздувает число запросов')]
     public function testListBatchesLineCountsAndKeepsQueryCountBounded(): void
     {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        /** @var OrderRepository $orderRepository */
         $orderRepository = self::getContainer()->get(OrderRepository::class);
         $product = self::getContainer()->get(ProductRepository::class)->findOneBy(['isDeleted' => false]);
         self::assertInstanceOf(Product::class, $product);
         $existingCount = $orderRepository->count(['isDeleted' => false]);
         $orderCount = 10 + ((5 - (($existingCount + 10) % 10) + 10) % 10);
         $suffix = str_replace('.', '', uniqid('', true));
-        $owner = (new User())
-            ->setEmail('admin-query-owner-'.$suffix.'@example.test')
+        $owner = new User()
+            ->setEmail('admin-query-owner-' . $suffix . '@example.test')
             ->setPassword('not-used-in-functional-test')
             ->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
-            ->setFullName('Admin Query Owner '.$suffix)
+            ->setFullName('Admin Query Owner ' . $suffix)
             ->setPhone('+7 900 123-45-67');
         $entityManager->persist($owner);
 
         $orders = [];
         for ($index = 1; $index <= $orderCount; ++$index) {
-            $order = (new Order())
+            $order = new Order()
                 ->setOwner($owner)
                 ->setStatus(0)
                 ->setTotalPrice($index === $orderCount ? '0.00' : '39.98');
             if ($index < $orderCount) {
                 for ($line = 1; $line <= 2; ++$line) {
                     $order->addOrderProduct(
-                        (new OrderProduct())
+                        new OrderProduct()
                             ->setProduct($product)
                             ->setQuantity(1)
-                            ->setPricePerOne('19.99')
+                            ->setPricePerOne('19.99'),
                     );
                 }
             }
@@ -72,7 +74,7 @@ class OrderControllerTest extends WebTestCase
         $entityManager->flush();
 
         $expectedPageIds = array_reverse(array_map(
-            static fn (Order $order): int => (int) $order->getId(),
+            static fn(Order $order): int => (int) $order->getId(),
             array_slice($orders, -10),
         ));
         $lastPage = (int) ceil(($existingCount + $orderCount) / 10);
@@ -92,7 +94,7 @@ class OrderControllerTest extends WebTestCase
         self::assertCount(10, $rows);
         self::assertSame(
             $expectedPageIds,
-            $rows->each(static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text())),
+            $rows->each(static fn(Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text())),
         );
         self::assertSame((string) $owner->getFullName(), trim($rows->first()->filter('td')->eq(1)->text()));
         self::assertSame((string) $owner->getEmail(), trim($rows->first()->filter('td')->eq(2)->text()));
@@ -136,29 +138,34 @@ class OrderControllerTest extends WebTestCase
         self::assertSame($beforeSubmitIds, $this->visibleListIds($crawler));
     }
 
-    #[DataProvider(methodName: 'provideTotalPriceRanges')]
+    /**
+     * @param list<string> $excludedPrices
+     * @param list<string> $includedPrices
+     * @param array<string, string> $submitted
+     */
+    #[DataProvider('provideTotalPriceRanges')]
     #[TestDox('Диапазон итоговой цены отбирает заданные заказы')]
     public function testTotalPriceRangeFiltersControlledOrders(
         array $submitted,
         array $includedPrices,
         array $excludedPrices,
-    ): void
-    {
+    ): void {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $owner = (new User())
-            ->setEmail('admin-filter-owner-'.$suffix.'@example.test')
+        $owner = new User()
+            ->setEmail('admin-filter-owner-' . $suffix . '@example.test')
             ->setPassword('not-used-in-functional-test')
             ->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
-            ->setFullName('Admin Filter Owner '.$suffix)
+            ->setFullName('Admin Filter Owner ' . $suffix)
             ->setPhone('+7 900 123-45-67');
         $entityManager->persist($owner);
 
         $ordersByPrice = [];
         foreach (['9.99', '10.00', '15.00', '20.00', '20.01'] as $price) {
-            $order = (new Order())
+            $order = new Order()
                 ->setOwner($owner)
                 ->setStatus(0)
                 ->setTotalPrice($price);
@@ -225,23 +232,28 @@ class OrderControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('input[name="order_filter_form[createdAt][right_date]"][type="date"]'));
     }
 
-    #[DataProvider(methodName: 'provideDateRanges')]
+    /**
+     * @param list<string> $excludedDates
+     * @param list<string> $includedDates
+     * @param array<string, string> $submitted
+     */
+    #[DataProvider('provideDateRanges')]
     #[TestDox('Диапазон дат отбирает заданные заказы')]
     public function testDateRangeFiltersControlledOrders(
         array $submitted,
         array $includedDates,
         array $excludedDates,
-    ): void
-    {
+    ): void {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $owner = (new User())
-            ->setEmail('admin-date-filter-owner-'.$suffix.'@example.test')
+        $owner = new User()
+            ->setEmail('admin-date-filter-owner-' . $suffix . '@example.test')
             ->setPassword('not-used-in-functional-test')
             ->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
-            ->setFullName('Admin Date Filter Owner '.$suffix)
+            ->setFullName('Admin Date Filter Owner ' . $suffix)
             ->setPhone('+7 900 123-45-68');
         $entityManager->persist($owner);
 
@@ -253,7 +265,7 @@ class OrderControllerTest extends WebTestCase
             'next day midnight' => '2026-04-11 00:00:00',
             'after upper day' => '2026-04-12 00:00:00',
         ] as $label => $createdAt) {
-            $order = (new Order())
+            $order = new Order()
                 ->setOwner($owner)
                 ->setStatus(0)
                 ->setTotalPrice('10.00')
@@ -291,7 +303,7 @@ class OrderControllerTest extends WebTestCase
         ], ['selected day early', 'selected day late'], ['previous day', 'next day midnight', 'after upper day']];
     }
 
-    #[DataProvider(methodName: 'provideFilterLocales')]
+    #[DataProvider('provideFilterLocales')]
     #[TestDox('Фильтр заказов доступен и показывает ключевые элементы выбранной локали')]
     public function testFilterUiIsLocalized(
         string $locale,
@@ -317,7 +329,7 @@ class OrderControllerTest extends WebTestCase
         self::assertContains(
             $status,
             $filters->filter('select[name="order_filter_form[status]"] option')->each(
-                static fn (Crawler $option): string => trim($option->text()),
+                static fn(Crawler $option): string => trim($option->text()),
             ),
         );
     }
@@ -341,7 +353,7 @@ class OrderControllerTest extends WebTestCase
         ];
     }
 
-    #[DataProvider(methodName: 'provideListLocales')]
+    #[DataProvider('provideListLocales')]
     #[TestDox('Список заказов показывает ключевые действия выбранной локали')]
     public function testListUiIsLocalized(
         string $locale,
@@ -373,14 +385,13 @@ class OrderControllerTest extends WebTestCase
         ];
     }
 
-    #[DataProvider(methodName: 'provideReversedDateRangeLocales')]
+    #[DataProvider('provideReversedDateRangeLocales')]
     #[TestDox('Обратный диапазон дат показывает ошибку и не применяет фильтр')]
     public function testReversedDateRangeShowsErrorAndDoesNotApplyFilter(
         string $locale,
         string $title,
         string $message,
-    ): void
-    {
+    ): void {
         $client = $this->createAdminClient();
         $crawler = $client->request('GET', sprintf('/%s/admin/order/list', $locale));
         $unfilteredRows = $crawler->filter('#main_table tbody tr')->count();
@@ -416,7 +427,7 @@ class OrderControllerTest extends WebTestCase
         yield 'English' => ['en', 'Date range error', 'The "From" date cannot be later than the "To" date.'];
     }
 
-    #[DataProvider(methodName: 'provideOrderAddLocales')]
+    #[DataProvider('provideOrderAddLocales')]
     #[TestDox('Форма добавления заказа доступна в выбранной локали')]
     public function testAddUiIsLocalized(
         string $locale,
@@ -448,7 +459,7 @@ class OrderControllerTest extends WebTestCase
         yield 'English' => ['en', 'Edit order', 'Orders', 'Add new', 'Save changes'];
     }
 
-    #[DataProvider(methodName: 'provideOrderEditLocales')]
+    #[DataProvider('provideOrderEditLocales')]
     #[TestDox('Форма изменения заказа сохраняет продуктовые сигналы и выбранную локаль')]
     public function testEditUiIsLocalized(
         string $locale,
@@ -495,40 +506,41 @@ class OrderControllerTest extends WebTestCase
     public function testValidOrderEditPersistsFormAndRecalculatedAggregate(): void
     {
         $client = $this->createAdminClient();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $product = self::getContainer()->get(ProductRepository::class)->findOneBy(['isDeleted' => false]);
         self::assertInstanceOf(Product::class, $product);
         $suffix = str_replace('.', '', uniqid('', true));
-        $sourceOwner = (new User())
-            ->setEmail('order-edit-source-'.$suffix.'@example.test')
+        $sourceOwner = new User()
+            ->setEmail('order-edit-source-' . $suffix . '@example.test')
             ->setPassword('not-used-in-functional-test')
             ->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
-            ->setFullName('Order Edit Source '.$suffix);
-        $targetOwner = (new User())
-            ->setEmail('order-edit-target-'.$suffix.'@example.test')
+            ->setFullName('Order Edit Source ' . $suffix);
+        $targetOwner = new User()
+            ->setEmail('order-edit-target-' . $suffix . '@example.test')
             ->setPassword('not-used-in-functional-test')
             ->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
-            ->setFullName('Order Edit Target '.$suffix);
+            ->setFullName('Order Edit Target ' . $suffix);
         $initialUpdatedAt = new DateTimeImmutable('-1 day');
-        $order = (new Order())
+        $order = new Order()
             ->setOwner($sourceOwner)
             ->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED)
             ->setIsDeleted(false)
             ->setUpdatedAt($initialUpdatedAt)
             ->setTotalPrice('999.99');
         $order->addOrderProduct(
-            (new OrderProduct())
+            new OrderProduct()
                 ->setProduct($product)
                 ->setQuantity(2)
-                ->setPricePerOne('10.25')
+                ->setPricePerOne('10.25'),
         );
         $order->addOrderProduct(
-            (new OrderProduct())
+            new OrderProduct()
                 ->setProduct($product)
                 ->setQuantity(3)
-                ->setPricePerOne('4.50')
+                ->setPricePerOne('4.50'),
         );
         $entityManager->persist($sourceOwner);
         $entityManager->persist($targetOwner);
@@ -539,7 +551,7 @@ class OrderControllerTest extends WebTestCase
         self::assertNotNull($orderId);
         self::assertNotNull($targetOwnerId);
 
-        $crawler = $client->request('GET', '/ru/admin/order/edit/'.$orderId);
+        $crawler = $client->request('GET', '/ru/admin/order/edit/' . $orderId);
         self::assertResponseIsSuccessful();
         $form = $crawler->filter('form[name="edit_order_form"]')->form([
             'edit_order_form[owner]' => (string) $targetOwnerId,
@@ -549,7 +561,8 @@ class OrderControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        self::assertResponseRedirects('/ru/admin/order/edit/'.$orderId, Response::HTTP_FOUND);
+        self::assertResponseRedirects('/ru/admin/order/edit/' . $orderId, Response::HTTP_FOUND);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $persistedOrder = $entityManager->find(Order::class, $orderId);
@@ -565,7 +578,11 @@ class OrderControllerTest extends WebTestCase
         self::assertSame('34.00', $storedTotal);
     }
 
-    #[DataProvider(methodName: 'provideOrderValidationLocales')]
+    /**
+     * @param list<string> $messages
+     * @param list<string> $unexpected
+     */
+    #[DataProvider('provideOrderValidationLocales')]
     #[TestDox('Сообщения валидации фильтра локализованы')]
     public function testValidationMessagesAreLocalized(
         string $locale,
@@ -617,7 +634,11 @@ class OrderControllerTest extends WebTestCase
         ];
     }
 
-    #[DataProvider(methodName: 'provideOrderProductTranslationLocales')]
+    /**
+     * @param list<string> $expectedTranslations
+     * @param list<string> $oppositeLanguageTranslations
+     */
+    #[DataProvider('provideOrderProductTranslationLocales')]
     #[TestDox('Переводы Vue для позиций заказа локализованы')]
     public function testOrderProductVueTranslationsAreLocalized(
         string $locale,
@@ -630,7 +651,7 @@ class OrderControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         $staticStoreScript = '';
-        foreach ($crawler->filter('script')->each(static fn (Crawler $script): string => $script->text()) as $script) {
+        foreach ($crawler->filter('script')->each(static fn(Crawler $script): string => $script->text()) as $script) {
             if (str_contains($script, 'window.staticStore.translations')) {
                 $staticStoreScript = $script;
                 break;
@@ -655,7 +676,7 @@ class OrderControllerTest extends WebTestCase
             $staticStoreScript,
         );
         preg_match('/window\\.staticStore\\.translations = (?<translations>\\{.+\\});/u', $staticStoreScript, $matches);
-        $translations = json_decode($matches['translations'], true, 512, JSON_THROW_ON_ERROR);
+        $translations = json_decode(($matches['translations'] ?? self::fail('Expected rendered translations.')), true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame($expectedTranslations, $translations);
         foreach ($oppositeLanguageTranslations as $translation) {
@@ -714,7 +735,7 @@ class OrderControllerTest extends WebTestCase
     private function listTotalPriceCents(Crawler $crawler): array
     {
         return $crawler->filter('#main_table tbody tr')->each(
-            static fn (Crawler $row): int => self::currencyTextToCents($row->filter('td')->eq(6)->text()),
+            static fn(Crawler $row): int => self::currencyTextToCents($row->filter('td')->eq(6)->text()),
         );
     }
 
@@ -722,7 +743,7 @@ class OrderControllerTest extends WebTestCase
     private function visibleListIds(Crawler $crawler): array
     {
         return $crawler->filter('#main_table tbody tr')->each(
-            static fn (Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text()),
+            static fn(Crawler $row): int => (int) trim($row->filter('td')->eq(0)->text()),
         );
     }
 
@@ -774,7 +795,7 @@ class OrderControllerTest extends WebTestCase
         self::assertMatchesRegularExpression('/(?<amount>\d+[.,]\d{2})/', $currencyText);
         preg_match('/(?<amount>\d+[.,]\d{2})/', $currencyText, $matches);
 
-        return DecimalMoney::toCents(str_replace(',', '.', $matches['amount']));
+        return DecimalMoney::toCents(str_replace(',', '.', ($matches['amount'] ?? self::fail('Expected an amount in the rendered value.'))));
     }
 
     private function assertOwnerOptionIsApplicationData(Crawler $form): void

@@ -20,8 +20,7 @@ final readonly class OAuthAccountLinker
     public function __construct(
         private readonly OAuthIdentityAccessor $identityAccessor,
         private readonly ManagerRegistry $doctrine,
-    ) {
-    }
+    ) {}
 
     public function link(User $user, OAuthProvider $provider, mixed $externalId): User
     {

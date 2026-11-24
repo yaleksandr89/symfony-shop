@@ -8,8 +8,9 @@ use App\OAuthBundle\Provider\Facebook\FacebookUser;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use UnexpectedValueException;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class FacebookUserTest extends TestCase
 {
     #[TestDox('Раскрываются нормализованный идентификатор, необязательный профиль и исходный ответ')]
@@ -27,7 +28,7 @@ final class FacebookUserTest extends TestCase
     #[TestDox('Поле email допускает null')]
     public function testEmailIsNullable(): void
     {
-        self::assertNull((new FacebookUser(['id' => 'facebook-id']))->getEmail());
+        self::assertNull(new FacebookUser(['id' => 'facebook-id'])->getEmail());
     }
 
     #[TestDox('Отсутствующий или пустой ID отклоняется')]
@@ -37,8 +38,8 @@ final class FacebookUserTest extends TestCase
             try {
                 new FacebookUser($response);
                 self::fail('A Facebook resource owner without a valid ID must be rejected.');
-            } catch (\UnexpectedValueException) {
-                self::assertTrue(true);
+            } catch (UnexpectedValueException $exception) {
+                self::assertSame('Facebook resource owner response does not contain a valid ID.', $exception->getMessage());
             }
         }
     }

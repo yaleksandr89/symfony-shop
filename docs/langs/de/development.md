@@ -61,12 +61,17 @@ Docker Compose hat derzeit keinen permanenten Messenger-Worker. Details zu Mail 
 
 | Befehl | Zweck | Ändert Dateien |
 |---|---|---|
-| `make check` | ESLint + PHP-CS-Fixer-Prüfung + PHPStan | nein |
+| `make check` | Strikte Composer-Validierung, Audit der Lockfile-Abhängigkeiten, PHP lint, PHP CS Fixer, PHPStan und ESLint | nein |
+| `make composer-validate` | Composer-Manifest und Lockfile prüfen | nein |
+| `make composer-audit` | Gesperrte Abhängigkeiten prüfen | nein |
+| `make php-lint` | PHP-Syntax prüfen | nein |
 | `make eslint-check` | JS/Vue mit ESLint prüfen | nein |
-| `make php-cs-fixer-check` | Formatierung in `src/` und `tools/demo/` prüfen | nein |
-| `make phpstan-check` | PHPStan für `src` und `tools/demo` ausführen | nein |
+| `make php-cs-fixer-check` | Formatierung des eigenen PHP-Codes prüfen | nein |
+| `make phpstan-check` | Eigenen PHP-Code auf Level 8 analysieren | nein |
 | `make eslint-fix` | ESLint-Probleme beheben | ja |
 | `make php-cs-fixer` | PHP-Formatierung korrigieren | ja |
+
+PHP lint, PHP CS Fixer und PHPStan prüfen `src`, `tests`, `migrations`, `tools/demo`, `fixtures/demo`, `config/bundles.php`, `config/preload.php`, `public/index.php`, `bin/console` und `.php-cs-fixer.dist.php`. Generierte Dateien und Abhängigkeiten sind ausgeschlossen. Prüfungen können lokale Caches erzeugen.
 
 `make check` führt PHPUnit nicht aus. Tests haben eigene Ziele.
 
@@ -81,9 +86,13 @@ Docker Compose hat derzeit keinen permanenten Messenger-Worker. Details zu Mail 
 | `make test-functional` | HTTP, Controller, API und Zugriffsregeln | Gruppe `functional` |
 | `make test-functional-panther` | Browser-Szenarien | Gruppe `functional-panther` |
 | `make test-all-core CONFIRM=testdb` | Frontend-Assets + unit + integration + functional | Erstellt Test-SQLite-Datenbank neu |
-| `make test-all CONFIRM=testdb` | Vollständige Suite inklusive Panther | Erstellt Test-SQLite-Datenbank neu |
+| `make test-all CONFIRM=testdb` | Vollständige Suite inklusive Panther und beider PostgreSQL-Suiten | Erstellt Test-SQLite-Datenbank neu |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Nebenläufige Vorgänge zum Zurücksetzen von Passwörtern | Temporäre PostgreSQL in einem separaten Dienst |
+| `make test-oauth-postgresql CONFIRM=testdb` | Nebenläufige Änderungen von OAuth-Identitäten | Temporäre PostgreSQL in einem separaten Dienst |
 
 `CONFIRM=testdb` ist absichtlich erforderlich: Aggregierte Abläufe löschen und erstellen `var/db_for_test.db` neu.
+
+Normale Integrations-, Functional- und Panther-Tests nutzen ausschließlich die lokale `var/db_for_test.db`. Vor dem separaten Start dieser Gruppen die Datenbank mit `make test-db-reset CONFIRM=testdb` vorbereiten. Die abgesicherten Make-Ziele verwenden: beliebige Testdatenbankverbindungen sind nicht erlaubt. PostgreSQL-Nebenläufigkeitstests ausschließlich über die beiden obigen Ziele in temporären Diensten starten. Niemals die Arbeitsdatenbank oder eine externe Verbindung für Tests verwenden.
 
 Panther verwendet Chrome for Testing und Chromedriver aus dem PHP-Image. Selenium Server, GeckoDriver, Java und ein lokal installierter Browser werden für die aktuellen Tests nicht benötigt.
 
@@ -118,12 +127,12 @@ Er:
 2. erstellt `.env.docker`;
 3. prüft Compose, baut und startet die Docker-Umgebung;
 4. installiert Abhängigkeiten und baut Frontend-Assets;
-5. führt ESLint aus;
-6. führt Unit-, Integrations-, Functional- und Panther-Tests aus;
-7. führt PHPStan aus;
+5. führt `make check` aus (Composer validate/audit, PHP lint, PHP CS Fixer, PHPStan, ESLint);
+6. führt Unit-, Integrations-, Functional- und Panther-Tests mit einer separaten SQLite-Datenbank aus;
+7. führt beide PostgreSQL-Nebenläufigkeitssuiten aus (Passwort-Reset und OAuth);
 8. stoppt die Container.
 
-CI führt weder die PHP-CS-Fixer-Prüfung noch einen Coverage-Bericht aus; diese Checks werden bei Bedarf lokal ausgeführt.
+Coverage-Berichte bleiben lokale Diagnosewerkzeuge. Der Workflow kann auch manuell gestartet werden (`workflow_dispatch`).
 
 ## Logs und Diagnose
 
@@ -163,16 +172,21 @@ CI führt weder die PHP-CS-Fixer-Prüfung noch einen Coverage-Bericht aus; diese
 | `migrate` | Doctrine-Migrationen |
 | `demo-init` | Demo-Daten |
 | `postgres-reinit CONFIRM=postgres18` | lokales PostgreSQL-Volume vollständig neu erstellen |
-| `check` | ESLint + PHP-CS-Fixer check + PHPStan |
+| `check` | Strikte Composer-Validierung, Audit der Lockfile-Abhängigkeiten, PHP lint, PHP CS Fixer, PHPStan und ESLint |
+| `composer-validate` | Composer-Manifest und Lockfile prüfen |
+| `composer-audit` | Gesperrte Abhängigkeiten prüfen |
+| `php-lint` | PHP-Syntax prüfen |
 | `eslint-fix` | ESLint korrigieren |
 | `eslint-check` | ESLint prüfen |
 | `php-cs-fixer` | PHP-Formatierung korrigieren |
 | `php-cs-fixer-check` | PHP-Formatierung prüfen |
 | `phpstan-check` | PHPStan-Analyse |
-| `test-all-core CONFIRM=testdb` | Haupttests ohne Panther |
+| `test-all-core CONFIRM=testdb` | Hauptsuite ohne Panther und PostgreSQL-Nebenläufigkeit |
 | `coverage CONFIRM=testdb` | Coverage im Terminal |
 | `coverage-html CONFIRM=testdb` | Coverage + HTML/Clover |
-| `test-all CONFIRM=testdb` | vollständige Tests mit Panther |
+| `test-all CONFIRM=testdb` | Vollständige Suite inklusive Panther und beider PostgreSQL-Suiten |
+| `test-reset-password-postgresql CONFIRM=testdb` | Nebenläufige Vorgänge zum Zurücksetzen von Passwörtern |
+| `test-oauth-postgresql CONFIRM=testdb` | Nebenläufige Änderungen von OAuth-Identitäten |
 | `test-groups` | PHPUnit-Gruppen |
 | `test-list` | PHPUnit-Testliste |
 | `test-unit` | Unit-Tests |

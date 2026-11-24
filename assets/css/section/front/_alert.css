@@ -9,3 +9,6 @@
     border: none;
 }
 
+.alert.alert-dismissible {
+    padding-right: 3.5rem;
+}

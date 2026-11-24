@@ -18,7 +18,7 @@
 - 正常开发流程不会直接在宿主机运行 PHP、Composer、PostgreSQL、Node.js 或浏览器环境。
 - 改动不得悄然削弱访问控制、OAuth 流程、购物车/订单完整性或其他现有用户契约。
 - 不要加入与任务无关的大范围重构或依赖升级。
-- Vue 2 前端架构会保留到单独迁移到 Inertia.js 和 Vue 3 的阶段。
+- Vue 3 前端架构会保留到单独迁移到 Inertia.js 的阶段。
 
 应用架构见 [`architecture.md`](architecture.md)，开发命令见 [`development.md`](development.md)。
 
@@ -52,12 +52,16 @@ refactor: упростить выборку каталога
 
 | 命令 | 作用 |
 |---|---|
-| `make check` | ESLint + PHP-CS-Fixer 检查 + PHPStan |
+| `make check` | Composer 严格验证、锁定依赖审计、PHP 语法检查、PHP CS Fixer、PHPStan 和 ESLint |
 | `make test-unit` | 单元测试 |
 | `make test-integration` | 集成测试 |
 | `make test-functional` | 功能测试 |
 | `make test-functional-panther` | Panther 浏览器测试 |
-| `make test-all CONFIRM=testdb` | 完整测试集，包括 Panther |
+| `make test-all CONFIRM=testdb` | 完整测试集，包括 Panther 和两套 PostgreSQL 测试 |
+| `make test-reset-password-postgresql CONFIRM=testdb` | 密码重置并发操作 |
+| `make test-oauth-postgresql CONFIRM=testdb` | OAuth 身份并发变更 |
+
+普通 integration、functional 和 Panther 测试只使用本地 `var/db_for_test.db`。单独运行这些测试组前，请通过 `make test-db-reset CONFIRM=testdb` 准备数据库。请使用带保护检查的 Make 目标：测试不允许连接任意数据库。PostgreSQL 并发测试只能通过上面两个专用目标在一次性服务中运行。切勿使用工作数据库或外部连接进行测试。
 
 只运行与改动相关的检查。如果改动触及共享应用边界，或在大型改动的最终验证前，再运行完整测试集。
 

@@ -11,10 +11,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class BaseAdminController extends AbstractController
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
-    }
+    public function __construct(private readonly TranslatorInterface $translator) {}
 
+    /** @param array<string, string|int|float|null> $parameters */
     protected function addTranslatedFlash(string $type, string $message, array $parameters = []): void
     {
         $this->addFlash($type, $this->translator->trans($message, $parameters, 'admin'));

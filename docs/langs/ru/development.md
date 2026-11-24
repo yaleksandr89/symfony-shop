@@ -60,12 +60,17 @@ PHP, Composer, Node.js и Symfony Console на хосте не использу�
 
 | Команда | Что делает | Изменяет файлы |
 |---|---|---|
-| `make check` | ESLint + проверка PHP-CS-Fixer + PHPStan | нет |
+| `make check` | Строгая валидация Composer, аудит lock-файла, PHP lint, PHP CS Fixer, PHPStan и ESLint | нет |
+| `make composer-validate` | Проверяет Composer manifest и lock-файл | нет |
+| `make composer-audit` | Проверяет зависимости из lock-файла | нет |
+| `make php-lint` | Проверяет синтаксис PHP | нет |
 | `make eslint-check` | Проверяет JS/Vue через ESLint | нет |
-| `make php-cs-fixer-check` | Проверяет форматирование `src/` и `tools/demo/` | нет |
-| `make phpstan-check` | Запускает PHPStan для `src` и `tools/demo` | нет |
+| `make php-cs-fixer-check` | Проверяет форматирование first-party PHP | нет |
+| `make phpstan-check` | Анализирует first-party PHP на уровне 8 | нет |
 | `make eslint-fix` | Исправляет ошибки ESLint | да |
 | `make php-cs-fixer` | Исправляет форматирование PHP | да |
+
+Область PHP lint, PHP CS Fixer и PHPStan: `src`, `tests`, `migrations`, `tools/demo`, `fixtures/demo`, `config/bundles.php`, `config/preload.php`, `public/index.php`, `bin/console` и `.php-cs-fixer.dist.php`. Сгенерированные файлы и зависимости исключены. Проверки могут создавать локальный кеш.
 
 `make check` не запускает PHPUnit. Тесты выполняются отдельными целями.
 
@@ -80,9 +85,13 @@ PHP, Composer, Node.js и Symfony Console на хосте не использу�
 | `make test-functional` | HTTP, контроллеры, API и правила доступа | группа `functional` |
 | `make test-functional-panther` | Браузерные сценарии | группа `functional-panther` |
 | `make test-all-core CONFIRM=testdb` | Ресурсы фронтенда + unit + integration + functional | Пересоздаёт тестовую SQLite-базу |
-| `make test-all CONFIRM=testdb` | Полный набор, включая Panther | Пересоздаёт тестовую SQLite-базу |
+| `make test-all CONFIRM=testdb` | Полный набор, включая Panther и оба PostgreSQL-контура | Пересоздаёт тестовую SQLite-базу |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Конкурентные операции восстановления пароля | Одноразовая PostgreSQL в отдельном сервисе |
+| `make test-oauth-postgresql CONFIRM=testdb` | Конкурентные изменения OAuth-идентичностей | Одноразовая PostgreSQL в отдельном сервисе |
 
 `CONFIRM=testdb` нужен специально: агрегированные сценарии удаляют и заново создают `var/db_for_test.db`.
+
+Обычные integration-, functional- и Panther-тесты работают только с локальной `var/db_for_test.db`. Перед отдельным запуском этих групп подготовьте базу через `make test-db-reset CONFIRM=testdb`. Используйте защищённые Make-команды: произвольные подключения тестового контура не допускаются. PostgreSQL-тесты конкурентности запускаются только через две отдельные цели выше, в одноразовых сервисах. Никогда не используйте рабочую базу или внешнее подключение для тестов.
 
 Panther использует Chrome for Testing и Chromedriver из PHP-образа. Selenium Server, GeckoDriver, Java и локальный браузер для текущих тестов не нужны.
 
@@ -117,12 +126,12 @@ Workflow [`CI`](../../../.github/workflows/basic.yml) запускается д�
 2. создаёт `.env.docker`;
 3. проверяет Compose, собирает и запускает Docker-окружение;
 4. устанавливает зависимости и собирает ресурсы фронтенда;
-5. запускает ESLint;
-6. выполняет unit-, integration-, functional- и Panther-тесты;
-7. запускает PHPStan;
+5. выполняет `make check` (Composer validate/audit, PHP lint, PHP CS Fixer, PHPStan, ESLint);
+6. выполняет unit-, integration-, functional- и Panther-тесты с отдельной SQLite-базой;
+7. выполняет оба PostgreSQL-контура конкурентности (восстановление пароля и OAuth);
 8. останавливает контейнеры.
 
-CI не запускает проверку PHP-CS-Fixer и сбор отчёта покрытия, поэтому эти проверки при необходимости выполняются локально.
+Отчёты покрытия остаются локальной диагностикой. Workflow также можно запустить вручную (`workflow_dispatch`).
 
 ## Журналы и диагностика
 
@@ -162,16 +171,21 @@ CI не запускает проверку PHP-CS-Fixer и сбор отчёт�
 | `migrate` | Doctrine migrations |
 | `demo-init` | демонстрационные данные |
 | `postgres-reinit CONFIRM=postgres18` | полное пересоздание локального тома PostgreSQL |
-| `check` | ESLint + PHP-CS-Fixer check + PHPStan |
+| `check` | Строгая валидация Composer, аудит lock-файла, PHP lint, PHP CS Fixer, PHPStan и ESLint |
+| `composer-validate` | Проверяет Composer manifest и lock-файл |
+| `composer-audit` | Проверяет зависимости из lock-файла |
+| `php-lint` | Проверяет синтаксис PHP |
 | `eslint-fix` | исправление ESLint |
 | `eslint-check` | проверка ESLint |
 | `php-cs-fixer` | исправление PHP-форматирования |
 | `php-cs-fixer-check` | проверка PHP-форматирования |
 | `phpstan-check` | статический анализ PHPStan |
-| `test-all-core CONFIRM=testdb` | основной набор тестов без Panther |
+| `test-all-core CONFIRM=testdb` | Основной набор без Panther и PostgreSQL-конкурентности |
 | `coverage CONFIRM=testdb` | покрытие в терминале |
 | `coverage-html CONFIRM=testdb` | покрытие + HTML/Clover |
-| `test-all CONFIRM=testdb` | полный набор тестов с Panther |
+| `test-all CONFIRM=testdb` | Полный набор, включая Panther и оба PostgreSQL-контура |
+| `test-reset-password-postgresql CONFIRM=testdb` | Конкурентные операции восстановления пароля |
+| `test-oauth-postgresql CONFIRM=testdb` | Конкурентные изменения OAuth-идентичностей |
 | `test-groups` | список групп PHPUnit |
 | `test-list` | список тестов PHPUnit |
 | `test-unit` | unit-тесты |
