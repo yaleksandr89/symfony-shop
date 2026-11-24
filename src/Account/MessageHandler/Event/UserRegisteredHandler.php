@@ -18,8 +18,7 @@ class UserRegisteredHandler
         private EmailVerifier $emailVerifier,
         private UserRepository $userRepository,
         private UserRegisteredEmailSender $emailSender,
-    ) {
-    }
+    ) {}
 
     public function __invoke(EventUserRegisteredEvent $event): void
     {

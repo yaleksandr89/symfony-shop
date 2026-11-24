@@ -61,12 +61,17 @@ Docker Compose no tiene actualmente un worker permanente de Messenger. Consulta 
 
 | Comando | Qué hace | Modifica archivos |
 |---|---|---|
-| `make check` | ESLint + comprobación PHP-CS-Fixer + PHPStan | no |
+| `make check` | Validación estricta de Composer, auditoría del lock, PHP lint, PHP CS Fixer, PHPStan y ESLint | no |
+| `make composer-validate` | Valida el manifiesto y el lock de Composer | no |
+| `make composer-audit` | Audita las dependencias del lock | no |
+| `make php-lint` | Comprueba la sintaxis PHP | no |
 | `make eslint-check` | Comprueba JS/Vue con ESLint | no |
-| `make php-cs-fixer-check` | Comprueba formato en `src/` y `tools/demo/` | no |
-| `make phpstan-check` | Ejecuta PHPStan en `src` y `tools/demo` | no |
+| `make php-cs-fixer-check` | Comprueba el formato del PHP propio | no |
+| `make phpstan-check` | Analiza el PHP propio en el nivel 8 | no |
 | `make eslint-fix` | Corrige problemas ESLint | sí |
 | `make php-cs-fixer` | Corrige formato PHP | sí |
+
+PHP lint, PHP CS Fixer y PHPStan abarcan `src`, `tests`, `migrations`, `tools/demo`, `fixtures/demo`, `config/bundles.php`, `config/preload.php`, `public/index.php`, `bin/console` y `.php-cs-fixer.dist.php`. Se excluyen los archivos generados y las dependencias. Las comprobaciones pueden crear cachés locales.
 
 `make check` no ejecuta PHPUnit. Las pruebas tienen objetivos separados.
 
@@ -81,9 +86,13 @@ Docker Compose no tiene actualmente un worker permanente de Messenger. Consulta 
 | `make test-functional` | HTTP, controladores, API y reglas de acceso | grupo `functional` |
 | `make test-functional-panther` | Escenarios de navegador | grupo `functional-panther` |
 | `make test-all-core CONFIRM=testdb` | Recursos frontend + unit + integration + functional | Recrea la base SQLite de pruebas |
-| `make test-all CONFIRM=testdb` | Suite completa con Panther | Recrea la base SQLite de pruebas |
+| `make test-all CONFIRM=testdb` | Suite completa con Panther y ambas suites PostgreSQL | Recrea la base SQLite de pruebas |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Operaciones concurrentes de restablecimiento de contraseña | PostgreSQL desechable en un servicio independiente |
+| `make test-oauth-postgresql CONFIRM=testdb` | Cambios concurrentes de identidades OAuth | PostgreSQL desechable en un servicio independiente |
 
 `CONFIRM=testdb` es intencionado: los escenarios agregados eliminan y recrean `var/db_for_test.db`.
+
+Las pruebas ordinarias de integración, funcionales y Panther solo utilizan `var/db_for_test.db` local. Antes de ejecutar estos grupos por separado, prepara la base con `make test-db-reset CONFIRM=testdb`. Usa los objetivos Make protegidos: no se permiten conexiones arbitrarias para las pruebas. Ejecuta las pruebas de concurrencia PostgreSQL únicamente mediante los dos objetivos específicos anteriores, en servicios desechables. Nunca uses la base de trabajo ni una conexión externa para las pruebas.
 
 Panther usa Chrome for Testing y Chromedriver de la imagen PHP. Selenium Server, GeckoDriver, Java y un navegador local no son necesarios para las pruebas actuales.
 
@@ -118,12 +127,12 @@ Realiza:
 2. crea `.env.docker`;
 3. valida Compose, construye e inicia el entorno Docker;
 4. instala dependencias y compila recursos frontend;
-5. ejecuta ESLint;
-6. ejecuta pruebas unitarias, de integración, funcionales y Panther;
-7. ejecuta PHPStan;
+5. ejecuta `make check` (Composer validate/audit, PHP lint, PHP CS Fixer, PHPStan, ESLint);
+6. ejecuta pruebas unitarias, de integración, funcionales y Panther con una base SQLite independiente;
+7. ejecuta ambas suites de concurrencia PostgreSQL (restablecimiento de contraseña y OAuth);
 8. detiene los contenedores.
 
-La CI no ejecuta la comprobación PHP-CS-Fixer ni genera informes de cobertura; esas comprobaciones se ejecutan localmente cuando hacen falta.
+Los informes de cobertura siguen siendo diagnósticos locales. El workflow también puede iniciarse manualmente (`workflow_dispatch`).
 
 ## Logs y diagnóstico
 
@@ -163,16 +172,21 @@ La CI no ejecuta la comprobación PHP-CS-Fixer ni genera informes de cobertura; 
 | `migrate` | migraciones Doctrine |
 | `demo-init` | datos demo |
 | `postgres-reinit CONFIRM=postgres18` | recrear por completo el volumen PostgreSQL local |
-| `check` | ESLint + PHP-CS-Fixer check + PHPStan |
+| `check` | Validación estricta de Composer, auditoría del lock, PHP lint, PHP CS Fixer, PHPStan y ESLint |
+| `composer-validate` | Valida el manifiesto y el lock de Composer |
+| `composer-audit` | Audita las dependencias del lock |
+| `php-lint` | Comprueba la sintaxis PHP |
 | `eslint-fix` | corregir ESLint |
 | `eslint-check` | comprobar ESLint |
 | `php-cs-fixer` | corregir formato PHP |
 | `php-cs-fixer-check` | comprobar formato PHP |
 | `phpstan-check` | análisis estático PHPStan |
-| `test-all-core CONFIRM=testdb` | suite principal sin Panther |
+| `test-all-core CONFIRM=testdb` | Suite principal sin Panther ni concurrencia PostgreSQL |
 | `coverage CONFIRM=testdb` | cobertura en terminal |
 | `coverage-html CONFIRM=testdb` | cobertura + HTML/Clover |
-| `test-all CONFIRM=testdb` | suite completa con Panther |
+| `test-all CONFIRM=testdb` | Suite completa con Panther y ambas suites PostgreSQL |
+| `test-reset-password-postgresql CONFIRM=testdb` | Operaciones concurrentes de restablecimiento de contraseña |
+| `test-oauth-postgresql CONFIRM=testdb` | Cambios concurrentes de identidades OAuth |
 | `test-groups` | grupos PHPUnit |
 | `test-list` | lista de pruebas PHPUnit |
 | `test-unit` | pruebas unitarias |

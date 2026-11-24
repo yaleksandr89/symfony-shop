@@ -28,7 +28,6 @@ class UserController extends BaseAdminController
 
     public function list(): Response
     {
-        /** @var User $users */
         $users = $this->userRepository->findBy(['isDeleted' => false], ['id' => 'DESC']);
 
         return $this->render('@Admin/user/list.html.twig', [
@@ -69,7 +68,7 @@ class UserController extends BaseAdminController
         $id = $user->getId();
         $fullName = $user->getFullName();
 
-        if (!$this->isCsrfTokenValid('delete_user_'.$id, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_user_' . $id, $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 

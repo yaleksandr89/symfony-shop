@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Commerce\ApiPlatform;
 
+use App\Account\Repository\UserRepository;
 use App\Commerce\Cart\TokenGenerator;
 use App\Entity\Cart;
 use App\Entity\CartProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
-use Symfony\Component\BrowserKit\AbstractBrowser;
+use stdClass;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class CartProductResourceTest extends ResourceTestUtils
 {
     private const URI_KEY = '/api/cart_products';
@@ -145,7 +146,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $this->assertCollectionContainsLine($document, $context['lineA']);
         $this->assertCollectionContainsLine($document, $context['lineB']);
 
-        $uri = $this->lineIri($context['lineB']).'?context=admin';
+        $uri = $this->lineIri($context['lineB']) . '?context=admin';
         $client->request('GET', $uri, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         self::assertSame($context['lineB']->getId(), $this->getResponseDecodedContent($client)['id']);
@@ -160,7 +161,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $cartId = $context['cartA']->getId();
         self::assertNotNull($cartId);
 
-        $client->request('GET', '/api/carts/'.$cartId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/carts/' . $cartId, [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $document = $this->getResponseDecodedContent($client);
@@ -185,7 +186,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -202,7 +203,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -218,6 +219,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $client->request('DELETE', $this->lineIri($context['lineA']), [], [], self::REQUEST_HEADERS);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         self::assertNull($entityManager->find(CartProduct::class, $lineId));
@@ -238,7 +240,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -255,7 +257,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -275,7 +277,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -295,7 +297,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -317,7 +319,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -339,6 +341,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
         self::assertSame($countBefore + 1, $this->countCartProducts());
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $cartId = $context['cartA']->getId();
         $productId = $context['productB']->getId();
@@ -350,7 +353,7 @@ class CartProductResourceTest extends ResourceTestUtils
                 'cart' => $entityManager->getReference(Cart::class, $cartId),
                 'product' => $entityManager->getReference(Product::class, $productId),
             ],
-            ['id' => 'DESC']
+            ['id' => 'DESC'],
         );
 
         self::assertInstanceOf(CartProduct::class, $createdLine);
@@ -646,7 +649,7 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             $quantity,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
     }
 
@@ -786,7 +789,7 @@ class CartProductResourceTest extends ResourceTestUtils
         yield 'decimal' => [1.5];
         yield 'boolean' => [true];
         yield 'array' => [[]];
-        yield 'object' => [new \stdClass()];
+        yield 'object' => [new stdClass()];
     }
 
     /**
@@ -794,24 +797,25 @@ class CartProductResourceTest extends ResourceTestUtils
      */
     private function createCartContext(): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
         $tokenA = TokenGenerator::generateToken();
         $tokenB = TokenGenerator::generateToken();
-        $productA = (new Product())
-            ->setTitle('Cart product A '.$suffix)
+        $productA = new Product()
+            ->setTitle('Cart product A ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(10)
             ->setIsPublished(true);
-        $productB = (new Product())
-            ->setTitle('Cart product B '.$suffix)
+        $productB = new Product()
+            ->setTitle('Cart product B ' . $suffix)
             ->setPrice('20.00')
             ->setQuantity(20)
             ->setIsPublished(true);
-        $cartA = (new Cart())->setToken($tokenA);
-        $cartB = (new Cart())->setToken($tokenB);
-        $lineA = (new CartProduct())->setProduct($productA)->setQuantity(1);
-        $lineB = (new CartProduct())->setProduct($productB)->setQuantity(2);
+        $cartA = new Cart()->setToken($tokenA);
+        $cartB = new Cart()->setToken($tokenB);
+        $lineA = new CartProduct()->setProduct($productA)->setQuantity(1);
+        $lineB = new CartProduct()->setProduct($productB)->setQuantity(2);
         $cartA->addCartProduct($lineA);
         $cartB->addCartProduct($lineB);
 
@@ -844,7 +848,7 @@ class CartProductResourceTest extends ResourceTestUtils
         return $user;
     }
 
-    private function setCartToken(AbstractBrowser $client, string $token): void
+    private function setCartToken(KernelBrowser $client, string $token): void
     {
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $token));
     }
@@ -852,9 +856,9 @@ class CartProductResourceTest extends ResourceTestUtils
     /**
      * @return array<string, mixed>
      */
-    private function requestCollection(AbstractBrowser $client, string $query = ''): array
+    private function requestCollection(KernelBrowser $client, string $query = ''): array
     {
-        $client->request('GET', self::URI_KEY.$query, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', self::URI_KEY . $query, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         return $this->getResponseDecodedContent($client);
@@ -887,7 +891,7 @@ class CartProductResourceTest extends ResourceTestUtils
         $lineId = $line->getId();
         self::assertNotNull($lineId);
 
-        return self::URI_KEY.'/'.$lineId;
+        return self::URI_KEY . '/' . $lineId;
     }
 
     private function cartIri(Cart $cart): string
@@ -895,18 +899,18 @@ class CartProductResourceTest extends ResourceTestUtils
         $cartId = $cart->getId();
         self::assertNotNull($cartId);
 
-        return '/api/carts/'.$cartId;
+        return '/api/carts/' . $cartId;
     }
 
     private function productIri(Product $product): string
     {
-        return '/api/products/'.$product->getUuid();
+        return '/api/products/' . $product->getUuid();
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    private function requestPatch(AbstractBrowser $client, CartProduct $line, array $payload): void
+    private function requestPatch(KernelBrowser $client, CartProduct $line, array $payload): void
     {
         $client->request(
             'PATCH',
@@ -914,12 +918,12 @@ class CartProductResourceTest extends ResourceTestUtils
             [],
             [],
             self::REQUEST_HEADERS_PATCH,
-            json_encode($payload, JSON_THROW_ON_ERROR)
+            json_encode($payload, JSON_THROW_ON_ERROR),
         );
     }
 
     /** @param array<string, mixed> $payload */
-    private function requestPost(AbstractBrowser $client, array $payload): void
+    private function requestPost(KernelBrowser $client, array $payload): void
     {
         $client->request(
             'POST',
@@ -927,16 +931,16 @@ class CartProductResourceTest extends ResourceTestUtils
             [],
             [],
             self::REQUEST_HEADERS,
-            json_encode($payload, JSON_THROW_ON_ERROR)
+            json_encode($payload, JSON_THROW_ON_ERROR),
         );
     }
 
-    private function requestPostRaw(AbstractBrowser $client, string $content): void
+    private function requestPostRaw(KernelBrowser $client, string $content): void
     {
         $client->request('POST', self::URI_KEY, [], [], self::REQUEST_HEADERS, $content);
     }
 
-    private function requestPatchRaw(AbstractBrowser $client, CartProduct $line, string $content): void
+    private function requestPatchRaw(KernelBrowser $client, CartProduct $line, string $content): void
     {
         $client->request(
             'PATCH',
@@ -944,7 +948,7 @@ class CartProductResourceTest extends ResourceTestUtils
             [],
             [],
             self::REQUEST_HEADERS_PATCH,
-            $content
+            $content,
         );
     }
 
@@ -958,13 +962,14 @@ class CartProductResourceTest extends ResourceTestUtils
     private function createProduct(string $prefix, bool $isPublished = true, bool $isDeleted = false): Product
     {
         $suffix = str_replace('.', '', uniqid('', true));
-        $product = (new Product())
-            ->setTitle($prefix.' '.$suffix)
+        $product = new Product()
+            ->setTitle($prefix . ' ' . $suffix)
             ->setPrice('30.00')
             ->setQuantity(10)
             ->setIsPublished($isPublished)
             ->setIsDeleted($isDeleted);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($product);
         $entityManager->flush();
@@ -979,6 +984,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertNotNull($cartId);
         self::assertNotNull($productId);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $line = $entityManager->getRepository(CartProduct::class)->findOneBy([
@@ -997,17 +1003,17 @@ class CartProductResourceTest extends ResourceTestUtils
             $context['lineA'],
             1,
             $context['cartA']->getId(),
-            $context['productA']->getId()
+            $context['productA']->getId(),
         );
         $this->assertPersistedLineState(
             $context['lineB'],
             2,
             $context['cartB']->getId(),
-            $context['productB']->getId()
+            $context['productB']->getId(),
         );
     }
 
-    private function assertValidationMessage(AbstractBrowser $client, string $message): void
+    private function assertValidationMessage(KernelBrowser $client, string $message): void
     {
         $content = $client->getResponse()->getContent();
         self::assertIsString($content);
@@ -1022,7 +1028,7 @@ class CartProductResourceTest extends ResourceTestUtils
     private function requestSchema(array $document, string $method): array
     {
         $contentType = 'patch' === $method ? 'application/merge-patch+json' : 'application/json';
-        $path = 'patch' === $method ? self::URI_KEY.'/{id}' : self::URI_KEY;
+        $path = 'patch' === $method ? self::URI_KEY . '/{id}' : self::URI_KEY;
         $reference = $document['paths'][$path][$method]['requestBody']['content'][$contentType]['schema'];
         self::assertIsArray($reference);
         self::assertArrayHasKey('$ref', $reference);
@@ -1042,6 +1048,7 @@ class CartProductResourceTest extends ResourceTestUtils
         self::assertNotNull($cartId);
         self::assertNotNull($productId);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $persistedLine = $entityManager->find(CartProduct::class, $lineId);

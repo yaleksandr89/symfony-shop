@@ -6,6 +6,7 @@ namespace App\Mailer\DTO;
 
 class MailerOptionModel
 {
+    /** @param array<string, mixed> $context */
     public function __construct(
         private string $recipient = '',
         private ?string $cc = null,
@@ -13,8 +14,7 @@ class MailerOptionModel
         private string $htmlTemplate = '',
         private array $context = [],
         private string $text = '',
-    ) {
-    }
+    ) {}
 
     public function getRecipient(): string
     {
@@ -64,11 +64,13 @@ class MailerOptionModel
         return $this;
     }
 
+    /** @return array<string, mixed> */
     public function getContext(): array
     {
         return $this->context;
     }
 
+    /** @param array<string, mixed> $context */
     public function setContext(array $context): MailerOptionModel
     {
         $this->context = $context;

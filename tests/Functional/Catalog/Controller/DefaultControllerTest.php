@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional\Catalog\Controller;
 
 use App\Entity\Category;
@@ -14,7 +16,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class DefaultControllerTest extends WebTestCase
 {
     #[TestDox('Число запросов главной страницы не растёт с числом товаров')]
@@ -48,7 +50,7 @@ class DefaultControllerTest extends WebTestCase
         self::assertResponseRedirects(
             'http://localhost/ru',
             Response::HTTP_MOVED_PERMANENTLY,
-            sprintf('The %s URL redirections to the version with locale', '/')
+            sprintf('The %s URL redirections to the version with locale', '/'),
         );
     }
 
@@ -73,7 +75,7 @@ class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('.widget-copyright', 'Авторское право © Александр Юрченко. Все права защищены.');
     }
 
-    #[DataProvider(methodName: 'getSecureUrls')]
+    #[DataProvider('getSecureUrls')]
     #[TestDox('Защищённые URL перенаправляют на страницу входа')]
     public function testSecureUrl(string $url): void
     {
@@ -83,11 +85,11 @@ class DefaultControllerTest extends WebTestCase
         self::assertResponseRedirects(
             '/ru/login',
             Response::HTTP_FOUND,
-            sprintf('The %s URL redirections to the login page', $url)
+            sprintf('The %s URL redirections to the login page', $url),
         );
     }
 
-    public static function getSecureUrls(): ?Generator
+    public static function getSecureUrls(): Generator
     {
         yield ['/ru/profile'];
         yield ['/ru/profile/edit'];
@@ -95,15 +97,16 @@ class DefaultControllerTest extends WebTestCase
 
     private function createHomepageProducts(int $count, ?Category $category = null): Category
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
-        $category ??= (new Category())
-            ->setTitle('Homepage query '.$suffix)
-            ->setSlug('homepage-query-'.$suffix);
+        $category ??= new Category()
+            ->setTitle('Homepage query ' . $suffix)
+            ->setSlug('homepage-query-' . $suffix);
         $entityManager->persist($category);
         for ($index = 1; $index <= $count; ++$index) {
             $filename = sprintf('homepage-%s-%d.jpg', $suffix, $index);
-            $product = (new Product())
+            $product = new Product()
                 ->setTitle(sprintf('Homepage product %s %d', $suffix, $index))
                 ->setSlug(sprintf('homepage-product-%s-%d', $suffix, $index))
                 ->setPrice('10.00')
@@ -111,10 +114,10 @@ class DefaultControllerTest extends WebTestCase
                 ->setIsPublished(true)
                 ->setCategory($category);
             $product->addProductImage(
-                (new ProductImage())
+                new ProductImage()
                     ->setFilenameBig($filename)
                     ->setFilenameMiddle($filename)
-                    ->setFilenameSmall($filename)
+                    ->setFilenameSmall($filename),
             );
             $entityManager->persist($product);
         }

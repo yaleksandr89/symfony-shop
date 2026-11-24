@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class LinkedinTest extends TestCase
 {
     #[TestDox('Использует актуальные конечные точки OIDC, области и Bearer-запрос данных пользователя')]
@@ -38,7 +38,7 @@ final class LinkedinTest extends TestCase
         self::assertSame('openid profile email', $query['scope']);
         self::assertSame('Bearer access-token', $request->getHeaderLine('Authorization'));
         self::assertStringNotContainsString('access-token', $resourceUrl);
-        self::assertStringNotContainsString('/v2/me', $authorizationUrl.$resourceUrl);
+        self::assertStringNotContainsString('/v2/me', $authorizationUrl . $resourceUrl);
         self::assertStringNotContainsString('r_liteprofile', $authorizationUrl);
         self::assertStringNotContainsString('r_emailaddress', $authorizationUrl);
     }
@@ -49,7 +49,7 @@ final class LinkedinTest extends TestCase
         $provider = $this->providerWithResponse(new Response(
             200,
             ['Content-Type' => 'application/json'],
-            '{"sub":"LiNkEdIn-sub"}'
+            '{"sub":"LiNkEdIn-sub"}',
         ));
         $user = $provider->getResourceOwner(new AccessToken(['access_token' => 'token']));
 
@@ -67,8 +67,8 @@ final class LinkedinTest extends TestCase
             ['Content-Type' => 'application/json'],
             json_encode([
                 'error' => 'invalid_token',
-                'error_description' => $secret.' '.$token,
-            ], JSON_THROW_ON_ERROR)
+                'error_description' => $secret . ' ' . $token,
+            ], JSON_THROW_ON_ERROR),
         ));
 
         try {

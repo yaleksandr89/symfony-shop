@@ -68,7 +68,7 @@ class CategoryController extends BaseAdminController
         $id = $category->getId();
         $title = $category->getTitle();
 
-        if (!$this->isCsrfTokenValid('delete_category_'.$id, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_category_' . $id, $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 

@@ -18,7 +18,7 @@ Consultez les Discussions, Issues et Pull Requests existants et gardez chaque ch
 - PHP, Composer, PostgreSQL, Node.js et l’environnement navigateur ne s’exécutent pas directement sur l’hôte dans le workflow normal.
 - Les changements ne doivent pas affaiblir discrètement les règles d’accès, les flux OAuth, l’intégrité du panier/des commandes ou d’autres contrats existants.
 - N’ajoutez pas de refactorisation large ni de mise à jour de dépendances sans rapport avec la tâche.
-- L’architecture frontend Vue 2 reste en place jusqu’à la migration distincte vers Inertia.js et Vue 3.
+- L’architecture frontend Vue 3 reste en place jusqu’à la migration distincte vers Inertia.js.
 
 L’architecture est décrite dans [`architecture.md`](architecture.md), et les commandes de développement dans [`development.md`](development.md).
 
@@ -52,12 +52,16 @@ Lisez le Makefile actuel avant d’exécuter des commandes. Vérifications princ
 
 | Commande | Rôle |
 |---|---|
-| `make check` | ESLint + vérification PHP-CS-Fixer + PHPStan |
+| `make check` | Validation stricte de Composer, audit du lock, PHP lint, PHP CS Fixer, PHPStan et ESLint |
 | `make test-unit` | tests unitaires |
 | `make test-integration` | tests d’intégration |
 | `make test-functional` | tests fonctionnels |
 | `make test-functional-panther` | tests navigateur Panther |
-| `make test-all CONFIRM=testdb` | ensemble complet, Panther inclus |
+| `make test-all CONFIRM=testdb` | Suite complète, Panther et les deux suites PostgreSQL inclus |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Opérations concurrentes de réinitialisation du mot de passe |
+| `make test-oauth-postgresql CONFIRM=testdb` | Modifications concurrentes des identités OAuth |
+
+Les tests ordinaires d’intégration, fonctionnels et Panther utilisent uniquement la base locale `var/db_for_test.db`. Avant de lancer ces groupes séparément, préparez la base avec `make test-db-reset CONFIRM=testdb`. Utilisez les cibles Make protégées : les connexions de test arbitraires sont interdites. Exécutez les tests de concurrence PostgreSQL uniquement via les deux cibles dédiées ci-dessus, dans des services jetables. N’utilisez jamais la base de travail ni une connexion externe pour les tests.
 
 Exécutez les vérifications liées au changement. Utilisez l’ensemble complet lorsque des frontières communes de l’application sont touchées ou avant la validation finale d’un changement important.
 

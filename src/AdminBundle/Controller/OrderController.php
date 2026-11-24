@@ -80,7 +80,7 @@ class OrderController extends BaseAdminController
     {
         $id = $order->getId();
 
-        if (!$this->isCsrfTokenValid('delete_order_'.$id, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_order_' . $id, $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 

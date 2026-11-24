@@ -80,6 +80,8 @@ N’ajoutez pas ce fichier à Git et ne publiez pas son contenu. Dans l’enviro
 
 L’environnement de test utilise une base SQLite séparée `var/db_for_test.db`, des paramètres Panther, des transports Mailer/Messenger neutres et des fournisseurs OAuth désactivés.
 
+La base SQLite de test est fixée à `var/db_for_test.db`. `TEST_DATABASE_URL` est réservé aux deux scénarios protégés de concurrence PostgreSQL, pas aux connexions arbitraires. Voir le [guide de développement](development.md).
+
 ## Courrier et Messenger
 
 Valeurs par défaut :

@@ -6,6 +6,7 @@ namespace App\Account\Mailer;
 
 use App\Entity\User;
 use App\Mailer\Sender\BaseSender;
+use LogicException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
@@ -20,7 +21,7 @@ class ResetUserPasswordEmailSender extends BaseSender
         $emailContext['profileUrl'] = $this->urlGenerator->generate('main_profile_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $mailerOptions = $this->getMailerOptions()
-            ->setRecipient($user->getEmail())
+            ->setRecipient($user->getEmail() ?? throw new LogicException('An email address is required.'))
             ->setSubject('Symfony shop - You password reset request!!')
             ->setHtmlTemplate('account/email/reset_password.html.twig')
             ->setContext($emailContext);

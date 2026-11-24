@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\AdminBundle\Form\Filter;
 
-use App\Entity\Order;
-use App\Entity\Product;
-use App\Entity\User;
-use App\AdminBundle\Form\FilterType\OrderFilterFormType;
-use App\AdminBundle\Form\FilterType\ProductFilterFormType;
+use App\Account\Repository\UserRepository;
 use App\AdminBundle\DTO\OrderFilterModel;
 use App\AdminBundle\DTO\ProductFilterModel;
 use App\AdminBundle\Filter\ExclusiveDateRangeFilter;
-use App\Account\Repository\UserRepository;
+use App\AdminBundle\Form\FilterType\OrderFilterFormType;
+use App\AdminBundle\Form\FilterType\ProductFilterFormType;
+use App\Entity\Order;
+use App\Entity\Product;
+use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Spiriit\Bundle\FormFilterBundle\Filter\Condition\ConditionInterface;
@@ -26,8 +25,9 @@ use Spiriit\Bundle\FormFilterBundle\Filter\Doctrine\ORMQuery;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdater;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class ExclusiveDateRangeFilterTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
@@ -156,7 +156,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         $orders = [];
 
         foreach (['90.60', '94.20', '94.21'] as $totalPrice) {
-            $order = (new Order())
+            $order = new Order()
                 ->setOwner($owner)
                 ->setStatus(1)
                 ->setTotalPrice($totalPrice);
@@ -172,7 +172,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
 
             $queryBuilder = $this->entityManager->createQueryBuilder()->select('filtered_order')->from(Order::class, 'filtered_order');
             self::getContainer()->get(FilterBuilderUpdater::class)->addFilterConditions($form, $queryBuilder);
-            $resultIds = array_map(static fn (Order $order): ?int => $order->getId(), $queryBuilder->getQuery()->getResult());
+            $resultIds = array_map(static fn(Order $order): ?int => $order->getId(), $queryBuilder->getQuery()->getResult());
 
             self::assertContains($orders[0]->getId(), $resultIds);
             self::assertContains($orders[1]->getId(), $resultIds);
@@ -194,7 +194,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
     /** @param array{value: array{left_date: array{0: DateTimeImmutable|null}, right_date: array{0: DateTimeImmutable|null}}} $values */
     private function condition(string $alias, array $values): ConditionInterface
     {
-        $condition = $this->filter()($this->ormQuery(Product::class, $alias), $alias.'.createdAt', $values);
+        $condition = $this->filter()($this->ormQuery(Product::class, $alias), $alias . '.createdAt', $values);
         self::assertInstanceOf(ConditionInterface::class, $condition);
 
         return $condition;
@@ -213,14 +213,17 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         return ['value' => ['left_date' => [$lower], 'right_date' => [$upper]]];
     }
 
-    /** @param list<DateTimeImmutable> $timestamps @return list<Product> */
+    /**
+     * @param list<DateTimeImmutable> $timestamps
+     * @return list<Product>
+     */
     private function createProducts(array $timestamps): array
     {
         $products = [];
 
         foreach ($timestamps as $index => $timestamp) {
-            $product = (new Product())
-                ->setTitle('Exclusive boundary product '.$index.' '.uniqid('', true))
+            $product = new Product()
+                ->setTitle('Exclusive boundary product ' . $index . ' ' . uniqid('', true))
                 ->setPrice('10.00')
                 ->setQuantity(1)
                 ->setDescription(null)
@@ -233,7 +236,10 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         return $products;
     }
 
-    /** @param list<DateTimeImmutable> $timestamps @return list<Order> */
+    /**
+     * @param list<DateTimeImmutable> $timestamps
+     * @return list<Order>
+     */
     private function createOrders(array $timestamps): array
     {
         $owner = self::getContainer()->get(UserRepository::class)->findOneBy([
@@ -243,7 +249,7 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         $orders = [];
 
         foreach ($timestamps as $timestamp) {
-            $order = (new Order())
+            $order = new Order()
                 ->setOwner($owner)
                 ->setStatus(1)
                 ->setTotalPrice('10.00')
@@ -256,10 +262,12 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
     }
 
     /**
-     * @param class-string                      $entityClass
-     * @param class-string                      $formType
-     * @param ProductFilterModel|OrderFilterModel $model
-     * @param list<Product>|list<Order>         $entities
+     * @template TModel of ProductFilterModel|OrderFilterModel
+     *
+     * @param class-string<Product|Order> $entityClass
+     * @param class-string<FormTypeInterface<TModel>> $formType
+     * @param TModel $model
+     * @param list<Product>|list<Order> $entities
      */
     private function assertFilteredIds(string $entityClass, string $formType, object $model, array $entities): void
     {
@@ -271,10 +279,10 @@ class ExclusiveDateRangeFilterTest extends KernelTestCase
         self::getContainer()->get(FilterBuilderUpdater::class)->addFilterConditions($form, $queryBuilder);
 
         $resultIds = array_map(
-            static fn (object $entity): ?int => $entity->getId(),
+            static fn(Product|Order $entity): ?int => $entity->getId(),
             $queryBuilder->getQuery()->getResult(),
         );
-        $entityIds = array_map(static fn (object $entity): ?int => $entity->getId(), $entities);
+        $entityIds = array_map(static fn(Product|Order $entity): ?int => $entity->getId(), $entities);
 
         self::assertContains($entityIds[0], $resultIds);
         self::assertContains($entityIds[1], $resultIds);

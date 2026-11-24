@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
@@ -27,9 +28,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
     public const CART_RETURN_INTENT = 'cart';
     public const RETURN_INTENT_SESSION_KEY = 'app.login.return_intent';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
-    {
-    }
+    public function __construct(private UrlGeneratorInterface $urlGenerator) {}
 
     public function supports(Request $request): ?bool
     {
@@ -41,6 +40,10 @@ class LoginFormAuthenticator extends AbstractAuthenticator
         $email = $request->request->get('email');
         $plaintextPassword = $request->request->get('password');
 
+        if (!is_string($email) || !is_string($plaintextPassword)) {
+            throw new BadCredentialsException();
+        }
+
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
@@ -49,7 +52,7 @@ class LoginFormAuthenticator extends AbstractAuthenticator
             [
                 new CsrfTokenBadge('authenticate', $request->request->getString('_csrf_token')),
                 new RememberMeBadge(),
-            ]
+            ],
         );
     }
 

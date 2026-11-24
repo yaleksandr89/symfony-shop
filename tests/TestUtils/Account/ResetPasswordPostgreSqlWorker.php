@@ -11,10 +11,16 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
+use RuntimeException;
+use SensitiveParameter;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Throwable;
 
 final class ResetPasswordPostgreSqlWorker
 {
@@ -24,7 +30,13 @@ final class ResetPasswordPostgreSqlWorker
         $kernel = new Kernel('test', true);
         $kernel->boot();
         $container = $kernel->getContainer()->get('test.service_container');
+        if (!$container instanceof ContainerInterface) {
+            throw new RuntimeException('Test service container is unavailable.');
+        }
         $client = $container->get('test.client');
+        if (!$client instanceof KernelBrowser) {
+            throw new RuntimeException('Test HTTP client is unavailable.');
+        }
         $client->disableReboot();
         $client->catchExceptions(false);
         $entityManager = $container->get(EntityManagerInterface::class);
@@ -47,12 +59,10 @@ final class ResetPasswordPostgreSqlWorker
         $session->save();
         $client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
         $hasher = new UserPasswordHasher($container->get('security.password_hasher_factory'));
-        $container->set(UserPasswordHasherInterface::class, new class($hasher) implements UserPasswordHasherInterface {
-            public function __construct(private UserPasswordHasherInterface $hasher)
-            {
-            }
+        $container->set(UserPasswordHasherInterface::class, new class ($hasher) implements UserPasswordHasherInterface {
+            public function __construct(private UserPasswordHasherInterface $hasher) {}
 
-            public function hashPassword(PasswordAuthenticatedUserInterface $user, #[\SensitiveParameter] string $plainPassword): string
+            public function hashPassword(PasswordAuthenticatedUserInterface $user, #[SensitiveParameter] string $plainPassword): string
             {
                 $hash = $this->hasher->hashPassword($user, $plainPassword);
                 ResetPasswordPostgreSqlWorker::barrier('preliminary');
@@ -60,7 +70,7 @@ final class ResetPasswordPostgreSqlWorker
                 return $hash;
             }
 
-            public function isPasswordValid(PasswordAuthenticatedUserInterface $user, #[\SensitiveParameter] string $plainPassword): bool
+            public function isPasswordValid(PasswordAuthenticatedUserInterface $user, #[SensitiveParameter] string $plainPassword): bool
             {
                 return $this->hasher->isPasswordValid($user, $plainPassword);
             }
@@ -73,16 +83,15 @@ final class ResetPasswordPostgreSqlWorker
 
         $crawler = $client->request('GET', '/ru/reset-password/reset');
         if (200 !== $client->getResponse()->getStatusCode()) {
-            throw new \RuntimeException('Reset form unavailable.');
+            throw new RuntimeException('Reset form unavailable.');
         }
         $form = $crawler->filter('form[name="change_password_form"]')->form([
             'change_password_form[plainPassword][first]' => $input['password'],
             'change_password_form[plainPassword][second]' => $input['password'],
         ]);
-        $listener = new class($input, $hasher) {
-            public function __construct(private array $input, private UserPasswordHasherInterface $hasher)
-            {
-            }
+        $listener = new class ($input, $hasher) {
+            /** @param array<string, mixed> $input */
+            public function __construct(private array $input, private UserPasswordHasherInterface $hasher) {}
 
             public function preFlush(PreFlushEventArgs $args): void
             {
@@ -118,6 +127,9 @@ final class ResetPasswordPostgreSqlWorker
         }
 
         $savedSession = $container->get('session.factory')->createSession();
+        if (!$savedSession instanceof FlashBagAwareSessionInterface) {
+            throw new RuntimeException('Test session has no flash storage.');
+        }
         $savedSession->setId($session->getId());
         self::emit([
             'event' => 'result',
@@ -132,17 +144,19 @@ final class ResetPasswordPostgreSqlWorker
         $kernel->shutdown();
     }
 
+    /** @param array<string, mixed> $details */
     public static function barrier(string $event, array $details = []): void
     {
         self::emit(['event' => $event] + $details);
         if ('continue' !== self::readLine()) {
-            throw new \RuntimeException('Invalid barrier command.');
+            throw new RuntimeException('Invalid barrier command.');
         }
     }
 
+    /** @param array<string, mixed> $event */
     private static function emit(array $event): void
     {
-        fwrite(STDOUT, json_encode($event, JSON_THROW_ON_ERROR)."\n");
+        fwrite(STDOUT, json_encode($event, JSON_THROW_ON_ERROR) . "\n");
         fflush(STDOUT);
     }
 
@@ -151,29 +165,27 @@ final class ResetPasswordPostgreSqlWorker
         $read = [STDIN];
         $write = $except = [];
         if (1 !== stream_select($read, $write, $except, 25)) {
-            throw new \RuntimeException('Worker barrier deadline exceeded.');
+            throw new RuntimeException('Worker barrier deadline exceeded.');
         }
         $line = fgets(STDIN);
         if (false === $line) {
-            throw new \RuntimeException('Worker input closed.');
+            throw new RuntimeException('Worker input closed.');
         }
 
         return trim($line);
     }
 }
 
-final class ResetPasswordWorkerRollback extends \RuntimeException
-{
-}
+final class ResetPasswordWorkerRollback extends RuntimeException {}
 
 if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
-    require dirname(__DIR__, 2).'/bootstrap.php';
+    require dirname(__DIR__, 2) . '/bootstrap.php';
     try {
         ResetPasswordPostgreSqlWorker::run();
-    } catch (\Throwable $exception) {
+    } catch (Throwable $exception) {
         // EN: Report only the exception type; diagnostic messages can contain credentials or tokens.
         // RU: Выводим только тип исключения: диагностические сообщения могут содержать credentials или token.
-        fwrite(STDOUT, json_encode(['event' => 'error', 'type' => $exception::class], JSON_THROW_ON_ERROR)."\n");
+        fwrite(STDOUT, json_encode(['event' => 'error', 'type' => $exception::class], JSON_THROW_ON_ERROR) . "\n");
         exit(1);
     }
 }

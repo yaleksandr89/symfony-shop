@@ -15,20 +15,20 @@ use App\Entity\Product;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class OrderManagerMoneyTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
 
     private OrderManager $orderManager;
 
-    private SerializerInterface $serializer;
+    private NormalizerInterface $normalizer;
 
     protected function setUp(): void
     {
@@ -37,9 +37,13 @@ class OrderManagerMoneyTest extends KernelTestCase
 
         $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $this->orderManager = self::getContainer()->get(OrderManager::class);
-        $this->serializer = self::getContainer()->get(SerializerInterface::class);
+        $this->normalizer = self::getContainer()->get(NormalizerInterface::class);
     }
 
+    /**
+     * @param list<array{string, int}> $lines
+     * @param list<string> $expectedSnapshots
+     */
     #[TestWith([
         [['89.99', 3], ['94.90', 1]],
         ['89.99', '94.90'],
@@ -53,23 +57,23 @@ class OrderManagerMoneyTest extends KernelTestCase
     #[TestDox('Итоги заказа и снимки цен рассчитываются точно до цента')]
     public function testCreatesCentCorrectOrderTotalsAndPriceSnapshots(array $lines, array $expectedSnapshots, string $expectedTotal): void
     {
-        $user = (new User())
-            ->setEmail('order-money-'.uniqid('', true).'@example.test')
+        $user = new User()
+            ->setEmail('order-money-' . uniqid('', true) . '@example.test')
             ->setPassword('not-used-by-this-test')
             ->setIsVerified(true);
-        $cart = (new Cart())->setToken(TokenGenerator::generateToken());
+        $cart = new Cart()->setToken(TokenGenerator::generateToken());
 
         $this->entityManager->persist($user);
 
         foreach ($lines as [$price, $quantity]) {
-            $product = (new Product())
-                ->setTitle('Order money '.uniqid('', true))
+            $product = new Product()
+                ->setTitle('Order money ' . uniqid('', true))
                 ->setPrice($price)
                 ->setQuantity($quantity);
             $cart->addCartProduct(
-                (new CartProduct())
+                new CartProduct()
                     ->setProduct($product)
-                    ->setQuantity($quantity)
+                    ->setQuantity($quantity),
             );
             $this->entityManager->persist($product);
         }
@@ -89,7 +93,7 @@ class OrderManagerMoneyTest extends KernelTestCase
         $hydratedCart = $this->entityManager->find(Cart::class, $cartId);
         self::assertInstanceOf(Cart::class, $hydratedCart);
 
-        $order = (new Order())
+        $order = new Order()
             ->setOwner($hydratedUser)
             ->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
         $this->orderManager->addOrdersProductsFromVerifiedCart($order, $hydratedCart);
@@ -116,7 +120,7 @@ class OrderManagerMoneyTest extends KernelTestCase
         $reloadedOrder = $this->entityManager->find(Order::class, $orderId);
         self::assertSame($expectedTotal, $reloadedOrder->getTotalPrice());
 
-        $normalized = $this->serializer->normalize($reloadedOrder, null, [
+        $normalized = $this->normalizer->normalize($reloadedOrder, null, [
             'groups' => ['order:item'],
             AbstractNormalizer::IGNORED_ATTRIBUTES => ['orderProducts'],
         ]);
@@ -137,7 +141,7 @@ class OrderManagerMoneyTest extends KernelTestCase
 
                 return $pricePerOne;
             },
-            $order->getOrderProducts()->toArray()
+            $order->getOrderProducts()->toArray(),
         );
         sort($snapshots);
 

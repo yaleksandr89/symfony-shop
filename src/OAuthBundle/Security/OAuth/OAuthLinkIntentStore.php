@@ -6,9 +6,12 @@ namespace App\OAuthBundle\Security\OAuth;
 
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLinkIntentException;
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use ValueError;
 
 final class OAuthLinkIntentStore
 {
@@ -19,8 +22,7 @@ final class OAuthLinkIntentStore
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly ClockInterface $clock,
-    ) {
-    }
+    ) {}
 
     public function store(User $user, OAuthProvider $provider, string $state): void
     {
@@ -63,9 +65,9 @@ final class OAuthLinkIntentStore
                 $rawIntent['userId'],
                 OAuthProvider::from($rawIntent['provider']),
                 $rawIntent['stateHash'],
-                (new \DateTimeImmutable())->setTimestamp($rawIntent['issuedAt']),
+                new DateTimeImmutable()->setTimestamp($rawIntent['issuedAt']),
             );
-        } catch (\ValueError|\InvalidArgumentException) {
+        } catch (ValueError|InvalidArgumentException) {
             throw new OAuthLinkIntentException('Malformed OAuth link intent.');
         }
 

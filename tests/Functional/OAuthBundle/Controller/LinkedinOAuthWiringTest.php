@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class LinkedinOAuthWiringTest extends WebTestCase
 {
     #[DataProvider('locales')]
@@ -25,18 +25,22 @@ final class LinkedinOAuthWiringTest extends WebTestCase
             'test-linkedin-client-secret',
         ));
 
-        $client->request('GET', '/'.$locale.'/connect/linkedin');
+        $client->request('GET', '/' . $locale . '/connect/linkedin');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
         $location = (string) $client->getResponse()->headers->get('Location');
         self::assertSame('https', parse_url($location, PHP_URL_SCHEME));
         self::assertSame('www.linkedin.com', parse_url($location, PHP_URL_HOST));
         self::assertSame('/oauth/v2/authorization', parse_url($location, PHP_URL_PATH));
-        parse_str((string) parse_url($location, PHP_URL_QUERY), $query);
+        $queryString = parse_url($location, PHP_URL_QUERY);
+        self::assertIsString($queryString);
+        parse_str($queryString, $query);
         self::assertSame('code', $query['response_type'] ?? null);
         self::assertSame('test-linkedin-client-id', $query['client_id'] ?? null);
         self::assertSame('openid profile email', $query['scope'] ?? null);
-        self::assertSame('/'.$locale.'/connect/linkedin/check', parse_url((string) ($query['redirect_uri'] ?? ''), PHP_URL_PATH));
+        $redirectUri = $query['redirect_uri'] ?? null;
+        self::assertIsString($redirectUri);
+        self::assertSame('/' . $locale . '/connect/linkedin/check', parse_url($redirectUri, PHP_URL_PATH));
         self::assertIsString($query['state'] ?? null);
         self::assertNotSame('', trim((string) $query['state']));
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     App\AdminBundle\AdminBundle::class => ['all' => true],
     App\OAuthBundle\OAuthBundle::class => ['all' => true],

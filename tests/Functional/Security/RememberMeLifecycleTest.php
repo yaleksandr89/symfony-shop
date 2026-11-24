@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Security;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
+use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class RememberMeLifecycleTest extends WebTestCase
 {
     #[TestDox('HTTPS-вход на фронтенде создаёт защищённую remember-me cookie')]
@@ -145,6 +145,7 @@ class RememberMeLifecycleTest extends WebTestCase
         self::assertResponseRedirects('/ru/admin/login', Response::HTTP_FOUND);
     }
 
+    /** @param array<string, string> $parameters */
     #[DataProvider('rejectedLogoutRequests')]
     #[TestDox('GET и POST без действительного CSRF сохраняют сессию и обе remember-me cookie')]
     public function testUnsafeLogoutDoesNotInvalidateSessionOrClearCookies(bool $admin, string $method, array $parameters, int $status): void
@@ -179,9 +180,9 @@ class RememberMeLifecycleTest extends WebTestCase
     public static function rejectedLogoutRequests(): iterable
     {
         foreach (['front' => false, 'admin' => true] as $name => $admin) {
-            yield $name.' GET' => [$admin, 'GET', [], Response::HTTP_METHOD_NOT_ALLOWED];
-            yield $name.' missing' => [$admin, 'POST', [], Response::HTTP_FORBIDDEN];
-            yield $name.' invalid' => [$admin, 'POST', ['_csrf_token' => 'invalid-csrf'], Response::HTTP_FORBIDDEN];
+            yield $name . ' GET' => [$admin, 'GET', [], Response::HTTP_METHOD_NOT_ALLOWED];
+            yield $name . ' missing' => [$admin, 'POST', [], Response::HTTP_FORBIDDEN];
+            yield $name . ' invalid' => [$admin, 'POST', ['_csrf_token' => 'invalid-csrf'], Response::HTTP_FORBIDDEN];
         }
     }
 
@@ -241,7 +242,7 @@ class RememberMeLifecycleTest extends WebTestCase
         foreach (['REMEMBERME', 'ADMIN_REMEMBERME'] as $name) {
             $deletedCookies = array_filter(
                 $client->getResponse()->headers->getCookies(),
-                static fn ($cookie): bool => $name === $cookie->getName() && '/' === $cookie->getPath(),
+                static fn($cookie): bool => $name === $cookie->getName() && '/' === $cookie->getPath(),
             );
 
             self::assertNotEmpty($deletedCookies);
@@ -263,7 +264,7 @@ class RememberMeLifecycleTest extends WebTestCase
 
         $responseCookies = array_values(array_filter(
             $client->getResponse()->headers->getCookies(),
-            static fn ($cookie): bool => $name === $cookie->getName(),
+            static fn($cookie): bool => $name === $cookie->getName(),
         ));
         self::assertCount(1, $responseCookies);
         $responseCookie = $responseCookies[0];

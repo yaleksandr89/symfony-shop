@@ -61,12 +61,17 @@ Docker Compose 当前没有常驻 Messenger worker。邮件与队列详情见[�
 
 | 命令 | 作用 | 修改文件 |
 |---|---|---|
-| `make check` | ESLint + PHP-CS-Fixer 检查 + PHPStan | 否 |
+| `make check` | Composer 严格验证、锁定依赖审计、PHP 语法检查、PHP CS Fixer、PHPStan 和 ESLint | 否 |
+| `make composer-validate` | 验证 Composer 清单与锁文件 | 否 |
+| `make composer-audit` | 审计锁定的依赖 | 否 |
+| `make php-lint` | 检查 PHP 语法 | 否 |
 | `make eslint-check` | 使用 ESLint 检查 JS/Vue | 否 |
-| `make php-cs-fixer-check` | 检查 `src/` 和 `tools/demo/` 格式 | 否 |
-| `make phpstan-check` | 对 `src` 和 `tools/demo` 运行 PHPStan | 否 |
+| `make php-cs-fixer-check` | 检查项目自身的 PHP 格式 | 否 |
+| `make phpstan-check` | 以级别 8 分析项目自身的 PHP | 否 |
 | `make eslint-fix` | 修复 ESLint 问题 | 是 |
 | `make php-cs-fixer` | 修复 PHP 格式 | 是 |
+
+PHP 语法检查、PHP CS Fixer 和 PHPStan 覆盖 `src`、`tests`、`migrations`、`tools/demo`、`fixtures/demo`、`config/bundles.php`、`config/preload.php`、`public/index.php`、`bin/console` 和 `.php-cs-fixer.dist.php`。生成的文件和依赖不在范围内。检查可能生成本地缓存。
 
 `make check` 不运行 PHPUnit。测试使用独立 target。
 
@@ -81,9 +86,13 @@ Docker Compose 当前没有常驻 Messenger worker。邮件与队列详情见[�
 | `make test-functional` | HTTP、controller、API 和访问规则 | `functional` group |
 | `make test-functional-panther` | 浏览器场景 | `functional-panther` group |
 | `make test-all-core CONFIRM=testdb` | 前端资源 + unit + integration + functional | 重建测试 SQLite 数据库 |
-| `make test-all CONFIRM=testdb` | 完整测试集，包括 Panther | 重建测试 SQLite 数据库 |
+| `make test-all CONFIRM=testdb` | 完整测试集，包括 Panther 和两套 PostgreSQL 测试 | 重建测试 SQLite 数据库 |
+| `make test-reset-password-postgresql CONFIRM=testdb` | 密码重置并发操作 | 独立服务中的一次性 PostgreSQL |
+| `make test-oauth-postgresql CONFIRM=testdb` | OAuth 身份并发变更 | 独立服务中的一次性 PostgreSQL |
 
 `CONFIRM=testdb` 是有意要求的：聚合测试流程会删除并重新创建 `var/db_for_test.db`。
+
+普通 integration、functional 和 Panther 测试只使用本地 `var/db_for_test.db`。单独运行这些测试组前，请通过 `make test-db-reset CONFIRM=testdb` 准备数据库。请使用带保护检查的 Make 目标：测试不允许连接任意数据库。PostgreSQL 并发测试只能通过上面两个专用目标在一次性服务中运行。切勿使用工作数据库或外部连接进行测试。
 
 Panther 使用 PHP 镜像中的 Chrome for Testing 和 Chromedriver。当前测试不需要 Selenium Server、GeckoDriver、Java，也不需要本地安装浏览器。
 
@@ -118,12 +127,12 @@ Workflow [`CI`](../../../.github/workflows/basic.yml) 会在 push 和面向 `mas
 2. 创建 `.env.docker`；
 3. 验证 Compose，构建并启动 Docker 环境；
 4. 安装依赖并构建前端资源；
-5. 运行 ESLint；
-6. 运行 unit、integration、functional 和 Panther 测试；
-7. 运行 PHPStan；
+5. 运行 `make check`（Composer validate/audit、PHP 语法检查、PHP CS Fixer、PHPStan、ESLint）；
+6. 使用独立 SQLite 数据库运行 unit、integration、functional 和 Panther 测试；
+7. 运行两套 PostgreSQL 并发测试（密码重置和 OAuth）；
 8. 停止容器。
 
-CI 不运行 PHP-CS-Fixer 检查，也不生成覆盖率报告；需要时这些检查在本地执行。
+覆盖率报告仍用于本地诊断。Workflow 也可以手动触发（`workflow_dispatch`）。
 
 ## 日志与诊断
 
@@ -163,16 +172,21 @@ CI 不运行 PHP-CS-Fixer 检查，也不生成覆盖率报告；需要时这些
 | `migrate` | Doctrine migrations |
 | `demo-init` | 演示数据 |
 | `postgres-reinit CONFIRM=postgres18` | 完全重建本地 PostgreSQL volume |
-| `check` | ESLint + PHP-CS-Fixer check + PHPStan |
+| `check` | Composer 严格验证、锁定依赖审计、PHP 语法检查、PHP CS Fixer、PHPStan 和 ESLint |
+| `composer-validate` | 验证 Composer 清单与锁文件 |
+| `composer-audit` | 审计锁定的依赖 |
+| `php-lint` | 检查 PHP 语法 |
 | `eslint-fix` | 修复 ESLint |
 | `eslint-check` | 检查 ESLint |
 | `php-cs-fixer` | 修复 PHP 格式 |
 | `php-cs-fixer-check` | 检查 PHP 格式 |
 | `phpstan-check` | PHPStan 静态分析 |
-| `test-all-core CONFIRM=testdb` | 不含 Panther 的主要测试集 |
+| `test-all-core CONFIRM=testdb` | 不含 Panther 和 PostgreSQL 并发测试的主要测试集 |
 | `coverage CONFIRM=testdb` | 终端覆盖率 |
 | `coverage-html CONFIRM=testdb` | 覆盖率 + HTML/Clover |
-| `test-all CONFIRM=testdb` | 含 Panther 的完整测试集 |
+| `test-all CONFIRM=testdb` | 完整测试集，包括 Panther 和两套 PostgreSQL 测试 |
+| `test-reset-password-postgresql CONFIRM=testdb` | 密码重置并发操作 |
+| `test-oauth-postgresql CONFIRM=testdb` | OAuth 身份并发变更 |
 | `test-groups` | PHPUnit groups |
 | `test-list` | PHPUnit 测试列表 |
 | `test-unit` | unit 测试 |

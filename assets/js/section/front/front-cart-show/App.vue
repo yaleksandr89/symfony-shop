@@ -34,13 +34,13 @@
 </template>
 
 <script>
-import CartProductList from "./components/CartProductList";
-import CartTotalPrice from "./components/CartTotalPrice";
+import CartProductList from "./components/CartProductList.vue";
+import CartTotalPrice from "./components/CartTotalPrice.vue";
 import { mapActions, mapGetters, mapState } from "vuex";
-import Alert from "./components/Alert";
+import Alert from "./components/Alert.vue";
 
 export default {
-  name: "App",
+  name: "CartPageApp",
   components: { Alert, CartTotalPrice, CartProductList },
   computed: {
     ...mapState("cart", ["cart", "isSentForm", "staticStore"]),

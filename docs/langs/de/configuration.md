@@ -80,6 +80,8 @@ Diese Datei nicht zu Git hinzufügen und ihren Inhalt nicht veröffentlichen. In
 
 Die Testumgebung verwendet eine separate SQLite-Datenbank `var/db_for_test.db`, Panther-Einstellungen, neutrale Mailer-/Messenger-Transporte und deaktivierte OAuth-Provider.
 
+Die SQLite-Testdatenbank ist auf `var/db_for_test.db` festgelegt. `TEST_DATABASE_URL` ist den beiden abgesicherten PostgreSQL-Nebenläufigkeitsszenarien vorbehalten, nicht beliebigen Verbindungen. Siehe [Entwicklungsleitfaden](development.md).
+
 ## Mail und Messenger
 
 Standardwerte:

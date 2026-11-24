@@ -10,21 +10,22 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Asset\Packages;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class EmailAssetResolverTest extends TestCase
 {
     private string $projectDir;
 
     protected function setUp(): void
     {
-        $this->projectDir = sys_get_temp_dir().'/email-asset-resolver-'.bin2hex(random_bytes(8));
-        self::assertTrue(mkdir($this->projectDir.'/public/build', 0777, true));
-        self::assertTrue(mkdir($this->projectDir.'/assets/images/icons', 0777, true));
-        self::assertNotFalse(file_put_contents($this->projectDir.'/public/build/email.css', '.mail { color: #123; }'));
+        $this->projectDir = sys_get_temp_dir() . '/email-asset-resolver-' . bin2hex(random_bytes(8));
+        self::assertTrue(mkdir($this->projectDir . '/public/build', 0777, true));
+        self::assertTrue(mkdir($this->projectDir . '/assets/images/icons', 0777, true));
+        self::assertNotFalse(file_put_contents($this->projectDir . '/public/build/email.css', '.mail { color: #123; }'));
         self::assertNotFalse(file_put_contents(
-            $this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png',
+            $this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png',
             'logo',
         ));
     }
@@ -43,7 +44,7 @@ final class EmailAssetResolverTest extends TestCase
     #[TestDox('Локальный логотип возвращается каноническим путём внутри каталога изображений')]
     public function testLocalLogoReturnsCanonicalPath(): void
     {
-        $expected = realpath($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png');
+        $expected = realpath($this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png');
 
         self::assertNotFalse($expected);
         self::assertSame($expected, $this->resolver('/build/email.css')->getLogoPath());
@@ -52,13 +53,13 @@ final class EmailAssetResolverTest extends TestCase
     #[TestDox('Абсолютный внешний URL таблицы стилей остаётся fatal-конфигурацией')]
     public function testAbsoluteExternalStylesheetUrlIsFatal(): void
     {
-        $this->assertFatal(fn (): string => $this->resolver('https://example.test/build/email.css')->getStylesheet());
+        $this->assertFatal(fn(): string => $this->resolver('https://example.test/build/email.css')->getStylesheet());
     }
 
     #[TestDox('Protocol-relative URL таблицы стилей остаётся fatal-конфигурацией')]
     public function testProtocolRelativeStylesheetUrlIsFatal(): void
     {
-        $this->assertFatal(fn (): string => $this->resolver('//example.test/build/email.css')->getStylesheet());
+        $this->assertFatal(fn(): string => $this->resolver('//example.test/build/email.css')->getStylesheet());
     }
 
     /** @return iterable<string, array{string}> */
@@ -72,31 +73,31 @@ final class EmailAssetResolverTest extends TestCase
     #[TestDox('Нарушение build-root или CSS-extension policy остаётся fatal-конфигурацией')]
     public function testInvalidBuildPolicyIsFatal(string $url): void
     {
-        $this->assertFatal(fn (): string => $this->resolver($url)->getStylesheet());
+        $this->assertFatal(fn(): string => $this->resolver($url)->getStylesheet());
     }
 
     #[TestDox('Dot-dot traversal таблицы стилей остаётся fatal-конфигурацией')]
     public function testStylesheetTraversalIsFatal(): void
     {
-        $this->assertFatal(fn (): string => $this->resolver('/build/../secret.css')->getStylesheet());
+        $this->assertFatal(fn(): string => $this->resolver('/build/../secret.css')->getStylesheet());
     }
 
     #[TestDox('Symlink за пределы build-root остаётся fatal и не деградирует как отсутствие файла')]
     public function testStylesheetSymlinkEscapeIsFatal(): void
     {
-        self::assertNotFalse(file_put_contents($this->projectDir.'/outside.css', 'private'));
+        self::assertNotFalse(file_put_contents($this->projectDir . '/outside.css', 'private'));
         self::assertTrue(symlink(
-            $this->projectDir.'/outside.css',
-            $this->projectDir.'/public/build/link.css',
+            $this->projectDir . '/outside.css',
+            $this->projectDir . '/public/build/link.css',
         ));
 
-        $this->assertFatal(fn (): string => $this->resolver('/build/link.css')->getStylesheet());
+        $this->assertFatal(fn(): string => $this->resolver('/build/link.css')->getStylesheet());
     }
 
     #[TestDox('Отсутствующая локальная таблица стилей классифицируется как недоступный декоративный ресурс')]
     public function testMissingLocalStylesheetIsUnavailable(): void
     {
-        self::assertTrue(unlink($this->projectDir.'/public/build/email.css'));
+        self::assertTrue(unlink($this->projectDir . '/public/build/email.css'));
 
         $this->expectException(EmailAssetUnavailableException::class);
 
@@ -106,7 +107,7 @@ final class EmailAssetResolverTest extends TestCase
     #[TestDox('Отсутствующий локальный логотип классифицируется как недоступный декоративный ресурс')]
     public function testMissingLocalLogoIsUnavailable(): void
     {
-        self::assertTrue(unlink($this->projectDir.'/assets/images/icons/alexander-yurchenko-php-developer.png'));
+        self::assertTrue(unlink($this->projectDir . '/assets/images/icons/alexander-yurchenko-php-developer.png'));
 
         $this->expectException(EmailAssetUnavailableException::class);
 
@@ -116,7 +117,7 @@ final class EmailAssetResolverTest extends TestCase
     #[TestDox('Нечитаемая локальная таблица стилей классифицируется как недоступный декоративный ресурс')]
     public function testUnreadableLocalStylesheetIsUnavailable(): void
     {
-        $stylesheet = $this->projectDir.'/public/build/email.css';
+        $stylesheet = $this->projectDir . '/public/build/email.css';
         self::assertTrue(chmod($stylesheet, 0000));
         self::assertFalse(is_readable($stylesheet));
         $this->expectException(EmailAssetUnavailableException::class);
@@ -148,7 +149,7 @@ final class EmailAssetResolverTest extends TestCase
         try {
             $operation();
             self::fail('Unsafe asset configuration must fail.');
-        } catch (\RuntimeException $exception) {
+        } catch (RuntimeException $exception) {
             self::assertNotInstanceOf(EmailAssetUnavailableException::class, $exception);
         }
     }
@@ -168,7 +169,7 @@ final class EmailAssetResolverTest extends TestCase
         $entries = scandir($path);
         if (false !== $entries) {
             foreach (array_diff($entries, ['.', '..']) as $entry) {
-                $this->removePath($path.DIRECTORY_SEPARATOR.$entry);
+                $this->removePath($path . DIRECTORY_SEPARATOR . $entry);
             }
         }
 

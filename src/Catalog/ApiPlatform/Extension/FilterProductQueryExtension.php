@@ -14,9 +14,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class FilterProductQueryExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-    public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
-    {
-    }
+    public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker) {}
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,

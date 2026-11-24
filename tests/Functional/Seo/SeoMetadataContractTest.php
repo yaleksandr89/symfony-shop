@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class SeoMetadataContractTest extends WebTestCase
 {
     #[TestDox('Язык документа следует локали, а устаревшие keywords отсутствуют')]
@@ -35,13 +35,13 @@ final class SeoMetadataContractTest extends WebTestCase
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $title = 'SEO product '.$suffix;
-        $description = 'Meaningful product description '.$suffix;
-        $slug = 'seo-product-'.$suffix;
+        $title = 'SEO product ' . $suffix;
+        $description = 'Meaningful product description ' . $suffix;
+        $slug = 'seo-product-' . $suffix;
         $product = $this->createVisibleProduct($title, $description, $slug);
-        $canonicalUrl = 'http://localhost/en/product/'.$slug;
+        $canonicalUrl = 'http://localhost/en/product/' . $slug;
 
-        $client->request('GET', '/en/product/'.$product->getUuid());
+        $client->request('GET', '/en/product/' . $product->getUuid());
         self::assertResponseIsSuccessful();
         self::assertSame($title, $this->selectorContent($client, 'title'));
         self::assertSame($description, $this->selectorContent($client, 'meta[name="description"]', 'content'));
@@ -49,17 +49,17 @@ final class SeoMetadataContractTest extends WebTestCase
         self::assertStringNotContainsString('...', $this->selectorContent($client, 'meta[name="description"]', 'content'));
         self::assertSame($canonicalUrl, $this->selectorContent($client, 'link[rel="canonical"]', 'href'));
 
-        $client->request('GET', '/en/product/'.$slug);
+        $client->request('GET', '/en/product/' . $slug);
         self::assertResponseIsSuccessful();
         self::assertSame($canonicalUrl, $this->selectorContent($client, 'link[rel="canonical"]', 'href'));
 
-        $fallbackTitle = 'SEO fallback product '.$suffix;
+        $fallbackTitle = 'SEO fallback product ' . $suffix;
         $fallbackProduct = $this->createVisibleProduct(
             $fallbackTitle,
             '',
-            'seo-fallback-product-'.$suffix
+            'seo-fallback-product-' . $suffix,
         );
-        $client->request('GET', '/ru/product/'.$fallbackProduct->getUuid());
+        $client->request('GET', '/ru/product/' . $fallbackProduct->getUuid());
         self::assertResponseIsSuccessful();
         self::assertSame($fallbackTitle, $this->selectorContent($client, 'meta[name="description"]', 'content'));
     }
@@ -69,17 +69,18 @@ final class SeoMetadataContractTest extends WebTestCase
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())
-            ->setTitle('SEO category '.$suffix)
-            ->setSlug('seo-category-'.$suffix);
+        $category = new Category()
+            ->setTitle('SEO category ' . $suffix)
+            ->setSlug('seo-category-' . $suffix);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($category);
         $entityManager->flush();
 
-        $client->request('GET', '/ru/category/'.$category->getSlug());
+        $client->request('GET', '/ru/category/' . $category->getSlug());
         self::assertResponseIsSuccessful();
         self::assertSame((string) $category->getTitle(), $this->selectorContent($client, 'title'));
-        self::assertSame((string) $category->getTitle().'!', $this->selectorContent($client, 'meta[name="description"]', 'content'));
+        self::assertSame((string) $category->getTitle() . '!', $this->selectorContent($client, 'meta[name="description"]', 'content'));
         self::assertSelectorNotExists('meta[name="keywords"]');
         self::assertStringNotContainsString('Category -', $this->selectorContent($client, 'title'));
         self::assertStringNotContainsString('...', $this->selectorContent($client, 'meta[name="description"]', 'content'));
@@ -100,10 +101,10 @@ final class SeoMetadataContractTest extends WebTestCase
 
     private function createVisibleProduct(string $title, string $description, string $slug): Product
     {
-        $category = (new Category())
-            ->setTitle('SEO category '.uniqid('', true))
-            ->setSlug('seo-product-category-'.uniqid('', true));
-        $product = (new Product())
+        $category = new Category()
+            ->setTitle('SEO category ' . uniqid('', true))
+            ->setSlug('seo-product-category-' . uniqid('', true));
+        $product = new Product()
             ->setTitle($title)
             ->setSlug($slug)
             ->setPrice('10.00')
@@ -111,6 +112,7 @@ final class SeoMetadataContractTest extends WebTestCase
             ->setDescription($description)
             ->setIsPublished(true)
             ->setCategory($category);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($category);
         $entityManager->persist($product);

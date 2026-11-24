@@ -1,5 +1,5 @@
 doctrine:
   dbal:
-    # "TEST_TOKEN" is typically set by ParaTest
     dbname_suffix: '_test%env(default::TEST_TOKEN)%'
-    url: "sqlite:///%kernel.project_dir%/var/db_for_test.db"
+    url: '%env(shop_test_db:default::TEST_DATABASE_URL)%'
+    wrapper_class: App\Tests\TestUtils\Database\GuardedConnection

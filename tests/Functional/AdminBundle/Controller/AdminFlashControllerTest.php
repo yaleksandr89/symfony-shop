@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
+use App\Account\Repository\UserRepository;
+use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
 use App\Entity\User;
-use App\Catalog\Repository\CategoryRepository;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use Generator;
@@ -17,10 +17,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class AdminFlashControllerTest extends WebTestCase
 {
-    #[DataProvider(methodName: 'provideLocales')]
+    /** @param array<string, string> $messages */
+    #[DataProvider('provideLocales')]
     #[TestDox('Ошибка некорректной формы локализована')]
     public function testInvalidFormFlashIsLocalized(string $locale, array $messages): void
     {
@@ -35,7 +36,8 @@ class AdminFlashControllerTest extends WebTestCase
         self::assertStringNotContainsString($messages['oppositeInvalid'], $crawler->filter('.alert-warning')->text());
     }
 
-    #[DataProvider(methodName: 'provideLocales')]
+    /** @param array<string, string> $messages */
+    #[DataProvider('provideLocales')]
     #[TestDox('Сообщения об успешном сохранении и динамическом удалении локализованы')]
     public function testSaveAndDynamicDeleteFlashesAreLocalized(string $locale, array $messages): void
     {
@@ -65,16 +67,18 @@ class AdminFlashControllerTest extends WebTestCase
         self::assertStringContainsString((string) $category->getTitle(), $flash);
     }
 
-    #[DataProvider(methodName: 'provideLocales')]
+    /** @param array<string, string> $messages */
+    #[DataProvider('provideLocales')]
     #[TestDox('Отказ в доступе локализуется через реальный HTTP-поток')]
     public function testAccessDeniedFlashIsLocalizedThroughHttpFlow(string $locale, array $messages): void
     {
         $client = static::createClient();
-        $user = (new User())
+        $user = new User()
             ->setEmail(sprintf('unverified-%s-%s@example.test', $locale, str_replace('.', '', uniqid('', true))))
             ->setPassword('not-used')
             ->setRoles(['ROLE_ADMIN'])
             ->setIsVerified(false);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
         $entityManager->flush();

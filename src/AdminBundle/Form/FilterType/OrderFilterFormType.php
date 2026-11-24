@@ -21,11 +21,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+/** @extends AbstractType<OrderFilterModel> */
 class OrderFilterFormType extends AbstractType
 {
-    public function __construct(private ExclusiveDateRangeFilter $exclusiveDateRangeFilter)
-    {
-    }
+    public function __construct(private ExclusiveDateRangeFilter $exclusiveDateRangeFilter) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class FacebookTest extends TestCase
 {
     #[TestDox('Использует только версионированные конечные точки Meta и область email')]
@@ -50,8 +50,7 @@ final class FacebookTest extends TestCase
         Response $response,
         int $expectedCode,
         string $secretMarker,
-    ): void
-    {
+    ): void {
         $provider = $this->providerWithResponse($response);
 
         try {
@@ -80,8 +79,8 @@ final class FacebookTest extends TestCase
                     'message' => $payloadSecret,
                     'code' => 190,
                 ],
-                'error_description' => 'description-'.$payloadSecret,
-                'access_token' => 'access-'.$payloadSecret,
+                'error_description' => 'description-' . $payloadSecret,
+                'access_token' => 'access-' . $payloadSecret,
             ], \JSON_THROW_ON_ERROR)),
             400,
             $payloadSecret,
@@ -100,7 +99,7 @@ final class FacebookTest extends TestCase
         yield 'HTTP error without provider error key' => [
             new Response(503, ['Content-Type' => 'application/json'], json_encode([
                 'error_description' => $statusSecret,
-                'access_token' => 'access-'.$statusSecret,
+                'access_token' => 'access-' . $statusSecret,
             ], \JSON_THROW_ON_ERROR)),
             503,
             $statusSecret,

@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class UserRegisteredHandlerTest extends KernelTestCase
 {
     #[TestDox('Известный пользователь получает реальную подписанную ссылку через почтовую границу')]

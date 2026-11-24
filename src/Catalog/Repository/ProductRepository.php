@@ -8,12 +8,7 @@ use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method Product|null find($id, $lockMode = null, $lockVersion = null)
- * @method Product|null findOneBy(array $criteria, array $orderBy = null)
- * @method Product[]    findAll()
- * @method Product[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<Product> */
 class ProductRepository extends ServiceEntityRepository
 {
     public function __construct(
@@ -26,7 +21,8 @@ class ProductRepository extends ServiceEntityRepository
     /** @return list<array{slug: string}> */
     public function findSitemapRows(): array
     {
-        return $this->createQueryBuilder('product')
+        /** @var list<array{slug: string}> $rows */
+        $rows = $this->createQueryBuilder('product')
             ->select('product.slug AS slug')
             ->andWhere('product.isDeleted = false')
             ->andWhere('product.isPublished = true')
@@ -36,6 +32,8 @@ class ProductRepository extends ServiceEntityRepository
             ->orderBy('product.slug', 'ASC')
             ->getQuery()
             ->getArrayResult();
+
+        return $rows;
     }
 
     /**
@@ -66,9 +64,10 @@ class ProductRepository extends ServiceEntityRepository
             $queryBuilder->setMaxResults($productCount);
         }
 
+        /** @var list<array{id: int, uuid: mixed, title: string, slug: string|null, price: string, quantity: int, isNew: bool, isOnSale: bool, categoryId: int|null}> $rows */
         $rows = $queryBuilder->getQuery()->getArrayResult();
         $covers = $this->productImageRepository->findFirstCoversByProductIds(array_map(
-            static fn (array $row): int => (int) $row['id'],
+            static fn(array $row): int => $row['id'],
             $rows,
         ));
 

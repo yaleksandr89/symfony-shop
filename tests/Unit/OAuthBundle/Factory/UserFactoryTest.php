@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Yaleksandr\OAuth2\Client\Provider\YandexResourceOwner;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class UserFactoryTest extends TestCase
 {
     #[TestDox('Создание пользователя Google переносит email, имя и внешний ID без локальной верификации')]
@@ -61,6 +61,7 @@ final class UserFactoryTest extends TestCase
         self::assertSame($expectedName, $user->getFullName());
     }
 
+    /** @return iterable<string, array{string|null, string|null, string, string}> */
     public static function names(): iterable
     {
         yield 'real name' => ['Real Name', 'Display Name', 'login', 'Real Name'];
@@ -73,7 +74,7 @@ final class UserFactoryTest extends TestCase
     {
         $user = UserFactory::createUserFromFacebook(
             new FacebookUser(['id' => 'facebook-id', 'name' => 'Facebook User']),
-            'user@example.test'
+            'user@example.test',
         );
 
         self::assertSame('user@example.test', $user->getEmail());
@@ -125,6 +126,6 @@ final class UserFactoryTest extends TestCase
             'psuid' => 'psuid',
             'real_name' => $realName,
             'display_name' => $displayName,
-        ], static fn (?string $value): bool => null !== $value));
+        ], static fn(?string $value): bool => null !== $value));
     }
 }

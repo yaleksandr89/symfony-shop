@@ -11,6 +11,7 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
@@ -22,8 +23,7 @@ final class AdminOrderProductProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderManager $orderManager,
-    ) {
-    }
+    ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): OrderProduct
     {
@@ -49,7 +49,7 @@ final class AdminOrderProductProcessor implements ProcessorInterface
 
         try {
             $normalizedProductPrice = $this->orderManager->normalizeProductPrice($product);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             throw new BadRequestHttpException('Invalid product price.', $exception);
         }
 

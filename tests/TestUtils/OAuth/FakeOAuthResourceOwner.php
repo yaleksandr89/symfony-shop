@@ -8,15 +8,14 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 final class FakeOAuthResourceOwner implements ResourceOwnerInterface
 {
-    public function __construct(private readonly mixed $id)
-    {
-    }
+    public function __construct(private readonly mixed $id) {}
 
     public function getId(): mixed
     {
         return $this->id;
     }
 
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return ['id' => $this->id];

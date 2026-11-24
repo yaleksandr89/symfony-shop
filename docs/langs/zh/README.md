@@ -8,7 +8,7 @@
 [![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../../LICENSE.md)
 
-![Symfony Shop — 基于 Symfony、Docker 和 PostgreSQL 的在线商店](../../img/symfony-shop-readme-cover.png)
+![Symfony Shop — 基于 Symfony、Docker 和 PostgreSQL 的在线商店](../../assets/symfony-shop-readme-cover.png)
 
 ## 选择语言
 
@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|
 | [Русский](../../../README.md) | [English](../en/README.md) | [Español](../es/README.md) | **已选择** | [Français](../fr/README.md) | [Deutsch](../de/README.md) |
 
-Symfony Shop 是一个基于 Symfony 的教学型在线商店项目。项目包含商品目录、购物车与结账、用户账户、管理后台、API 以及 OAuth 登录。大部分页面由 Twig 渲染，Vue 2 仅用于部分交互式界面元素。
+Symfony Shop 是一个基于 Symfony 的教学型在线商店项目。项目包含商品目录、购物车与结账、用户账户、管理后台、API 以及 OAuth 登录。大部分页面由 Twig 渲染，Vue 3 仅用于部分交互式界面元素。
 
 受支持的本地开发环境基于 Docker Compose。PHP、Composer、Node.js、PostgreSQL 和 Chrome for Testing 在容器中运行或安装到 Docker 镜像中，主要操作统一通过 Makefile 提供。项目不支持将 PHP、Composer 和 PostgreSQL 直接安装在宿主机上的运行方式，CI 也不会验证这种场景。
 
@@ -90,21 +90,25 @@ OAuth 登录与把外部账户绑定到已有用户是两个不同的操作。Pr
 
 ## 项目结构
 
-```text
-浏览器
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-  ↓
-应用服务 / Doctrine
-  ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["浏览器"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["控制器"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["浏览器中的 Vue 3 / Vuex 4"]
+    Vue -->|"HTTP API 请求"| Nginx
+    Controller --> Services["应用服务 / 处理器"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-主要代码按 `Account`、`Catalog` 和 `Commerce` 划分。管理后台、OAuth 和 SEO 作为内部 Symfony bundle 实现。Vue 2 只用于部分交互式组件，而不是独立 SPA。
+主要代码按 `Account`、`Catalog` 和 `Commerce` 划分。管理后台、OAuth 和 SEO 作为内部 Symfony bundle 实现。Vue 3 只用于部分交互式组件，而不是独立 SPA。
 
 目录结构、路由、API Platform、Doctrine 和前端边界见[架构指南](architecture.md)。
 
@@ -112,14 +116,17 @@ PostgreSQL
 
 | 命令 | 作用 | 说明 |
 |---|---|---|
-| `make check` | 运行 ESLint、PHP-CS-Fixer 检查和 PHPStan | 不包含测试 |
+| `make check` | Composer 严格验证、锁定依赖审计、PHP 语法检查、PHP CS Fixer、PHPStan 和 ESLint | 不包含测试 |
 | `make test-unit` | 运行单元测试 | |
+| `make test-db-reset CONFIRM=testdb` | 重建独立的测试 SQLite 数据库 | 删除 `var/db_for_test.db` |
 | `make test-integration` | 运行集成测试 | |
 | `make test-functional` | 运行功能测试 | |
 | `make test-functional-panther` | 使用 Panther 运行浏览器测试 | Chrome 已包含在 PHP 镜像中 |
-| `make test-all CONFIRM=testdb` | 运行全部测试 | 会重新创建测试数据库 |
+| `make test-all CONFIRM=testdb` | 完整测试集，包括 Panther 和两套 PostgreSQL 测试 | 会重新创建测试数据库 |
 | `make coverage CONFIRM=testdb` | 在终端显示 PHP/PHPUnit 覆盖率 | 不包含 Panther |
 | `make coverage-html CONFIRM=testdb` | 生成 HTML 和 Clover 报告 | `var/coverage/html`, `var/coverage/clover.xml` |
+
+单独运行 integration、functional 或 Panther 测试前，请通过 `make test-db-reset CONFIRM=testdb` 准备测试 SQLite 数据库。
 
 完整 Make 命令、测试数据库流程和 CI 组成见[开发指南](development.md)。
 

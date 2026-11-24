@@ -11,23 +11,25 @@ Symfony Shop est une seule application Symfony avec des pages rendues côté ser
 
 ## Vue d’ensemble
 
-```text
-Navigateur
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-          ↓
-Services applicatifs / handlers
-          ↓
-Doctrine ORM
-          ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Navigateur"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Contrôleurs"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 dans le navigateur"]
+    Vue -->|"Requêtes HTTP vers API"| Nginx
+    Controller --> Services["Services applicatifs / gestionnaires"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Vue 2 est monté sur certaines pages Twig lorsqu’une interaction est nécessaire : panier, indicateur du panier et éditeur de commande. L’architecture actuelle ne comporte ni SPA indépendante ni Vue Router.
+Vue 3 est monté sur certaines pages Twig lorsqu’une interaction est nécessaire : panier, indicateur du panier et éditeur de commande. L’architecture actuelle ne comporte ni SPA indépendante ni Vue Router.
 
 ## Domaines applicatifs
 
@@ -98,9 +100,9 @@ Pour analyser le comportement de l’API, ne regardez pas seulement les attribut
 
 La plupart des pages sont rendues avec Twig. Les templates communs sont dans [`templates`](../../../templates), et ceux des bundles internes dans leurs modules respectifs.
 
-Webpack Encore compile les ressources de [`assets`](../../../assets) vers `public/build`. Vue 2 est utilisé ponctuellement comme couche interactive au-dessus des pages rendues côté serveur.
+Webpack Encore 7 compile les ressources de [`assets`](../../../assets) vers `public/build`. Vue 3 est utilisé ponctuellement comme couche interactive au-dessus des pages rendues côté serveur.
 
-L’architecture cliente actuelle est conservée jusqu’à la migration distincte vers Inertia.js et Vue 3.
+L’architecture cliente actuelle est conservée jusqu’à la migration distincte vers Inertia.js.
 
 ## Configuration et injection de dépendances
 

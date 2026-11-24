@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class OAuthAccountLinkerTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
@@ -32,8 +32,8 @@ final class OAuthAccountLinkerTest extends KernelTestCase
     #[TestDox('Для текущего пользователя сохраняется только запрошенный идентификатор')]
     public function testLinksManagedCurrentUserAndPersistsOnlyRequestedIdentity(OAuthProvider $provider): void
     {
-        $user = $this->persistUser('success-'.$provider->value);
-        $externalId = 'integration-'.$provider->value.'-'.str_replace('.', '', uniqid('', true));
+        $user = $this->persistUser('success-' . $provider->value);
+        $externalId = 'integration-' . $provider->value . '-' . str_replace('.', '', uniqid('', true));
 
         $this->linker->link($user, $provider, $externalId);
 
@@ -51,7 +51,7 @@ final class OAuthAccountLinkerTest extends KernelTestCase
     #[TestDox('Клиенты GitHub разделяют одну границу владения')]
     public function testGithubClientsShareTheSameOwnershipBoundary(): void
     {
-        $externalId = 'integration-github-shared-'.str_replace('.', '', uniqid('', true));
+        $externalId = 'integration-github-shared-' . str_replace('.', '', uniqid('', true));
         $owner = $this->persistUser('github-owner');
         $this->linker->link($owner, OAuthProvider::GithubEn, $externalId);
         $currentUser = $this->persistUser('github-current');
@@ -67,7 +67,7 @@ final class OAuthAccountLinkerTest extends KernelTestCase
     #[TestDox('Идентификатор другого пользователя отклоняется без изменения базы данных')]
     public function testIdentityOwnedByAnotherUserIsRejectedWithoutDatabaseMutation(): void
     {
-        $externalId = 'integration-owned-'.str_replace('.', '', uniqid('', true));
+        $externalId = 'integration-owned-' . str_replace('.', '', uniqid('', true));
         $owner = $this->persistUser('owner');
         $owner->setGoogleId($externalId);
         $this->entityManager->flush();
@@ -137,8 +137,8 @@ final class OAuthAccountLinkerTest extends KernelTestCase
 
     private function persistUser(string $suffix): User
     {
-        $user = (new User())
-            ->setEmail('oauth-account-linker-'.$suffix.'-'.uniqid('', true).'@example.test')
+        $user = new User()
+            ->setEmail('oauth-account-linker-' . $suffix . '-' . uniqid('', true) . '@example.test')
             ->setPassword('not-used')
             ->setIsVerified(true);
         $user->setGoogleId(null);

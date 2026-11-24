@@ -1,13 +1,13 @@
 import axios from "axios";
 import { StatusCodes } from "http-status-codes";
-import { apiConfig, apiConfigPatch } from "../../../../../utils/settings";
-import { concatUrlByParams } from "../../../../../utils/url-generator";
-import { setCookie } from "../../../../../utils/cookie-manager";
+import { apiConfig, apiConfigPatch } from "../../../../../utils/settings.js";
+import { concatUrlByParams } from "../../../../../utils/url-generator.js";
+import { setCookie } from "../../../../../utils/cookie-manager.js";
 import {
   formatCents,
   sumCartProductsToCents,
-} from "../../../../../utils/money";
-import cartSync from "../../../cart-sync";
+} from "../../../../../utils/money.js";
+import cartSync from "../../../cart-sync.js";
 
 function getAlertStructure() {
   return {
@@ -58,7 +58,7 @@ function getUnavailableItemsByCartProductId(error, cart) {
   const cartProductIds = new Set(
     (cart && Array.isArray(cart.cartProducts) ? cart.cartProducts : [])
       .map((cartProduct) => normalizeCartProductId(cartProduct.id))
-      .filter(Boolean)
+      .filter(Boolean),
   );
   const unavailableItemsByCartProductId = {};
 
@@ -80,7 +80,7 @@ function getUnavailableItemsByCartProductId(error, cart) {
       !cartProductIds.has(cartProductId) ||
       Object.prototype.hasOwnProperty.call(
         unavailableItemsByCartProductId,
-        cartProductId
+        cartProductId,
       )
     ) {
       return null;
@@ -100,7 +100,7 @@ function reconcileUnavailableItems(unavailableItemsByCartProductId, cart) {
   const cartProductIds = new Set(
     cart.cartProducts
       .map((cartProduct) => normalizeCartProductId(cartProduct.id))
-      .filter(Boolean)
+      .filter(Boolean),
   );
 
   return Object.keys(unavailableItemsByCartProductId).reduce(
@@ -112,7 +112,7 @@ function reconcileUnavailableItems(unavailableItemsByCartProductId, cart) {
 
       return reconciledItems;
     },
-    {}
+    {},
   );
 }
 
@@ -208,7 +208,7 @@ const actions = {
   async removeCartProduct({ state, dispatch }, cartProductId) {
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
-      cartProductId
+      cartProductId,
     );
     const result = await axios.delete(url, apiConfig);
 
@@ -231,7 +231,7 @@ const actions = {
 
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
-      payload.cartProductId
+      payload.cartProductId,
     );
     const data = {
       quantity,
@@ -246,7 +246,7 @@ const actions = {
     } catch (error) {
       try {
         await dispatch("getCart", { force: true });
-      } catch (refreshError) {
+      } catch {
         // Preserve the write error for callers instead of reporting a false success.
       }
 
@@ -313,7 +313,7 @@ const mutations = {
     state.cart = cart;
     state.unavailableItemsByCartProductId = reconcileUnavailableItems(
       state.unavailableItemsByCartProductId,
-      cart
+      cart,
     );
   },
   setAlert(state, model) {

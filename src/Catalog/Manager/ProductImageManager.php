@@ -21,15 +21,14 @@ final class ProductImageManager
         private string $uploadsTempDir,
         private ImageResizer $imageResizer,
         private LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     public function saveImageForProduct(string $productDir, string $tempImageFilename): ProductImage
     {
         $this->filesystemWorker->createFolderIfNotExist($productDir);
         $filenames = $this->generateVariantFilenames($productDir);
         $paths = array_map(
-            fn (string $filename): string => $this->filesystemWorker->generatePathToFile($productDir, $filename),
+            fn(string $filename): string => $this->filesystemWorker->generatePathToFile($productDir, $filename),
             $filenames,
         );
 
@@ -70,9 +69,9 @@ final class ProductImageManager
 
     public function removeImageFromProduct(ProductImage $productImage, string $productImageDir): void
     {
-        $smallFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameSmall());
-        $middleFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameMiddle());
-        $bigFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameBig());
+        $smallFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameSmall() ?? throw new RuntimeException('Small image filename is missing.'));
+        $middleFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameMiddle() ?? throw new RuntimeException('Middle image filename is missing.'));
+        $bigFilePath = $this->filesystemWorker->generatePathToFile($productImageDir, $productImage->getFilenameBig() ?? throw new RuntimeException('Large image filename is missing.'));
 
         /** @var Product $product */
         $product = $productImage->getProduct();
@@ -92,9 +91,9 @@ final class ProductImageManager
         for ($attempt = 0; $attempt < 10; ++$attempt) {
             $key = bin2hex(random_bytes(16));
             $filenames = [
-                'small' => $key.'_small.jpg',
-                'middle' => $key.'_middle.jpg',
-                'big' => $key.'_big.jpg',
+                'small' => $key . '_small.jpg',
+                'middle' => $key . '_middle.jpg',
+                'big' => $key . '_big.jpg',
             ];
 
             foreach ($filenames as $filename) {
@@ -144,7 +143,8 @@ final class ProductImageManager
                 'exception_class' => $exception::class,
             ]);
         } catch (Throwable) {
-            // Logging is best-effort and must not replace the primary exception.
+            // RU: Сбой логирования не должен подменять исходное исключение.
+            // EN: Logging is best-effort and must not replace the primary exception.
         }
     }
 }

@@ -12,15 +12,14 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/** @extends Voter<string, Cart> */
 class CartVoter extends Voter
 {
     private const CART_READ = 'CART_READ';
     private const CART_EDIT = 'CART_EDIT';
     private const CART_DELETE = 'CART_DELETE';
 
-    public function __construct(private RequestStack $requestStack)
-    {
-    }
+    public function __construct(private RequestStack $requestStack) {}
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -60,7 +59,8 @@ class CartVoter extends Voter
 
     private function canRead(): bool
     {
-        // так как отрабатывает проверка в FilterCartQueryExtension.php
+        // RU: FilterCartQueryExtension проверяет доступ к корзинам при выборке.
+        // EN: FilterCartQueryExtension checks cart access when querying.
         return true;
     }
 
@@ -77,7 +77,9 @@ class CartVoter extends Voter
             return false;
         }
 
-        // проверяем, что это корзина пользователя
+        // RU: Проверяем, что это корзина пользователя.
+
+        // EN: Check that the cart belongs to the user.
         return $cart->getToken() === $cartToken;
     }
 
@@ -85,7 +87,7 @@ class CartVoter extends Voter
     {
         return $this->requestStack
             ->getCurrentRequest()
-            ->cookies
+            ?->cookies
             ->get('CART_TOKEN');
     }
 }

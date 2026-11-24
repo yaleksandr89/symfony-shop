@@ -18,8 +18,7 @@ final class RequestAwareAuthenticationEntryPoint implements AuthenticationEntryP
         private ApiRequestMatcher $apiRequestMatcher,
         private ApiSecurityProblemResponder $apiSecurityProblemResponder,
         private AuthenticationFrontEntryPoint $authenticationFrontEntryPoint,
-    ) {
-    }
+    ) {}
 
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {

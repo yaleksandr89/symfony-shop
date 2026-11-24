@@ -42,23 +42,23 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": "^8.5",
+        "php": "~8.5.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "api-platform/core": "~4.3.17",
-        "doctrine/dbal": "~4.4.0",
+        "api-platform/core": "^5.0",
+        "doctrine/dbal": "^4.4",
         "doctrine/doctrine-bundle": "^3.3",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/migrations": "^3.9",
-        "doctrine/orm": "~3.6.7",
+        "doctrine/orm": "^3.6",
         "gedmo/doctrine-extensions": "^3.22",
         "imagine/imagine": "^1.0",
         "knplabs/knp-paginator-bundle": "^6.10",
         "knpuniversity/oauth2-client-bundle": "^2.0",
         "league/oauth2-github": "^3.0",
         "league/oauth2-google": "^5.0",
-        "spiriitlabs/form-filter-bundle": "~12.1.0",
+        "spiriitlabs/form-filter-bundle": "^12.1",
         "nelmio/cors-bundle": "^2.0",
         "phpdocumentor/reflection-docblock": "^6.0",
         "stof/doctrine-extensions-bundle": "^1.15",
@@ -95,18 +95,20 @@
         "symfonycasts/reset-password-bundle": "^1.0",
         "symfonycasts/verify-email-bundle": "^1.0",
         "twig/cssinliner-extra": "^3.0",
-        "twig/extra-bundle": "^2.0|^3.0",
+        "twig/extra-bundle": "^3.0",
         "twig/inky-extra": "^3.0",
         "twig/intl-extra": "^3.0",
-        "twig/twig": "^2.0|^3.0",
+        "twig/twig": "^3.0",
         "yaleksandr89/oauth2-yandex": "^1.0"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.6",
-        "friendsofphp/php-cs-fixer": "^3.0",
-        "hautelook/alice-bundle": "~2.17.3",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "hautelook/alice-bundle": "^2.17",
         "phpstan/phpstan": "^2.2",
-        "phpunit/phpunit": "13.3.1",
+        "phpstan/phpstan-doctrine": "^2.1",
+        "phpstan/phpstan-symfony": "^2.1",
+        "phpunit/phpunit": "^13.3",
         "symfony/browser-kit": "8.1.*",
         "symfony/css-selector": "8.1.*",
         "symfony/debug-bundle": "8.1.*",
@@ -143,6 +145,33 @@
         "symfony/polyfill-php72": "*"
     },
     "scripts": {
+        "lint": [
+            "@php -l config/bundles.php config/preload.php public/index.php bin/console .php-cs-fixer.dist.php",
+            "find src tests migrations tools/demo fixtures/demo -type f -name \"*.php\" -exec php -l {} +"
+        ],
+        "analyse": "@php vendor/bin/phpstan analyse --no-progress",
+        "cs:check": "@php vendor/bin/php-cs-fixer check --diff",
+        "cs:fix": "@php vendor/bin/php-cs-fixer fix",
+        "check": [
+            "@composer validate --strict --no-check-publish",
+            "@composer audit --locked",
+            "@lint",
+            "@cs:check",
+            "@analyse"
+        ],
+        "test": [
+            "@php tests/TestUtils/Database/verify.php",
+            "@php vendor/bin/phpunit --group unit --group integration --group functional --do-not-record-test-run-history --no-coverage"
+        ],
+        "test:unit": "@php vendor/bin/phpunit --group unit --do-not-record-test-run-history --no-coverage",
+        "test:integration": [
+            "@php tests/TestUtils/Database/verify.php",
+            "@php vendor/bin/phpunit --group integration --do-not-record-test-run-history --no-coverage"
+        ],
+        "test:functional": [
+            "@php tests/TestUtils/Database/verify.php",
+            "@php vendor/bin/phpunit --group functional --do-not-record-test-run-history --no-coverage"
+        ],
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"

@@ -24,8 +24,7 @@ class EditProductModel
         public ?bool $isNew = null,
         public ?bool $isOnSale = null,
         public ?DateTimeImmutable $createdAt = null,
-    ) {
-    }
+    ) {}
 
     public static function makeFromProduct(?Product $product = null): self
     {

@@ -8,12 +8,13 @@ use App\Entity\User;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 class OAuthIdentityUniqueConstraintTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
@@ -23,6 +24,7 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
         parent::setUp();
         self::bootKernel();
 
+        /** @var ManagerRegistry $registry */
         $registry = self::getContainer()->get(ManagerRegistry::class);
         $entityManager = $registry->getManager();
         if ($entityManager instanceof EntityManagerInterface && !$entityManager->isOpen()) {
@@ -42,13 +44,13 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
     #[TestDox('Внешний идентификатор провайдера уникален')]
     public function testProviderExternalIdMustBeUnique(string $provider): void
     {
-        $externalId = 'linkedin' === $provider ? 'LiNkEdIn-Sub' : 'external-id-'.$provider;
-        $firstUser = $this->newUser($provider.'-first');
+        $externalId = 'linkedin' === $provider ? 'LiNkEdIn-Sub' : 'external-id-' . $provider;
+        $firstUser = $this->newUser($provider . '-first');
         $this->setExternalId($firstUser, $provider, $externalId);
         $this->entityManager->persist($firstUser);
         $this->entityManager->flush();
 
-        $secondUser = $this->newUser($provider.'-second');
+        $secondUser = $this->newUser($provider . '-second');
         $this->setExternalId($secondUser, $provider, $externalId);
         $this->entityManager->persist($secondUser);
 
@@ -77,7 +79,7 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
 
     private function newUser(string $suffix): User
     {
-        return (new User())
+        return new User()
             ->setEmail(sprintf('oauth-identity-%s-%s@example.test', $suffix, uniqid('', true)))
             ->setPassword('not-used-by-this-test')
             ->setIsVerified(true);
@@ -105,7 +107,7 @@ class OAuthIdentityUniqueConstraintTest extends KernelTestCase
                 $user->setLinkedinId($externalId);
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf('Unsupported OAuth provider "%s".', $provider));
+                throw new InvalidArgumentException(sprintf('Unsupported OAuth provider "%s".', $provider));
         }
     }
 }

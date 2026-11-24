@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Catalog\ApiPlatform;
 
+use App\Account\Repository\UserRepository;
 use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTestUtils
 {
     private const COLLECTION_URI = '/api/categories';
@@ -39,7 +39,7 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
         $document = $this->getResponseDecodedContent($client);
         self::assertArrayHasKey(self::COLLECTION_URI, $document['paths']);
         self::assertSame(['get'], array_keys($document['paths'][self::COLLECTION_URI]));
-        self::assertArrayNotHasKey(self::COLLECTION_URI.'/{id}', $document['paths']);
+        self::assertArrayNotHasKey(self::COLLECTION_URI . '/{id}', $document['paths']);
     }
 
     #[TestDox('Коллекция категорий доступна только администратору')]
@@ -60,10 +60,11 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $activeCategory = (new Category())->setTitle('Active category '.$suffix);
-        $deletedCategory = (new Category())
-            ->setTitle('Deleted category '.$suffix)
+        $activeCategory = new Category()->setTitle('Active category ' . $suffix);
+        $deletedCategory = new Category()
+            ->setTitle('Deleted category ' . $suffix)
             ->setIsDeleted(true);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($activeCategory);
         $entityManager->persist($deletedCategory);
@@ -102,7 +103,7 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
             self::assertArrayNotHasKey($privateField, $activeMember);
         }
 
-        $client->request('GET', self::COLLECTION_URI.'/'.$activeCategoryId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', self::COLLECTION_URI . '/' . $activeCategoryId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
@@ -111,21 +112,22 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
     {
         $client = self::createClient();
         $suffix = str_replace('.', '', uniqid('', true));
-        $category = (new Category())->setTitle('Embedded category '.$suffix);
-        $product = (new Product())
-            ->setTitle('Embedded product '.$suffix)
+        $category = new Category()->setTitle('Embedded category ' . $suffix);
+        $product = new Product()
+            ->setTitle('Embedded product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setIsPublished(true)
             ->setCategory($category);
-        $order = (new Order())
+        $order = new Order()
             ->setOwner($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL))
             ->setStatus(1)
             ->setTotalPrice('10.00');
-        $order->addOrderProduct((new OrderProduct())
+        $order->addOrderProduct(new OrderProduct()
             ->setProduct($product)
             ->setQuantity(1)
             ->setPricePerOne('10.00'));
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         foreach ([$category, $product, $order] as $entity) {
             $entityManager->persist($entity);
@@ -137,7 +139,7 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
         self::assertIsInt($categoryId);
         self::assertIsInt($orderId);
 
-        $client->request('GET', '/api/products/'.$product->getUuid(), [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/products/' . $product->getUuid(), [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $productDocument = $this->getResponseDecodedContent($client);
         self::assertSame(['@id', '@type', 'id', 'title'], array_keys($productDocument['category']));
@@ -145,7 +147,7 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
         self::assertSame($category->getTitle(), $productDocument['category']['title']);
 
         $client->loginUser($this->getUser(UserFixtures::USER_ADMIN_1_EMAIL), 'website');
-        $client->request('GET', '/api/orders/'.$orderId, [], [], self::REQUEST_HEADERS);
+        $client->request('GET', '/api/orders/' . $orderId, [], [], self::REQUEST_HEADERS);
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         $orderDocument = $this->getResponseDecodedContent($client);
         self::assertCount(1, $orderDocument['orderProducts']);
@@ -165,11 +167,12 @@ class CategoryResourceTest extends \App\Tests\Functional\ApiPlatform\ResourceTes
 
     private function createUnverifiedAdmin(): User
     {
-        $user = (new User())
-            ->setEmail('unverified-category-read-'.str_replace('.', '', uniqid('', true)).'@example.test')
+        $user = new User()
+            ->setEmail('unverified-category-read-' . str_replace('.', '', uniqid('', true)) . '@example.test')
             ->setPassword('not-used')
             ->setRoles(['ROLE_ADMIN'])
             ->setIsVerified(false);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->persist($user);
         $entityManager->flush();

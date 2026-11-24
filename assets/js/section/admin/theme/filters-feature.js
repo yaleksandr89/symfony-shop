@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from "../../../utils/cookie-manager";
+import { getCookie, setCookie } from "../../../utils/cookie-manager.js";
 
 window.toggleFiltersVisibility = function toggleFiltersVisibility(section) {
   const filtersKey = "filtersVisible_" + section;
@@ -14,7 +14,7 @@ window.toggleFiltersVisibility = function toggleFiltersVisibility(section) {
 
 window.changeFiltersBlockView = function changeFiltersBlockView(
   filterSection,
-  element
+  element,
 ) {
   const filtersKey = "filtersVisible_" + filterSection;
   const filtersSaveValue = getCookie(filtersKey);

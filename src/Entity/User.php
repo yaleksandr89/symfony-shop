@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
+use LogicException;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -31,6 +32,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[Column(type: Types::STRING, length: 180, unique: true)]
     protected ?string $email;
 
+    /** @var array<int, string> */
     #[Column(type: Types::JSON)]
     protected array $roles = [];
 
@@ -55,6 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
 
+    /** @var Collection<int, Order> */
     #[OneToMany(mappedBy: 'owner', targetEntity: Order::class)]
     protected Collection $orders;
 
@@ -106,7 +109,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        if ($this->email === null || $this->email === '') {
+            throw new LogicException('A user identifier requires an email address.');
+        }
+
+        return $this->email;
     }
 
     /**
@@ -115,12 +122,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+        // RU: Роль ROLE_USER гарантирована каждому пользователю.
+        // EN: guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
 
+    /** @param array<int, string> $roles */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -252,13 +261,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this->isDeleted;
     }
 
-    public function setIsDeleted(?bool $isDeleted): static
+    public function setIsDeleted(bool $isDeleted): static
     {
         $this->isDeleted = $isDeleted;
 
         return $this;
     }
 
+    /** @return Collection<int, Order> */
     public function getOrders(): Collection
     {
         return $this->orders;

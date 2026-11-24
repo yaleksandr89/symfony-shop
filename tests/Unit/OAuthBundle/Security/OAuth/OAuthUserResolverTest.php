@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
+use App\Account\Security\UserChecker\DeletedUserChecker;
+use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
 use App\OAuthBundle\Security\OAuth\OAuthUserResolver;
-use App\Account\Security\UserChecker\DeletedUserChecker;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthUserResolverTest extends TestCase
 {
     #[DataProvider('providers')]
@@ -38,13 +38,13 @@ final class OAuthUserResolverTest extends TestCase
 
         $resolution = $this->resolver($repository, $checker)->resolve(
             $provider,
-            '  '.$externalId.'  ',
+            '  ' . $externalId . '  ',
             'different-provider-email@example.test',
             static function () use (&$factoryCalls): User {
                 ++$factoryCalls;
 
                 return new User();
-            }
+            },
         );
 
         self::assertSame($user, $resolution->user());
@@ -67,7 +67,7 @@ final class OAuthUserResolverTest extends TestCase
         $repository->expects(self::once())->method('findOneBy')->with([$identityField => $externalId])->willReturn($user);
         $checker = $this->createMock(DeletedUserChecker::class);
         $checker->expects(self::once())->method('checkPreAuth')->with($user)->willThrowException(
-            new CustomUserMessageAccountStatusException('Invalid credentials.')
+            new CustomUserMessageAccountStatusException('Invalid credentials.'),
         );
         $factoryCalls = 0;
 
@@ -102,7 +102,7 @@ final class OAuthUserResolverTest extends TestCase
                 $lookups[] = $criteria;
 
                 return [$identityField => $externalId] === $criteria ? null : $user;
-            }
+            },
         );
         $checker = $this->createMock(DeletedUserChecker::class);
         $checker->expects(self::never())->method('checkPreAuth');
@@ -171,14 +171,14 @@ final class OAuthUserResolverTest extends TestCase
                 ++$factoryCalls;
 
                 return $user;
-            }
+            },
         );
 
         self::assertSame($user, $resolution->user());
         self::assertTrue($resolution->isNewUser());
         self::assertSame(1, $factoryCalls);
         self::assertSame('provider@example.test', $user->getEmail());
-        self::assertSame($externalId, (new OAuthIdentityAccessor())->getExternalId($user, $provider));
+        self::assertSame($externalId, new OAuthIdentityAccessor()->getExternalId($user, $provider));
         self::assertFalse($user->isVerified());
     }
 
@@ -192,7 +192,7 @@ final class OAuthUserResolverTest extends TestCase
         $checker->expects(self::never())->method('checkPreAuth');
 
         $this->expectException(OAuthLoginDeniedException::class);
-        $this->resolver($repository, $checker)->resolve(OAuthProvider::Google, $externalId, 'user@example.test', static fn (): User => new User());
+        $this->resolver($repository, $checker)->resolve(OAuthProvider::Google, $externalId, 'user@example.test', static fn(): User => new User());
     }
 
     #[DataProvider('futureProviders')]
@@ -205,7 +205,7 @@ final class OAuthUserResolverTest extends TestCase
         $checker->expects(self::never())->method('checkPreAuth');
 
         $this->expectException(OAuthLoginDeniedException::class);
-        $this->resolver($repository, $checker)->resolve($provider, 'external-id', 'user@example.test', static fn (): User => new User());
+        $this->resolver($repository, $checker)->resolve($provider, 'external-id', 'user@example.test', static fn(): User => new User());
     }
 
     /** @return iterable<string, array{OAuthProvider, string, string}> */
@@ -276,7 +276,7 @@ final class OAuthUserResolverTest extends TestCase
 
     private function setIdentity(User $user, OAuthProvider $provider, string $externalId): void
     {
-        (new OAuthIdentityAccessor())->link($user, $provider, $externalId);
+        new OAuthIdentityAccessor()->link($user, $provider, $externalId);
     }
 
     /** @return array<string, ?string> */

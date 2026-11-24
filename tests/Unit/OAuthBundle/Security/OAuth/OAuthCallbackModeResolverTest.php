@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,7 +21,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthCallbackModeResolverTest extends TestCase
 {
     #[DataProvider('modes')]
@@ -34,7 +35,7 @@ final class OAuthCallbackModeResolverTest extends TestCase
         $requestStack->push($request);
         $store = new OAuthLinkIntentStore($requestStack, new MockClock());
         $user = new User();
-        (new \ReflectionProperty(User::class, 'id'))->setValue($user, 7);
+        new ReflectionProperty(User::class, 'id')->setValue($user, 7);
         if ($pending) {
             $store->store($user, OAuthProvider::GithubRus, 'state');
         }
@@ -44,7 +45,7 @@ final class OAuthCallbackModeResolverTest extends TestCase
             $tokenStorage->setToken(new UsernamePasswordToken($user, 'website', ['ROLE_USER']));
         }
 
-        self::assertSame($ordinary, (new OAuthCallbackModeResolver($tokenStorage, $store))->useOrdinaryAuthenticator());
+        self::assertSame($ordinary, new OAuthCallbackModeResolver($tokenStorage, $store)->useOrdinaryAuthenticator());
     }
 
     /** @return iterable<string, array{bool, bool, bool}> */

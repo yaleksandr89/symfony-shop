@@ -22,6 +22,7 @@ final class UserStaticStorage
         ];
     }
 
+    /** @return list<string> */
     public static function getUserRoleHasAccessToAdminSection(): array
     {
         return [

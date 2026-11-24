@@ -1,3 +1,4 @@
+import $ from "jquery";
 (function ($) {
   "use strict"; // Start of use strict
 
@@ -34,7 +35,7 @@
         this.scrollTop += (delta < 0 ? 1 : -1) * 30;
         e.preventDefault();
       }
-    }
+    },
   );
 
   // Scroll to top button appear
@@ -57,8 +58,8 @@
           scrollTop: $($anchor.attr("href")).offset().top,
         },
         1000,
-        "easeInOutExpo"
+        "easeInOutExpo",
       );
     e.preventDefault();
   });
-})(jQuery); // End of use strict
+})($); // End of use strict

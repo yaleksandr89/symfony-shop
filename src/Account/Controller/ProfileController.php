@@ -64,6 +64,9 @@ class ProfileController extends AbstractController
     public function edit(Request $request): Response
     {
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
         $form = $this->createForm(ProfileEditFormType::class, $user);
 
         $form->handleRequest($request);
@@ -87,8 +90,10 @@ class ProfileController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        /** @var User $user */
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
         $isVerified = $user->isVerified();
 
         if (!$isVerified) {

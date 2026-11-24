@@ -90,7 +90,7 @@ class ProductController extends BaseAdminController
         $id = $product->getId();
         $title = $product->getTitle();
 
-        if (!$this->isCsrfTokenValid('delete_product_'.$id, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_product_' . $id, $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 

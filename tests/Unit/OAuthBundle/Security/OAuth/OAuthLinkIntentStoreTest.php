@@ -8,17 +8,18 @@ use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLinkIntentException;
 use App\OAuthBundle\Security\OAuth\OAuthLinkIntentStore;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthLinkIntentStoreTest extends TestCase
 {
     private MockClock $clock;
@@ -178,6 +179,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
             'store' => $store->store($this->user, OAuthProvider::Google, 'state'),
             'consume' => $store->consume($this->user, OAuthProvider::Google, 'state'),
             'clear' => $store->clear(),
+            default => self::fail('Unknown intent test operation.'),
         };
     }
 
@@ -220,7 +222,7 @@ final class OAuthLinkIntentStoreTest extends TestCase
     private function user(int $id): User
     {
         $user = new User();
-        (new \ReflectionProperty(User::class, 'id'))->setValue($user, $id);
+        new ReflectionProperty(User::class, 'id')->setValue($user, $id);
 
         return $user;
     }

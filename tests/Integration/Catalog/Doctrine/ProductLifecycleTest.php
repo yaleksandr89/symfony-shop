@@ -5,22 +5,24 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Catalog\Doctrine;
 
 use App\Entity\Product;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class ProductLifecycleTest extends KernelTestCase
 {
     #[TestDox('Doctrine сохраняет merchandising-флаги и обновляет updatedAt при изменении товара')]
     public function testPersistsMerchandisingFlagsAndUpdatesTimestampOnMutation(): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $initialTimestamp = new \DateTimeImmutable('2000-01-01 00:00:00');
-        $product = (new Product())
-            ->setTitle('Lifecycle product '.uniqid('', true))
+        $initialTimestamp = new DateTimeImmutable('2000-01-01 00:00:00');
+        $product = new Product()
+            ->setTitle('Lifecycle product ' . uniqid('', true))
             ->setPrice('10.00')
             ->setQuantity(1)
             ->setUpdatedAt($initialTimestamp);
@@ -37,7 +39,7 @@ final class ProductLifecycleTest extends KernelTestCase
         self::assertTrue($persistedProduct->getIsNew());
         self::assertTrue($persistedProduct->getIsOnSale());
 
-        $persistedProduct->setTitle($persistedProduct->getTitle().' updated');
+        $persistedProduct->setTitle($persistedProduct->getTitle() . ' updated');
         $entityManager->flush();
         $entityManager->clear();
 

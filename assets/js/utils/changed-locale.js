@@ -1,3 +1,4 @@
+import $ from "jquery";
 let $desktopSelect = $("#desktop-select-language");
 let $mobileSelect = $("#mobile-select-language");
 changedLanguageSite($desktopSelect, $desktopSelect.find("option"));

@@ -74,7 +74,7 @@
     color: #dc143c;
 }
 
-.font-weight-bold > a {
+.fw-bold > a {
     font-weight: 700 !important;
 }
 

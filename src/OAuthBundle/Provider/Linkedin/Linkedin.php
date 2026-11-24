@@ -20,6 +20,7 @@ final class Linkedin extends AbstractProvider
         return 'https://www.linkedin.com/oauth/v2/authorization';
     }
 
+    /** @param array<string, mixed> $params */
     public function getBaseAccessTokenUrl(array $params): string
     {
         return 'https://www.linkedin.com/oauth/v2/accessToken';
@@ -30,6 +31,7 @@ final class Linkedin extends AbstractProvider
         return 'https://api.linkedin.com/v2/userinfo';
     }
 
+    /** @return list<string> */
     protected function getDefaultScopes(): array
     {
         return ['openid', 'profile', 'email'];
@@ -40,6 +42,7 @@ final class Linkedin extends AbstractProvider
         return ' ';
     }
 
+    /** @param array<string, mixed>|string|null $data */
     protected function checkResponse(ResponseInterface $response, $data): void
     {
         $hasProviderError = is_array($data) && array_key_exists('error', $data);
@@ -51,6 +54,7 @@ final class Linkedin extends AbstractProvider
         throw new IdentityProviderException('LinkedIn OAuth request failed.', $statusCode >= 400 ? $statusCode : 0, ['status_code' => $statusCode]);
     }
 
+    /** @param array<string, mixed> $response */
     protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface
     {
         return new LinkedinUser($response);

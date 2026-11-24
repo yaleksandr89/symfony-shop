@@ -23,7 +23,7 @@ class ProductImageController extends BaseAdminController
         $product = $productImage->getProduct();
         $imgId = $productImage->getId();
 
-        if (!$this->isCsrfTokenValid('delete_product_image_'.$imgId, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_product_image_' . $imgId, $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 

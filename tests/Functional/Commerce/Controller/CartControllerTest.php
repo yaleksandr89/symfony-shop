@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Commerce\Controller;
 
+use App\Account\Repository\UserRepository;
 use App\Commerce\Cart\TokenGenerator;
 use App\Entity\Cart;
 use App\Entity\CartProduct;
@@ -11,18 +12,18 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
-#[\PHPUnit\Framework\Attributes\Group(name: 'functional')]
+#[Group('functional')]
 class CartControllerTest extends WebTestCase
 {
     #[TestDox('HTML-страница корзины не загружает сущность корзины')]
@@ -107,13 +108,13 @@ class CartControllerTest extends WebTestCase
         $entityManager = $this->getEntityManager();
         $suffix = str_replace('.', '', uniqid('', true));
         $token = TokenGenerator::generateToken();
-        $product = (new Product())
-            ->setTitle('Removed legacy cart route product '.$suffix)
+        $product = new Product()
+            ->setTitle('Removed legacy cart route product ' . $suffix)
             ->setPrice('10.00')
             ->setQuantity(10)
             ->setIsPublished(true);
-        $cart = (new Cart())->setToken($token);
-        $cartProduct = (new CartProduct())
+        $cart = new Cart()->setToken($token);
+        $cartProduct = new CartProduct()
             ->setProduct($product)
             ->setQuantity(2);
         $cart->addCartProduct($cartProduct);
@@ -131,7 +132,7 @@ class CartControllerTest extends WebTestCase
             'id' => $cartId,
             'cartProductId' => $cartProductId,
             'productUuid' => (string) $product->getUuid(),
-            'quantity' => $cartProduct->getQuantity(),
+            'quantity' => $cartProduct->getQuantity() ?? self::fail('Fixture cart line has no quantity.'),
             'token' => $token,
         ];
     }
@@ -173,7 +174,7 @@ class CartControllerTest extends WebTestCase
         return $user;
     }
 
-    private function setCartToken(AbstractBrowser $client, string $token): void
+    private function setCartToken(KernelBrowser $client, string $token): void
     {
         $client->getCookieJar()->set(new Cookie('CART_TOKEN', $token));
     }

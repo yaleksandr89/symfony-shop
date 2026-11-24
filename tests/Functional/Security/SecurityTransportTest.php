@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Security;
 
-use App\Entity\User;
 use App\Account\Repository\UserRepository;
+use App\Entity\User;
 use App\Tests\Functional\ApiPlatform\ResourceTestUtils;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -15,8 +15,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class SecurityTransportTest extends ResourceTestUtils
 {
     #[DataProvider('acceptHeaders')]
@@ -153,7 +154,9 @@ class SecurityTransportTest extends ResourceTestUtils
     {
         $request = $client->getRequest();
         self::assertInstanceOf(Request::class, $request);
-        self::assertSame($expected, $request->getSession()->getFlashBag()->peek('warning'));
+        $flashSession = $request->getSession();
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $flashSession);
+        self::assertSame($expected, $flashSession->getFlashBag()->peek('warning'));
     }
 
     private function getUser(string $email): User

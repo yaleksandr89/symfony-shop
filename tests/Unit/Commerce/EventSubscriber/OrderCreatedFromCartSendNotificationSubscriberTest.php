@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\Exception\TransportException;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OrderCreatedFromCartSendNotificationSubscriberTest extends TestCase
 {
     #[TestDox('Сбой письма клиенту не мешает попытке уведомить менеджера')]

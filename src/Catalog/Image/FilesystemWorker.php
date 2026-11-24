@@ -9,9 +9,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class FilesystemWorker
 {
-    public function __construct(private Filesystem $filesystem)
-    {
-    }
+    public function __construct(private Filesystem $filesystem) {}
 
     public function createFolderIfNotExist(string $folder): void
     {
@@ -39,6 +37,6 @@ final class FilesystemWorker
 
     public function generatePathToFile(string $dir, string $filename): string
     {
-        return $dir.DIRECTORY_SEPARATOR.$filename;
+        return $dir . DIRECTORY_SEPARATOR . $filename;
     }
 }

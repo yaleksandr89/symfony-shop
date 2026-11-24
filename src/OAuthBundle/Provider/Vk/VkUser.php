@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\OAuthBundle\Provider\Vk;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 class VkUser implements ResourceOwnerInterface
 {
-    public function __construct(protected array $response)
-    {
-    }
+    /** @param array<string, mixed> $response */
+    public function __construct(protected array $response) {}
 
     public function getId(): string
     {
@@ -25,7 +26,7 @@ class VkUser implements ResourceOwnerInterface
         $fullname = '';
 
         if ($this->response['first_name']) {
-            $fullname .= $this->response['first_name'].' ';
+            $fullname .= $this->response['first_name'] . ' ';
         }
 
         if ($this->response['last_name']) {
@@ -35,6 +36,7 @@ class VkUser implements ResourceOwnerInterface
         return $fullname;
     }
 
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return $this->response;

@@ -94,15 +94,13 @@ class FilterCartQueryExtension implements QueryCollectionExtensionInterface, Que
         $parameterName = $queryNameGenerator->generateParameterName('cart_token');
 
         $queryBuilder->andWhere(
-            sprintf('%s.token = :%s', $cartAlias, $parameterName)
+            sprintf('%s.token = :%s', $cartAlias, $parameterName),
         )->setParameter($parameterName, $cartToken);
     }
 
     /**
-     * If you want to show all carts in the admin section (only for admin)
-     * Add query param "context = admin".
-     *
-     * Ex.: https://127.0.0.1:8000/api/carts?page=1&context=admin
+     * RU: Параметр context=admin даёт доступ ко всем корзинам администраторам.
+     * EN: The context=admin query parameter grants administrators access to all carts.
      */
     private function displayAllForAdmin(?UserInterface $user): bool
     {

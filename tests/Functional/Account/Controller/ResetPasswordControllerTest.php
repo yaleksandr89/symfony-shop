@@ -16,15 +16,17 @@ use Doctrine\ORM\Events;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class ResetPasswordControllerTest extends WebTestCase
 {
     #[TestDox('Пустой email остаётся на форме и не ставит команду сброса в очередь')]
@@ -42,9 +44,9 @@ class ResetPasswordControllerTest extends WebTestCase
         self::assertSelectorExists('input[name="reset_password_request_form[email]"]');
         self::assertSelectorTextContains('form[name="reset_password_request_form"]', 'Please enter your email');
 
-        /** @var InMemoryTransport $transport */
+        /** @var DoctrineTransport $transport */
         $transport = static::getContainer()->get('messenger.transport.async');
-        self::assertCount(0, $transport->get());
+        self::assertCount(0, iterator_to_array($transport->get(), false));
     }
 
     #[DataProvider('knownAndUnknownEmails')]
@@ -60,9 +62,9 @@ class ResetPasswordControllerTest extends WebTestCase
 
         self::assertResponseRedirects('/ru/reset-password/check-email', Response::HTTP_FOUND);
 
-        /** @var InMemoryTransport $transport */
+        /** @var DoctrineTransport $transport */
         $transport = static::getContainer()->get('messenger.transport.async');
-        $envelopes = $transport->get();
+        $envelopes = iterator_to_array($transport->get(), false);
         self::assertCount(1, $envelopes);
         $message = $envelopes[0]->getMessage();
         self::assertInstanceOf(ResetUserPasswordCommand::class, $message);
@@ -110,7 +112,7 @@ class ResetPasswordControllerTest extends WebTestCase
         $token = self::getContainer()->get(ResetPasswordHelperInterface::class)->generateResetToken($user)->getToken();
         $newPassword = 'new-reset-password';
 
-        $client->request('GET', '/ru/reset-password/reset/'.$token);
+        $client->request('GET', '/ru/reset-password/reset/' . $token);
         self::assertResponseRedirects('/ru/reset-password/reset', Response::HTTP_FOUND);
         $crawler = $client->followRedirect();
         self::assertResponseIsSuccessful();
@@ -121,10 +123,12 @@ class ResetPasswordControllerTest extends WebTestCase
         ]));
 
         self::assertResponseRedirects('/ru/', Response::HTTP_FOUND);
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $persistedUser = $entityManager->find(User::class, $userId);
         self::assertInstanceOf(User::class, $persistedUser);
+        /** @var UserPasswordHasherInterface $hasher */
         $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
         self::assertFalse($hasher->isPasswordValid($persistedUser, 'test3test3'));
         self::assertTrue($hasher->isPasswordValid($persistedUser, $newPassword));
@@ -132,7 +136,7 @@ class ResetPasswordControllerTest extends WebTestCase
             'user' => $persistedUser,
         ]));
 
-        $client->request('GET', '/ru/reset-password/reset/'.$token);
+        $client->request('GET', '/ru/reset-password/reset/' . $token);
         self::assertResponseRedirects('/ru/reset-password/reset', Response::HTTP_FOUND);
         $client->followRedirect();
         self::assertResponseRedirects('/ru/reset-password', Response::HTTP_FOUND);
@@ -143,7 +147,7 @@ class ResetPasswordControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('GET', '/ru/reset-password/reset/'.str_repeat('0', 40));
+        $client->request('GET', '/ru/reset-password/reset/' . str_repeat('0', 40));
         self::assertResponseRedirects('/ru/reset-password/reset', Response::HTTP_FOUND);
         $client->followRedirect();
 
@@ -158,7 +162,7 @@ class ResetPasswordControllerTest extends WebTestCase
             ->generateResetToken($this->getFixtureUser(), -1)
             ->getToken();
 
-        $client->request('GET', '/ru/reset-password/reset/'.$token);
+        $client->request('GET', '/ru/reset-password/reset/' . $token);
         self::assertResponseRedirects('/ru/reset-password/reset', Response::HTTP_FOUND);
         $client->followRedirect();
 
@@ -185,10 +189,10 @@ class ResetPasswordControllerTest extends WebTestCase
                 $repository->removeRequests($validatedUser);
 
                 return $hash;
-            }
+            },
         );
         $container->set(UserPasswordHasherInterface::class, $hasher);
-        $client->request('GET', '/ru/reset-password/reset/'.$token);
+        $client->request('GET', '/ru/reset-password/reset/' . $token);
         $crawler = $client->followRedirect();
         self::assertResponseIsSuccessful();
         $client->submit($crawler->filter('form[name="change_password_form"]')->form([
@@ -202,11 +206,13 @@ class ResetPasswordControllerTest extends WebTestCase
         self::assertNotNull($cookie);
         $session->setId($cookie->getValue());
         self::assertTrue($session->has('ResetPasswordPublicToken'));
+        self::assertInstanceOf(FlashBagAwareSessionInterface::class, $session);
         self::assertTrue($session->getFlashBag()->has('reset_password_error'));
         $session->save();
 
         static::ensureKernelShutdown();
         static::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $persistedUser = $entityManager->find(User::class, $userId);
         self::assertInstanceOf(User::class, $persistedUser);
@@ -223,19 +229,18 @@ class ResetPasswordControllerTest extends WebTestCase
         $token = self::getContainer()->get(ResetPasswordHelperInterface::class)->generateResetToken($user)->getToken();
         $newPassword = 'rolled-back-password';
 
-        $client->request('GET', '/ru/reset-password/reset/'.$token);
+        $client->request('GET', '/ru/reset-password/reset/' . $token);
         $crawler = $client->followRedirect();
         self::assertResponseIsSuccessful();
 
         $client->disableReboot();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $eventManager = $entityManager->getEventManager();
-        $listener = new class($entityManager->getConnection(), $userId) {
+        $listener = new class ($entityManager->getConnection(), $userId) {
             public bool $resetRequestDeletionObserved = false;
 
-            public function __construct(private Connection $connection, private int $userId)
-            {
-            }
+            public function __construct(private Connection $connection, private int $userId) {}
 
             public function preFlush(PreFlushEventArgs $eventArgs): void
             {
@@ -244,7 +249,7 @@ class ResetPasswordControllerTest extends WebTestCase
                     [$this->userId],
                 );
 
-                throw new \RuntimeException('Forced reset password flush failure.');
+                throw new RuntimeException('Forced reset password flush failure.');
             }
         };
         $eventManager->addEventListener([Events::preFlush], $listener);
@@ -263,9 +268,11 @@ class ResetPasswordControllerTest extends WebTestCase
 
         static::ensureKernelShutdown();
         static::bootKernel();
+        /** @var EntityManagerInterface $freshEntityManager */
         $freshEntityManager = self::getContainer()->get(EntityManagerInterface::class);
         $freshUser = $freshEntityManager->find(User::class, $userId);
         self::assertInstanceOf(User::class, $freshUser);
+        /** @var UserPasswordHasherInterface $hasher */
         $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
         self::assertTrue($hasher->isPasswordValid($freshUser, 'test3test3'));
         self::assertFalse($hasher->isPasswordValid($freshUser, $newPassword));

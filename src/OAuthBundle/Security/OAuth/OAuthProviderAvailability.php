@@ -15,8 +15,7 @@ final class OAuthProviderAvailability
     public function __construct(
         private readonly array $enabled,
         private readonly array $credentials,
-    ) {
-    }
+    ) {}
 
     public function isEnabled(OAuthProvider $provider): bool
     {
@@ -52,7 +51,7 @@ final class OAuthProviderAvailability
     {
         return array_values(array_filter(
             OAuthProvider::cases(),
-            fn (OAuthProvider $provider): bool => $this->isEnabled($provider)
+            fn(OAuthProvider $provider): bool => $this->isEnabled($provider),
         ));
     }
 }

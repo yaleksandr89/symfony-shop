@@ -8,7 +8,7 @@
 [![CI](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml/badge.svg)](https://github.com/yaleksandr89/symfony-shop/actions/workflows/basic.yml)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](../../../LICENSE.md)
 
-![Symfony Shop — boutique en ligne avec Symfony, Docker et PostgreSQL](../../img/symfony-shop-readme-cover.png)
+![Symfony Shop — boutique en ligne avec Symfony, Docker et PostgreSQL](../../assets/symfony-shop-readme-cover.png)
 
 ## Choisir la langue
 
@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|
 | [Русский](../../../README.md) | [English](../en/README.md) | [Español](../es/README.md) | [中文](../zh/README.md) | **Sélectionné** | [Deutsch](../de/README.md) |
 
-Symfony Shop est une boutique en ligne éducative construite avec Symfony. Le projet comprend un catalogue de produits, un panier et le passage de commande, un compte utilisateur, une partie administration, une API et la connexion via OAuth. La plupart des pages sont rendues avec Twig, tandis que Vue 2 est utilisé pour certains éléments interactifs de l’interface.
+Symfony Shop est une boutique en ligne éducative construite avec Symfony. Le projet comprend un catalogue de produits, un panier et le passage de commande, un compte utilisateur, une partie administration, une API et la connexion via OAuth. La plupart des pages sont rendues avec Twig, tandis que Vue 3 est utilisé pour certains éléments interactifs de l’interface.
 
 L’environnement local pris en charge repose sur Docker Compose. PHP, Composer, Node.js, PostgreSQL et Chrome for Testing s’exécutent dans les conteneurs ou sont installés dans l’image Docker, et les opérations principales sont regroupées dans un Makefile unique. L’exécution avec PHP, Composer et PostgreSQL installés directement sur l’hôte n’est pas un scénario pris en charge et n’est pas vérifiée par la CI.
 
@@ -90,21 +90,25 @@ Les fournisseurs pris en charge, variables d’environnement, routes et règles 
 
 ## Structure du projet
 
-```text
-Navigateur
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-  ↓
-Services applicatifs / Doctrine
-  ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Navigateur"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Contrôleurs"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 dans le navigateur"]
+    Vue -->|"Requêtes HTTP vers API"| Nginx
+    Controller --> Services["Services applicatifs / gestionnaires"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Le code principal est regroupé dans les domaines `Account`, `Catalog` et `Commerce`. L’administration, OAuth et SEO sont implémentés sous forme de bundles Symfony internes. Vue 2 est utilisé pour certains composants interactifs, et non comme SPA indépendante.
+Le code principal est regroupé dans les domaines `Account`, `Catalog` et `Commerce`. L’administration, OAuth et SEO sont implémentés sous forme de bundles Symfony internes. Vue 3 est utilisé pour certains composants interactifs, et non comme SPA indépendante.
 
 La carte des répertoires, le routage, API Platform, Doctrine et les limites du frontend sont décrits dans le [guide d’architecture](architecture.md).
 
@@ -112,14 +116,17 @@ La carte des répertoires, le routage, API Platform, Doctrine et les limites du 
 
 | Commande | Rôle | Remarque |
 |---|---|---|
-| `make check` | Lance ESLint, la vérification PHP-CS-Fixer et PHPStan | Les tests ne sont pas inclus |
+| `make check` | Validation stricte de Composer, audit du lock, PHP lint, PHP CS Fixer, PHPStan et ESLint | Les tests ne sont pas inclus |
 | `make test-unit` | Lance les tests unitaires | |
+| `make test-db-reset CONFIRM=testdb` | Recrée la base SQLite de test distincte | Supprime `var/db_for_test.db` |
 | `make test-integration` | Lance les tests d’intégration | |
 | `make test-functional` | Lance les tests fonctionnels | |
 | `make test-functional-panther` | Lance les tests navigateur avec Panther | Chrome est déjà dans l’image PHP |
-| `make test-all CONFIRM=testdb` | Lance l’ensemble des tests | Recrée la base de tests |
+| `make test-all CONFIRM=testdb` | Suite complète, Panther et les deux suites PostgreSQL inclus | Recrée la base de tests |
 | `make coverage CONFIRM=testdb` | Affiche la couverture PHP/PHPUnit dans le terminal | Panther n’est pas inclus |
 | `make coverage-html CONFIRM=testdb` | Génère les rapports HTML et Clover | `var/coverage/html`, `var/coverage/clover.xml` |
+
+Avant de lancer séparément les tests d’intégration, fonctionnels ou Panther, préparez la base SQLite de test avec `make test-db-reset CONFIRM=testdb`.
 
 La liste complète des commandes Make, le fonctionnement de la base de tests et la composition de la CI figurent dans le [guide de développement](development.md).
 

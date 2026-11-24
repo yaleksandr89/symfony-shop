@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['cart_product:list']],
-            name: 'api_cart_products_get_collection'
+            name: 'api_cart_products_get_collection',
         ),
         new Post(
             exceptionToStatus: [UniqueConstraintViolationException::class => 409],
@@ -41,16 +41,16 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'allow_extra_attributes' => false,
             ],
             securityPostDenormalize: "is_granted('CART_PRODUCT_EDIT', object)",
-            name: 'api_cart_products_post_collection'
+            name: 'api_cart_products_post_collection',
         ),
         new Get(
             normalizationContext: ['groups' => ['cart_product:item']],
             security: "is_granted('CART_PRODUCT_READ', object)",
-            name: 'api_cart_products_get_item'
+            name: 'api_cart_products_get_item',
         ),
         new Delete(
             security: "is_granted('CART_PRODUCT_DELETE', object)",
-            name: 'api_cart_products_delete_item'
+            name: 'api_cart_products_delete_item',
         ),
         new Patch(
             inputFormats: ['json' => ['application/merge-patch+json']],
@@ -59,9 +59,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'allow_extra_attributes' => false,
             ],
             security: "is_granted('CART_PRODUCT_EDIT', object)",
-            name: 'api_cart_products_patch_item'
+            name: 'api_cart_products_patch_item',
         ),
-    ])]
+    ],
+)]
 class CartProduct
 {
     #[Id, GeneratedValue, Column(type: Types::INTEGER)]
@@ -90,11 +91,11 @@ class CartProduct
     #[Assert\NotNull(message: 'Quantity is required.')]
     #[Assert\GreaterThanOrEqual(
         value: 1,
-        message: 'Quantity must be at least 1.'
+        message: 'Quantity must be at least 1.',
     )]
     #[Assert\LessThanOrEqual(
         propertyPath: 'product?.quantity',
-        message: 'Quantity cannot exceed the product stock.'
+        message: 'Quantity cannot exceed the product stock.',
     )]
     protected ?int $quantity = null;
 

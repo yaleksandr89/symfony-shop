@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional\Account\Controller;
 
 use App\Account\Message\Event\EventUserRegisteredEvent;
@@ -7,15 +9,15 @@ use App\Account\Repository\UserRepository;
 use App\Account\Security\Verifier\EmailVerifier;
 use App\Entity\User;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class RegistrationControllerTest extends WebTestCase
 {
     private static string $uniqueEmail = 'new_test_user_1@gmail.com';
@@ -38,6 +40,7 @@ class RegistrationControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertSelectorTextContains('div', 'Было отправлено электронное письмо. Пожалуйста, проверьте свой почтовый ящик, чтобы завершить регистрацию.');
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $user = static::getContainer()->get(UserRepository::class)->findOneBy(['email' => self::$uniqueEmail]);
@@ -49,13 +52,31 @@ class RegistrationControllerTest extends WebTestCase
         $userId = $user->getId();
         self::assertIsInt($userId);
 
-        /** @var InMemoryTransport $transport */
+        /** @var DoctrineTransport $transport */
         $transport = self::getContainer()->get('messenger.transport.async');
-        $envelopes = $transport->get();
+        $envelopes = iterator_to_array($transport->get(), false);
         self::assertCount(1, $envelopes);
         $message = $envelopes[0]->getMessage();
         self::assertInstanceOf(EventUserRegisteredEvent::class, $message);
         self::assertSame($userId, $message->getUserId());
+    }
+
+    #[TestDox('Регистрация без согласия отклоняется без создания пользователя')]
+    public function testRegistrationRequiresConsent(): void
+    {
+        $client = static::createClient();
+        $email = 'without-consent@example.test';
+
+        $client->request('GET', '/ru/registration');
+        $client->submitForm('Зарегистрироваться', [
+            'registration_form[email]' => $email,
+            'registration_form[plainPassword]' => 'test-password',
+            'registration_form[agreeTerms]' => false,
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#registration_form_agreeTerms[required]:not([checked])');
+        self::assertNull(static::getContainer()->get(UserRepository::class)->findOneBy(['email' => $email]));
     }
 
     #[TestDox('Повторный email при регистрации отклоняется')]
@@ -103,7 +124,6 @@ class RegistrationControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
 
-        /** @var User $user */
         $user = $container->get(UserRepository::class)->findOneBy(['email' => UserFixtures::USER_1_EMAIL]);
         self::assertNotNull($user);
 
@@ -118,6 +138,7 @@ class RegistrationControllerTest extends WebTestCase
 
         self::assertResponseRedirects('/ru/', Response::HTTP_FOUND);
 
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
 

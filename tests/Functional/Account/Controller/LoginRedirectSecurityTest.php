@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class LoginRedirectSecurityTest extends WebTestCase
 {
     #[TestDox('Внешний Referer с окончанием cart игнорируется после успешного входа')]

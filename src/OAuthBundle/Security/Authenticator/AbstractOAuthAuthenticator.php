@@ -21,6 +21,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 abstract class AbstractOAuthAuthenticator extends OAuth2Authenticator
 {
@@ -33,8 +34,7 @@ abstract class AbstractOAuthAuthenticator extends OAuth2Authenticator
         protected readonly OAuthLoginHandler $oauthLoginHandler,
         private readonly RouterInterface $router,
         private readonly TranslatorInterface $translator,
-    ) {
-    }
+    ) {}
 
     #[Required]
     public function setCallbackModeResolver(OAuthCallbackModeResolver $callbackModeResolver): void
@@ -68,7 +68,7 @@ abstract class AbstractOAuthAuthenticator extends OAuth2Authenticator
             return $this->fetchAccessToken($client);
         } catch (AuthenticationException $exception) {
             throw $exception;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new AuthenticationServiceException(self::EXTERNAL_FAILURE_MESSAGE, 0, $exception);
         }
     }
@@ -81,7 +81,7 @@ abstract class AbstractOAuthAuthenticator extends OAuth2Authenticator
             return $client->fetchUserFromToken($accessToken);
         } catch (AuthenticationException $exception) {
             throw $exception;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new AuthenticationServiceException(self::EXTERNAL_FAILURE_MESSAGE, 0, $exception);
         }
     }

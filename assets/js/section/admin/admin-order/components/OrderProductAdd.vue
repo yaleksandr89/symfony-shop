@@ -65,8 +65,8 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { getProductInformativeTitle } from "../../../../utils/title-formatter";
-import { getUrlViewProduct } from "../../../../utils/url-generator";
+import { getProductInformativeTitle } from "../../../../utils/title-formatter.js";
+import { getUrlViewProduct } from "../../../../utils/url-generator.js";
 
 export default {
   name: "OrderProductAdd",
@@ -87,7 +87,7 @@ export default {
     },
     selectedProduct() {
       return this.freeCategoryProducts.find(
-        (product) => product.uuid === this.form.productId
+        (product) => product.uuid === this.form.productId,
       );
     },
     showProductOptions() {
@@ -111,7 +111,7 @@ export default {
     viewDetails() {
       const url = getUrlViewProduct(
         this.staticStore.url.viewProduct,
-        this.selectedProduct.id
+        this.selectedProduct.id,
       );
       window.open(url, "_blank").focus();
     },

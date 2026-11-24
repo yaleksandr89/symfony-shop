@@ -11,9 +11,7 @@ use Twig\TwigFunction;
 
 final class OAuthProviderTwigExtension extends AbstractExtension
 {
-    public function __construct(private readonly OAuthProviderAvailability $availability)
-    {
-    }
+    public function __construct(private readonly OAuthProviderAvailability $availability) {}
 
     public function getFunctions(): array
     {

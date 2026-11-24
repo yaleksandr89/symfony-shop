@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Unit\Account\Form;
 
 use App\Account\Form\ChangePasswordFormType;
@@ -10,7 +12,7 @@ use Symfony\Component\Form\FormExtensionInterface;
 use Symfony\Component\Form\Test\FormIntegrationTestCase;
 use Symfony\Component\Validator\Validation;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class ChangePasswordFormTypeTest extends FormIntegrationTestCase
 {
     /**

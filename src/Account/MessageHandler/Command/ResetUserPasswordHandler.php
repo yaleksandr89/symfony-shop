@@ -19,8 +19,7 @@ class ResetUserPasswordHandler
         private UserRepository $userRepository,
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private ResetUserPasswordEmailSender $userPasswordEmailSender,
-    ) {
-    }
+    ) {}
 
     public function __invoke(ResetUserPasswordCommand $resetUserPasswordCommand): void
     {
@@ -37,7 +36,8 @@ class ResetUserPasswordHandler
             $resetToken = $this->resetPasswordHelper->generateResetToken($user);
             $this->userPasswordEmailSender->sendEmailToClient($user, $resetToken);
         } catch (ResetPasswordExceptionInterface $e) {
-            // Reset-token failures stay silent to keep the response neutral about account existence.
+            // RU: Ошибки выпуска токена скрываются, чтобы ответ не раскрывал существование аккаунта.
+            // EN: Reset-token failures stay silent to keep the response neutral about account existence.
         }
     }
 }

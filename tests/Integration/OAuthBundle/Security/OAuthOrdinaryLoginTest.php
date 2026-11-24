@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class OAuthOrdinaryLoginTest extends KernelTestCase
 {
     #[DataProvider('uniqueRaces')]
@@ -22,11 +22,12 @@ final class OAuthOrdinaryLoginTest extends KernelTestCase
     public function testDatabaseUniqueRaceIsGenericAndSendsNoVerificationEmail(string $race): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $nonce = str_replace('.', '', uniqid('', true));
-        $duplicateEmail = 'oauth-race-'.$nonce.'@example.test';
-        $duplicateExternalId = 'oauth-race-'.$nonce;
-        $owner = (new User())
+        $duplicateEmail = 'oauth-race-' . $nonce . '@example.test';
+        $duplicateExternalId = 'oauth-race-' . $nonce;
+        $owner = new User()
             ->setEmail($duplicateEmail)
             ->setPassword('owner-password-hash')
             ->setIsVerified(true);
@@ -34,10 +35,10 @@ final class OAuthOrdinaryLoginTest extends KernelTestCase
         $entityManager->persist($owner);
         $entityManager->flush();
 
-        $candidate = (new User())
-            ->setEmail('email' === $race ? $duplicateEmail : 'oauth-candidate-'.$nonce.'@example.test')
+        $candidate = new User()
+            ->setEmail('email' === $race ? $duplicateEmail : 'oauth-candidate-' . $nonce . '@example.test')
             ->setIsVerified(true);
-        $candidate->setGoogleId('external-id' === $race ? $duplicateExternalId : 'oauth-candidate-'.$nonce);
+        $candidate->setGoogleId('external-id' === $race ? $duplicateExternalId : 'oauth-candidate-' . $nonce);
 
         try {
             self::getContainer()->get(OAuthNewUserRegistrar::class)->register($candidate, OAuthProvider::Google);

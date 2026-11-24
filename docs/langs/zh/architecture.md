@@ -11,23 +11,25 @@ Symfony Shop 是一个单体 Symfony 应用，包含服务器渲染页面、管�
 
 ## 总体结构
 
-```text
-浏览器
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-          ↓
-应用服务 / handler
-          ↓
-Doctrine ORM
-          ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["浏览器"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["控制器"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["浏览器中的 Vue 3 / Vuex 4"]
+    Vue -->|"HTTP API 请求"| Nginx
+    Controller --> Services["应用服务 / 处理器"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-需要交互时，Vue 2 会挂载到部分 Twig 页面上，例如购物车、购物车状态指示和订单编辑器。当前架构没有独立 SPA，也没有 Vue Router。
+需要交互时，Vue 3 会挂载到部分 Twig 页面上，例如购物车、购物车状态指示和订单编辑器。当前架构没有独立 SPA，也没有 Vue Router。
 
 ## 应用领域
 
@@ -98,9 +100,9 @@ API 包含目录、购物车和订单。数据访问和修改还会通过权限�
 
 主要页面由 Twig 渲染。公共 template 位于 [`templates`](../../../templates)，内部 bundle 的 template 位于各自模块中。
 
-Webpack Encore 从 [`assets`](../../../assets) 构建资源到 `public/build`。Vue 2 只作为服务器渲染页面上的局部交互层使用。
+Webpack Encore 7 从 [`assets`](../../../assets) 构建资源到 `public/build`。Vue 3 只作为服务器渲染页面上的局部交互层使用。
 
-当前客户端架构会保留到单独迁移至 Inertia.js 和 Vue 3 的阶段。
+当前客户端架构会保留到单独迁移至 Inertia.js 的阶段。
 
 ## 配置与依赖注入
 

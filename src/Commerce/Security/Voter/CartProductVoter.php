@@ -13,15 +13,14 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/** @extends Voter<string, CartProduct> */
 class CartProductVoter extends Voter
 {
     private const CART_PRODUCT_READ = 'CART_PRODUCT_READ';
     private const CART_PRODUCT_EDIT = 'CART_PRODUCT_EDIT';
     private const CART_PRODUCT_DELETE = 'CART_PRODUCT_DELETE';
 
-    public function __construct(private RequestStack $requestStack)
-    {
-    }
+    public function __construct(private RequestStack $requestStack) {}
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -79,7 +78,9 @@ class CartProductVoter extends Voter
             return false;
         }
 
-        // проверяем, что это корзина пользователя
+        // RU: Проверяем, что это корзина пользователя.
+
+        // EN: Check that the cart belongs to the user.
         return $cart->getToken() === $cartToken;
     }
 
@@ -91,7 +92,9 @@ class CartProductVoter extends Voter
             return false;
         }
 
-        // проверяем, что это корзина пользователя
+        // RU: Проверяем, что это корзина пользователя.
+
+        // EN: Check that the cart belongs to the user.
         return $cart->getToken() === $cartToken;
     }
 

@@ -11,9 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class ApiSecurityProblemResponder
 {
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
-    {
-    }
+    public function __construct(private UrlGeneratorInterface $urlGenerator) {}
 
     public function unauthorized(Request $request): JsonResponse
     {
@@ -30,7 +28,7 @@ final class ApiSecurityProblemResponder
                 'Cache-Control' => 'no-store',
                 'WWW-Authenticate' => sprintf(
                     'ShopSession realm="symfony-shop", login-uri="%s"',
-                    $this->urlGenerator->generate('main_login')
+                    $this->urlGenerator->generate('main_login'),
                 ),
             ],
         );

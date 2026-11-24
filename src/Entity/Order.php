@@ -33,7 +33,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     new GetCollection(
         normalizationContext: ['groups' => ['order:list']],
         security: "is_granted('ROLE_ADMIN')",
-        name: 'api_orders_get_collection'
+        name: 'api_orders_get_collection',
     ),
     new Post(
         errors: [CartProductsUnavailableException::class],
@@ -42,12 +42,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
         security: "is_granted('ROLE_USER')",
         input: CheckoutOrderInput::class,
         name: 'api_orders_post_collection',
-        processor: CheckoutOrderProcessor::class
+        processor: CheckoutOrderProcessor::class,
     ),
     new Get(
         normalizationContext: ['groups' => ['order:item']],
         security: "is_granted('ROLE_ADMIN')",
-        name: 'api_orders_get_item'
+        name: 'api_orders_get_item',
     ),
 ])]
 class Order
@@ -76,6 +76,7 @@ class Order
     #[Column(type: Types::BOOLEAN)]
     protected bool $isDeleted;
 
+    /** @var Collection<int, OrderProduct> */
     #[OneToMany(mappedBy: 'appOrder', targetEntity: OrderProduct::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['order:item'])]
     protected Collection $orderProducts;
@@ -147,7 +148,7 @@ class Order
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?DateTimeImmutable $updatedAt): static
+    public function setUpdatedAt(DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 
@@ -166,6 +167,7 @@ class Order
         return $this;
     }
 
+    /** @return Collection<int, OrderProduct> */
     public function getOrderProducts(): Collection
     {
         return $this->orderProducts;

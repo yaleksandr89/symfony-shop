@@ -10,23 +10,25 @@ Symfony Shop — одно Symfony-приложение с серверными �
 
 ## Общая схема
 
-```text
-Браузер
-  ↓
-Nginx
-  ↓
-Symfony
-  ├─ Controller → Twig → HTML
-  └─ API Platform → JSON API
-          ↓
-Прикладные сервисы / обработчики
-          ↓
-Doctrine ORM
-          ↓
-PostgreSQL
+```mermaid
+flowchart TD
+    Browser["Браузер"] --> Nginx
+    Nginx --> Symfony
+    Symfony --> Controller["Контроллеры"]
+    Symfony --> API["API Platform"]
+    Controller --> Twig --> HTML
+    HTML --> Vue["Vue 3 / Vuex 4 в браузере"]
+    Vue -->|"HTTP-запросы к API"| Nginx
+    Controller --> Services["Прикладные сервисы / обработчики"]
+    Controller --> ORM["Doctrine ORM"]
+    API --> Services
+    API --> ORM
+    Services --> ORM
+    ORM --> PostgreSQL
+    API --> JSON["JSON API"]
 ```
 
-Vue 2 подключается поверх отдельных Twig-страниц там, где нужна интерактивность: корзина, индикатор корзины и редактор заказа. Отдельного SPA и Vue Router в текущей архитектуре нет.
+Vue 3 подключается поверх отдельных Twig-страниц там, где нужна интерактивность: корзина, индикатор корзины и редактор заказа. Отдельного SPA и Vue Router в текущей архитектуре нет.
 
 ## Прикладные области
 
@@ -98,9 +100,9 @@ API Platform используется для прикладного API, а не
 
 Основные страницы формируются Twig. Общие шаблоны находятся в [`templates`](../../../templates), а шаблоны внутренних бандлов — внутри соответствующих модулей.
 
-Webpack Encore собирает ресурсы из [`assets`](../../../assets) в `public/build`. Vue 2 используется точечно как интерактивный слой поверх серверных страниц.
+Webpack Encore 7 собирает ресурсы из [`assets`](../../../assets) в `public/build`. Vue 3 используется точечно как интерактивный слой поверх серверных страниц.
 
-Текущая клиентская архитектура сохраняется до отдельной миграции на Inertia.js и Vue 3.
+Текущая клиентская архитектура сохраняется до отдельной миграции на Inertia.js.
 
 ## Конфигурация и внедрение зависимостей
 

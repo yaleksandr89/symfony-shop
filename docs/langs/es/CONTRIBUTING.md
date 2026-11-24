@@ -18,7 +18,7 @@ Revisa las Discussions, Issues y Pull Requests existentes y procura que cada cam
 - PHP, Composer, PostgreSQL, Node.js y el entorno de navegador no se ejecutan directamente en el host como parte del flujo habitual.
 - Los cambios no deben debilitar de forma silenciosa las reglas de acceso, los flujos OAuth, la integridad del carrito/pedidos ni otros contratos existentes.
 - No incluyas refactorizaciones amplias ni actualizaciones de dependencias que no estén relacionadas con la tarea.
-- La arquitectura frontend con Vue 2 se mantiene hasta la migración separada a Inertia.js y Vue 3.
+- La arquitectura frontend con Vue 3 se mantiene hasta la migración separada a Inertia.js.
 
 La arquitectura está descrita en [`architecture.md`](architecture.md) y los comandos de desarrollo en [`development.md`](development.md).
 
@@ -52,12 +52,16 @@ Lee el Makefile actual antes de ejecutar comandos. Comprobaciones principales:
 
 | Comando | Propósito |
 |---|---|
-| `make check` | ESLint + comprobación PHP-CS-Fixer + PHPStan |
+| `make check` | Validación estricta de Composer, auditoría del lock, PHP lint, PHP CS Fixer, PHPStan y ESLint |
 | `make test-unit` | pruebas unitarias |
 | `make test-integration` | pruebas de integración |
 | `make test-functional` | pruebas funcionales |
 | `make test-functional-panther` | pruebas de navegador Panther |
-| `make test-all CONFIRM=testdb` | conjunto completo, incluido Panther |
+| `make test-all CONFIRM=testdb` | Suite completa con Panther y ambas suites PostgreSQL |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Operaciones concurrentes de restablecimiento de contraseña |
+| `make test-oauth-postgresql CONFIRM=testdb` | Cambios concurrentes de identidades OAuth |
+
+Las pruebas ordinarias de integración, funcionales y Panther solo utilizan `var/db_for_test.db` local. Antes de ejecutar estos grupos por separado, prepara la base con `make test-db-reset CONFIRM=testdb`. Usa los objetivos Make protegidos: no se permiten conexiones arbitrarias para las pruebas. Ejecuta las pruebas de concurrencia PostgreSQL únicamente mediante los dos objetivos específicos anteriores, en servicios desechables. Nunca uses la base de trabajo ni una conexión externa para las pruebas.
 
 Ejecuta las comprobaciones relacionadas con el cambio. Usa el conjunto completo cuando se modifiquen límites compartidos de la aplicación o antes de la verificación final de un cambio grande.
 

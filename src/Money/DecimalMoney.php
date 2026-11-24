@@ -14,7 +14,7 @@ final class DecimalMoney
             throw new InvalidArgumentException('Amount must be a non-negative decimal string with no more than two fractional digits.');
         }
 
-        return self::parseDigits($matches[1].str_pad($matches[2] ?? '', 2, '0'));
+        return self::parseDigits($matches[1] . str_pad($matches[2] ?? '', 2, '0'));
     }
 
     public static function multiplyToCents(string $amount, int $quantity): int
@@ -48,7 +48,7 @@ final class DecimalMoney
     {
         self::assertNonNegativeCents($cents);
 
-        return intdiv($cents, 100).'.'.str_pad((string) ($cents % 100), 2, '0', STR_PAD_LEFT);
+        return intdiv($cents, 100) . '.' . str_pad((string) ($cents % 100), 2, '0', STR_PAD_LEFT);
     }
 
     public static function normalize(string $amount): string
@@ -58,19 +58,14 @@ final class DecimalMoney
 
     private static function parseDigits(string $digits): int
     {
-        $value = 0;
-
-        foreach (str_split($digits) as $digit) {
-            $digitValue = ord($digit) - ord('0');
-
-            if ($value > intdiv(PHP_INT_MAX - $digitValue, 10)) {
-                throw new InvalidArgumentException('Amount exceeds the integer range.');
-            }
-
-            $value = $value * 10 + $digitValue;
+        $significantDigits = ltrim($digits, '0');
+        $limit = (string) PHP_INT_MAX;
+        $length = strlen($significantDigits);
+        if ($length > strlen($limit) || ($length === strlen($limit) && strcmp($significantDigits, $limit) > 0)) {
+            throw new InvalidArgumentException('Amount exceeds the integer range.');
         }
 
-        return $value;
+        return (int) $significantDigits;
     }
 
     private static function assertNonNegativeCents(int $cents): void

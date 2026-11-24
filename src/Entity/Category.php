@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     new GetCollection(
         normalizationContext: ['groups' => ['category:list']],
         security: "is_granted('ROLE_ADMIN')",
-        name: 'api_categories_get_collection'
+        name: 'api_categories_get_collection',
     ),
 ])]
 class Category
@@ -42,11 +42,12 @@ class Category
     #[Column(type: Types::STRING, length: 120, unique: true)]
     protected ?string $slug;
 
+    /** @var Collection<int, Product> */
     #[OneToMany(mappedBy: 'category', targetEntity: Product::class)]
     protected Collection $products;
 
     #[Column(type: Types::BOOLEAN, nullable: true)]
-    protected bool $isDeleted;
+    protected ?bool $isDeleted;
 
     public function __construct()
     {
@@ -67,7 +68,7 @@ class Category
 
     public function setTitle(?string $title): static
     {
-        $this->title = ucfirst(strtolower($title));
+        $this->title = $title === null ? null : ucfirst(strtolower($title));
 
         return $this;
     }
@@ -84,6 +85,7 @@ class Category
         return $this;
     }
 
+    /** @return Collection<int, Product> */
     public function getProducts(): Collection
     {
         return $this->products;

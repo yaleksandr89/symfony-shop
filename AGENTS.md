@@ -21,13 +21,13 @@ This repository is one Symfony application, not a set of independent services or
 Current architectural families include:
 
 ```text
-PHP 8.5
+PHP 8.5 (~8.5.0)
 Symfony 8.1
-API Platform 4
+API Platform 5
 Doctrine ORM 3 / DBAL 4
 PostgreSQL runtime
 Twig
-Vue 2 / Vuex 3 / Webpack Encore 1
+Vue 3 / Vuex 4 / Webpack Encore 7
 PHPUnit 13
 PHPStan 2
 PHP-CS-Fixer 3
@@ -118,18 +118,11 @@ For new or materially edited first-party PHP:
 - use `final` / `readonly` semantically, not mechanically;
 - keep code readable instead of compressing it for fewer lines.
 
-Owner baseline is PHP-FIG PER Coding Style 3.1 plus PSR-1, but the current repository formatter is the executable formatting enforcement.
+PHP-FIG PER Coding Style 3.1 plus PSR-1 is the normative baseline; `.php-cs-fixer.dist.php` uses `@PER-CS` for executable enforcement of supported rules. Prefer direct `new Foo()->method()`, compact empty bodies, ordered imports and multiline trailing commas. Use UTF-8, LF and a final newline. Preserve Symfony signatures, Doctrine mapping, generated migration class names and intentional entry-point side effects.
 
-Current PHP formatting is defined by `.php-cs-fixer.dist.php` and the established Makefile targets. The current Symfony-based fixer configuration does not by itself prove full PER 3.1 conformance.
+In mixed PHP/HTML files keep the initial strict declaration, imports and PHPDoc in a single PHP block; `<?php declare(strict_types=1); ?>` is allowed if the declaration is the only statement before markup. Declare strict types exactly once. Preserve rendered whitespace. This is the approved PER-CS 3.1 section 3 exception.
 
-Therefore:
-
-- do not hand-format code against the formatter;
-- do not claim full PER 3.1 conformance unless executable configuration proves it;
-- if an owner style rule and formatter behavior materially conflict, stop treating the difference as ordinary code cleanup;
-- reconcile the prose rule and formatter/configuration in an explicit quality task, then apply the accepted contract to the approved scope.
-
-Do not perform a repository-wide strict-types, constructor-injection, comment-style, or formatting rewrite as a side effect of another task.
+Do not hand-format against the formatter or claim rules not enforced by tooling. Resolve material conflicts explicitly. Repository-wide style changes require an approved style batch; avoid unrelated reformatting otherwise.
 
 ## Comments and PHPDoc
 
@@ -158,9 +151,9 @@ Do not rewrite all existing comments merely to normalize language in an unrelate
 
 ## Frontend boundary
 
-Until an explicitly approved frontend architecture task changes it, preserve the current Twig + selective Vue 2 / Vuex 3 / Webpack Encore architecture.
+Until an explicitly approved frontend architecture task changes it, preserve the current Twig + selective Vue 3 / Vuex 4 / Webpack Encore architecture.
 
-Do not perform a broad Vue 2 → Vue 3 migration, introduce Inertia, replace state management, or rewrite Twig/API interaction as an incidental dependency or cleanup change.
+Do not introduce Inertia, replace state management, or rewrite Twig/API interaction as an incidental dependency or cleanup change.
 
 Narrow fixes, security corrections, and compatibility work needed for the supported current build/runtime are allowed when they are the actual task.
 
@@ -279,16 +272,21 @@ Read the current Makefile before execution. Established targets include:
 
 ```text
 make check
+make composer-validate
+make composer-audit
+make php-lint
 make php-cs-fixer-check
 make phpstan-check
 make eslint-check
 make assets-build
 
-make test-unit CONFIRM=testdb
-make test-integration CONFIRM=testdb
-make test-functional CONFIRM=testdb
-make test-functional-panther CONFIRM=testdb
+make test-unit
+make test-db-reset CONFIRM=testdb
+make test-integration
+make test-functional
+make test-functional-panther
 make test-reset-password-postgresql CONFIRM=testdb
+make test-oauth-postgresql CONFIRM=testdb
 
 make test-all-core CONFIRM=testdb
 make test-all CONFIRM=testdb
@@ -303,17 +301,20 @@ During a bounded task, run the smallest relevant checks. Use the full aggregate 
 
 Never report a check as PASS if it was not actually run.
 
-Current executable scopes are narrower than the whole repository:
+PHP quality scopes:
 
-- PHP-CS-Fixer target: `src/`, `tools/demo/`;
-- PHPStan target: `src`, `tools/demo`, level 4;
-- ESLint target: `assets/js/` `.js/.vue`;
+- PHP lint, PHP CS Fixer and PHPStan level 8: `src`, `tests`, `migrations`, `tools/demo`, `fixtures/demo`, `config/bundles.php`, `config/preload.php`, `public/index.php`, `bin/console`, `.php-cs-fixer.dist.php`; exclude dependencies and generated files;
+- ESLint target: `assets/` `.js/.vue`;
 - PHPUnit source/coverage scope: `src`, `tools/demo`;
-- Panther is excluded from PHP/PHPUnit coverage.
+- Panther and opt-in PostgreSQL concurrency suites are excluded from core PHP/PHPUnit coverage.
+
+`make check` runs strict Composer validation, locked dependency audit, PHP lint, PHP CS Fixer, PHPStan and ESLint without PHPUnit or database reset. `make test-all CONFIRM=testdb` runs the core suite, Panther and both PostgreSQL concurrency suites. Preserve the existing public Make target names.
 
 Do not silently describe those tools as enforcing files or rules outside their actual scope.
 
 ## Tests
+
+Normal integration, functional and Panther tests must use the isolated local SQLite file `var/db_for_test.db`. Validate the effective Doctrine target before any reset, schema, fixture or test mutation, including direct console/PHPUnit and Panther subprocess entry points. Reject arbitrary overrides, ambiguous paths and unsafe aliases. Only the dedicated guarded PostgreSQL concurrency targets may use `TEST_DATABASE_URL`; require their exact disposable service/database contract, and retain the existing independent process/transaction tests. Prepare SQLite with `make test-db-reset CONFIRM=testdb`. Run integration tests, Panther and PostgreSQL concurrency only via the guarded Make targets. Never run tests against application/shared data or real provider credentials; never use `make postgres-reinit` for routine checks. Core unit-only tests must remain possible without a database.
 
 Tests must protect meaningful first-party behavior, regressions, invariants, or integration boundaries.
 
@@ -340,7 +341,7 @@ Do not weaken exact security or side-effect assertions merely to adapt to a chan
 
 Do not add an unknown/new dependency from memory. Verify the exact package, official/trusted source or registry, maintenance state, runtime compatibility, security implications, and actual need.
 
-Do not update unrelated dependencies "while here".
+Do not update unrelated dependencies "while here". PHP 8.5 is the development/CI target and `~8.5.0` is the supported Composer range; PHP CS Fixer is constrained to `^3.95`. Reassess rather than widen compatibility automatically.
 
 Composer and npm work must preserve tracked lockfile reproducibility. Existing install/update commands may run scripts and mutate runtime/generated state, so they are not automatically read-only.
 
@@ -386,6 +387,10 @@ Do not invent speculative aliases, shims, dual paths, deprecated wrappers, or fa
 
 Published tags/releases are immutable. Never rewrite or reuse an existing published tag/release.
 
+## Documentation and CI
+
+Maintain Russian root README, `.github/CONTRIBUTING.md`, `.github/SECURITY.md` and their complete localized counterparts in `docs/langs/` (ru/en/es/zh/fr/de), with existing thematic page paths. Covers live in `docs/assets/`; preserve existing assets, links, examples, meaningful project history and locale navigation. Use Mermaid for architecture diagrams. Keep coverage diagnostic, without external coverage uploads or public coverage badges. CI uses push/pull_request to master and workflow_dispatch, concurrency cancellation, read-only contents permission, full commit SHA-pinned actions and no persisted checkout credentials. Preserve meaningful Docker, browser and concurrency tests.
+
 ## Git and remotes
 
 The user performs commit/push/merge operations manually.
@@ -410,13 +415,7 @@ mutate production
 
 Remote read/search/verification is allowed when the task and available tooling permit it. Remote mutation is not.
 
-For ChatGPT/Codex workflow in this repository, the authoritative remote is:
-
-```text
-origin
-```
-
-`origin` is the GitHub repository used for branch/master baselines, push instructions, CI/checkpoint closure, and independent remote verification.
+For ChatGPT/Codex workflow the authoritative remote is the GitHub repository `yaleksandr89/symfony-shop` (local remote `github` in the owner-confirmed checkout). Verify GitHub for branch/master baselines, CI and releases; remote names can differ in other clones. Remote policy is `READ_ONLY_FOR_AI`.
 
 Other configured remotes such as `gitea`, `gitflic`, and `mos` are user-managed mirrors. Unless the user explicitly asks otherwise, do not:
 
@@ -425,7 +424,7 @@ Other configured remotes such as `gitea`, `gitflic`, and `mos` are user-managed 
 - include them in push/verification instructions;
 - require them for checkpoint closure.
 
-After the user reports a push/merge/tag/release, do not mark it VERIFIED solely from the user's statement or local state when independent `origin` verification is available.
+After the user reports a push/merge/tag/release, do not mark it VERIFIED solely from the user's statement or local state when independent GitHub verification is available.
 
 ## Review contract
 

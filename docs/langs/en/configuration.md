@@ -80,6 +80,8 @@ Do not add this file to Git or publish its contents. In the `test` environment, 
 
 The test environment uses a separate SQLite database at `var/db_for_test.db`, Panther settings, neutral Mailer/Messenger transports, and disabled OAuth providers.
 
+The test SQLite database is fixed at `var/db_for_test.db`. `TEST_DATABASE_URL` is reserved for the two guarded PostgreSQL concurrency scenarios, not arbitrary connections. See the [development guide](development.md).
+
 ## Mail and Messenger
 
 The defaults are:

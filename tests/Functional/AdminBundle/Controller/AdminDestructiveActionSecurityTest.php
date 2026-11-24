@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
+use App\Account\Repository\UserRepository;
+use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\ProductImage;
 use App\Entity\User;
-use App\Catalog\Repository\CategoryRepository;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -20,7 +20,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 final class AdminDestructiveActionSecurityTest extends WebTestCase
 {
     #[DataProvider('resourcesAndRejectedRequests')]
@@ -81,9 +81,9 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
     {
         foreach (array_keys(iterator_to_array(self::resources())) as $resource) {
             $resource = str_replace(' ', '_', $resource);
-            yield $resource.' GET' => [$resource, 'GET', null];
-            yield $resource.' missing CSRF' => [$resource, 'POST', null];
-            yield $resource.' invalid CSRF' => [$resource, 'POST', 'invalid-token'];
+            yield $resource . ' GET' => [$resource, 'GET', null];
+            yield $resource . ' missing CSRF' => [$resource, 'POST', null];
+            yield $resource . ' invalid CSRF' => [$resource, 'POST', 'invalid-token'];
         }
     }
 
@@ -92,13 +92,14 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
      */
     private function createTarget(string $resource): array
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = str_replace('.', '', uniqid('', true));
 
         if ('category' === $resource) {
-            $entity = (new Category())
-                ->setTitle('CSRF category '.$suffix)
-                ->setSlug('csrf-category-'.$suffix);
+            $entity = new Category()
+                ->setTitle('CSRF category ' . $suffix)
+                ->setSlug('csrf-category-' . $suffix);
             $entityManager->persist($entity);
             $entityManager->flush();
 
@@ -108,9 +109,9 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
         if ('product' === $resource) {
             $category = self::getContainer()->get(CategoryRepository::class)->findOneBy(['isDeleted' => false]);
             self::assertInstanceOf(Category::class, $category);
-            $entity = (new Product())
-                ->setTitle('CSRF product '.$suffix)
-                ->setSlug('csrf-product-'.$suffix)
+            $entity = new Product()
+                ->setTitle('CSRF product ' . $suffix)
+                ->setSlug('csrf-product-' . $suffix)
                 ->setPrice('10.00')
                 ->setQuantity(1)
                 ->setDescription('CSRF product description')
@@ -124,17 +125,17 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
         if ('product_image' === $resource) {
             $category = self::getContainer()->get(CategoryRepository::class)->findOneBy(['isDeleted' => false]);
             self::assertInstanceOf(Category::class, $category);
-            $product = (new Product())
-                ->setTitle('CSRF image product '.$suffix)
-                ->setSlug('csrf-image-product-'.$suffix)
+            $product = new Product()
+                ->setTitle('CSRF image product ' . $suffix)
+                ->setSlug('csrf-image-product-' . $suffix)
                 ->setPrice('10.00')
                 ->setQuantity(1)
                 ->setDescription('CSRF image product description')
                 ->setCategory($category);
-            $image = (new ProductImage())
-                ->setFilenameBig('csrf-'.$suffix.'-big.jpg')
-                ->setFilenameMiddle('csrf-'.$suffix.'-middle.jpg')
-                ->setFilenameSmall('csrf-'.$suffix.'-small.jpg');
+            $image = new ProductImage()
+                ->setFilenameBig('csrf-' . $suffix . '-big.jpg')
+                ->setFilenameMiddle('csrf-' . $suffix . '-middle.jpg')
+                ->setFilenameSmall('csrf-' . $suffix . '-small.jpg');
             $product->addProductImage($image);
             $entityManager->persist($product);
             $entityManager->flush();
@@ -149,7 +150,7 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
 
         if ('order' === $resource) {
             $owner = $this->fixtureUser(UserFixtures::USER_1_EMAIL);
-            $entity = (new Order())
+            $entity = new Order()
                 ->setOwner($owner)
                 ->setStatus(0)
                 ->setTotalPrice('0.00');
@@ -159,12 +160,12 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
             return $this->targetPaths($resource, (int) $entity->getId());
         }
 
-        $entity = (new User())
-            ->setEmail('csrf-target-'.$suffix.'@example.test')
+        $entity = new User()
+            ->setEmail('csrf-target-' . $suffix . '@example.test')
             ->setPassword('not-used')
             ->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
-            ->setFullName('CSRF Target '.$suffix)
+            ->setFullName('CSRF Target ' . $suffix)
             ->setPhone(null)
             ->setAddress(null)
             ->setZipCode(null);
@@ -203,6 +204,7 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
 
     private function assertTargetMutation(string $resource, int $id, bool $expected): void
     {
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
 
@@ -217,6 +219,7 @@ final class AdminDestructiveActionSecurityTest extends WebTestCase
             'product' => Product::class,
             'order' => Order::class,
             'user' => User::class,
+            default => self::fail('Unsupported resource fixture: ' . $resource),
         };
         $entity = $entityManager->find($class, $id);
         self::assertNotNull($entity);

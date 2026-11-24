@@ -16,8 +16,7 @@ final class RequestAwareAccessDeniedHandler implements AccessDeniedHandlerInterf
     public function __construct(
         private ApiRequestMatcher $apiRequestMatcher,
         private ApiSecurityProblemResponder $apiSecurityProblemResponder,
-    ) {
-    }
+    ) {}
 
     public function handle(Request $request, AccessDeniedException $accessDeniedException): ?Response
     {

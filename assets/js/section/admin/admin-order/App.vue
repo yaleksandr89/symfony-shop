@@ -15,11 +15,12 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import OrderProductItem from "./components/OrderProductItem";
-import OrderProductAdd from "./components/OrderProductAdd";
-import TotalPriceBlock from "./components/TotalPriceBlock";
+import OrderProductItem from "./components/OrderProductItem.vue";
+import OrderProductAdd from "./components/OrderProductAdd.vue";
+import TotalPriceBlock from "./components/TotalPriceBlock.vue";
 
 export default {
+  name: "AdminOrderApp",
   components: { TotalPriceBlock, OrderProductAdd, OrderProductItem },
   computed: {
     ...mapState("products", ["orderProducts"]),

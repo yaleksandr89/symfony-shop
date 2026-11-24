@@ -18,7 +18,7 @@ Check existing Discussions, Issues, and Pull Requests, and keep each change focu
 - PHP, Composer, PostgreSQL, Node.js, and the browser environment are not run directly on the host as part of the normal development workflow.
 - Changes must not silently weaken access rules, OAuth flows, cart/order integrity, or other existing user-facing contracts.
 - Do not include broad refactoring or dependency upgrades unrelated to the task.
-- The Vue 2 frontend architecture remains in place until the separate migration to Inertia.js and Vue 3.
+- The Vue 3 frontend architecture remains in place until the separate migration to Inertia.js.
 
 Application architecture is documented in [`architecture.md`](architecture.md), and development commands are listed in [`development.md`](development.md).
 
@@ -52,12 +52,16 @@ Read the current Makefile before running commands. Main checks:
 
 | Command | Purpose |
 |---|---|
-| `make check` | ESLint + PHP-CS-Fixer check + PHPStan |
+| `make check` | Strict Composer validation, locked dependency audit, PHP lint, PHP CS Fixer, PHPStan and ESLint |
 | `make test-unit` | unit tests |
 | `make test-integration` | integration tests |
 | `make test-functional` | functional tests |
 | `make test-functional-panther` | Panther browser tests |
-| `make test-all CONFIRM=testdb` | full test suite, including Panther |
+| `make test-all CONFIRM=testdb` | Full suite including Panther and both PostgreSQL suites |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Concurrent password reset operations |
+| `make test-oauth-postgresql CONFIRM=testdb` | Concurrent OAuth identity mutations |
+
+Ordinary integration, functional and Panther tests use only the local `var/db_for_test.db`. Before running these groups separately, prepare the database with `make test-db-reset CONFIRM=testdb`. Use the guarded Make targets: arbitrary test database connections are not allowed. Run PostgreSQL concurrency tests only through the two dedicated targets above, in disposable services. Never use the working database or an external connection for tests.
 
 Run checks relevant to your change. Use the full suite when shared application boundaries are affected or before the final verification of a larger change.
 

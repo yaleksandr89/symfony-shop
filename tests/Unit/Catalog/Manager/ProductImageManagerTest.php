@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Catalog\Manager;
 
-use App\Entity\Product;
-use App\Entity\ProductImage;
-use App\Catalog\Image\ImageResizer;
 use App\Catalog\Image\FilesystemWorker;
+use App\Catalog\Image\ImageResizer;
 use App\Catalog\Manager\ProductImageManager;
 use App\Catalog\Manager\ProductManager;
+use App\Entity\Product;
+use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
+use GdImage;
 use Imagine\Gd\Imagine;
 use Imagine\Image\ImageInterface;
 use PHPUnit\Framework\Attributes\Group;
@@ -20,7 +21,7 @@ use Psr\Log\NullLogger;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class ProductImageManagerTest extends TestCase
 {
     #[TestDox('Ошибка middle-варианта удаляет small и частичный middle, не затрагивая unrelated-файл')]
@@ -40,11 +41,11 @@ final class ProductImageManagerTest extends TestCase
     {
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/uploads';
-        $productImageDir = $root.'/products/1';
+        $uploadsTempDir = $root . '/uploads';
+        $productImageDir = $root . '/products/1';
         $filesystem->mkdir([$uploadsTempDir, $productImageDir]);
-        $this->writePng($uploadsTempDir.'/source.png');
-        $unrelatedPath = $productImageDir.'/unrelated.jpg';
+        $this->writePng($uploadsTempDir . '/source.png');
+        $unrelatedPath = $productImageDir . '/unrelated.jpg';
         $filesystem->dumpFile($unrelatedPath, 'unrelated');
 
         try {
@@ -68,17 +69,17 @@ final class ProductImageManagerTest extends TestCase
             foreach ($filenames as $filename) {
                 self::assertIsString($filename);
                 self::assertMatchesRegularExpression('/^[a-f0-9]{32}_(small|middle|big)\.jpg$/', $filename);
-                self::assertFileExists($productImageDir.'/'.$filename);
+                self::assertFileExists($productImageDir . '/' . $filename);
             }
             self::assertSame(
                 [preg_replace('/_(small|middle|big)\.jpg$/', '', (string) $filenames[0])],
                 array_values(array_unique(array_map(
-                    static fn (?string $filename): ?string => preg_replace('/_(small|middle|big)\.jpg$/', '', (string) $filename),
+                    static fn(?string $filename): ?string => preg_replace('/_(small|middle|big)\.jpg$/', '', (string) $filename),
                     $filenames,
                 ))),
             );
             self::assertSame('unrelated', file_get_contents($unrelatedPath));
-            self::assertCount(4, glob($productImageDir.'/*') ?: []);
+            self::assertCount(4, glob($productImageDir . '/*') ?: []);
         } finally {
             $filesystem->remove($root);
         }
@@ -89,16 +90,16 @@ final class ProductImageManagerTest extends TestCase
     {
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/uploads';
-        $productImagesRoot = $root.'/products';
-        $productImageDir = $productImagesRoot.'/42';
+        $uploadsTempDir = $root . '/uploads';
+        $productImagesRoot = $root . '/products';
+        $productImageDir = $productImagesRoot . '/42';
         $filesystem->mkdir([$uploadsTempDir, $productImageDir]);
-        $this->writePng($uploadsTempDir.'/source.png');
-        $unrelatedPath = $productImageDir.'/unrelated.jpg';
+        $this->writePng($uploadsTempDir . '/source.png');
+        $unrelatedPath = $productImageDir . '/unrelated.jpg';
         $filesystem->dumpFile($unrelatedPath, 'unrelated');
         $transactionFailure = new RuntimeException('Transaction commit failed.');
         $product = new class extends Product {
-            public function getId(): ?int
+            public function getId(): int
             {
                 return 42;
             }
@@ -112,7 +113,7 @@ final class ProductImageManagerTest extends TestCase
                 ->method('wrapInTransaction')
                 ->willReturnCallback(function (callable $callback) use ($entityManager, $transactionFailure, $productImageDir): never {
                     $callback($entityManager);
-                    self::assertCount(4, glob($productImageDir.'/*') ?: []);
+                    self::assertCount(4, glob($productImageDir . '/*') ?: []);
 
                     throw $transactionFailure;
                 });
@@ -134,9 +135,9 @@ final class ProductImageManagerTest extends TestCase
             self::assertCount(1, $product->getProductImages());
             $createdImage = $product->getProductImages()->first();
             self::assertInstanceOf(ProductImage::class, $createdImage);
-            self::assertFileDoesNotExist($productImageDir.'/'.(string) $createdImage->getFilenameSmall());
-            self::assertFileDoesNotExist($productImageDir.'/'.(string) $createdImage->getFilenameMiddle());
-            self::assertFileDoesNotExist($productImageDir.'/'.(string) $createdImage->getFilenameBig());
+            self::assertFileDoesNotExist($productImageDir . '/' . (string) $createdImage->getFilenameSmall());
+            self::assertFileDoesNotExist($productImageDir . '/' . (string) $createdImage->getFilenameMiddle());
+            self::assertFileDoesNotExist($productImageDir . '/' . (string) $createdImage->getFilenameBig());
             self::assertSame('unrelated', file_get_contents($unrelatedPath));
         } finally {
             $filesystem->remove($root);
@@ -213,12 +214,12 @@ final class ProductImageManagerTest extends TestCase
 
         $filePaths = [];
         foreach ($filenames as $filename) {
-            $filePath = $productImageDir.DIRECTORY_SEPARATOR.$filename;
+            $filePath = $productImageDir . DIRECTORY_SEPARATOR . $filename;
             $filesystem->dumpFile($filePath, 'image');
             $filePaths[] = $filePath;
         }
 
-        $productImage = (new ProductImage())
+        $productImage = new ProductImage()
             ->setFilenameSmall($filenames[0])
             ->setFilenameMiddle($filenames[1])
             ->setFilenameBig($filenames[2]);
@@ -232,11 +233,11 @@ final class ProductImageManagerTest extends TestCase
     {
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/uploads';
-        $productImageDir = $root.'/products/1';
+        $uploadsTempDir = $root . '/uploads';
+        $productImageDir = $root . '/products/1';
         $filesystem->mkdir([$uploadsTempDir, $productImageDir]);
-        $this->writePng($uploadsTempDir.'/source.png');
-        $unrelatedPath = $productImageDir.'/unrelated.jpg';
+        $this->writePng($uploadsTempDir . '/source.png');
+        $unrelatedPath = $productImageDir . '/unrelated.jpg';
         $filesystem->dumpFile($unrelatedPath, 'unrelated');
         $resizeFailure = new RuntimeException('Resize failed.');
 
@@ -256,7 +257,7 @@ final class ProductImageManagerTest extends TestCase
             }
 
             self::assertSame('unrelated', file_get_contents($unrelatedPath));
-            self::assertSame([$unrelatedPath], glob($productImageDir.'/*') ?: []);
+            self::assertSame([$unrelatedPath], glob($productImageDir . '/*') ?: []);
         } finally {
             $filesystem->remove($root);
         }
@@ -267,8 +268,7 @@ final class ProductImageManagerTest extends TestCase
         Filesystem $filesystem,
         ?string $uploadsTempDir = null,
         ?ImageResizer $imageResizer = null,
-    ): ProductImageManager
-    {
+    ): ProductImageManager {
         $filesystemWorker = new FilesystemWorker($filesystem);
 
         return new ProductImageManager(
@@ -292,7 +292,7 @@ final class ProductImageManagerTest extends TestCase
             ->method('save')
             ->willReturnCallback(function (string $path) use ($filesystem, &$saveCount, $failedVariant, $failure, $image): ImageInterface {
                 ++$saveCount;
-                $filesystem->dumpFile($path, 'variant '.$saveCount);
+                $filesystem->dumpFile($path, 'variant ' . $saveCount);
                 if ($saveCount === $failedVariant) {
                     throw $failure ?? new RuntimeException('Resize failed.');
                 }
@@ -308,12 +308,12 @@ final class ProductImageManagerTest extends TestCase
     private function writePng(string $path): void
     {
         $image = imagecreatetruecolor(20, 10);
-        self::assertInstanceOf(\GdImage::class, $image);
+        self::assertInstanceOf(GdImage::class, $image);
         self::assertTrue(imagepng($image, $path));
     }
 
     private function temporaryDirectory(): string
     {
-        return sys_get_temp_dir().DIRECTORY_SEPARATOR.'product-image-manager-'.bin2hex(random_bytes(8));
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'product-image-manager-' . bin2hex(random_bytes(8));
     }
 }

@@ -12,7 +12,6 @@ use App\Commerce\Event\OrderCreatedFromCartEvent;
 use App\Commerce\Manager\OrderManager;
 use App\Commerce\Order\OrderStaticStorage;
 use App\Commerce\Repository\CartRepository;
-use App\Entity\CartProduct;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\User;
@@ -37,8 +36,7 @@ final class CheckoutOrderProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $entityManager,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ValidatorInterface $validator,
-    ) {
-    }
+    ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Order
     {
@@ -51,6 +49,9 @@ final class CheckoutOrderProcessor implements ProcessorInterface
         $cartToken = $request?->cookies->get('CART_TOKEN');
 
         $order = $this->entityManager->wrapInTransaction(function () use ($data, $user, $cartToken): Order {
+            if ($data->cartId === null) {
+                throw new BadRequestHttpException('Checkout cart is unavailable.');
+            }
             $cart = $this->cartRepository->findForCheckout($data->cartId);
             if (!$cart || $cart->getCartProducts()->isEmpty()) {
                 throw new BadRequestHttpException('Checkout cart is unavailable.');
@@ -62,14 +63,11 @@ final class CheckoutOrderProcessor implements ProcessorInterface
 
             $unavailableItems = [];
             foreach ($cart->getCartProducts() as $cartProduct) {
-                if (!$cartProduct instanceof CartProduct) {
+                $cartProductId = $cartProduct->getId();
+                $product = $cartProduct->getProduct();
+                if ($cartProductId === null || !$product instanceof Product) {
                     throw new BadRequestHttpException('Checkout cart is unavailable.');
                 }
-
-                /** @var int $cartProductId */
-                $cartProductId = $cartProduct->getId();
-                /** @var Product $product */
-                $product = $cartProduct->getProduct();
 
                 if (true === $product->getIsDeleted()) {
                     $unavailableItems[] = [
@@ -94,7 +92,7 @@ final class CheckoutOrderProcessor implements ProcessorInterface
                 }
             }
 
-            $order = (new Order())
+            $order = new Order()
                 ->setOwner($user)
                 ->setStatus(OrderStaticStorage::ORDER_STATUS_CREATED);
             $this->orderManager->addOrdersProductsFromVerifiedCart($order, $cart);

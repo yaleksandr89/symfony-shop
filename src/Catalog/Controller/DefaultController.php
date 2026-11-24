@@ -37,7 +37,7 @@ class DefaultController extends AbstractController
             $preparedListCategory[] = [
                 'title' => $candidate['categoryTitle'],
                 'url' => $this->urlGenerator->generate('main_category_show', ['slug' => $candidate['categorySlug']], UrlGeneratorInterface::ABSOLUTE_URL),
-                'rand_product_img' => $request->getUriForPath($baseProductImagDir)."/{$candidate['productId']}/{$candidate['cover']['filenameBig']}",
+                'rand_product_img' => $request->getUriForPath($baseProductImagDir) . "/{$candidate['productId']}/{$candidate['cover']['filenameBig']}",
             ];
         }
 

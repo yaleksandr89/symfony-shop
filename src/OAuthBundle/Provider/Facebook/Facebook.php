@@ -19,26 +19,29 @@ final class Facebook extends AbstractProvider
 
     public function getBaseAuthorizationUrl(): string
     {
-        return 'https://www.facebook.com/'.self::GRAPH_API_VERSION.'/dialog/oauth';
+        return 'https://www.facebook.com/' . self::GRAPH_API_VERSION . '/dialog/oauth';
     }
 
+    /** @param array<string, mixed> $params */
     public function getBaseAccessTokenUrl(array $params): string
     {
-        return 'https://graph.facebook.com/'.self::GRAPH_API_VERSION.'/oauth/access_token';
+        return 'https://graph.facebook.com/' . self::GRAPH_API_VERSION . '/oauth/access_token';
     }
 
     public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
-        return 'https://graph.facebook.com/'.self::GRAPH_API_VERSION.'/me?'.$this->buildQueryString([
+        return 'https://graph.facebook.com/' . self::GRAPH_API_VERSION . '/me?' . $this->buildQueryString([
             'fields' => 'id,name,email',
         ]);
     }
 
+    /** @return list<string> */
     protected function getDefaultScopes(): array
     {
         return ['email'];
     }
 
+    /** @param array<string, mixed>|string|null $data */
     protected function checkResponse(ResponseInterface $response, $data): void
     {
         $hasProviderError = is_array($data) && array_key_exists('error', $data);
@@ -50,6 +53,7 @@ final class Facebook extends AbstractProvider
         throw new IdentityProviderException('Facebook OAuth request failed.', $statusCode >= 400 ? $statusCode : 0, ['status_code' => $statusCode]);
     }
 
+    /** @param array<string, mixed> $response */
     protected function createResourceOwner(array $response, AccessToken $token): ResourceOwnerInterface
     {
         return new FacebookUser($response);

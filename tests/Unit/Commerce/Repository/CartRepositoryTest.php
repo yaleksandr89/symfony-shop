@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class CartRepositoryTest extends TestCase
 {
     #[TestDox('PostgreSQL checkout загружает корзину с PESSIMISTIC_WRITE внутри транзакции')]

@@ -1,13 +1,13 @@
 import axios from "axios";
 import { StatusCodes } from "http-status-codes";
-import { apiConfig, apiConfigPatch } from "../../../../../utils/settings";
-import { concatUrlByParams } from "../../../../../utils/url-generator";
-import { setCookie } from "../../../../../utils/cookie-manager";
+import { apiConfig, apiConfigPatch } from "../../../../../utils/settings.js";
+import { concatUrlByParams } from "../../../../../utils/url-generator.js";
+import { setCookie } from "../../../../../utils/cookie-manager.js";
 import {
   formatCents,
   sumCartProductsToCents,
-} from "../../../../../utils/money";
-import cartSync from "../../../cart-sync";
+} from "../../../../../utils/money.js";
+import cartSync from "../../../cart-sync.js";
 
 async function loadCart(state) {
   const result = await axios.get(state.staticStore.url.apiCart, apiConfig);
@@ -64,7 +64,7 @@ const actions = {
   async removeCartProduct({ state, dispatch }, cartProductId) {
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
-      cartProductId
+      cartProductId,
     );
     const result = await axios.delete(url, apiConfig);
 
@@ -81,7 +81,7 @@ const actions = {
 
     try {
       const amount = Number(
-        typeof productData.quantity === "undefined" ? 1 : productData.quantity
+        typeof productData.quantity === "undefined" ? 1 : productData.quantity,
       );
 
       if (!Number.isInteger(amount) || amount < 1) {
@@ -93,7 +93,7 @@ const actions = {
       }
 
       const existCartProduct = state.cart.cartProducts.find(
-        (cartProduct) => cartProduct.product.uuid === productData.uuid
+        (cartProduct) => cartProduct.product.uuid === productData.uuid,
       );
 
       if (existCartProduct) {
@@ -131,7 +131,7 @@ const actions = {
     } catch (error) {
       try {
         await dispatch("getCart", { force: true });
-      } catch (refreshError) {
+      } catch {
         // Preserve the write error for callers instead of reporting a false success.
       }
 
@@ -156,7 +156,7 @@ const actions = {
   async addExistCartProduct({ state, dispatch }, cartProductData) {
     const url = concatUrlByParams(
       state.staticStore.url.apiCartProduct,
-      cartProductData.cartProductId
+      cartProductData.cartProductId,
     );
     const data = {
       quantity: cartProductData.quantity,

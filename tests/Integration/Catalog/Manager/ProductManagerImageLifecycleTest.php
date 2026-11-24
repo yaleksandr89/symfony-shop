@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Catalog\Manager;
 
-use App\Entity\Product;
-use App\Entity\ProductImage;
 use App\AdminBundle\DTO\EditProductModel;
 use App\AdminBundle\Handler\ProductFormHandler;
 use App\Catalog\Image\FileSaver;
-use App\Catalog\Image\ImageResizer;
 use App\Catalog\Image\FilesystemWorker;
+use App\Catalog\Image\ImageResizer;
 use App\Catalog\Manager\ProductImageManager;
 use App\Catalog\Manager\ProductManager;
+use App\Entity\Product;
+use App\Entity\ProductImage;
 use Doctrine\ORM\EntityManagerInterface;
+use GdImage;
 use Imagine\Gd\Imagine;
 use Imagine\Image\ImageInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -27,22 +28,24 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class ProductManagerImageLifecycleTest extends KernelTestCase
 {
     #[TestDox('Новый товар в SQLite получает numeric ID до записи трёх изображений в свой каталог')]
     public function testNewProductGetsNumericIdBeforeImageVariantsAreWritten(): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/uploads';
-        $productImagesRoot = $root.'/products';
+        $uploadsTempDir = $root . '/uploads';
+        $productImagesRoot = $root . '/products';
         $filesystem->mkdir([$uploadsTempDir, $productImagesRoot]);
-        $this->writePng($uploadsTempDir.'/source.png');
+        $this->writePng($uploadsTempDir . '/source.png');
         $product = $this->newProduct('New image lifecycle product');
-        self::assertNull($product->getId());
+        $initialId = $product->getId();
+        self::assertNull($initialId);
 
         try {
             $manager = $this->manager($entityManager, $filesystem, $uploadsTempDir, $productImagesRoot);
@@ -50,10 +53,10 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
 
             $productId = $product->getId();
             self::assertIsInt($productId);
-            $productImageDir = $productImagesRoot.'/'.$productId;
+            $productImageDir = $productImagesRoot . '/' . $productId;
             self::assertDirectoryExists($productImageDir);
-            self::assertSame([], glob($productImagesRoot.'/*.jpg') ?: []);
-            self::assertCount(3, glob($productImageDir.'/*.jpg') ?: []);
+            self::assertSame([], glob($productImagesRoot . '/*.jpg') ?: []);
+            self::assertCount(3, glob($productImageDir . '/*.jpg') ?: []);
             self::assertCount(1, $product->getProductImages());
 
             $productImage = $product->getProductImages()->first();
@@ -74,13 +77,14 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
     public function testExistingProductUsesStableNumericIdDirectory(): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $uploadsTempDir = $root.'/uploads';
-        $productImagesRoot = $root.'/products';
+        $uploadsTempDir = $root . '/uploads';
+        $productImagesRoot = $root . '/products';
         $filesystem->mkdir([$uploadsTempDir, $productImagesRoot]);
-        $this->writePng($uploadsTempDir.'/source.png');
+        $this->writePng($uploadsTempDir . '/source.png');
         $product = $this->newProduct('Existing image lifecycle product');
         $entityManager->persist($product);
         $entityManager->flush();
@@ -92,9 +96,9 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
             $manager->saveProduct($product, 'source.png');
 
             self::assertSame($productId, $product->getId());
-            $productImageDir = $productImagesRoot.'/'.$productId;
+            $productImageDir = $productImagesRoot . '/' . $productId;
             self::assertDirectoryExists($productImageDir);
-            self::assertCount(3, glob($productImageDir.'/*.jpg') ?: []);
+            self::assertCount(3, glob($productImageDir . '/*.jpg') ?: []);
             self::assertCount(1, $product->getProductImages());
             $productImage = $product->getProductImages()->first();
             self::assertInstanceOf(ProductImage::class, $productImage);
@@ -108,14 +112,15 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
     public function testSuccessfulFormHandlerSaveCleansStagedUploadAfterCommit(): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $sourceDir = $root.'/source';
-        $uploadsTempDir = $root.'/uploads';
-        $productImagesRoot = $root.'/products';
+        $sourceDir = $root . '/source';
+        $uploadsTempDir = $root . '/uploads';
+        $productImagesRoot = $root . '/products';
         $filesystem->mkdir([$sourceDir, $productImagesRoot]);
-        $sourcePath = $sourceDir.'/source.png';
+        $sourcePath = $sourceDir . '/source.png';
         $this->writePng($sourcePath);
         $uploadedFile = new UploadedFile($sourcePath, 'catalog.png', 'image/png', null, true);
         $imageField = $this->createStub(FormInterface::class);
@@ -132,7 +137,7 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
             new NullLogger(),
         );
         $model = new EditProductModel(
-            title: 'Handler image lifecycle product '.bin2hex(random_bytes(8)),
+            title: 'Handler image lifecycle product ' . bin2hex(random_bytes(8)),
             price: '24.99',
             quantity: 2,
             description: 'Handler integration lifecycle test.',
@@ -147,7 +152,7 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
 
             self::assertIsInt($product->getId());
             self::assertDirectoryDoesNotExist($uploadsTempDir);
-            self::assertCount(3, glob($productImagesRoot.'/'.$product->getId().'/*.jpg') ?: []);
+            self::assertCount(3, glob($productImagesRoot . '/' . $product->getId() . '/*.jpg') ?: []);
             self::assertCount(1, $product->getProductImages());
         } finally {
             $filesystem->remove($root);
@@ -158,14 +163,15 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
     public function testPostCommitTempCleanupFailureDoesNotTurnSuccessIntoFailure(): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $filesystem = new Filesystem();
         $root = $this->temporaryDirectory();
-        $sourceDir = $root.'/source';
-        $uploadsTempDir = $root.'/uploads';
-        $productImagesRoot = $root.'/products';
+        $sourceDir = $root . '/source';
+        $uploadsTempDir = $root . '/uploads';
+        $productImagesRoot = $root . '/products';
         $filesystem->mkdir([$sourceDir, $productImagesRoot]);
-        $sourcePath = $sourceDir.'/source.png';
+        $sourcePath = $sourceDir . '/source.png';
         $this->writePng($sourcePath);
         $uploadedFile = new UploadedFile($sourcePath, 'catalog.png', 'image/png', null, true);
         $imageField = $this->createStub(FormInterface::class);
@@ -179,7 +185,7 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
             ->method('save')
             ->willReturnCallback(function (string $path) use ($filesystem, $uploadsTempDir, &$saveCount, $image): ImageInterface {
                 ++$saveCount;
-                $filesystem->dumpFile($path, 'variant '.$saveCount);
+                $filesystem->dumpFile($path, 'variant ' . $saveCount);
                 if (3 === $saveCount) {
                     self::assertTrue(chmod($uploadsTempDir, 0o555));
                 }
@@ -198,7 +204,7 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
             new NullLogger(),
         );
         $model = new EditProductModel(
-            title: 'Post-commit cleanup failure product '.bin2hex(random_bytes(8)),
+            title: 'Post-commit cleanup failure product ' . bin2hex(random_bytes(8)),
             price: '29.99',
             quantity: 2,
             description: 'Post-commit cleanup failure test.',
@@ -212,8 +218,8 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
             $product = $handler->processEditForm($form, $model);
 
             self::assertIsInt($product->getId());
-            self::assertCount(1, glob($uploadsTempDir.'/*') ?: []);
-            self::assertCount(3, glob($productImagesRoot.'/'.$product->getId().'/*.jpg') ?: []);
+            self::assertCount(1, glob($uploadsTempDir . '/*') ?: []);
+            self::assertCount(3, glob($productImagesRoot . '/' . $product->getId() . '/*.jpg') ?: []);
             self::assertCount(1, $product->getProductImages());
             self::assertNotNull($entityManager->find(Product::class, $product->getId()));
         } finally {
@@ -245,8 +251,8 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
 
     private function newProduct(string $title): Product
     {
-        return (new Product())
-            ->setTitle($title.' '.bin2hex(random_bytes(8)))
+        return new Product()
+            ->setTitle($title . ' ' . bin2hex(random_bytes(8)))
             ->setPrice('19.99')
             ->setQuantity(3)
             ->setDescription('Integration image lifecycle test.');
@@ -260,19 +266,19 @@ final class ProductManagerImageLifecycleTest extends KernelTestCase
             $productImage->getFilenameBig(),
         ] as $filename) {
             self::assertIsString($filename);
-            self::assertFileExists($productImageDir.'/'.$filename);
+            self::assertFileExists($productImageDir . '/' . $filename);
         }
     }
 
     private function writePng(string $path): void
     {
         $image = imagecreatetruecolor(100, 50);
-        self::assertInstanceOf(\GdImage::class, $image);
+        self::assertInstanceOf(GdImage::class, $image);
         self::assertTrue(imagepng($image, $path));
     }
 
     private function temporaryDirectory(): string
     {
-        return sys_get_temp_dir().'/product-manager-image-lifecycle-'.bin2hex(random_bytes(8));
+        return sys_get_temp_dir() . '/product-manager-image-lifecycle-' . bin2hex(random_bytes(8));
     }
 }

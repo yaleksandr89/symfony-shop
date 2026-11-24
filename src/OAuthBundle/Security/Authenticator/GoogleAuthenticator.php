@@ -35,9 +35,9 @@ class GoogleAuthenticator extends AbstractOAuthAuthenticator
                     OAuthProvider::Google,
                     $googleUser->getId(),
                     $email,
-                    static fn (): User => UserFactory::createUserFromGoogle($googleUser)
+                    static fn(): User => UserFactory::createUserFromGoogle($googleUser),
                 );
-            })
+            }),
         );
     }
 }

@@ -12,8 +12,7 @@ final class OAuthCallbackModeResolver
     public function __construct(
         private readonly TokenStorageInterface $tokenStorage,
         private readonly OAuthLinkIntentStore $intentStore,
-    ) {
-    }
+    ) {}
 
     public function useOrdinaryAuthenticator(): bool
     {

@@ -10,6 +10,7 @@ use App\Account\Repository\UserRepository;
 use App\Account\Security\Verifier\EmailVerifier;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry as Doctrine;
+use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,8 +25,7 @@ class RegistrationController extends AbstractController
         private EmailVerifier $emailVerifier,
         private Doctrine $doctrine,
         private TranslatorInterface $translator,
-    ) {
-    }
+    ) {}
 
     public function registration(Request $request, UserPasswordHasherInterface $passwordEncoder, MessageBusInterface $messageBus): Response
     {
@@ -41,15 +41,16 @@ class RegistrationController extends AbstractController
             $user->setPassword(
                 $passwordEncoder->hashPassword(
                     $user,
-                    $form->get('plainPassword')->getData()
-                )
+                    $form->get('plainPassword')->getData(),
+                ),
             );
 
             $entityManager = $this->doctrine->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $event = new EventUserRegisteredEvent($user->getId());
+            $userId = $user->getId() ?? throw new LogicException('Registration did not assign a user ID.');
+            $event = new EventUserRegisteredEvent($userId);
             $messageBus->dispatch($event);
 
             $this->addFlash('success', $this->translator->trans('An email has been sent. Please check your inbox to complete registration.'));

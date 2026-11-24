@@ -9,9 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class UserManager
 {
-    public function __construct(private EntityManagerInterface $em)
-    {
-    }
+    public function __construct(private EntityManagerInterface $em) {}
 
     public function remove(User $user): void
     {

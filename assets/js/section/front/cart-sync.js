@@ -35,7 +35,7 @@ function createCartSync() {
         if (inFlightRequest === request) {
           inFlightRequest = null;
         }
-      }
+      },
     );
 
     return request;
@@ -64,7 +64,7 @@ function createCartSync() {
         },
         () => {
           queuedRefresh = null;
-        }
+        },
       );
     }
 

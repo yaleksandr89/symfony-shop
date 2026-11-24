@@ -12,20 +12,21 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group(name: 'integration')]
+#[Group('integration')]
 final class CategoryManagerTest extends KernelTestCase
 {
     #[TestDox('Удаление категории сохраняет soft-delete связанных товаров, не затрагивая посторонние')]
     public function testRemoveSoftDeletesCategoryAndLinkedProductsOnly(): void
     {
         self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $suffix = bin2hex(random_bytes(8));
-        $categoryA = $this->category('Category A '.$suffix, 'category-a-'.$suffix);
-        $categoryB = $this->category('Category B '.$suffix, 'category-b-'.$suffix);
-        $productA1 = $this->product('Product A1 '.$suffix, $categoryA);
-        $productA2 = $this->product('Product A2 '.$suffix, $categoryA);
-        $productB1 = $this->product('Product B1 '.$suffix, $categoryB);
+        $categoryA = $this->category('Category A ' . $suffix, 'category-a-' . $suffix);
+        $categoryB = $this->category('Category B ' . $suffix, 'category-b-' . $suffix);
+        $productA1 = $this->product('Product A1 ' . $suffix, $categoryA);
+        $productA2 = $this->product('Product A2 ' . $suffix, $categoryA);
+        $productB1 = $this->product('Product B1 ' . $suffix, $categoryB);
 
         foreach ([$categoryA, $categoryB, $productA1, $productA2, $productB1] as $entity) {
             $entityManager->persist($entity);
@@ -46,7 +47,7 @@ final class CategoryManagerTest extends KernelTestCase
         $entityManager->clear();
         $persistedCategoryA = $entityManager->find(Category::class, $categoryAId);
         self::assertInstanceOf(Category::class, $persistedCategoryA);
-        (new CategoryManager($entityManager))->remove($persistedCategoryA);
+        new CategoryManager($entityManager)->remove($persistedCategoryA);
 
         $entityManager->clear();
         $persistedCategoryA = $entityManager->find(Category::class, $categoryAId);
@@ -69,14 +70,14 @@ final class CategoryManagerTest extends KernelTestCase
 
     private function category(string $title, string $slug): Category
     {
-        return (new Category())
+        return new Category()
             ->setTitle($title)
             ->setSlug($slug);
     }
 
     private function product(string $title, Category $category): Product
     {
-        return (new Product())
+        return new Product()
             ->setTitle($title)
             ->setPrice('19.99')
             ->setQuantity(3)

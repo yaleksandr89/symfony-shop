@@ -9,7 +9,7 @@
     <nav class="main-nav">
         <ul class="menu">
             {{ headerNavigation|raw }}
-            <li class="menu-item font-weight-bold {% if 'profile' in app.request.pathInfo %}active{% endif %}">
+            <li class="menu-item fw-bold {% if 'profile' in app.request.pathInfo %}active{% endif %}">
                 {% if app.user is not null %}
                     <a href="{{ path('main_profile_index') }}">
                         <div>{{ 'header_menu.profile'|trans }}</div>
@@ -21,7 +21,7 @@
                 {% endif %}
             </li>
             <li class="menu-item">
-                <select class="custom-select custom-select-sm" id="desktop-select-language">
+                <select class="form-select form-select-sm" id="desktop-select-language">
                     <option value="/en/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.en'|trans }}</option>
                     <option value="/ru/" data-url="{{ app.request.pathInfo }}">{{ 'header_menu.ru'|trans }}</option>
                 </select>

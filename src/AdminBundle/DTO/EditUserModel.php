@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[Callback(callback: 'validate')]
 class EditUserModel
 {
+    /** @param array<int, string>|null $roles */
     public function __construct(
         public ?int $id = null,
         public ?string $plainPassword = null,
@@ -23,8 +24,7 @@ class EditUserModel
         public ?int $zipCode = null,
         public ?bool $isDeleted = null,
         public ?string $email = null,
-    ) {
-    }
+    ) {}
 
     public static function makeFromUser(?User $user): self
     {
@@ -55,7 +55,9 @@ class EditUserModel
         /** @var UserRepository $userRepository */
         $userRepository = $form->getConfig()->getOption('user_repository');
 
-        // Валидация email
+        // RU: Валидация email.
+
+        // EN: Validate the email address.
         if ($userRepository->findOneBy(['email' => $this->email])) {
             $context->buildViolation('user.validation.email.already_registered')
                 ->atPath('email')

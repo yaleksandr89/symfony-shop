@@ -5,21 +5,24 @@ declare(strict_types=1);
 namespace App\OAuthBundle\Provider\Linkedin;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Stringable;
+use UnexpectedValueException;
 
 final class LinkedinUser implements ResourceOwnerInterface
 {
     private readonly string $id;
 
+    /** @param array<string, mixed> $response */
     public function __construct(private readonly array $response)
     {
         $id = $response['sub'] ?? null;
-        if (!is_scalar($id) && !$id instanceof \Stringable) {
-            throw new \UnexpectedValueException('LinkedIn resource owner response does not contain a valid subject.');
+        if (!is_scalar($id) && !$id instanceof Stringable) {
+            throw new UnexpectedValueException('LinkedIn resource owner response does not contain a valid subject.');
         }
 
         $this->id = trim((string) $id);
         if ('' === $this->id) {
-            throw new \UnexpectedValueException('LinkedIn resource owner response does not contain a valid subject.');
+            throw new UnexpectedValueException('LinkedIn resource owner response does not contain a valid subject.');
         }
     }
 
@@ -38,6 +41,7 @@ final class LinkedinUser implements ResourceOwnerInterface
         return isset($this->response['email']) && is_scalar($this->response['email']) ? (string) $this->response['email'] : null;
     }
 
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return $this->response;

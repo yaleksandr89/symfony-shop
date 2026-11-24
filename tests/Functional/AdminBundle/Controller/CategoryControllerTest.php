@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\AdminBundle\Controller;
 
+use App\Account\Repository\UserRepository;
+use App\Catalog\Repository\CategoryRepository;
 use App\Entity\Category;
 use App\Entity\User;
-use App\Catalog\Repository\CategoryRepository;
-use App\Account\Repository\UserRepository;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use Doctrine\ORM\EntityManagerInterface;
 use Generator;
@@ -17,10 +17,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-#[Group(name: 'functional')]
+#[Group('functional')]
 class CategoryControllerTest extends WebTestCase
 {
-    #[DataProvider(methodName: 'provideLocales')]
+    #[DataProvider('provideLocales')]
     #[TestDox('Список, добавление, изменение и валидация категорий работают в выбранной локали')]
     public function testListAddEditPersistenceAndValidationUseSelectedLocale(
         string $locale,
@@ -48,12 +48,13 @@ class CategoryControllerTest extends WebTestCase
         self::assertStringNotContainsString($oppositeValidation, $invalid->filter('form[name="edit_category_form"]')->text());
 
         $suffix = str_replace('.', '', uniqid('', true));
-        $createdTitle = 'Category '.$locale.' '.$suffix;
+        $createdTitle = 'Category ' . $locale . ' ' . $suffix;
         $add = $client->request('GET', sprintf('/%s/admin/category/add', $locale));
         $client->submit($add->filter('form[name="edit_category_form"]')->form([
             'edit_category_form[title]' => $createdTitle,
         ]));
         self::assertResponseRedirects();
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
         $created = self::getContainer()->get(CategoryRepository::class)->findOneBy([
@@ -66,7 +67,7 @@ class CategoryControllerTest extends WebTestCase
         self::assertStringContainsString($editTitle, $edit->filter('title')->text());
         self::assertStringContainsString((string) $created->getTitle(), $edit->filter('.card')->text());
 
-        $updatedTitle = 'Updated '.$locale.' '.$suffix;
+        $updatedTitle = 'Updated ' . $locale . ' ' . $suffix;
         $client->submit($edit->filter('form[name="edit_category_form"]')->form([
             'edit_category_form[title]' => $updatedTitle,
         ]));

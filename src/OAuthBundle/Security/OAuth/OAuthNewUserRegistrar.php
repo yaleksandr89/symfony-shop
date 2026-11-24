@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\Exception\OAuthLoginDeniedException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use LogicException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
@@ -21,8 +22,7 @@ final class OAuthNewUserRegistrar
         private readonly EntityManagerInterface $entityManager,
         private readonly VerifyEmailHelperInterface $verifyEmailHelper,
         private readonly UserRegisteredEmailSender $emailSender,
-    ) {
-    }
+    ) {}
 
     public function register(User $user, OAuthProvider $provider): void
     {
@@ -44,14 +44,14 @@ final class OAuthNewUserRegistrar
 
         $userId = $user->getId();
         if (null === $userId) {
-            throw new \LogicException('A persisted OAuth user must have an identifier.');
+            throw new LogicException('A persisted OAuth user must have an identifier.');
         }
 
         $signatureComponents = $this->verifyEmailHelper->generateSignature(
             'main_verify_email',
             (string) $userId,
             $email,
-            ['id' => (string) $userId]
+            ['id' => (string) $userId],
         );
         try {
             $this->emailSender->sendEmailToClient($user, $signatureComponents);

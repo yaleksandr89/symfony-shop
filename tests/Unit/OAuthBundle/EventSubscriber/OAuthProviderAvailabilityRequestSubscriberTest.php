@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
 {
     #[DataProvider('currentRoutes')]
@@ -37,7 +37,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $subscriber = new OAuthProviderAvailabilityRequestSubscriber(
-            $this->availability([$provider->value => true])
+            $this->availability([$provider->value => true]),
         );
 
         $subscriber->onKernelRequest($this->event($route));
@@ -50,8 +50,8 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
         $subscriber = new OAuthProviderAvailabilityRequestSubscriber(
             new OAuthProviderAvailability(
                 [OAuthProvider::Yandex->value => true],
-                [OAuthProvider::Yandex->value => ['clientId' => '', 'clientSecret' => '']]
-            )
+                [OAuthProvider::Yandex->value => ['clientId' => '', 'clientSecret' => '']],
+            ),
         );
 
         try {
@@ -68,7 +68,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     public function testUnrelatedAndUnlinkRoutesAreIgnored(string $route): void
     {
         $this->expectNotToPerformAssertions();
-        (new OAuthProviderAvailabilityRequestSubscriber($this->availability()))
+        new OAuthProviderAvailabilityRequestSubscriber($this->availability())
             ->onKernelRequest($this->event($route));
 
     }
@@ -77,7 +77,7 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
     public function testSubrequestIsIgnored(): void
     {
         $this->expectNotToPerformAssertions();
-        (new OAuthProviderAvailabilityRequestSubscriber($this->availability()))
+        new OAuthProviderAvailabilityRequestSubscriber($this->availability())
             ->onKernelRequest($this->event('connect_google_check', HttpKernelInterface::SUB_REQUEST));
 
     }
@@ -125,8 +125,8 @@ final class OAuthProviderAvailabilityRequestSubscriberTest extends TestCase
         foreach (OAuthProvider::cases() as $provider) {
             if ($provider->isImplemented()) {
                 $credentials[$provider->value] = [
-                    'clientId' => $provider->value.'-id',
-                    'clientSecret' => $provider->value.'-secret',
+                    'clientId' => $provider->value . '-id',
+                    'clientSecret' => $provider->value . '-secret',
                 ];
             }
         }

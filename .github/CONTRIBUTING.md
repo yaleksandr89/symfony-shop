@@ -18,7 +18,7 @@
 - PHP, Composer, PostgreSQL, Node.js и браузерное окружение проекта не запускаются на хосте как часть штатного процесса разработки.
 - Изменения не должны незаметно ослаблять правила доступа, OAuth-сценарии, целостность корзины/заказов или другие существующие пользовательские контракты.
 - Не добавляйте широкие рефакторинги и обновления зависимостей, не связанные с задачей.
-- Архитектура фронтенда на Vue 2 сохраняется до отдельной миграции на Inertia.js и Vue 3.
+- Архитектура фронтенда на Vue 3 сохраняется до отдельной миграции на Inertia.js.
 
 Архитектура приложения описана в [`docs/langs/ru/architecture.md`](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/ru/architecture.md), а команды разработки — в [`docs/langs/ru/development.md`](https://github.com/yaleksandr89/symfony-shop/blob/master/docs/langs/ru/development.md).
 
@@ -52,12 +52,16 @@ refactor: упростить выборку каталога
 
 | Команда | Назначение |
 |---|---|
-| `make check` | ESLint + проверка PHP-CS-Fixer + PHPStan |
+| `make check` | Строгая валидация Composer, аудит lock-файла, PHP lint, PHP CS Fixer, PHPStan и ESLint |
 | `make test-unit` | unit-тесты |
 | `make test-integration` | integration-тесты |
 | `make test-functional` | functional-тесты |
 | `make test-functional-panther` | браузерные тесты Panther |
-| `make test-all CONFIRM=testdb` | полный тестовый набор, включая Panther |
+| `make test-all CONFIRM=testdb` | Полный набор, включая Panther и оба PostgreSQL-контура |
+| `make test-reset-password-postgresql CONFIRM=testdb` | Конкурентные операции восстановления пароля |
+| `make test-oauth-postgresql CONFIRM=testdb` | Конкурентные изменения OAuth-идентичностей |
+
+Обычные integration-, functional- и Panther-тесты работают только с локальной `var/db_for_test.db`. Перед отдельным запуском этих групп подготовьте базу через `make test-db-reset CONFIRM=testdb`. Используйте защищённые Make-команды: произвольные подключения тестового контура не допускаются. PostgreSQL-тесты конкурентности запускаются только через две отдельные цели выше, в одноразовых сервисах. Никогда не используйте рабочую базу или внешнее подключение для тестов.
 
 Запускайте только проверки, относящиеся к изменению, а полный набор — когда затронуты общие границы приложения или перед финальной проверкой крупного изменения.
 

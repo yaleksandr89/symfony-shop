@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class VkTest extends TestCase
 {
     #[TestDox('Ответ users.get и данные токена преобразуются во владельца VK без сети')]
@@ -55,8 +55,7 @@ final class VkTest extends TestCase
         int $expectedCode,
         string $secretMarker,
         string $upstreamField,
-    ): void
-    {
+    ): void {
         $provider = $this->providerWithResponse($response);
 
         try {
@@ -84,13 +83,13 @@ final class VkTest extends TestCase
             new Response(200, ['Content-Type' => 'application/json'], json_encode([
                 'error' => [
                     'error_code' => 5,
-                    'error_msg' => 'User authorization failed: '.$logicalSecret,
+                    'error_msg' => 'User authorization failed: ' . $logicalSecret,
                     'request_params' => [
                         ['key' => 'method', 'value' => 'users.get'],
-                        ['key' => 'access_token', 'value' => 'access-'.$logicalSecret],
+                        ['key' => 'access_token', 'value' => 'access-' . $logicalSecret],
                     ],
                 ],
-                'access_token' => 'top-level-'.$logicalSecret,
+                'access_token' => 'top-level-' . $logicalSecret,
             ], JSON_THROW_ON_ERROR)),
             0,
             $logicalSecret,
@@ -100,8 +99,8 @@ final class VkTest extends TestCase
         $statusSecret = 'VK-STATUS-SECRET-19d4';
         yield 'HTTP error without provider error key' => [
             new Response(503, ['Content-Type' => 'application/json'], json_encode([
-                'upstream_message' => 'Service unavailable: '.$statusSecret,
-                'access_token' => 'access-'.$statusSecret,
+                'upstream_message' => 'Service unavailable: ' . $statusSecret,
+                'access_token' => 'access-' . $statusSecret,
             ], JSON_THROW_ON_ERROR)),
             503,
             $statusSecret,

@@ -7,12 +7,13 @@ namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
+use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthIdentityAccessorTest extends TestCase
 {
     #[DataProvider('supportedProviders')]
@@ -58,9 +59,10 @@ final class OAuthIdentityAccessorTest extends TestCase
                 'link' => $accessor->link($user, OAuthProvider::Mailru, 'mailru-id'),
                 'unlink' => $accessor->unlink($user, OAuthProvider::Mailru),
                 'identityField' => $accessor->identityField(OAuthProvider::Mailru),
+                default => self::fail('Unknown identity test operation.'),
             };
             self::fail(sprintf('%s must reject an unsupported provider.', $operation));
-        } catch (\LogicException) {
+        } catch (LogicException) {
             self::assertSame($before, $this->identities($user));
         }
     }

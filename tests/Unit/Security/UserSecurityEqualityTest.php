@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class UserSecurityEqualityTest extends TestCase
 {
     #[TestDox('Одинаковое security-состояние считается равным независимо от порядка ролей')]
@@ -64,7 +64,7 @@ final class UserSecurityEqualityTest extends TestCase
     /** @param string[] $roles */
     private function user(string $email, string $password, array $roles): User
     {
-        return (new User())
+        return new User()
             ->setEmail($email)
             ->setPassword($password)
             ->setRoles($roles);

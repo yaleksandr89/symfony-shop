@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional\ApiPlatform;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResourceTestUtils extends WebTestCase
@@ -23,7 +25,7 @@ class ResourceTestUtils extends WebTestCase
     /**
      * @return array<string, mixed>
      */
-    protected function getResponseDecodedContent(AbstractBrowser $client): array
+    protected function getResponseDecodedContent(KernelBrowser $client): array
     {
         $content = $client->getResponse()->getContent();
 
@@ -36,7 +38,7 @@ class ResourceTestUtils extends WebTestCase
         return $decodedContent;
     }
 
-    protected function assertSecurityProblem(AbstractBrowser $client, int $status): void
+    protected function assertSecurityProblem(KernelBrowser $client, int $status): void
     {
         self::assertContains($status, [Response::HTTP_UNAUTHORIZED, Response::HTTP_FORBIDDEN]);
         self::assertSame($status, $client->getResponse()->getStatusCode());

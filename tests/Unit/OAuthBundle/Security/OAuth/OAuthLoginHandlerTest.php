@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\OAuthBundle\Security\OAuth;
 
-use App\Entity\User;
+use App\Account\Mailer\UserRegisteredEmailSender;
 use App\Account\Repository\UserRepository;
+use App\Account\Security\UserChecker\DeletedUserChecker;
+use App\Entity\User;
 use App\OAuthBundle\Security\OAuth\OAuthIdentityAccessor;
 use App\OAuthBundle\Security\OAuth\OAuthLoginHandler;
 use App\OAuthBundle\Security\OAuth\OAuthNewUserRegistrar;
 use App\OAuthBundle\Security\OAuth\OAuthProvider;
 use App\OAuthBundle\Security\OAuth\OAuthUserResolver;
-use App\Account\Security\UserChecker\DeletedUserChecker;
-use App\Account\Mailer\UserRegisteredEmailSender;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -21,7 +22,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Model\VerifyEmailSignatureComponents;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 final class OAuthLoginHandlerTest extends TestCase
 {
     #[TestDox('Связанный пользователь возвращается без регистрации')]
@@ -52,7 +53,7 @@ final class OAuthLoginHandlerTest extends TestCase
     #[TestDox('Новый пользователь регистрируется однократно и возвращается')]
     public function testNewUserIsRegisteredOnceAndReturned(): void
     {
-        $user = new class() extends User {
+        $user = new class extends User {
             public function assignId(int $id): void
             {
                 $this->id = $id;
@@ -69,7 +70,7 @@ final class OAuthLoginHandlerTest extends TestCase
         $entityManager->expects(self::once())->method('flush')->willReturnCallback(static function () use ($user): void {
             $user->assignId(73);
         });
-        $signature = new VerifyEmailSignatureComponents(new \DateTimeImmutable('@3600'), 'https://example.test/verify?id=73', 0);
+        $signature = new VerifyEmailSignatureComponents(new DateTimeImmutable('@3600'), 'https://example.test/verify?id=73', 0);
         $verifyEmailHelper = $this->createMock(VerifyEmailHelperInterface::class);
         $verifyEmailHelper->expects(self::once())->method('generateSignature')->willReturn($signature);
         $emailSender = $this->createMock(UserRegisteredEmailSender::class);
@@ -80,7 +81,7 @@ final class OAuthLoginHandlerTest extends TestCase
             OAuthProvider::Yandex,
             'yandex-id',
             ' new@example.test ',
-            static fn (): User => $user->setIsVerified(true)
+            static fn(): User => $user->setIsVerified(true),
         );
 
         self::assertSame($user, $resolved);
@@ -104,7 +105,7 @@ final class OAuthLoginHandlerTest extends TestCase
 
         return new OAuthLoginHandler(
             new OAuthUserResolver($repository, $checker, $identityAccessor),
-            new OAuthNewUserRegistrar($identityAccessor, $passwordHasher, $entityManager, $verifyEmailHelper, $emailSender)
+            new OAuthNewUserRegistrar($identityAccessor, $passwordHasher, $entityManager, $verifyEmailHelper, $emailSender),
         );
     }
 }

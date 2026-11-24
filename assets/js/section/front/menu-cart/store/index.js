@@ -1,12 +1,9 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import cart from "./modules/cart";
-
-Vue.use(Vuex);
+import { createStore } from "vuex";
+import cart from "./modules/cart.js";
 
 const debug = process.env.NODE_ENV !== "production";
 
-export default new Vuex.Store({
+export default createStore({
   modules: {
     cart,
   },

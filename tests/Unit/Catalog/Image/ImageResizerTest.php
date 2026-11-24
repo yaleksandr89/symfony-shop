@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Catalog\Image;
 
-use App\Catalog\Image\ImageResizer;
 use App\Catalog\Image\FilesystemWorker;
+use App\Catalog\Image\ImageResizer;
+use GdImage;
 use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
@@ -16,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 
-#[Group(name: 'unit')]
+#[Group('unit')]
 class ImageResizerTest extends TestCase
 {
     #[TestDox('Некорректное изображение отклоняется до открытия Imagine')]
@@ -33,7 +34,12 @@ class ImageResizerTest extends TestCase
             $imageResizer = new ImageResizer($imagine, new FilesystemWorker(new Filesystem()));
 
             $this->expectException(RuntimeException::class);
-            $imageResizer->resizeImageAndSave(dirname($invalidImagePath), basename($invalidImagePath), []);
+            $imageResizer->resizeImageAndSave(dirname($invalidImagePath), basename($invalidImagePath), [
+                'width' => 64,
+                'height' => 64,
+                'newFolder' => dirname($invalidImagePath),
+                'newFilename' => basename($invalidImagePath) . '.png',
+            ]);
         } finally {
             if (is_file($invalidImagePath)) {
                 unlink($invalidImagePath);
@@ -41,6 +47,10 @@ class ImageResizerTest extends TestCase
         }
     }
 
+    /**
+     * @param positive-int $sourceWidth
+     * @param positive-int $sourceHeight
+     */
     #[TestDox('Изображение вписывается в границы с сохранением пропорций и заданного имени')]
     #[DataProvider('aspectRatios')]
     public function testResizesRepresentativeAspectRatiosAndSavesRequestedTarget(
@@ -52,23 +62,23 @@ class ImageResizerTest extends TestCase
         $sourcePath = tempnam(sys_get_temp_dir(), 'source-image-');
         self::assertNotFalse($sourcePath);
         $targetFolder = sys_get_temp_dir();
-        $targetFilename = 'resized-'.bin2hex(random_bytes(6)).'.png';
-        $targetPath = $targetFolder.'/'.$targetFilename;
+        $targetFilename = 'resized-' . bin2hex(random_bytes(6)) . '.png';
+        $targetPath = $targetFolder . '/' . $targetFilename;
 
         try {
             $source = imagecreatetruecolor($sourceWidth, $sourceHeight);
-            self::assertInstanceOf(\GdImage::class, $source);
+            self::assertInstanceOf(GdImage::class, $source);
             self::assertTrue(imagepng($source, $sourcePath));
 
             $image = $this->createMock(ImageInterface::class);
             $image->expects(self::once())->method('resize')->with(self::callback(
-                static fn (Box $box): bool => $expectedWidth === $box->getWidth() && $expectedHeight === $box->getHeight()
+                static fn(Box $box): bool => $expectedWidth === $box->getWidth() && $expectedHeight === $box->getHeight(),
             ))->willReturnSelf();
             $image->expects(self::once())->method('save')->with($targetPath)->willReturnSelf();
             $imagine = $this->createMock(Imagine::class);
             $imagine->expects(self::once())->method('open')->with($sourcePath)->willReturn($image);
 
-            $result = (new ImageResizer($imagine, new FilesystemWorker(new Filesystem())))->resizeImageAndSave(
+            $result = new ImageResizer($imagine, new FilesystemWorker(new Filesystem()))->resizeImageAndSave(
                 dirname($sourcePath),
                 basename($sourcePath),
                 [
@@ -76,7 +86,7 @@ class ImageResizerTest extends TestCase
                     'height' => 100,
                     'newFolder' => $targetFolder,
                     'newFilename' => $targetFilename,
-                ]
+                ],
             );
 
             self::assertSame($targetFilename, $result);

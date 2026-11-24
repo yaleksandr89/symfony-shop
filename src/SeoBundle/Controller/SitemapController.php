@@ -16,8 +16,7 @@ class SitemapController extends AbstractController
         private ProductRepository $productRepository,
         private CategoryRepository $categoryRepository,
         private string $defaultLocale,
-    ) {
-    }
+    ) {}
 
     public function index(): Response
     {

@@ -6,9 +6,7 @@ namespace App\Account\Message\Command;
 
 class ResetUserPasswordCommand
 {
-    public function __construct(private string $email)
-    {
-    }
+    public function __construct(private string $email) {}
 
     public function getEmail(): string
     {

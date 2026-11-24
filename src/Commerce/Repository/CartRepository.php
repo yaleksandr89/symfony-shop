@@ -10,13 +10,10 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
+use LogicException;
 
-/**
- * @method Cart|null find($id, $lockMode = null, $lockVersion = null)
- * @method Cart|null findOneBy(array $criteria, array $orderBy = null)
- * @method Cart[]    findAll()
- * @method Cart[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<Cart> */
 class CartRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -27,12 +24,12 @@ class CartRepository extends ServiceEntityRepository
     public function findForCheckout(int $cartId): ?Cart
     {
         if ($cartId <= 0) {
-            throw new \InvalidArgumentException('Checkout cart ID must be positive.');
+            throw new InvalidArgumentException('Checkout cart ID must be positive.');
         }
 
         $connection = $this->getEntityManager()->getConnection();
         if (!$connection->isTransactionActive()) {
-            throw new \LogicException('Checkout cart must be loaded inside an active transaction.');
+            throw new LogicException('Checkout cart must be loaded inside an active transaction.');
         }
 
         $platform = $connection->getDatabasePlatform();
@@ -44,6 +41,6 @@ class CartRepository extends ServiceEntityRepository
             return $this->find($cartId);
         }
 
-        throw new \LogicException(sprintf('Checkout cart locking is not supported on database platform %s.', $platform::class));
+        throw new LogicException(sprintf('Checkout cart locking is not supported on database platform %s.', $platform::class));
     }
 }
