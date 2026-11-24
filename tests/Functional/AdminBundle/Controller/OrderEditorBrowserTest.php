@@ -14,15 +14,19 @@ use App\Money\DecimalMoney;
 use App\Tests\TestUtils\Fixtures\UserFixtures;
 use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
 use Doctrine\ORM\EntityManagerInterface;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverKeys;
 use Facebook\WebDriver\WebDriverSelect;
 use Facebook\WebDriver\WebDriverWait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
+use RuntimeException;
 use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
 use Throwable;
@@ -38,9 +42,12 @@ class OrderEditorBrowserTest extends PantherTestCase
         try {
             static::stopWebServer();
             $context = $this->createControlledOrder();
-            $client = static::createPantherClient(['browser' => self::CHROME]);
-            $driver = $client->getWebDriver();
-            $driver->manage()->window()->setSize(new WebDriverDimension(1280, 900));
+            // RU: Предупреждение Chrome о тестовом пароле может перехватить фокус после входа.
+            // EN: Chrome's warning about the fixture password can take focus after login.
+            $options = new ChromeOptions()->setExperimentalOption('prefs', ['profile.password_manager_leak_detection' => false]);
+            $client = static::createPantherClient(['browser' => self::CHROME], [], [
+                'capabilities' => [ChromeOptions::CAPABILITY => $options],
+            ]);
 
             $client->request('GET', '/ru/admin/login');
             $client->submitForm('Войти', [
@@ -51,17 +58,13 @@ class OrderEditorBrowserTest extends PantherTestCase
             $client->request('GET', $editorUri);
             $crawler = $client->waitForElementToContain('body', $context['expectedLines'][1]['productTitle']);
 
-            $productsMenu = $driver->findElement(WebDriverBy::cssSelector('a[data-bs-target="#collapseProducts"]'));
+            $this->observeSidebar($client);
             self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
             self::assertTrue($this->sidebarPanelHasState($client, 'collapseProducts', false));
-
-            $productsMenu->click();
-            $this->waitForSidebarPanelState($client, 'collapseProducts', true);
-            $this->waitForSidebarPanelState($client, 'collapseOrders', false);
-            $productsMenu->click();
-            $this->waitForSidebarPanelState($client, 'collapseProducts', false);
-            $productsMenu->click();
-            $this->waitForSidebarPanelState($client, 'collapseProducts', true);
+            $this->assertProductsActivation($client, 'First pointer open', true);
+            $this->assertProductsActivation($client, 'Pointer close', false);
+            $this->assertProductsActivation($client, 'Pointer reopen', true);
+            $this->assertProductsActivation($client, 'Close with Enter', false, keyboard: true);
 
             $app = $crawler->filter('.table-additional-selection');
             self::assertCount(1, $app);
@@ -167,15 +170,147 @@ class OrderEditorBrowserTest extends PantherTestCase
         }
     }
 
-    private function assertResponsiveSidebarClosesOnResize(Client $client): void
+    private function assertProductsActivation(Client $client, string $stage, bool $expanded, bool $keyboard = false): void
     {
         $driver = $client->getWebDriver();
-        $sidebar = $driver->findElement(WebDriverBy::id('accordionSidebar'));
-        self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
+        try {
+            $client->executeScript('sidebarTrace.begin();');
+            new WebDriverWait($driver, 5, 50)->until(
+                static fn(): bool => true === $client->executeAsyncScript(<<<'JS'
+                    const done = arguments[arguments.length - 1];
+                    const first = sidebarTrace.geometry();
+                    if (!first) {
+                        done(false);
+                        return;
+                    }
+                    requestAnimationFrame(() => requestAnimationFrame(() => done(first === sidebarTrace.geometry())));
+                    JS),
+                'Products trigger was not ready for desktop input.',
+            );
+            $client->executeScript("sidebarTrace.mark('ready');");
+            $control = $driver->findElement(WebDriverBy::cssSelector('a[data-bs-target="#collapseProducts"]'));
+            if ($keyboard) {
+                $control->sendKeys(WebDriverKeys::ENTER);
+            } else {
+                self::assertInstanceOf(RemoteWebDriver::class, $driver);
+                $driver->action()->moveToElement($control)->click()->perform();
+            }
+            $client->executeScript("sidebarTrace.mark('returned');");
+            new WebDriverWait($driver, 5, 50)->until(
+                static fn(): bool => true === $client->executeScript('return sidebarTrace.delivered(arguments[0]);', [$keyboard]),
+                'Expected trusted activation did not reach the Products trigger.',
+            );
+            $this->waitForSidebarPanelState($client, 'collapseProducts', $expanded);
+            $this->waitForSidebarPanelState($client, 'collapseOrders', false);
+        } catch (Throwable $failure) {
+            throw $this->sidebarFailure($client, $stage, $failure);
+        }
+    }
 
-        $driver->manage()->window()->setSize(new WebDriverDimension(390, 844));
-        $this->waitForSidebarPanelState($client, 'collapseOrders', false);
-        self::assertStringContainsString('toggled', $sidebar->getAttribute('class') ?? '');
+    private function observeSidebar(Client $client): void
+    {
+        $client->executeScript(<<<'JS'
+            const trace = [];
+            const trigger = id => document.querySelector('a[aria-controls="' + id + '"]');
+            const identify = node => {
+                if (node === window) return 'window';
+                if (!(node instanceof Element)) return 'document';
+                const control = node.closest('a,button,.collapse,.collapsing');
+                if (control && control === trigger('collapseProducts')) return 'Products trigger';
+                if (control && control === trigger('collapseOrders')) return 'Orders trigger';
+                if (['collapseProducts', 'collapseOrders', 'sidebarToggleTop', 'sidebarToggle'].includes(control?.id)) {
+                    return control.id;
+                }
+                return node.tagName;
+            };
+            const panel = id => {
+                const element = document.getElementById(id);
+                if (!element) return null;
+                return {
+                    classes: ['collapse', 'collapsing', 'show'].filter(c => element.classList.contains(c)),
+                    aria: trigger(id)?.ariaExpanded,
+                    display: getComputedStyle(element).display,
+                    visibility: getComputedStyle(element).visibility,
+                };
+            };
+            const state = () => {
+                const rect = trigger('collapseProducts')?.getBoundingClientRect();
+                const hit = rect && document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+                return {
+                    inner: [innerWidth, innerHeight], outer: [outerWidth, outerHeight], scroll: [scrollX, scrollY],
+                    focus: document.hasFocus(), active: identify(document.activeElement), visible: document.visibilityState,
+                    ready: document.readyState, fonts: document.fonts.status, hit: identify(hit),
+                    rect: rect && [rect.x, rect.y, rect.width, rect.height],
+                    animations: document.getElementById('accordionSidebar')?.getAnimations({subtree: true}).length,
+                    orders: panel('collapseOrders'), products: panel('collapseProducts'),
+                };
+            };
+            const record = (type, data) => {
+                trace.push({ms: Math.round(performance.now()), type, ...data});
+                if (trace.length > 32) trace.shift();
+            };
+            for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click', 'keydown', 'focus', 'blur',
+                                'resize', 'visibilitychange', 'show.bs.collapse', 'shown.bs.collapse',
+                                'hide.bs.collapse', 'hidden.bs.collapse']) {
+                window.addEventListener(type, event => record(type, {
+                    target: identify(event.target), trusted: event.isTrusted, x: event.clientX, y: event.clientY,
+                }), {capture: true, passive: true});
+            }
+            window.sidebarTrace = {
+                begin() { trace.length = 0; this.mark('before'); },
+                mark(type) { record(type, state()); },
+                geometry() {
+                    const s = state();
+                    if (s.inner[0] < 768 || !s.focus || s.visible !== 'visible' || s.ready !== 'complete' ||
+                        s.fonts !== 'loaded' || s.hit !== 'Products trigger' || s.animations) return null;
+                    return JSON.stringify([s.inner, s.rect, s.scroll]);
+                },
+                delivered(keyboard) {
+                    const expected = keyboard ? ['keydown', 'click'] : ['pointerdown', 'pointerup', 'click'];
+                    return expected.every(type => trace.some(e =>
+                        e.type === type && e.trusted && e.target === 'Products trigger'));
+                },
+                report() { return {trace, actual: state()}; },
+            };
+            JS);
+    }
+
+    private function sidebarFailure(Client $client, string $stage, Throwable $failure): Throwable
+    {
+        try {
+            $report = $client->executeScript('return window.sidebarTrace?.report() ?? {};');
+            $errors = [];
+            foreach ($client->getWebDriver()->manage()->getLog('browser') as $entry) {
+                if ('SEVERE' === ($entry['level'] ?? null)) {
+                    $kind = str_contains((string) ($entry['message'] ?? ''), 'TypeError') ? 'TypeError' : 'other severe';
+                    $errors[$kind] = ($errors[$kind] ?? 0) + 1;
+                }
+            }
+
+            return new RuntimeException(
+                $stage . ' ' . json_encode(['sidebar' => $report, 'browserErrors' => $errors], JSON_THROW_ON_ERROR),
+                previous: $failure,
+            );
+        } catch (Throwable) {
+            return $failure;
+        }
+    }
+
+    private function assertResponsiveSidebarClosesOnResize(Client $client): void
+    {
+        $this->observeSidebar($client);
+        try {
+            $client->executeScript('sidebarTrace.begin();');
+            $driver = $client->getWebDriver();
+            $sidebar = $driver->findElement(WebDriverBy::id('accordionSidebar'));
+            self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
+
+            $driver->manage()->window()->setSize(new WebDriverDimension(390, 844));
+            $this->waitForSidebarPanelState($client, 'collapseOrders', false);
+            self::assertStringContainsString('toggled', $sidebar->getAttribute('class') ?? '');
+        } catch (Throwable $failure) {
+            throw $this->sidebarFailure($client, 'Resize below 480px closes Orders', $failure);
+        }
     }
 
     private function waitForSidebarPanelState(Client $client, string $id, bool $expanded): void
