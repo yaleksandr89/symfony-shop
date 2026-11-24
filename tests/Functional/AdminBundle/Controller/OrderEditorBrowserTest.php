@@ -16,6 +16,7 @@ use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
 use Doctrine\ORM\EntityManagerInterface;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverSelect;
@@ -38,6 +39,8 @@ class OrderEditorBrowserTest extends PantherTestCase
             static::stopWebServer();
             $context = $this->createControlledOrder();
             $client = static::createPantherClient(['browser' => self::CHROME]);
+            $driver = $client->getWebDriver();
+            $driver->manage()->window()->setSize(new WebDriverDimension(1280, 900));
 
             $client->request('GET', '/ru/admin/login');
             $client->submitForm('Войти', [
@@ -48,11 +51,17 @@ class OrderEditorBrowserTest extends PantherTestCase
             $client->request('GET', $editorUri);
             $crawler = $client->waitForElementToContain('body', $context['expectedLines'][1]['productTitle']);
 
-            $driver = $client->getWebDriver();
             $productsMenu = $driver->findElement(WebDriverBy::cssSelector('a[data-bs-target="#collapseProducts"]'));
+            self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
+            self::assertTrue($this->sidebarPanelHasState($client, 'collapseProducts', false));
+
             $productsMenu->click();
-            $client->waitForVisibility('#collapseProducts.show');
-            self::assertSame('true', $productsMenu->getAttribute('aria-expanded'));
+            $this->waitForSidebarPanelState($client, 'collapseProducts', true);
+            $this->waitForSidebarPanelState($client, 'collapseOrders', false);
+            $productsMenu->click();
+            $this->waitForSidebarPanelState($client, 'collapseProducts', false);
+            $productsMenu->click();
+            $this->waitForSidebarPanelState($client, 'collapseProducts', true);
 
             $app = $crawler->filter('.table-additional-selection');
             self::assertCount(1, $app);
@@ -128,6 +137,7 @@ class OrderEditorBrowserTest extends PantherTestCase
             $this->assertComputedTotal($client, 27488, '$274.88');
             $this->assertStoredTotal($crawler, 27488);
 
+            $this->assertResponsiveSidebarClosesOnResize($client);
             $this->assertBrowserLogHasNoApplicationErrors($client);
         } catch (Throwable $exception) {
             $testFailure = $exception;
@@ -155,6 +165,39 @@ class OrderEditorBrowserTest extends PantherTestCase
         if (null !== $testFailure) {
             throw $testFailure;
         }
+    }
+
+    private function assertResponsiveSidebarClosesOnResize(Client $client): void
+    {
+        $driver = $client->getWebDriver();
+        $sidebar = $driver->findElement(WebDriverBy::id('accordionSidebar'));
+        self::assertTrue($this->sidebarPanelHasState($client, 'collapseOrders', true));
+
+        $driver->manage()->window()->setSize(new WebDriverDimension(390, 844));
+        $this->waitForSidebarPanelState($client, 'collapseOrders', false);
+        self::assertStringContainsString('toggled', $sidebar->getAttribute('class') ?? '');
+    }
+
+    private function waitForSidebarPanelState(Client $client, string $id, bool $expanded): void
+    {
+        new WebDriverWait($client->getWebDriver(), 5, 50)->until(
+            fn(): bool => $this->sidebarPanelHasState($client, $id, $expanded),
+            sprintf('Sidebar panel #%s did not settle in the %s state.', $id, $expanded ? 'expanded' : 'collapsed'),
+        );
+    }
+
+    private function sidebarPanelHasState(Client $client, string $id, bool $expanded): bool
+    {
+        $driver = $client->getWebDriver();
+        $panel = $driver->findElement(WebDriverBy::id($id));
+        $trigger = $driver->findElement(WebDriverBy::cssSelector(sprintf('a[aria-controls="%s"]', $id)));
+        $classes = preg_split('/\s+/', $panel->getAttribute('class') ?? '') ?: [];
+
+        return in_array('collapse', $classes, true)
+            && !in_array('collapsing', $classes, true)
+            && $expanded === in_array('show', $classes, true)
+            && $expanded === $panel->isDisplayed()
+            && ($expanded ? 'true' : 'false') === $trigger->getAttribute('aria-expanded');
     }
 
     /**
